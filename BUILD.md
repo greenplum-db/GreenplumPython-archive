@@ -1,5 +1,5 @@
 # Install dependency
-Make sure you have the latest versions of setuptools and wheel installed:
+Make sure you have the latest versions of setuptools and wheel installed.
 
 python3 -m pip install --user --upgrade setuptools wheel
 
