@@ -41,3 +41,8 @@ def get_dataframe_wrapper_from_sql(query, con):
     con_alchemy = _sqlalchemy_con(con)
     db = GPDatabase(con_alchemy, meta=None)
     return db.read_query(query)
+
+def has_table(table, con):
+    con_alchemy = _sqlalchemy_con(con)
+    db = GPDatabase(con_alchemy, meta=None)
+    return db.has_table(table)
