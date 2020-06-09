@@ -34,3 +34,9 @@ def test_get_dataframe_wrapper_from_table(db_conn):
 def test_get_dataframe_wrapper_from_sql(db_conn):
     dataq = sql.get_dataframe_wrapper_from_sql("select name from employee", db_conn)
     assert dataq.empty == True
+
+def test_has_table(db_conn):
+    result = sql.has_table("employee", db_conn)
+    assert result == True
+    result = sql.has_table("employee1", db_conn)
+    assert result == False
