@@ -1,6 +1,7 @@
 
 from greenplumpython.connection.gp import GPConnection
 from greenplumpython.dataframe import sql
+from greenplumpython.dataframe.database import GPDatabase
 import os
 import pytest
 
@@ -40,3 +41,13 @@ def test_has_table(db_conn):
     assert result == True
     result = sql.has_table("employee1", db_conn)
     assert result == False
+
+def test_database_conn_success():
+    dbinstance = GPDatabase()
+    connid = dbinstance.connect(host, db, user, password)
+    assert connid == 1
+
+def test_database_conn_fail():
+    with pytest.raises(Exception) as e:
+        dbinstance = GPDatabase()
+        assert dbinstance.connect(host, 'no_exist_db', user, password)
