@@ -51,3 +51,19 @@ def test_database_conn_fail():
     with pytest.raises(Exception) as e:
         dbinstance = GPDatabase()
         assert dbinstance.connect(host, 'no_exist_db', user, password)
+
+def test_database_conn_list():
+    dbinstance = GPDatabase()
+    connid = dbinstance.connect(host, db, user, password)
+    assert connid == 1
+    connid2 = dbinstance.connect(host, db, user, password)
+    assert connid2 == 2
+    assert dbinstance.list() == [1, 2]
+
+def test_database_conn_close():
+    dbinstance = GPDatabase()
+    connid = dbinstance.connect(host, db, user, password)
+    connid2 = dbinstance.connect(host, db, user, password)
+    assert dbinstance.list() == [1, 2]
+    dbinstance.close(connid)
+    assert dbinstance.list() == [2]

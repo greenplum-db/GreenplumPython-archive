@@ -53,3 +53,11 @@ class GPDatabase(SQLDatabase):
         self.max_conn_id += 1
         self.conns[self.max_conn_id] = conn
         return self.max_conn_id
+
+    def close(self, connid):
+        if connid in self.conns:
+            self.conns[connid].close()
+            del self.conns[connid]
+
+    def list(self):
+        return sorted(self.conns.keys())
