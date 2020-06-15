@@ -1,3 +1,8 @@
+#!/bin/bash -l
+
+CWDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+TOP_DIR=${CWDIR}/../../
+
 create_db (){
   echo "Create DB...."
   dropdb gppython
@@ -15,9 +20,10 @@ remove_db (){
 
 # When the number of connections is set to a high number, be care of the size of swap memory.
 # Otherwise, container will not be able to start and docker may hang.
-test_greenplumpython(){ 
-  pushd dataframe
-  pytest
+test_greenplumpython(){
+  echo ${TOP_DIR}	
+  pushd ${TOP_DIR}
+  python3 -m pytest -s
   popd
 }
 
