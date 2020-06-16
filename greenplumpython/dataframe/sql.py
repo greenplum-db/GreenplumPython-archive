@@ -46,3 +46,9 @@ def has_table(table, con):
     con_alchemy = _sqlalchemy_con(con)
     db = GPDatabase(con_alchemy, meta=None)
     return db.has_table(table)
+
+def load_table_object(table_name, schema, con):
+    con_alchemy = _sqlalchemy_con(con)
+    db = GPDatabase(con_alchemy, meta=None)
+    return db.load_table_object(table_name, schema)
+

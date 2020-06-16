@@ -1,4 +1,4 @@
-from pgdb import connect
+from pg import connect
 import sqlalchemy
 class GPConnection(object):
 
@@ -11,7 +11,7 @@ class GPConnection(object):
 
     def get_connection(self):
         #TODO port
-        url = "postgresql+pygresql://%s:%s@%s:5432/%s" % (self.user, self.password, self.host, self.database)
+        url = "postgresql+pygresql://%s:%s@%s:6000/%s" % (self.user, self.password, self.host, self.database)
         engine = sqlalchemy.create_engine(url)
         #connection = connect(url)
         return engine.connect()
