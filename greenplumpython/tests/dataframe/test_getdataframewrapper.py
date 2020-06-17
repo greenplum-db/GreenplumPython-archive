@@ -1,4 +1,3 @@
-
 from greenplumpython.connection.gp import GPConnection
 from greenplumpython.dataframe import sql
 from greenplumpython.dataframe.database import GPDatabase
@@ -10,7 +9,7 @@ if host is None or host is '':
     host = "localhost"
 db = os.getenv('GPDATABASE')
 if db is None or db is '':
-    db = "test"
+    db = "gppython"
 user = os.getenv('GPUSER')
 if user is None or user is '':
     user = "gpadmin"
@@ -67,3 +66,9 @@ def test_database_conn_close():
     assert dbinstance.list() == [1, 2]
     dbinstance.close(connid)
     assert dbinstance.list() == [2]
+
+def test_load_table_object(db_conn):
+    result = sql.load_table_object("employee", None, db_conn)
+    for row in result:
+        if row[0] == 'payment':
+            assert row[1] == 'int4'

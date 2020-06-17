@@ -1,4 +1,4 @@
-from pandas.io.sql import SQLDatabase, SQLTable, _convert_params, _wrap_result
+from pandas.io.sql import SQLDatabase, SQLTable, _convert_params, _wrap_result, DataFrame
 from .dataframe_wrapper import DataFrameWrapper
 from greenplumpython.connection.gp import GPConnection
 
@@ -61,3 +61,19 @@ class GPDatabase(SQLDatabase):
 
     def list(self):
         return sorted(self.conns.keys())
+
+    def load_table_object(self, table_name, schema=None):
+        if not schema:
+            db_schema = "public"
+        else:
+            db_schema = schema
+
+        db_sql = "select column_name, udt_name from information_schema.columns where table_schema='{schema}' AND table_name='{name}'".format(schema=db_schema, name=table_name)
+        result = self.execute(db_sql)
+        data = result.fetchall()
+        pd_frame = DataFrame.from_records(data, columns=result.keys())
+        table_object = dict()
+        for i, row in pd_frame.iterrows():
+            table_object[row['column_name']] = row['udt_name']
+        return table_object
+

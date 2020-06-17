@@ -37,3 +37,4 @@ class DataFrameWrapper(SQLTable):
                 self.frame.set_index(self.index, inplace=True)
 
             return self.frame
+
