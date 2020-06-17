@@ -3,7 +3,8 @@ from .dataframe_wrapper import DataFrameWrapper
 from greenplumpython.connection.gp import GPConnection
 
 class GPDatabase(SQLDatabase):
-    def __init__(self):
+    def __init__(self, engine, schema=None, meta=None):
+        super(GPDatabase, self).__init__(engine, schema, meta)
         self.max_conn_id = 0
         self.conns = {}
 
@@ -46,10 +47,11 @@ class GPDatabase(SQLDatabase):
         return frame
     def connect(self,
             dbip,
+            port,
             dbname,
             username,
             password=None):
-        conn = GPConnection(dbip, dbname, username, password).get_connection()
+        conn = GPConnection(dbip, port, dbname, username, password).get_connection()
         self.max_conn_id += 1
         self.conns[self.max_conn_id] = conn
         return self.max_conn_id
