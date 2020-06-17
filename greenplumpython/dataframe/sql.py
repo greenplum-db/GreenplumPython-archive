@@ -49,6 +49,6 @@ def has_table(table, con):
 
 def load_table_object(table_name, schema, con):
     con_alchemy = _sqlalchemy_con(con)
-    db = GPDatabase(con_alchemy, meta=None)
+    db = GPDatabase(con_alchemy)
     return db.load_table_object(table_name, schema)
 
