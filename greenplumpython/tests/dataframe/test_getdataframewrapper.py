@@ -51,9 +51,24 @@ def test_database_conn_fail():
         dbinstance = GPDatabase()
         assert dbinstance.connect(host, 'no_exist_db', user, password)
 
+def test_database_conn_list():
+    dbinstance = GPDatabase()
+    connid = dbinstance.connect(host, db, user, password)
+    assert connid == 1
+    connid2 = dbinstance.connect(host, db, user, password)
+    assert connid2 == 2
+    assert dbinstance.list() == [1, 2]
+
+def test_database_conn_close():
+    dbinstance = GPDatabase()
+    connid = dbinstance.connect(host, db, user, password)
+    connid2 = dbinstance.connect(host, db, user, password)
+    assert dbinstance.list() == [1, 2]
+    dbinstance.close(connid)
+    assert dbinstance.list() == [2]
+
 def test_load_table_object(db_conn):
     result = sql.load_table_object("employee", None, db_conn)
     for row in result:
         if row[0] == 'payment':
             assert row[1] == 'int4'
-
