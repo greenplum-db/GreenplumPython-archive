@@ -1,5 +1,5 @@
 import re
-class Metadata():
+class GPTableSchema():
     def __init__(self, name, signature = dict(), distribute_on = ''):
         if self.check_output_name(name):
             self.name = name
