@@ -5,7 +5,7 @@
 #### Main Funcions Usage
 
 ```python
-import GPDatabase as gp
+import GreenplumPython as gp
 import Pandas as pd
 
 # init connection
@@ -57,7 +57,7 @@ output_table_metadata = Dataframe_Wrapper_instance_output.get_metadata()
 #### Utils Functions Usage
 
 ```Python
-import GPDatabase as gp
+import GreenplumPython as gp
 import Pandas as pd
 
 # init connection instance
