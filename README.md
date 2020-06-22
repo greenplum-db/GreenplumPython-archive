@@ -21,9 +21,9 @@ GPDatabase_instance = gp.GPDatabase(conn)
 Dataframe_Wrapper_instance_input = gpdb_instance.get_table(schema, table_name)
 
 # set output table columns info 
-columns_output_types = dict()
-
-columns_output_types['a'] = 'int4'
+columns_output_types = list()
+column_type_tuple = ('a', 'int4')
+columns_output_types.append(column_type_tuple)
 
 # set output table info
 Table_Metadata_output = gp.GPTableMeta(table_output_name, table_output_schema, columns_output_types, distributed_keys)
@@ -100,17 +100,20 @@ gp.dataframe_warpper1 = gp.Dataframe_Wrapper(pd.dataframe, gp.GPTableMeta)
 table_output_name = 'tbl'
 table_output_schema = 'public'
 
-columns_output_types = dict()
-columns_output_types['a'] = 'int4'
-columns_output_types['b'] = 'text'
-columns_output_types['c'] = 'float4'
+columns_output_types = list()
+column_type_tuple = ('a', 'int4')
+columns_output_types.append(column_type_tuple)
+column_type_tuple = ('b', 'text')
+columns_output_types.append(column_type_tuple)
+column_type_tuple = ('c', 'float4')
+columns_output_types.append(column_type_tuple)
 
 distributed_keys = ['a', 'b']
 
 meta = gp.GPTableMeta(table_output_name, table_output_schema, columns_output_types, distributed_keys)
 
 # Check if table existed
-GPDatabase_instance.has_table(table_name, schema)
+GPDatabase_instance.check_table_if_exist(table_name, schema)
 
 ```
 
