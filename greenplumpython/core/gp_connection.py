@@ -26,11 +26,11 @@ class GPConnection(object):
         return conn_alchemy
     
     def get_connection(self, conn_id: int):
-        return self.connection_pool[conn_id][2]
+        return self.connection_pool[conn_id][1]
     
     def list_connections(self):
         return self.connection_pool.copy()
     
     def close(self, connid):
-        self.connection_pool[connid][1].close()
+        self.connection_pool[connid][0].close()
         del self.connection_pool[connid]

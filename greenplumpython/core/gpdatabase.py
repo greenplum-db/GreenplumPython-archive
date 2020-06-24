@@ -29,7 +29,7 @@ class GPDatabase(SQLDatabase):
             columns_type.append(column_type)
         
         # TODO: get distributed info
-        table_meta = GPTableMetadata(table_name, columns_type, "")
+        table_meta = GPTableMetadata(table_name, columns_type, None)
         result = DataFrameWrapper(dataframe=None, table_metadata = table_meta)
         return result
 
