@@ -1,6 +1,6 @@
 import re
-class GPTableSchema():
-    def __init__(self, name, signature = dict(), distribute_on = ''):
+class GPTableMetadata():
+    def __init__(self, name, signature = list(), distribute_on = ''):
         if self.check_output_name(name):
             self.name = name
         if self.check_signature(signature):
@@ -23,7 +23,7 @@ class GPTableSchema():
     def check_signature(self, signature):
         if signature is None:
             raise ValueError('Null signature is not supported')
-        elif isinstance(signature, dict):
+        elif isinstance(signature, list):
             return True
         else:
             raise ValueError('Invalid signature type')
