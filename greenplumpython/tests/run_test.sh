@@ -1,5 +1,5 @@
 #!/bin/bash -l
-
+set -eox pipefail;
 CWDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TOP_DIR=${CWDIR}/../../
 
@@ -27,6 +27,6 @@ test_greenplumpython(){
   popd
 }
 
-time create_db
+#time create_db
 time test_greenplumpython
-time remove_db
+#time remove_db

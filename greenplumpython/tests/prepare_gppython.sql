@@ -1,3 +1,4 @@
+create language plpythonu;
 DROP TABLE IF EXISTS employee;
 DROP TABLE IF EXISTS weather;
 CREATE TABLE employee (name text, payment int);

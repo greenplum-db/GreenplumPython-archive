@@ -2,6 +2,11 @@ import inspect
 import random
 import string
 import numpy as np
+<<<<<<< HEAD
+=======
+
+numpyDTypeToGPDBType = {np.dtype('int64'): "int", np.dtype('object'): "text", np.dtype("datetime64[ns]"):"datetime"}
+>>>>>>> change gpapply to run with new database & dataframe
 
 def randomString(stringLength=10):
     """Generate a random string of fixed length """
