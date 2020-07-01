@@ -1,5 +1,5 @@
 import pandas as pd
-from .database import GPDatabase
+from .gpdatabase import GPDatabase
 
 def _sqlalchemy_con(con):
     con_alchemy = pd.io.sql._engine_builder(con)
