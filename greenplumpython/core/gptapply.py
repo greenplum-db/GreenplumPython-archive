@@ -13,29 +13,32 @@ def pythonExec(df, funcName, typeName, index, output_tbl_name, extra_args):
             internal_select.append("array_agg(" + column + ") AS " + column)
             func_type_name.append(column)
 
-    extra = ""
     for key, value in extra_args.items(): 
-        extra = extra + key + "=" + value 
+        func_type_name.append(str(value)) 
 
     select_func = "CREATE TABLE " + output_tbl_name + " AS \n" \
         + "WITH gpdbtmpa AS ( \n" \
-        + "SELECT (" + funcName + "(" + ",".join(func_type_name) + extra +")) AS gpdbtmpb FROM (SELECT " \
-        + ",".join(func_type_name) + " FROM " + df.table_metadata.name + " GROUP BY " + index + ") tmptbl \n ) \n" \
+        + "SELECT (" + funcName + "(" + ",".join(func_type_name) +")) AS gpdbtmpb FROM (SELECT " \
+        + ",".join(internal_select) + " FROM " + df.table_metadata.name + " GROUP BY " + index + ") tmptbl \n ) \n" \
         + "SELECT (gpdbtmpb::" + typeName + ").* FROM gpdbtmpa DISTRIBUTED RANDOMLY;"
     return select_func
 
 def gptApply(dataframe, index, py_func, db, output, clear_existing = True, runtime_id = 'plc_python', runtime_type = 'plcontainer', **kwargs):    
     s = inspect.getsource(py_func)
-    #gpdb_tbl_name = "testtbl"
     function_name = randomString()
     typeName = randomStringType()
     params = []
-    columns = []
+    columns = inspect.getfullargspec(py_func)[0]
     for i, col in enumerate(dataframe.table_metadata.signature):
         for j, column in enumerate(col):
-            params.append(column+" "+col[column])
-            columns.append(column)
-        
+            params.append(column+" "+col[column] + "[]")
+    
+    rest_args_num = len(columns) - len(params)
+    args_index = -1
+
+    for key, value in kwargs.items(): 
+        params.append(columns[args_index] + " " + str(key))
+
     create_type_sql = createTypeFunc(output.signature, typeName)
     function_body = "CREATE OR REPLACE FUNCTION %s(%s) RETURNS %s AS $$\n %s return %s(%s) $$ LANGUAGE plpythonu;" % (function_name,",".join(params),typeName,s,py_func.__name__,",".join(columns))
     select_sql = pythonExec(dataframe, function_name, typeName, index, output.name, kwargs)
