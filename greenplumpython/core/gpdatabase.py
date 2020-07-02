@@ -25,12 +25,11 @@ class GPDatabase(SQLDatabase):
         
         columns_type = list()
         for i, row in pd_frame.iterrows():
-            column_type = (row['column_name'], row['udt_name'])
+            column_type = {row['column_name']:row['udt_name']}
             columns_type.append(column_type)
-        
         # TODO: get distributed info
         table_meta = GPTableMetadata(table_name, columns_type, None)
-        result = DataFrameWrapper(dataframe=None, table_metadata = table_meta)
+        result = DataFrameWrapper(dataframe=pd_frame, table_metadata = table_meta)
         return result
 
     def check_table_if_exist(self, table_name, schema):

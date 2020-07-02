@@ -32,7 +32,7 @@ def test_get_table(db_conn):
     data = GPDatabase(db_conn)
     frame = data.get_table("employee", "public")
     assert frame.table_metadata.name == "employee"
-    assert frame.table_metadata.signature[1][0] == "payment" 
+    assert frame.table_metadata.signature[1]["payment"] == "int4"
 
 def test_execute_query(db_conn):
     data = GPDatabase(db_conn)
