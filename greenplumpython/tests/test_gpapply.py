@@ -16,19 +16,13 @@ def db_conn():
 
 def recsum(a, b):
     x = dict()
-    x['a'] = 0
-    for i  in range(0,len(b)):
-        x['a'] += b[i]
+    x['a'] = a+b
     return x
 
-def avg_weather(id, city, p_date, temp, humidity, aqi):
-    t = float(sum(temp)) / float(len(temp))
-    t = format(t, '.2f')
-    h = float(sum(humidity)) / float(len(humidity))
-    h = format(h, '.2f')
-    a = float(sum(aqi)) / float(len(aqi))
-    a = format(a, '.2f')
-    return (city, t, h, a)
+
+def aqi_vs_temp(id, city, p_date, temp, humidity, aqi):
+    a = aqi/temp
+    return (city, a)
 
 def test_gpapply_case1(db_conn):
     data = GPDatabase(db_conn)
@@ -38,13 +32,13 @@ def test_gpapply_case1(db_conn):
     index = "a"
     gpApply(table, recsum, data, output)
     res = data.execute_query("select * from basic_output")
-    assert res.iat[0,0] == 7
+    assert res.iat[0,0] ==4 or res.iat[1,0] == 4
 
 def test_gpapply_case2(db_conn):
     data = GPDatabase(db_conn)
     table = data.get_table("weather", "public")
-    output_columns = [{"city": "text"}, {"avg_temp": "float"}, {"avg_humidity": "float"}, {"avg_aqi": "float"}]
+    output_columns = [{"city": "text"},{"a": "float"}]
     output = GPTableMetadata("weather_output", output_columns, 'randomly')
-    gpApply(table, avg_weather, data, output)
+    gpApply(table, aqi_vs_temp, data, output)
     res = data.execute_query("select * from weather_output")
-    assert res.iat[0,3] == 216.5
+    assert res.iat[0,1] == 13.0 or res.iat[0,1] == 6.0

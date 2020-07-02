@@ -3,8 +3,6 @@ import random
 import string
 import numpy as np
 
-numpyDTypeToGPDBType = {np.dtype('int64'): "int", np.dtype('object'): "text", np.dtype("datetime64[ns]"):"datetime"}
-
 def randomString(stringLength=10):
     """Generate a random string of fixed length """
     letters = string.ascii_lowercase
@@ -28,7 +26,7 @@ def pythonExec(df, funcName, typeName, output_tbl_name, extra_args):
     select_func = "CREATE TABLE " + output_tbl_name + " AS \n" \
         + "WITH gpdbtmpa AS ( \n" \
         + "SELECT (" + funcName + "(" + ",".join(func_type_name) + ")) AS gpdbtmpb FROM (SELECT " \
-        + ",".join(internal_select) + " FROM " + df.table_metadata.name + ") tmptbl \n ) \n" \
+        + ",".join(func_type_name) + " FROM " + df.table_metadata.name + ") tmptbl \n ) \n" \
         + "SELECT (gpdbtmpb::" + typeName + ").* FROM gpdbtmpa DISTRIBUTED RANDOMLY;"
     return select_func
 
@@ -56,7 +54,7 @@ def gpApply(dataframe, py_func, db, output, clear_existing = True, runtime_id = 
     columns = []
     for i, col in enumerate(dataframe.table_metadata.signature):
         for j, column in enumerate(col):
-            params.append(column+" "+col[column] + "[]")
+            params.append(column+" "+col[column])
             columns.append(column)
         
     create_type_sql = createTypeFunc(output.signature, typeName)
