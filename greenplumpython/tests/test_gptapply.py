@@ -1,4 +1,4 @@
-from greenplumpython.core.gpapply import gpApply
+from greenplumpython.core.gptapply import gptApply
 from greenplumpython.tests.testdb import host, port, db, user, password
 from greenplumpython.core.gp_connection import GPConnection
 from greenplumpython.core.gpdatabase import GPDatabase
@@ -30,7 +30,7 @@ def test_gpapply_case1(db_conn):
     output_col = [{"a":"int4"}]
     output = GPTableMetadata("basic_output", output_col, 'randomly')
     index = "a"
-    gpApply(table, recsum, data, output)
+    gpApply(table, index, recsum, data, output)
     res = data.execute_query("select * from basic_output")
     assert res.iat[0,0] ==4 or res.iat[1,0] == 4
 
