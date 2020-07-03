@@ -2,7 +2,7 @@ import os
 host = os.getenv('GPHOST')
 if host is None or host is '':
     host = "localhost"
-port = os.getenv('GPPORT')
+port = os.getenv('PGPORT')
 if port is None or port is '':
     port = 5432
 else:

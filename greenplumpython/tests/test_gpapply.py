@@ -1,4 +1,4 @@
-from greenplumpython.gpapply import gpApply
+from greenplumpython.core.gpapply import gpApply
 from greenplumpython.tests.testdb import host, port, db, user, password
 from greenplumpython.core.gp_connection import GPConnection
 from greenplumpython.core.gpdatabase import GPDatabase
