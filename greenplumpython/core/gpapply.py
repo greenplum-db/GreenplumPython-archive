@@ -12,7 +12,9 @@ def pythonExec(df, funcName, typeName, output_tbl_name, extra_args):
         for j, column in enumerate(col):
             internal_select.append(column)
             func_type_name.append(column)
-
+    
+    for key, value in extra_args.items(): 
+        func_type_name.append(str(value[0])) 
 
     select_func = "CREATE TABLE " + output_tbl_name + " AS \n" \
         + "WITH gpdbtmpa AS ( \n" \
@@ -33,6 +35,13 @@ def gpApply(dataframe, py_func, db, output, clear_existing = True, runtime_id = 
         for j, column in enumerate(col):
             params.append(column+" "+col[column])
             columns.append(column)
+    
+    rest_args_num = len(columns) - len(params)
+    args_index = 0 - rest_args_num
+
+    for key, value in kwargs.items(): 
+        params.append(columns[args_index] + " " + str(value[1]))
+        args_index = args_index + 1
         
     create_type_sql = createTypeFunc(output.signature, typeName)
     function_body = "CREATE OR REPLACE FUNCTION %s(%s) RETURNS %s AS $$\n %s return %s(%s) $$ LANGUAGE plpythonu;" % (function_name,",".join(params),typeName,s,py_func.__name__,",".join(columns))

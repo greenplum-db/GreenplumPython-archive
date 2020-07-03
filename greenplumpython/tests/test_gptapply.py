@@ -24,6 +24,10 @@ def aqi_vs_temp(id, city, wdate, temp, humidity, aqi, adjust):
     a = aqi[0]/temp[0]
     return (city[0], a)
 
+def aqi_vs_temp_two(id, city, wdate, temp, humidity, aqi, adjust1, adjust2):
+    a = aqi[0]/temp[0]
+    return (city[0], a)
+
 def test_gpapply_case1(db_conn):
     data = GPDatabase(db_conn)
     table = data.get_table("basic", "public")
@@ -41,5 +45,15 @@ def test_gpapply_case2(db_conn):
     output = GPTableMetadata("weather_output_t", output_columns, 'randomly')
     index = "id"
     gptApply(table, index, aqi_vs_temp, data, output, int4=1)
+    res = data.execute_query("select * from weather_output_t")
+    assert res.iat[0,1] == 13.0 or res.iat[0,1] == 6.0
+
+def test_gpapply_case3(db_conn):
+    data = GPDatabase(db_conn)
+    table = data.get_table("weather", "public")
+    output_columns = [{"city": "text"},{"a": "float"}]
+    output = GPTableMetadata("weather_output_t", output_columns, 'randomly')
+    index = "id"
+    gptApply(table, index, aqi_vs_temp, data, output, arg1=[1, "int4"], arg2=[2, "int4"])
     res = data.execute_query("select * from weather_output_t")
     assert res.iat[0,1] == 13.0 or res.iat[0,1] == 6.0
