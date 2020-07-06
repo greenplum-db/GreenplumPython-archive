@@ -1,0 +1,22 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+
+inputs:
+  - name: GreenplumPython_src
+  - name: plcontainer_src
+  - name: ccp_src
+  - name: gpdb_binary
+  - name: bin_plcontainer
+  - name: plcontainer_pyclient_docker_image
+  - name: cluster_env_files
+  - name: plcontainer_gpdb_ubuntu18_build_lib
+
+outputs:
+
+run:
+  path: GreenplumPython_src/concourse/scripts/test_plcontainer.sh
+
+params:
+  MODE:
