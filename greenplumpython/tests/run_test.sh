@@ -7,6 +7,7 @@ create_db (){
   echo "Create DB...."
   dropdb gppython
   createdb gppython
+  psql gppython -c 'create extension plpythonu'
   psql gppython -f prepare_gppython.sql
   echo "Create DB finished"
 }
@@ -29,4 +30,4 @@ test_greenplumpython(){
 
 time create_db
 time test_greenplumpython
-time remove_db
+#time remove_db
