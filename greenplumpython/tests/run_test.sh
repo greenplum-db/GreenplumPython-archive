@@ -30,4 +30,4 @@ test_greenplumpython(){
 
 time create_db
 time test_greenplumpython
-#time remove_db
+time remove_db
