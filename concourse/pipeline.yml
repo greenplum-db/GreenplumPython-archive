@@ -182,6 +182,7 @@ jobs:
   - aggregate:
     - get: plcontainer_src
     - get: GreenplumPython_src
+      trigger: true
     # this name is needed by ccp to gencluster
     - get: gpdb_binary
       resource: bin_gpdb_centos7
