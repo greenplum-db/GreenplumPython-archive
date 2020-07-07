@@ -15,9 +15,11 @@ function install_libraries() {
     TEST_OS=$(determine_os)
     case $TEST_OS in
     centos)
-      yum install -y epel-release
+      yum install -y centos-release-scl
       # postgresql-devel is needed by RPostgreSQL
-      yum install -y R postgresql-devel
+      yum install -y postgresql-devel python36 python36-devel python36-setuptools
+      easy_install-3.6 pip
+      pip3 install pytest numpy PyGreSQL SQLAlchemy pandas
       ;;
     ubuntu)
       apt update
