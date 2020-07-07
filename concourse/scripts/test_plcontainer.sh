@@ -72,7 +72,7 @@ popd; \
 
 ssh mdw "bash -c \" \
 set -eox pipefail; \
-export GPPORT=5432; \
+export PGPORT=5432; \
 export GPUSER=gpadmin; \
 export GPDATABASE=gppython; \
 pushd GreenplumPython_src; \

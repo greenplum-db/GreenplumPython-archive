@@ -87,3 +87,13 @@ def test_gpapply_pyfunc_error(db_conn):
         output_columns = [{"c1": "int4"},{"c2": "int4"}]
         output = GPTableMetadata("basic_output", output_columns, 'randomly')
         assert gpApply(table, recsumerr, data, output)
+
+def test_gpapply_distributedby_column(db_conn):
+    data = GPDatabase(db_conn)
+    table = data.get_table("weather", "public")
+    output_columns = [{"city": "text"},{"a": "float"}]
+    output = GPTableMetadata("weather_output", output_columns, ['city'])
+    assert output.distribute_on_str == "DISTRIBUTED BY (city)"
+    gpApply(table, aqi_vs_temp, data, output)
+    res = data.execute_query("select * from weather_output")
+    assert res.iat[0,1] == 13.0 or res.iat[0,1] == 6.0

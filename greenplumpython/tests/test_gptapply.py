@@ -57,3 +57,23 @@ def test_gpapply_case3(db_conn):
     gptApply(table, index, aqi_vs_temp_two, data, output, arg1=[1, "int4"], arg2=[2, "int4"])
     res = data.execute_query("select * from weather_output_t")
     assert res.iat[0,1] == 13.0 or res.iat[0,1] == 6.0
+
+def avg_weather(id, city, temp, humidity, aqi):
+    t = float(sum(temp)) / float(len(temp))
+    t = format(t, '.2f')
+    h = float(sum(humidity)) / float(len(humidity))
+    h = format(h, '.2f')
+    a = float(sum(aqi)) / float(len(aqi))
+    a = format(a, '.2f')
+    return (city, t, h, a)
+
+def test_gpapply_case4(db_conn):
+    data = GPDatabase(db_conn)
+    table = data.get_table("weather", "public")
+    output_columns = [{"city": "text"}, {"avg_temp": "float"}, {"avg_humidity": "float"}, {"avg_aqi": "float"}]
+    output = GPTableMetadata("weather_output_d", output_columns, ['city'])
+    assert output.distribute_on_str == "DISTRIBUTED BY (city)"
+    index = "city"
+    gptApply(table, index, avg_weather, data, output)
+    res = data.execute_query("select * from weather_output_d order by avg_aqi")
+    assert res.iat[0,3] == 121.0 and res.iat[0,0] == "['New York']"
