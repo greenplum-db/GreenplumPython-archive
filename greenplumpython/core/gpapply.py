@@ -4,7 +4,7 @@ import string
 import numpy as np
 from greenplumpython.utils.apply_utils import *
 
-def pythonExec(df, funcName, typeName, output_tbl_name, extra_args):
+def pythonExec(df, funcName, typeName, output, extra_args):
     func_type_name = []
 
     internal_select = []
@@ -12,19 +12,18 @@ def pythonExec(df, funcName, typeName, output_tbl_name, extra_args):
         for j, column in enumerate(col):
             internal_select.append(column)
             func_type_name.append(column)
-    
+
     for key, value in extra_args.items(): 
         func_type_name.append(str(value[0])) 
-
-    select_func = "CREATE TABLE " + output_tbl_name + " AS \n" \
+    
+    select_func = "CREATE TABLE " + output.name + " AS \n" \
         + "WITH gpdbtmpa AS ( \n" \
         + "SELECT (" + funcName + "(" + ",".join(func_type_name) + ")) AS gpdbtmpb FROM (SELECT " \
         + ",".join(func_type_name) + " FROM " + df.table_metadata.name + ") tmptbl \n ) \n" \
-        + "SELECT (gpdbtmpb::" + typeName + ").* FROM gpdbtmpa DISTRIBUTED RANDOMLY;"
+        + "SELECT (gpdbtmpb::" + typeName + ").* FROM gpdbtmpa " + output.distribute_on_str + ";"
     return select_func
 
 def gpApply(dataframe, py_func, db, output, clear_existing = True, runtime_id = 'plc_python', runtime_type = 'plcontainer', **kwargs):
-
     s = inspect.getsource(py_func)
     #gpdb_tbl_name = "testtbl"
     function_name = randomString()
@@ -45,7 +44,7 @@ def gpApply(dataframe, py_func, db, output, clear_existing = True, runtime_id = 
         
     create_type_sql = createTypeFunc(output.signature, typeName)
     function_body = "CREATE OR REPLACE FUNCTION %s(%s) RETURNS %s AS $$\n %s return %s(%s) $$ LANGUAGE plpythonu;" % (function_name,",".join(params),typeName,s,py_func.__name__,",".join(columns))
-    select_sql = pythonExec(dataframe, function_name, typeName, output.name, kwargs)
+    select_sql = pythonExec(dataframe, function_name, typeName, output, kwargs)
     drop_sql = "DROP TYPE " + typeName + " CASCADE;"
     if clear_existing:
         drop_table_sql = "drop table if exists %s;" % output.name

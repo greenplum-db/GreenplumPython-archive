@@ -1,7 +1,6 @@
-create language plpythonu;
+create extension plpythonu;
 DROP TABLE IF EXISTS employee;
 DROP TABLE IF EXISTS weather;
-create extension plpythonu;
 CREATE TABLE employee (name text, payment int);
 INSERT into employee (name, payment) values ('John', 1000), ('Joe', 2000), ('Jason', 3000);
 CREATE TABLE weather (id int, city text, wdate timestamp, temp int, humidity int, aqi int);

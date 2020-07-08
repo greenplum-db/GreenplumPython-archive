@@ -5,7 +5,7 @@ from greenplumpython.core.gptable_metadata import GPTableMetadata
 import inspect
 from greenplumpython.utils.apply_utils import *
 
-def pythonExec(df, funcName, typeName, index, output_tbl_name, extra_args):
+def pythonExec(df, funcName, typeName, index, output, extra_args):
     func_type_name = []
     internal_select = []
     for i, col in enumerate(df.table_metadata.signature):
@@ -16,11 +16,11 @@ def pythonExec(df, funcName, typeName, index, output_tbl_name, extra_args):
     for key, value in extra_args.items(): 
         func_type_name.append(str(value[0])) 
 
-    select_func = "CREATE TABLE " + output_tbl_name + " AS \n" \
+    select_func = "CREATE TABLE " + output.name + " AS \n" \
         + "WITH gpdbtmpa AS ( \n" \
         + "SELECT (" + funcName + "(" + ",".join(func_type_name) +")) AS gpdbtmpb FROM (SELECT " \
         + ",".join(internal_select) + " FROM " + df.table_metadata.name + " GROUP BY " + index + ") tmptbl \n ) \n" \
-        + "SELECT (gpdbtmpb::" + typeName + ").* FROM gpdbtmpa DISTRIBUTED RANDOMLY;"
+        + "SELECT (gpdbtmpb::" + typeName + ").* FROM gpdbtmpa " + output.distribute_on_str + ";"
     return select_func
 
 def gptApply(dataframe, index, py_func, db, output, clear_existing = True, runtime_id = 'plc_python', runtime_type = 'plcontainer', **kwargs):    
@@ -42,7 +42,7 @@ def gptApply(dataframe, index, py_func, db, output, clear_existing = True, runti
 
     create_type_sql = createTypeFunc(output.signature, typeName)
     function_body = "CREATE OR REPLACE FUNCTION %s(%s) RETURNS %s AS $$\n %s return %s(%s) $$ LANGUAGE plpythonu;" % (function_name,",".join(params),typeName,s,py_func.__name__,",".join(columns))
-    select_sql = pythonExec(dataframe, function_name, typeName, index, output.name, kwargs)
+    select_sql = pythonExec(dataframe, function_name, typeName, index, output, kwargs)
     drop_sql = "DROP TYPE " + typeName + " CASCADE;"
     if clear_existing:
         drop_table_sql = "drop table if exists %s;" % output.name
