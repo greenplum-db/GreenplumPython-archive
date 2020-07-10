@@ -14,13 +14,17 @@ def pythonExec(df, funcName, typeName, output, extra_args):
             func_type_name.append(column)
 
     for key, value in extra_args.items(): 
-        func_type_name.append(str(value[0])) 
-    
-    select_func = "CREATE TABLE " + output.name + " AS \n" \
-        + "WITH gpdbtmpa AS ( \n" \
-        + "SELECT (" + funcName + "(" + ",".join(func_type_name) + ")) AS gpdbtmpb FROM (SELECT " \
-        + ",".join(func_type_name) + " FROM " + df.table_metadata.name + ") tmptbl \n ) \n" \
-        + "SELECT (gpdbtmpb::" + typeName + ").* FROM gpdbtmpa " + output.distribute_on_str + ";"
+        func_type_name.append(str(value[0]))
+    select_func = ""
+    joined_type_name = ",".join(func_type_name)
+    if output.name == None or output.name == "":
+        select_func = "WITH gpdbtmpa AS (SELECT (%s(%s)) AS gpdbtmpb FROM (SELECT %s FROM %s) tmptbl) SELECT (gpdbtmpb::%s).* FROM gpdbtmpa;" % (funcName, joined_type_name, joined_type_name, df.table_metadata.name, typeName)
+    else:
+        select_func = "CREATE TABLE " + output.name + " AS \n" \
+            + "WITH gpdbtmpa AS ( \n" \
+            + "SELECT (" + funcName + "(" + joined_type_name + ")) AS gpdbtmpb FROM (SELECT " \
+            + joined_type_name + " FROM " + df.table_metadata.name + ") tmptbl \n ) \n" \
+            + "SELECT (gpdbtmpb::" + typeName + ").* FROM gpdbtmpa " + output.distribute_on_str + ";"
     return select_func
 
 def gpApply(dataframe, py_func, db, output, clear_existing = True, runtime_id = 'plc_python', runtime_type = 'plcontainer', **kwargs):
@@ -51,6 +55,10 @@ def gpApply(dataframe, py_func, db, output, clear_existing = True, runtime_id = 
         db.execute(drop_table_sql)
     db.execute(create_type_sql)
     db.execute(function_body)
-    db.execute(select_sql)
+    res = None
+    if output.name == None or output.name == "":
+        res = db.execute_query(select_sql)
+    else:
+        db.execute(select_sql)
     db.execute(drop_sql)
-    return output
+    return res

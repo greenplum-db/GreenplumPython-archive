@@ -38,6 +38,15 @@ def test_gpapply_case1(db_conn):
     res = data.execute_query("select * from basic_output_t")
     assert res.iat[0,0] ==4 or res.iat[1,0] == 4
 
+def test_gpapply_case1(db_conn):
+    data = GPDatabase(db_conn)
+    table = data.get_table("basic", "public")
+    output_col = [{"a":"int4"}]
+    output = GPTableMetadata(None, output_col, 'randomly')
+    index = "a"
+    res = gptApply(table, index, recsum, data, output, arg1=[1, "int4"])
+    assert res.iat[0,0] ==4 or res.iat[1,0] == 4
+
 def test_gpapply_case2(db_conn):
     data = GPDatabase(db_conn)
     table = data.get_table("weather", "public")
