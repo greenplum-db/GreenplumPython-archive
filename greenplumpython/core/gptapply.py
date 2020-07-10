@@ -27,7 +27,7 @@ def pythonExec(df, funcName, typeName, index, output, extra_args):
             + "SELECT (gpdbtmpb::" + typeName + ").* FROM gpdbtmpa " + output.distribute_on_str + ";"
     return select_func
 
-def gptApply(dataframe, index, py_func, db, output, clear_existing = True, runtime_id = 'plc_python', runtime_type = 'plcontainer', **kwargs):    
+def gptApply(dataframe, index, py_func, db, output, clear_existing = True, runtime_id = 'plc_python', runtime_type = 'plpythonu', **kwargs):
     s = inspect.getsource(py_func)
     function_name = randomString()
     typeName = randomStringType()
@@ -45,7 +45,10 @@ def gptApply(dataframe, index, py_func, db, output, clear_existing = True, runti
         args_index = args_index + 1
 
     create_type_sql = createTypeFunc(output.signature, typeName)
-    function_body = "CREATE OR REPLACE FUNCTION %s(%s) RETURNS %s AS $$\n %s return %s(%s) $$ LANGUAGE plpythonu;" % (function_name,",".join(params),typeName,s,py_func.__name__,",".join(columns))
+    runtime_id_str = ''
+    if runtime_type == 'plcontainer':
+        runtime_id_str = '# container: %s' % (runtime_id)
+    function_body = "CREATE OR REPLACE FUNCTION %s(%s) RETURNS %s AS $$\n%s\n%s\nreturn %s(%s) $$ LANGUAGE %s;" % (function_name,",".join(params),typeName,runtime_id_str,s,py_func.__name__,",".join(columns),runtime_type)
     select_sql = pythonExec(dataframe, function_name, typeName, index, output, kwargs)
     drop_sql = "DROP TYPE " + typeName + " CASCADE;"
     if clear_existing:

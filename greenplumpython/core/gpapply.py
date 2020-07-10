@@ -49,8 +49,8 @@ def gpApply(dataframe, py_func, db, output, clear_existing = True, runtime_id = 
     create_type_sql = createTypeFunc(output.signature, typeName)
     runtime_id_str = ''
     if runtime_type == 'plcontainer':
-        runtime_id_str = '# container: %s\n' % (runtime_id)
-    function_body = "CREATE OR REPLACE FUNCTION %s(%s) RETURNS %s AS $$\n%s%s\nreturn %s(%s) $$ LANGUAGE %s;" % (function_name,",".join(params),typeName,runtime_id_str,s,py_func.__name__,",".join(columns), runtime_type)
+        runtime_id_str = '# container: %s' % (runtime_id)
+    function_body = "CREATE OR REPLACE FUNCTION %s(%s) RETURNS %s AS $$\n%s\n%s\nreturn %s(%s) $$ LANGUAGE %s;" % (function_name,",".join(params),typeName,runtime_id_str,s,py_func.__name__,",".join(columns),runtime_type)
     select_sql = pythonExec(dataframe, function_name, typeName, output, kwargs)
     drop_sql = "DROP TYPE " + typeName + " CASCADE;"
     if clear_existing:

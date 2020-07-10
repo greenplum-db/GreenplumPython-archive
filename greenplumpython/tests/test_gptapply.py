@@ -86,3 +86,13 @@ def test_gpapply_case4(db_conn):
     gptApply(table, index, avg_weather, data, output)
     res = data.execute_query("select * from weather_output_d order by avg_aqi")
     assert res.iat[0,3] == 121.0 and res.iat[0,0] == "['New York']"
+
+def test_gptapply_plcontainer(db_conn):
+    with pytest.raises(Exception) as e:
+        data = GPDatabase(db_conn)
+        table = data.get_table("weather", "public")
+        output_columns = [{"city": "text"}, {"avg_temp": "float"}, {"avg_humidity": "float"}, {"avg_aqi": "float"}]
+        output = GPTableMetadata("weather_output_d", output_columns, ['city'])
+        assert output.distribute_on_str == "DISTRIBUTED BY (city)"
+        index = "city"
+        assert gptApply(table, index, avg_weather, data, output, True, 'plc_python_shared', 'plcontainer')
