@@ -104,3 +104,13 @@ def test_gpapply_distributedby_column(db_conn):
     gpApply(table, aqi_vs_temp, data, output)
     res = data.execute_query("select * from weather_output")
     assert res.iat[0,1] == 13.0 or res.iat[0,1] == 6.0
+
+def test_gpapply_plcontainer(db_conn):
+    with pytest.raises(Exception) as e:
+        data = GPDatabase(db_conn)
+        table = data.get_table("basic", "public")
+        output_col = [{"a":"int4"}]
+        output = GPTableMetadata("basic_output", output_col, 'randomly')
+        assert gpApply(table, recsum, data, output, True, 'plc_python_shared', 'plcontainer')
+
+
