@@ -5,7 +5,7 @@ from greenplumpython.core.gpdatabase import GPDatabase
 from greenplumpython.core import sql
 from greenplumpython.core.gptable_metadata import GPTableMetadata
 
-import pytest
+import pytest,os
 @pytest.fixture(scope='session', autouse=True)
 def db_conn():
     # Will be executed before the first test
@@ -87,6 +87,7 @@ def test_gpapply_case4(db_conn):
     res = data.execute_query("select * from weather_output_d order by avg_aqi")
     assert res.iat[0,3] == 121.0 and res.iat[0,0] == "['New York']"
 
+@pytest.mark.skipif(os.getenv('TESTCONTAINER') == '0', reason="no container installed")
 def test_gptapply_plcontainer(db_conn):
     with pytest.raises(Exception) as e:
         data = GPDatabase(db_conn)
