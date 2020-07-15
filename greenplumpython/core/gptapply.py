@@ -28,11 +28,18 @@ def pythonExec(df, funcName, typeName, index, output, extra_args):
     return select_func
 
 def gptApply(dataframe, index, py_func, db, output, clear_existing = True, runtime_id = 'plc_python', runtime_type = 'plpythonu', **kwargs):
+    if py_func == None:
+        raise ValueError("No input function provided")
+
     s = inspect.getsource(py_func)
     function_name = randomString()
     typeName = randomStringType()
     params = []
     columns = inspect.getfullargspec(py_func)[0]
+
+    if dataframe == None:
+        raise ValueError("No input dataframe provided")
+
     for i, col in enumerate(dataframe.table_metadata.signature):
         for j, column in enumerate(col):
             params.append(column+" "+col[column] + "[]")
@@ -44,6 +51,12 @@ def gptApply(dataframe, index, py_func, db, output, clear_existing = True, runti
         params.append(columns[args_index] + " " + str(value[1]))
         args_index = args_index + 1
 
+    if output == None or output.signature == None:
+        raise ValueError("Output.signature must be provided")
+
+    if index == None or index == "":
+        raise ValueError("Groupby index must be provided")
+
     create_type_sql = createTypeFunc(output.signature, typeName)
     runtime_id_str = ''
     if runtime_type == 'plcontainer':
@@ -51,15 +64,23 @@ def gptApply(dataframe, index, py_func, db, output, clear_existing = True, runti
     function_body = "CREATE OR REPLACE FUNCTION %s(%s) RETURNS %s AS $$\n%s\n%s\nreturn %s(%s) $$ LANGUAGE %s;" % (function_name,",".join(params),typeName,runtime_id_str,s,py_func.__name__,",".join(columns),runtime_type)
     select_sql = pythonExec(dataframe, function_name, typeName, index, output, kwargs)
     drop_sql = "DROP TYPE " + typeName + " CASCADE;"
+
+    if db == None:
+        raise ValueError("No database connection provided")
+
     if clear_existing:
         drop_table_sql = "drop table if exists %s;" % output.name
         db.execute(drop_table_sql)
     db.execute(create_type_sql)
-    db.execute(function_body)
-    res = None
-    if output.name == None or output.name == "":
-        res = db.execute_query(select_sql)
-    else:
-        db.execute(select_sql)
+    try:
+        db.execute(function_body)
+        res = None
+        if output.name == None or output.name == "":
+            res = db.execute_query(select_sql)
+        else:
+            db.execute(select_sql)
+    except Exception as e:
+        db.execute(drop_sql)
+        raise e
     db.execute(drop_sql)
     return res

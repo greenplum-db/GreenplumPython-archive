@@ -30,7 +30,7 @@ def recsumerr(a, b):
     return (0, 0)
 
 
-def aqi_vs_temp(id, city, p_date, temp, humidity, aqi):
+def aqi_vs_temp(id, city, wdate, temp, humidity, aqi):
     a = aqi/temp
     return (city, a)
 
@@ -114,4 +114,27 @@ def test_gpapply_plcontainer(db_conn):
         output = GPTableMetadata("basic_output", output_col, 'randomly')
         assert gpApply(table, recsum, data, output, True, 'plc_python_shared', 'plcontainer')
 
+def test_gpapply_error1(db_conn):
+    with pytest.raises(Exception) as e:
+        data = GPDatabase(db_conn)
+        table = data.get_table("basic", "public")
+        output_col = [{"a":"int4"}]
+        output = GPTableMetadata("basic_output", output_col, 'randomly')
+        assert gpApply(None, recsum, data, output, True)
+
+def test_gpapply_error2(db_conn):
+    with pytest.raises(Exception) as e:
+        data = GPDatabase(db_conn)
+        table = data.get_table("basic", "public")
+        output_col = [{"a":"int4"}]
+        output = GPTableMetadata("basic_output", output_col, 'randomly')
+        assert gpApply(table, None, data, output, True)
+
+def test_gpapply_error3(db_conn):
+    with pytest.raises(Exception) as e:
+        data = GPDatabase(db_conn)
+        table = data.get_table("basic", "public")
+        output_col = [{"a":"int4"}]
+        output = GPTableMetadata("basic_output", output_col, 'randomly')
+        assert gpApply(table, recsum, None, output, True)
 

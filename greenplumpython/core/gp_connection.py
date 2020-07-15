@@ -26,11 +26,17 @@ class GPConnection(object):
         return conn_alchemy
     
     def get_connection(self, conn_id: int):
-        return self.connection_pool[conn_id][1]
+        if conn_id in self.connection_pool.keys():
+            return self.connection_pool[conn_id][1]
+        else:
+            raise ValueError("conn id does not exist in GPConnection object")
     
     def list_connections(self):
         return self.connection_pool.copy()
     
-    def close(self, connid):
-        self.connection_pool[connid][0].close()
-        del self.connection_pool[connid]
+    def close(self, conn_id:int):
+        if conn_id in self.connection_pool.keys(): 
+            self.connection_pool[conn_id][0].close()
+            del self.connection_pool[conn_id]
+        else:
+            raise ValueError("conn id does not exist in GPConnection object")
