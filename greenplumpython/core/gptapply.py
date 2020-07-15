@@ -51,7 +51,7 @@ def gptApply(dataframe, index, py_func, db, output, clear_existing = True, runti
     function_body = "CREATE OR REPLACE FUNCTION %s(%s) RETURNS %s AS $$\n%s\n%s\nreturn %s(%s) $$ LANGUAGE %s;" % (function_name,",".join(params),typeName,runtime_id_str,s,py_func.__name__,",".join(columns),runtime_type)
     select_sql = pythonExec(dataframe, function_name, typeName, index, output, kwargs)
     drop_sql = "DROP TYPE " + typeName + " CASCADE;"
-    if clear_existing:
+    if clear_existing and output.name != None and output.name != "":
         drop_table_sql = "drop table if exists %s;" % output.name
         db.execute(drop_table_sql)
     db.execute(create_type_sql)

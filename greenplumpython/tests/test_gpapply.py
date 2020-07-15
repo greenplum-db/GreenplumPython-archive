@@ -29,10 +29,14 @@ def recsumerr(a, b):
     i = 10 + 'hello'
     return (0, 0)
 
+def inc(id, city, p_date, temp, humidity, aqi):
+    x = dict()
+    x['id'] = id+1
+    return x
 
 def aqi_vs_temp(id, city, p_date, temp, humidity, aqi):
     a = aqi/temp
-    return (city, a)
+    return (id, city, a)
 
 def test_gpapply_case1(db_conn):
     data = GPDatabase(db_conn)
@@ -54,11 +58,11 @@ def test_gpapply_case1_returndata(db_conn):
 def test_gpapply_case2(db_conn):
     data = GPDatabase(db_conn)
     table = data.get_table("weather", "public")
-    output_columns = [{"city": "text"},{"a": "float"}]
+    output_columns = [{"id": "int"}, {"city": "text"},{"a": "float"}]
     output = GPTableMetadata("weather_output", output_columns, 'randomly')
     gpApply(table, aqi_vs_temp, data, output)
     res = data.execute_query("select * from weather_output")
-    assert res.iat[0,1] == 13.0 or res.iat[0,1] == 6.0
+    assert res.iat[0,2] == 13.0 or res.iat[0,2] == 6.0
 
 def test_gpapply_result_table_distributed_by(db_conn):
     data = GPDatabase(db_conn)
@@ -98,12 +102,12 @@ def test_gpapply_pyfunc_error(db_conn):
 def test_gpapply_distributedby_column(db_conn):
     data = GPDatabase(db_conn)
     table = data.get_table("weather", "public")
-    output_columns = [{"city": "text"},{"a": "float"}]
+    output_columns = [{"id": "int"}, {"city": "text"},{"a": "float"}]
     output = GPTableMetadata("weather_output", output_columns, ['city'])
     assert output.distribute_on_str == "DISTRIBUTED BY (city)"
     gpApply(table, aqi_vs_temp, data, output)
     res = data.execute_query("select * from weather_output")
-    assert res.iat[0,1] == 13.0 or res.iat[0,1] == 6.0
+    assert res.iat[0,2] == 13.0 or res.iat[0,2] == 6.0
 
 @pytest.mark.skipif(os.getenv('TESTCONTAINER') == '0', reason="no container installed")
 def test_gpapply_plcontainer(db_conn):
@@ -114,4 +118,10 @@ def test_gpapply_plcontainer(db_conn):
         output = GPTableMetadata("basic_output", output_col, 'randomly')
         assert gpApply(table, recsum, data, output, True, 'plc_python_shared', 'plcontainer')
 
-
+def test_view(db_conn):
+    data = GPDatabase(db_conn)
+    data.execute("DROP VIEW IF EXISTS tableview;")
+    data.execute('CREATE VIEW tableview AS SELECT * FROM "weather";')
+    table_view = data.get_table("tableview", "public")
+    output = GPTableMetadata(None, [{"id": "int"}], 'randomly', True)
+    res = gpApply(table_view, inc, data, output)
