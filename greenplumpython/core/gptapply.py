@@ -54,6 +54,9 @@ def gptApply(dataframe, index, py_func, db, output, clear_existing = True, runti
     if output == None or output.signature == None:
         raise ValueError("Output.signature must be provided")
 
+    if index == None or index == "":
+        raise ValueError("Groupby index must be provided")
+
     create_type_sql = createTypeFunc(output.signature, typeName)
     runtime_id_str = ''
     if runtime_type == 'plcontainer':

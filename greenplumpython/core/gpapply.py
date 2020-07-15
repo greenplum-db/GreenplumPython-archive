@@ -43,7 +43,6 @@ def gpApply(dataframe, py_func, db, output, clear_existing = True, runtime_id = 
     for i, col in enumerate(dataframe.table_metadata.signature):
         for j, column in enumerate(col):
             params.append(column+" "+col[column])
-            columns.append(column)
     
     rest_args_num = len(columns) - len(params)
     args_index = 0 - rest_args_num

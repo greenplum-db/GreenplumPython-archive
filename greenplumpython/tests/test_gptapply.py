@@ -97,3 +97,29 @@ def test_gptapply_plcontainer(db_conn):
         assert output.distribute_on_str == "DISTRIBUTED BY (city)"
         index = "city"
         assert gptApply(table, index, avg_weather, data, output, True, 'plc_python_shared', 'plcontainer')
+
+def test_gpapply_error1(db_conn):
+    with pytest.raises(Exception) as e:
+        data = GPDatabase(db_conn)
+        table = data.get_table("basic", "public")
+        output_col = [{"a":"int4"}]
+        output = GPTableMetadata("basic_output", output_col, 'randomly')
+        index = "a"
+        assert gpApply(None, index, recsum, data, output, True)
+
+def test_gpapply_error2(db_conn):
+    with pytest.raises(Exception) as e:
+        data = GPDatabase(db_conn)
+        table = data.get_table("basic", "public")
+        output_col = [{"a":"int4"}]
+        output = GPTableMetadata("basic_output", output_col, 'randomly')
+        assert gpApply(table, None, recsum, data, output, True)
+
+def test_gpapply_error3(db_conn):
+    with pytest.raises(Exception) as e:
+        data = GPDatabase(db_conn)
+        table = data.get_table("basic", "public")
+        output_col = [{"a":"int4"}]
+        output = GPTableMetadata("basic_output", output_col, 'randomly')
+        index = "a"
+        assert gpApply(table, index, recsum, None, output, True)
