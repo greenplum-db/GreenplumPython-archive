@@ -1,11 +1,11 @@
 import re
 class GPTableMetadata():
-    def __init__(self, name, signature = list(), distribute_on = ''):
+    def __init__(self, name, signature = list(), distribute_on = '', case_sensitive = False):
         if self.check_output_name(name):
             self.name = name
         if self.check_signature(signature):
             self.signature = signature
-        self.distribute_on_str = self.get_distribute_str(distribute_on)
+        self.distribute_on_str = self.get_distribute_str(distribute_on, case_sensitive)
 
     def check_output_name(self, name):
         if name is None:
@@ -28,13 +28,15 @@ class GPTableMetadata():
         else:
             raise ValueError('Invalid signature type')
 
-    def get_distribute_str(self, distribute_on):
+    def get_distribute_str(self, distribute_on, case_sensitive = False):
         if distribute_on is None:
             return ''
 
         if isinstance(distribute_on, list):
-            fields = ', '.join(distribute_on)
-            #TODO case sensitive
+            if case_sensitive:
+                fields = ', '.join('"' + item + '"' for item in distribute_on)
+            else:
+                fields = ', '.join(distribute_on)
             return 'DISTRIBUTED BY ('+fields+')'
 
         if isinstance(distribute_on, str):

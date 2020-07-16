@@ -26,7 +26,7 @@ class GPDatabase(SQLDatabase):
             db_schema = schema
 
         # TODO: need ordered column name/udt_name
-        db_sql = "select column_name, udt_name from information_schema.columns where table_schema='{schema}' AND table_name='{name}'".format(schema=db_schema, name=table_name)
+        db_sql = "select column_name, udt_name from information_schema.columns where table_schema='{schema}' AND table_name='{name}' ORDER BY dtd_identifier".format(schema=db_schema, name=table_name)
         pd_frame = self.execute_query(db_sql)
         
         columns_type = list()

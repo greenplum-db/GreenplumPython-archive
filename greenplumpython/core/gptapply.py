@@ -67,9 +67,10 @@ def gptApply(dataframe, index, py_func, db, output, clear_existing = True, runti
 
     if db == None:
         raise ValueError("No database connection provided")
+
     try:
         with db.run_transaction() as trans:
-            if clear_existing:
+            if clear_existing and output.name != None and output.name != "":
                 drop_table_sql = "drop table if exists %s;" % output.name
                 trans.execute(drop_table_sql)
             trans.execute(create_type_sql)
