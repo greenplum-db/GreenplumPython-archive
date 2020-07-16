@@ -46,3 +46,9 @@ def test_database_conn_close():
     assert len(connection.connection_pool) == 2
     connection.close(1)
     assert len(connection.connection_pool) == 1
+
+def test_database_conn_id_not_exist():
+    with pytest.raises(Exception) as e:
+        connection = GPConnection()
+        connection.connect(host,port, db, user, password)
+        assert connection.get_connection(-1)

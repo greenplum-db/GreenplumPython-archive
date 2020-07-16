@@ -34,7 +34,7 @@ def inc(id, city, p_date, temp, humidity, aqi):
     x['id'] = id+1
     return x
 
-def aqi_vs_temp(id, city, p_date, temp, humidity, aqi):
+def aqi_vs_temp(id, city, wdate, temp, humidity, aqi):
     a = aqi/temp
     return (id, city, a)
 
@@ -125,3 +125,27 @@ def test_view(db_conn):
     table_view = data.get_table("tableview", "public")
     output = GPTableMetadata(None, [{"id": "int"}], 'randomly', True)
     res = gpApply(table_view, inc, data, output)
+
+def test_gpapply_error1(db_conn):
+    with pytest.raises(Exception) as e:
+        data = GPDatabase(db_conn)
+        table = data.get_table("basic", "public")
+        output_col = [{"a":"int4"}]
+        output = GPTableMetadata("basic_output", output_col, 'randomly')
+        assert gpApply(None, recsum, data, output, True)
+
+def test_gpapply_error2(db_conn):
+    with pytest.raises(Exception) as e:
+        data = GPDatabase(db_conn)
+        table = data.get_table("basic", "public")
+        output_col = [{"a":"int4"}]
+        output = GPTableMetadata("basic_output", output_col, 'randomly')
+        assert gpApply(table, None, data, output, True)
+
+def test_gpapply_error3(db_conn):
+    with pytest.raises(Exception) as e:
+        data = GPDatabase(db_conn)
+        table = data.get_table("basic", "public")
+        output_col = [{"a":"int4"}]
+        output = GPTableMetadata("basic_output", output_col, 'randomly')
+        assert gpApply(table, recsum, None, output, True)
