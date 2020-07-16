@@ -51,6 +51,7 @@ def test_gpapply_case1_returndata(db_conn):
     res = gpApply(table, recsum, data, output)
     assert res.iat[0,0] ==4 or res.iat[1,0] == 4
 
+
 def test_gpapply_case2(db_conn):
     data = GPDatabase(db_conn)
     table = data.get_table("weather", "public")
@@ -138,3 +139,11 @@ def test_gpapply_error3(db_conn):
         output = GPTableMetadata("basic_output", output_col, 'randomly')
         assert gpApply(table, recsum, None, output, True)
 
+def test_gpapply_trans_rollback(db_conn):
+    with pytest.raises(Exception) as e:
+        data = GPDatabase(db_conn)
+        table = data.get_table("basic", "public")
+        output_columns = [{"c1": "int4"}]
+        output = GPTableMetadata("basic_output4", output_columns, 'randomly')
+        assert gpApply(table, recsum, data, output)
+        assert data.check_table_if_exist("basic_output4", "public") == False

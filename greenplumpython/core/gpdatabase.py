@@ -13,6 +13,12 @@ class GPDatabase(SQLDatabase):
         pd_frame = DataFrame.from_records(data, columns=result.keys())
         return pd_frame
 
+    def execute_transaction_query(self, trans, db_sql):
+        result = trans.execute(db_sql)
+        data = result.fetchall()
+        pd_frame = DataFrame.from_records(data, columns=result.keys())
+        return pd_frame
+
     def get_table(self, table_name, schema=None):
         if not schema:
             db_schema = "public"
