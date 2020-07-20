@@ -6,13 +6,14 @@ class GPTableMetadata():
         if self.check_signature(signature):
             self.signature = signature
         self.distribute_on_str = self.get_distribute_str(distribute_on, case_sensitive)
+        self.case_sensitive = case_sensitive
 
     def check_output_name(self, name):
         if name is None:
             return True
         if not isinstance(name, str):
             return False
-        regex = r"[a-zA-Z0-9_]+(\\.[a-zA-Z0-9_]+)?"
+        regex = r"[a-zA-Z0-9_]+[\\.]?[a-zA-Z0-9_]+]?"
         matches = re.finditer(regex, name, re.S)
         for matchNum, match in enumerate(matches, start=1):
             if len(match.group()) != len(name):
