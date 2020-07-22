@@ -8,9 +8,11 @@ def test_normal_name():
     assert meta.name == 'testname'
 
 def test_unnormal_name():
-    with pytest.raises(ValueError):
-        meta = GPTableMetadata('test?name', list(), 'RANDOMLY')
-        assert meta.name == ''
+    invalid_names = ['"ab"', '"b.c"', 'public.ab.cd', 'test?name', 'test.', 'abc?']
+    for name in invalid_names:
+        with pytest.raises(ValueError):
+            meta = GPTableMetadata(name, list(), 'RANDOMLY')
+            assert meta.name == ''
 
 def test_none_signature():
     with pytest.raises(ValueError):
@@ -20,21 +22,24 @@ def test_wrong_type_signature():
     with pytest.raises(ValueError):
         meta = GPTableMetadata('testname', 1, 'RANDOMLY')
 
-def test_list_distributedon():
+def test_distributedon():
     meta = GPTableMetadata('testname', list(), ['abc', 'def'])
     assert meta.distribute_on_str == 'DISTRIBUTED BY (abc, def)'
-
-def test_none_distributedon():
+    meta = GPTableMetadata('testname', list(), ['abc', 'def'], True)
+    assert meta.distribute_on_str == 'DISTRIBUTED BY ("abc", "def")'
     meta = GPTableMetadata('testname', list(), None)
     assert meta.distribute_on_str == ''
-
-def test_random_distributedon():
     meta = GPTableMetadata('testname', list(), 'RANDOMLY')
     assert meta.distribute_on_str == 'DISTRIBUTED RANDOMLY'
-
-def test_replicated_distributedon():
+    meta = GPTableMetadata('testname', list(), 'randomly')
+    assert meta.distribute_on_str == 'DISTRIBUTED RANDOMLY'
+    meta = GPTableMetadata('testname', list(), 'RANDomly')
+    assert meta.distribute_on_str == 'DISTRIBUTED RANDOMLY'
     meta = GPTableMetadata('testname', list(), 'replicated')
     assert meta.distribute_on_str == 'DISTRIBUTED REPLICATED'
+    meta = GPTableMetadata('testname', list(), 'rePLICated')
+    assert meta.distribute_on_str == 'DISTRIBUTED REPLICATED'
+
 
 def test_wrong_str_distributedon():
     with pytest.raises(ValueError):
