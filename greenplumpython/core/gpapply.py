@@ -20,7 +20,11 @@ def pythonExec(df, funcName, typeName, output, extra_args):
     if output.name == None or output.name == "":
         select_func = "WITH gpdbtmpa AS (SELECT (%s(%s)) AS gpdbtmpb FROM (SELECT %s FROM %s) tmptbl) SELECT (gpdbtmpb::%s).* FROM gpdbtmpa;" % (funcName, joined_type_name, joined_type_name, df.table_metadata.name, typeName)
     else:
-        select_func = "CREATE TABLE " + output.name + " AS \n" \
+        if output.case_sensitive:
+            output_name = '"'+output.name+'"'
+        else:
+            output_name = output.name
+        select_func = "CREATE TABLE " + output_name + " AS \n" \
             + "WITH gpdbtmpa AS ( \n" \
             + "SELECT (" + funcName + "(" + joined_type_name + ")) AS gpdbtmpb FROM (SELECT " \
             + joined_type_name + " FROM " + df.table_metadata.name + ") tmptbl \n ) \n" \
@@ -68,6 +72,10 @@ def gpApply(dataframe, py_func, db, output, clear_existing = True, runtime_id = 
     try:
         with db.run_transaction() as trans:
             if clear_existing and output.name != None and output.name != "":
+                if output.case_sensitive:
+                    output_name = '"'+output.name+'"'
+                else:
+                    output_name = output.name        
                 drop_table_sql = "drop table if exists %s;" % output.name
                 trans.execute(drop_table_sql)
             trans.execute(create_type_sql)

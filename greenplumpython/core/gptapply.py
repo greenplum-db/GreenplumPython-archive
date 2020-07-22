@@ -20,7 +20,11 @@ def pythonExec(df, funcName, typeName, index, output, extra_args):
     if output.name == None or output.name == "":
         select_func = "WITH gpdbtmpa AS (\nSELECT (%s(%s)) AS gpdbtmpb FROM (SELECT %s FROM %s GROUP BY %s) tmptbl\n)\nSELECT (gpdbtmpb::%s).* FROM gpdbtmpa;" % (funcName, joined_type_name, ",".join(internal_select), df.table_metadata.name, index, typeName)
     else:
-        select_func = "CREATE TABLE " + output.name + " AS \n" \
+        if output.case_sensitive:
+            output_name = '"'+output.name+'"'
+        else:
+            output_name = output.name
+        select_func = "CREATE TABLE " + output_name + " AS \n" \
             + "WITH gpdbtmpa AS ( \n" \
             + "SELECT (" + funcName + "(" + joined_type_name +")) AS gpdbtmpb FROM (SELECT " \
             + ",".join(internal_select) + " FROM " + df.table_metadata.name + " GROUP BY " + index + ") tmptbl \n ) \n" \
@@ -71,6 +75,10 @@ def gptApply(dataframe, index, py_func, db, output, clear_existing = True, runti
     try:
         with db.run_transaction() as trans:
             if clear_existing and output.name != None and output.name != "":
+                if output.case_sensitive:
+                    output_name = '"'+output.name+'"'
+                else:
+                    output_name = output.name
                 drop_table_sql = "drop table if exists %s;" % output.name
                 trans.execute(drop_table_sql)
             trans.execute(create_type_sql)

@@ -5,7 +5,7 @@ from greenplumpython.core.gpdatabase import GPDatabase
 from greenplumpython.core import sql
 from greenplumpython.core.gptable_metadata import GPTableMetadata
 
-import pytest,os
+import pytest,os,pg
 @pytest.fixture(scope='session', autouse=True)
 def db_conn():
     # Will be executed before the first test
@@ -159,3 +159,19 @@ def test_gpapply_trans_rollback(db_conn):
         output = GPTableMetadata("basic_output4", output_columns, 'randomly')
         assert gpApply(table, recsum, data, output)
         assert data.check_table_if_exist("basic_output4", "public") == False
+
+def test_output_name_schema_table(db_conn):
+    data = GPDatabase(db_conn)
+    table = data.get_table("weather", "public")
+    output_columns = [{"id": "int"}, {"city": "text"},{"a": "float"}]
+    output = GPTableMetadata("test_Schema.testGPapply", output_columns, 'randomly')
+    gpApply(table, aqi_vs_temp, data, output)
+    res = data.execute_query('select * from "test_Schema.testGPapply"')
+    assert res.iat[0,2] == 13.0 or res.iat[0,2] == 6.0
+    data.execute('DROP TABLE IF EXISTS test_Schema.resultGPapply;')
+
+    # non case sensitive
+    output.case_sensitve = False
+    gpApply(table, aqi_vs_temp, data, output)
+    res = data.execute_query('select * from test_Schema.testGPapply')
+    assert res.iat[0,2] == 13.0 or res.iat[0,2] == 6.0

@@ -11,3 +11,7 @@ CREATE TABLE basic_output (a int4, b int4);
 INSERT INTO basic VALUES(1, 3), (2,4);
 INSERT INTO weather VALUES (1, 'New York', '1970-01-01:00:00:00Z', 19, 23, 121);
 INSERT INTO weather VALUES (2, 'London', '1970-01-01:00:00:00Z', 23, 21, 312);
+DROP SCHEMA IF EXISTS test_Schema CASCADE;
+DROP SCHEMA IF EXISTS "test_Schema" CASCADE;
+CREATE Schema "test_Schema";
+CREATE SCHEMA test_Schema;
