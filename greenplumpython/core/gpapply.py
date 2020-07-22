@@ -69,24 +69,26 @@ def gpApply(dataframe, py_func, db, output, clear_existing = True, runtime_id = 
     if db == None:
         raise ValueError("No database connection provided")
 
-    if clear_existing and output.name != None and output.name != "":
-        if output.case_sensitive:
-            output_name = '"'+output.name+'"'
-        else:
-            output_name = output.name
-        drop_table_sql = "drop table if exists %s;" % output_name
-        db.execute(drop_table_sql)
-    db.execute(create_type_sql)
     try:
-        db.execute(function_body)
-        res = None
-        if output.name == None or output.name == "":
-            res = db.execute_query(select_sql)
-        else:
-            db.execute(select_sql)
+        with db.run_transaction() as trans:
+            if clear_existing and output.name != None and output.name != "":
+                if output.case_sensitive:
+                    output_name = '"'+output.name+'"'
+                else:
+                    output_name = output.name        
+                drop_table_sql = "drop table if exists %s;" % output.name
+                trans.execute(drop_table_sql)
+            trans.execute(create_type_sql)
+
+            trans.execute(function_body)
+            res = None
+            if output.name == None or output.name == "":
+                res = db.execute_transaction_query(trans, select_sql)
+            else:
+                trans.execute(select_sql)
+            trans.execute(drop_sql)
+
     except Exception as e:
-        db.execute(drop_sql)
         raise e
 
-    db.execute(drop_sql)
     return res
