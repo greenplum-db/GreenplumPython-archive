@@ -19,6 +19,9 @@ def recsum(a, b, c):
     x['a'] = a[0]+b[0]
     return x
 
+def recsum2(a, b):
+    return (a*10, b*10)
+
 
 def aqi_vs_temp(id, city, wdate, temp, humidity, aqi, adjust):
     a = aqi[0]/temp[0]
@@ -28,7 +31,7 @@ def aqi_vs_temp_two(id, city, wdate, temp, humidity, aqi, adjust1, adjust2):
     a = aqi[0]/temp[0]
     return (city[0], a)
 
-def test_gpapply_case1(db_conn):
+def test_gptapply_case1(db_conn):
     data = GPDatabase(db_conn)
     table = data.get_table("basic", "public")
     output_col = [{"a":"int4"}]
@@ -38,7 +41,7 @@ def test_gpapply_case1(db_conn):
     res = data.execute_query("select * from basic_output_t")
     assert res.iat[0,0] ==4 or res.iat[1,0] == 4
 
-def test_gpapply_case1(db_conn):
+def test_gptapply_case1_returndata(db_conn):
     data = GPDatabase(db_conn)
     table = data.get_table("basic", "public")
     output_col = [{"a":"int4"}]
@@ -47,7 +50,7 @@ def test_gpapply_case1(db_conn):
     res = gptApply(table, index, recsum, data, output, arg1=[1, "int4"])
     assert res.iat[0,0] ==4 or res.iat[1,0] == 4
 
-def test_gpapply_case2(db_conn):
+def test_gptapply_case2(db_conn):
     data = GPDatabase(db_conn)
     table = data.get_table("weather", "public")
     output_columns = [{"city": "text"},{"a": "float"}]
@@ -57,7 +60,16 @@ def test_gpapply_case2(db_conn):
     res = data.execute_query("select * from weather_output_t")
     assert res.iat[0,1] == 13.0 or res.iat[0,1] == 6.0
 
-def test_gpapply_case3(db_conn):
+def test_gptapply_case2_returndata(db_conn):
+    data = GPDatabase(db_conn)
+    table = data.get_table("weather", "public")
+    output_columns = [{"city": "text"},{"a": "float"}]
+    output = GPTableMetadata(None, output_columns, 'randomly')
+    index = "id"
+    res = gptApply(table, index, aqi_vs_temp, data, output, arg1=[1, "int4"])
+    assert res.iat[0,1] == 13.0 or res.iat[0,1] == 6.0
+
+def test_gptapply_case3(db_conn):
     data = GPDatabase(db_conn)
     table = data.get_table("weather", "public")
     output_columns = [{"city": "text"},{"a": "float"}]
@@ -76,7 +88,7 @@ def avg_weather(id, city, temp, humidity, aqi):
     a = format(a, '.2f')
     return (city, t, h, a)
 
-def test_gpapply_case4(db_conn):
+def test_gptapply_case4(db_conn):
     data = GPDatabase(db_conn)
     table = data.get_table("weather", "public")
     output_columns = [{"city": "text"}, {"avg_temp": "float"}, {"avg_humidity": "float"}, {"avg_aqi": "float"}]
@@ -98,28 +110,99 @@ def test_gptapply_plcontainer(db_conn):
         index = "city"
         assert gptApply(table, index, avg_weather, data, output, True, 'plc_python_shared', 'plcontainer')
 
-def test_gpapply_error1(db_conn):
+def test_gptapply_error1_non_table(db_conn):
     with pytest.raises(Exception) as e:
         data = GPDatabase(db_conn)
         table = data.get_table("basic", "public")
         output_col = [{"a":"int4"}]
         output = GPTableMetadata("basic_output", output_col, 'randomly')
         index = "a"
-        assert gpApply(None, index, recsum, data, output, True)
+        assert gptApply(None, index, recsum, data, output, True)
 
-def test_gpapply_error2(db_conn):
+def test_gptapply_error2_non_index(db_conn):
     with pytest.raises(Exception) as e:
         data = GPDatabase(db_conn)
         table = data.get_table("basic", "public")
         output_col = [{"a":"int4"}]
         output = GPTableMetadata("basic_output", output_col, 'randomly')
-        assert gpApply(table, None, recsum, data, output, True)
+        assert gptApply(table, None, recsum, data, output, True)
 
-def test_gpapply_error3(db_conn):
+def test_gptapply_error3_non_connection(db_conn):
     with pytest.raises(Exception) as e:
         data = GPDatabase(db_conn)
         table = data.get_table("basic", "public")
         output_col = [{"a":"int4"}]
         output = GPTableMetadata("basic_output", output_col, 'randomly')
         index = "a"
-        assert gpApply(table, index, recsum, None, output, True)
+        assert gptApply(table, index, recsum, None, output, True)
+
+def test_gptapply_error4_non_func(db_conn):
+    with pytest.raises(Exception) as e:
+        data = GPDatabase(db_conn)
+        table = data.get_table("basic", "public")
+        output_col = [{"a":"int4"}]
+        output = GPTableMetadata("basic_output", output_col, 'randomly')
+        index = "a"
+        assert gptApply(table, index, None, data, output, True)
+
+def test_gptapply_invalidType_signature(db_conn):
+    with pytest.raises(Exception) as e:
+        data = GPDatabase(db_conn)
+        table = data.get_table("basic", "public")
+        output_columns = [{"a": "invalidType"}]
+        index = "a"
+        output = GPTableMetadata("basic_output5", output_columns, 'randomly')
+        assert gptApply(table, index, recsum, data, output, True)
+
+def test_gptapply_empty_signature(db_conn):
+    with pytest.raises(Exception) as e:
+        data = GPDatabase(db_conn)
+        table = data.get_table("basic", "public")
+        output_columns = []
+        index = "a"
+        output = GPTableMetadata("basic_output5", output_columns, 'randomly')
+        assert gptApply(table, index, recsum, data, output, True)
+
+def test_gptapply_result_table_column_num_not_match(db_conn):
+    with pytest.raises(Exception) as e:
+        data = GPDatabase(db_conn)
+        table = data.get_table("basic", "public")
+        output_columns = [{"c1": "int4"}]
+        output = GPTableMetadata("basic_output4", output_columns, ['c1'])
+        assert gptApply(table, index, recsum2, data, output, True)
+
+def test_gptapply_trans_rollback(db_conn):
+    with pytest.raises(Exception) as e:
+        data = GPDatabase(db_conn)
+        table = data.get_table("basic", "public")
+        output_columns = [{"c1": "int4"}]
+        output = GPTableMetadata("basic_output4", output_columns, 'randomly')
+        assert gptApply(table, index, recsum, data, output, True)
+        assert data.check_table_if_exist("basic_output4", "public") == False
+
+def test_output_name_schema_table(db_conn):
+    data = GPDatabase(db_conn)
+    data.execute('DROP TABLE IF EXISTS "test_Schema.testGPTapply";')
+    data.execute('DROP TABLE IF EXISTS test_Schema.testGPTapply;')
+    table = data.get_table("weather", "public")
+    output_columns = [{"city": "text"}, {"avg_temp": "float"}, {"avg_humidity": "float"}, {"avg_aqi": "float"}]
+    output = GPTableMetadata("test_Schema.testGPTapply", output_columns, 'randomly', True)
+    gptApply(table, "id", avg_weather, data, output)
+    res = data.execute_query('select * from "test_Schema.testGPTapply"')
+    assert res.iat[0,3] == 312.0 or res.iat[0,3] == 121.0
+    data.execute('DROP TABLE IF EXISTS test_Schema.testGPTapply;')
+
+    # non case sensitive
+    output.set_case_sensitive(False)
+    gptApply(table, "id", avg_weather, data, output)
+    res = data.execute_query('select * from test_Schema.testGPTapply')
+    assert res.iat[0,3] == 121.0 or res.iat[0,3] == 312.0
+
+def test_fn_wrong_type(db_conn):
+    with pytest.raises(ValueError):
+        data = GPDatabase(db_conn)
+        table = data.get_table("basic", "public")
+        output_col = [{"a":"int4"}]
+        output = GPTableMetadata("basic_output_t", output_col, 'randomly')
+        index = "a"
+        assert gptApply(table, index, 'bad_function', data, output, arg1=[1, "int4"])

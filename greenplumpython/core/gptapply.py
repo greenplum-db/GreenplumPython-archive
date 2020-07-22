@@ -34,6 +34,8 @@ def pythonExec(df, funcName, typeName, index, output, extra_args):
 def gptApply(dataframe, index, py_func, db, output, clear_existing = True, runtime_id = 'plc_python', runtime_type = 'plpythonu', **kwargs):
     if py_func == None:
         raise ValueError("No input function provided")
+    if callable(py_func) == False:
+        raise ValueError("Wrong input function provided")
 
     s = inspect.getsource(py_func)
     function_name = randomString()
@@ -82,7 +84,6 @@ def gptApply(dataframe, index, py_func, db, output, clear_existing = True, runti
                 drop_table_sql = "drop table if exists %s;" % output.name
                 trans.execute(drop_table_sql)
             trans.execute(create_type_sql)
-
             trans.execute(function_body)
             res = None
             if output.name == None or output.name == "":
