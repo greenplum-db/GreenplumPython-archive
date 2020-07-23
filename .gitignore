@@ -1,2 +1,5 @@
 __pycache__
 .vscode/
+build/
+dist/
+greenplum_python.egg-info/
