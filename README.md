@@ -1,9 +1,16 @@
 ## GreenplumPython
 GreenplumPython is a Python 3 client that designed for Greenplum Database (> 6.0). With GreenplumPython installed in R environment, users can interact with data in Greenplum Database for analytics purpose. GreenplumPython provides a rich interface to allow user access both tables and views with minimal data transfer via pandas library. Users can easily access database without any knowledge of SQL. Moreover, GreenplumPython can allow user to execute their own Python code combine with data in Greenplum Database directly via built-in APPLY functions. GreenplumPython can work with PL/Conatiner to provide a high preformance sandbox Python 3 runtime environment.
 
+## Build
+GreenplumPython can be built directly from source
+```python
+python setup.py bdist_wheel
+``` 
+
 ## Install
 GreenplumPython is a python 3 library, and requires the following libraries
 `numpy`, `PyGreSQL`, `SQLAlchemy` and `pandas`
+GreenplumPython can be installed via `pip install`
 
 ## Get Started
 ```python
