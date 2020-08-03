@@ -62,9 +62,11 @@ def gpApply(dataframe, py_func, db, output, clear_existing = True, runtime_id = 
     runtime_id_str = ''
     if runtime_type == 'plcontainer':
         runtime_id_str = '# container: %s' % (runtime_id)
-    function_body = "CREATE OR REPLACE FUNCTION %s(%s) RETURNS %s AS $$\n%s\n%s\nreturn %s(%s) $$ LANGUAGE %s;" % (function_name,",".join(params),typeName,runtime_id_str,s,py_func.__name__,",".join(columns),runtime_type)
+    function_declare = "%s(%s)" % (function_name,",".join(params))
+    function_body = "CREATE OR REPLACE FUNCTION %s RETURNS %s AS $$\n%s\n%s\nreturn %s(%s) $$ LANGUAGE %s;" % (function_declare,typeName,runtime_id_str,s,py_func.__name__,",".join(columns),runtime_type)
     select_sql = pythonExec(dataframe, function_name, typeName, output, kwargs)
     drop_sql = "DROP TYPE " + typeName + " CASCADE;"
+    drop_function_sql = "DROP FUNCTION IF EXISTS %s;" % function_declare
 
     if db == None:
         raise ValueError("No database connection provided")
@@ -86,6 +88,7 @@ def gpApply(dataframe, py_func, db, output, clear_existing = True, runtime_id = 
                 res = db.execute_transaction_query(trans, select_sql)
             else:
                 trans.execute(select_sql)
+            trans.execute(drop_function_sql)
             trans.execute(drop_sql)
 
     except Exception as e:

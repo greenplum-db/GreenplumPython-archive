@@ -28,6 +28,13 @@ test_greenplumpython(){
   popd
 }
 
+test_performance() {
+  pushd ${TOP_DIR}/perf_test
+  psql gppython -f perf_prepare.sql
+  python3 test_performance.py
+  popd
+}
+
 time create_db
 time test_greenplumpython
 time remove_db
