@@ -26,6 +26,7 @@ def test_database_conn_success():
     assert conn is not None
 
 def test_database_conn_fail():
+    print(host)
     with pytest.raises(Exception) as e:
         connection = GPConnection()
         assert connection.connect(host, port, 'no_exist_db', user, password)

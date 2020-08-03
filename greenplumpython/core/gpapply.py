@@ -34,7 +34,8 @@ def pythonExec(df, funcName, typeName, output, extra_args):
 def gpApply(dataframe, py_func, db, output, clear_existing = True, runtime_id = 'plc_python', runtime_type = 'plpythonu', **kwargs):
     if py_func == None:
         raise ValueError("No input function provided")
-    
+    if callable(py_func) == False:
+        raise ValueError("Wrong input function provided")
     s = inspect.getsource(py_func)
     function_name = randomString()
     typeName = randomStringType()
