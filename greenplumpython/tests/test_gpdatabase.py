@@ -1,23 +1,8 @@
 from greenplumpython.core.gp_connection import GPConnection
 from greenplumpython.core.gpdatabase import GPDatabase
+from greenplumpython.tests.testdb import host, port, db, user, password
 import os
 import pytest
-
-host = os.getenv('GPHOST')
-if host is None or host is '':
-    host = "localhost"
-port = os.getenv('GPPORT')
-if port is None or port is '':
-    port = 6000
-else:
-    port = int(port)
-db = os.getenv('GPDATABASE')
-if db is None or db is '':
-    db = "gppython"
-user = os.getenv('GPUSER')
-if user is None or user is '':
-    user = "gpadmin"
-password = os.getenv('GPPASSWORD')
 
 @pytest.fixture(scope='session', autouse=True)
 def db_conn():

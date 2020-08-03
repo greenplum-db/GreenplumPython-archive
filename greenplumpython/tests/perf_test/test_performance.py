@@ -35,14 +35,14 @@ if __name__ == "__main__":
     output = GPTableMetadata("basic_output", output_col, 'randomly')
     start_time = time.monotonic()
 
-    gpApply(table, py_func_1, data, output, True, 'plc_python3_shared', 'plcontainer')
+    gpApply(table, py_func_1, data, output, 'plc_python3_shared', 'plcontainer', True)
     end_time = time.monotonic()
     print("plus container", timedelta(seconds=end_time - start_time))
     res = data.execute_query("select * from basic_output")
     print(res)
     start_time2 = time.monotonic()
 
-    gpApply(table, py_func_1, data, output)
+    gpApply(table, py_func_1, data, output, '', 'plpythonu')
     end_time2 = time.monotonic()
     res = data.execute_query("select * from basic_output")
     print("plus pythonu",timedelta(seconds=end_time2 - start_time2))
@@ -52,14 +52,14 @@ if __name__ == "__main__":
     output_col = [{"a":"numeric"}]
     output = GPTableMetadata("basic_numeric_output", output_col, 'randomly')
 
-    gpApply(table_n, py_func_2, data, output, True, 'plc_python3_shared', 'plcontainer')
+    gpApply(table_n, py_func_2, data, output, 'plc_python3_shared', 'plcontainer', True)
     end_time = time.monotonic()
     print("divide container", timedelta(seconds=end_time - start_time))
     res = data.execute_query("select * from basic_numeric_output")
     print(res)
     start_time2 = time.monotonic()
 
-    gpApply(table_n, py_func_2, data, output)
+    gpApply(table_n, py_func_2, data, output, '', 'plpythonu')
     end_time2 = time.monotonic()
     res = data.execute_query("select * from basic_numeric_output")
     print("divide pythonu",timedelta(seconds=end_time2 - start_time2))

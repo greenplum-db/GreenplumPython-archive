@@ -31,7 +31,7 @@ def pythonExec(df, funcName, typeName, index, output, extra_args):
             + "SELECT (gpdbtmpb::" + typeName + ").* FROM gpdbtmpa " + output.distribute_on_str + ";"
     return select_func
 
-def gptApply(dataframe, index, py_func, db, output, clear_existing = True, runtime_id = 'plc_python', runtime_type = 'plpythonu', **kwargs):
+def gptApply(dataframe, index, py_func, db, output, runtime_id, runtime_type = 'plcontainer', clear_existing = True, **kwargs):
     if py_func == None:
         raise ValueError("No input function provided")
     if callable(py_func) == False:
