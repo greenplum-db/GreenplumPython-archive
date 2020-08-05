@@ -31,7 +31,7 @@ def pythonExec(df, funcName, typeName, output, extra_args):
             + "SELECT (gpdbtmpb::" + typeName + ").* FROM gpdbtmpa " + output.distribute_on_str + ";"
     return select_func
 
-def gpApply(dataframe, py_func, db, output, clear_existing = True, runtime_id = 'plc_python', runtime_type = 'plpythonu', **kwargs):
+def gpApply(dataframe, py_func, db, output, runtime_id, runtime_type = 'plcontainer', clear_existing = True, **kwargs):
     if py_func == None:
         raise ValueError("No input function provided")
     if callable(py_func) == False:
@@ -78,8 +78,8 @@ def gpApply(dataframe, py_func, db, output, clear_existing = True, runtime_id = 
                 if output.case_sensitive:
                     output_name = '"'+output.name+'"'
                 else:
-                    output_name = output.name        
-                drop_table_sql = "drop table if exists %s;" % output.name
+                    output_name = output.name
+                drop_table_sql = "drop table if exists %s;" % output_name
                 trans.execute(drop_table_sql)
             trans.execute(create_type_sql)
 
