@@ -76,7 +76,8 @@ export PGPORT=5432; \
 export GPUSER=gpadmin; \
 export GPDATABASE=gppython; \
 pushd GreenplumPython_src; \
-bash concourse/scripts/run_test_plcontainer.sh
+source /usr/local/greenplum-db-devel/greenplum_path.sh; \
+bash concourse/scripts/run_test_plcontainer.sh; \
 popd; \
 \""
 #############################################################
