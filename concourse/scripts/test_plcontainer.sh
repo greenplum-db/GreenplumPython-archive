@@ -17,7 +17,7 @@ ssh mdw "bash -c \" \
 set -eox pipefail; \
 export MASTER_DATA_DIRECTORY=/data/gpdata/master/gpseg-1; \
 source /usr/local/greenplum-db-devel/greenplum_path.sh; \
-gppkg -i /tmp/bin_plcontainer/plcontainer*.gppkg; \
+gppkg -i /tmp/bin_plcontainer/plcontainer-2.*.gppkg; \
 \""
 
 
