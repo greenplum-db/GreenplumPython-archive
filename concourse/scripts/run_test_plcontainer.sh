@@ -8,7 +8,9 @@ function test_run() {
 #!/bin/bash -l
 set -exo pipefail
 export GPRLANGUAGE=plcontainer
+export PYTHONPATH=$PYTHONPATH:/home/gpadmin/GreenplumPython_src
 pushd ~/GreenplumPython_src/greenplumpython/tests/
+
 ./run_test.sh
 popd
 EOF
