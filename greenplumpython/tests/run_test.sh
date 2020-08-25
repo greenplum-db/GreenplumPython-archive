@@ -24,6 +24,9 @@ remove_db (){
 test_greenplumpython(){
   echo ${TOP_DIR}	
   pushd ${TOP_DIR}
+  unset PYTHONHOME
+  unset PYTHONPATH
+  export PYTHONPATH=$PYTHONPATH:${TOP_DIR}
   python3 -m pytest -s
   popd
 }
