@@ -59,7 +59,6 @@ export MASTER_DATA_DIRECTORY=/data/gpdata/master/gpseg-1; \
 source /usr/local/greenplum-db-devel/greenplum_path.sh; \
 plcontainer image-add -f /usr/local/greenplum-db-devel/share/postgresql/plcontainer/plcontainer-python-images.tar.gz; \
 plcontainer runtime-add -r plc_python_shared -i pivotaldata/plcontainer_python3_shared:devel -l r -s use_container_logging=yes; \
-gpconfig -c shared_preload_libraries -v 'plc_coordinator'; \
 gpstop -arf; \
 createdb gppython; \
 pushd /home/gpadmin/GreenplumPython_src; \

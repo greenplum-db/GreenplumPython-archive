@@ -156,16 +156,16 @@ resources:
 - name: bin_plcontainer_centos7
   type: gcs
   source:
-    bucket: {{gcs-bucket-intermediates}}
+    bucket: {{gcs-bucket}}
     json_key: {{concourse-gcs-resources-service-account-key}}
-    versioned_file: plcontainer/released/gpdb6/plcontainer-2.*-gp6-rhel7_x86_64.gppkg
+    regexp: plcontainer/released/gpdb6/plcontainer-(2.*)-gp6-rhel7_x86_64.gppkg
 
 - name: bin_plcontainer_ubuntu18
   type: gcs
   source:
-    bucket: {{gcs-bucket-intermediates}}
+    bucket: {{gcs-bucket}}
     json_key: {{concourse-gcs-resources-service-account-key}}
-    versioned_file: plcontainer/published/master/plcontainer-2.*-gp6-ubuntu18.04_x86_64.gppkg
+    regexp: plcontainer/released/gpdb6/plcontainer-(2.*)-gp6-ubuntu18.04_x86_64.gppkg
 
 - name: plcontainer_gpdb_ubuntu18_build_lib
   type: gcs
