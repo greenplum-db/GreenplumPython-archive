@@ -10,4 +10,4 @@ from greenplumpython.core.gptable_metadata import GPTableMetadata
 from greenplumpython.core.gptapply import gptApply
 from greenplumpython.core.gpapply import gpApply
 from greenplumpython.core import sql
-
+from greenplumpython.core.gpdatabase import GPDatabase

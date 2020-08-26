@@ -24,7 +24,7 @@ function install_libraries() {
     ubuntu)
       apt update
       DEBIAN_FRONTEND=noninteractive apt install -y python3-pip libpq-dev
-      pip3 install pytest numpy PyGreSQL SQLAlchemy pandas
+      pip3 install pytest numpy SQLAlchemy pandas
       ;;
     *)
       echo "unknown TEST_OS = $TEST_OS"
