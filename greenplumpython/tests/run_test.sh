@@ -26,8 +26,7 @@ test_greenplumpython(){
   pushd ${TOP_DIR}
   unset PYTHONHOME
   unset PYTHONPATH
-  export PYTHONPATH=$PYTHONPATH:${TOP_DIR}
-  python3 -m pytest -s
+  PYTHONPATH=$PYTHONPATH:${TOP_DIR} python3 -m pytest -s
   popd
 }
 
