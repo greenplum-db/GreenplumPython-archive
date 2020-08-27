@@ -1,0 +1,12 @@
+platform: linux
+image_resource:
+  type: docker-image
+
+inputs:
+  - name: GreenplumPython_src
+
+outputs:
+  - name: greenplumPython-release
+  
+run:
+  path: GreenplumPython_src/concourse/scripts/greenplumpython_release.sh

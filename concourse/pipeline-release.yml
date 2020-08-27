@@ -1,0 +1,117 @@
+groups:
+- name: All
+  jobs:
+  - test_greenplumpython_light_centos7
+  - test_greenplumpython_light_ubuntu18
+  - greenplumPython_release
+
+resource_types:
+- name: gcs
+  type: docker-image
+  source:
+    repository: frodenas/gcs-resource
+
+- name: terraform
+  type: docker-image
+  source:
+    repository: ljfranklin/terraform-resource
+    tag: 0.11.14
+
+resources:
+# Image Resources
+- name: centos-gpdb-dev-7
+  type: docker-image
+  source:
+    repository: pivotaldata/centos-gpdb-dev
+    tag: '7-gcc6.2-llvm3.7'
+
+- name: ubuntu18-image-test
+  type: docker-image
+  source:
+    repository: pivotaldata/gpdb6-ubuntu18.04-test
+    tag: latest
+
+# Github Source Codes
+- name: gpdb_src
+  type: git
+  source:
+    branch: 6X_STABLE
+    uri: https://github.com/greenplum-db/gpdb.git
+    ignore_paths:
+    - gpdb-doc/*
+    - README*
+
+- name: GreenplumPython_src
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/greenplum-db/GreenplumPython.git
+
+- name: bin_gpdb_centos7
+  type: gcs
+  source:
+    bucket: ((gcs-bucket-intermediates))
+    json_key: ((concourse-gcs-resources-service-account-key))
+    versioned_file: 6X_STABLE/bin_gpdb_centos7/bin_gpdb.tar.gz
+
+- name: bin_gpdb_ubuntu18
+  type: gcs
+  source:
+    bucket: ((gcs-bucket-intermediates))
+    json_key: ((concourse-gcs-resources-service-account-key))
+    versioned_file: 6X_STABLE/bin_gpdb_ubuntu18.04/bin_gpdb.tar.gz
+
+- name: greenplumPython-release
+  type: gcs
+  source:
+    bucket: {{gcs-bucket}}
+    json_key: {{concourse-gcs-resources-service-account-key}}
+    regexp: pl-analysis-suite/released/gpdb6/greenplumPython-(.*).tar.gz
+
+jobs:
+- name: test_greenplumpython_light_centos7
+  plan:
+  - aggregate:
+    - get: gpdb_src
+    - get: GreenplumPython_src
+      trigger: true
+    - get: bin_gpdb
+      resource: bin_gpdb_centos7
+    - get: bin_plr
+      resource: bin_plr_centos7
+    - get: centos-gpdb-dev-7
+  - task: test_greenplumr_plr_centos7
+    file: GreenplumPython_src/concourse/tasks/test_plr.yml
+    image: centos-gpdb-dev-7
+    params:
+
+- name: test_greenplumpython_light_ubuntu18
+  plan:
+  - aggregate:
+    - get: gpdb_src
+    - get: GreenplumPython_src
+      trigger: true
+    - get: bin_gpdb
+      resource: bin_gpdb_ubuntu18
+    - get: bin_plr
+      resource: bin_plr_ubuntu18
+    - get: ubuntu18-image-test
+  - task: test_greenplumr_plr
+    file: GreenplumPython_src/concourse/tasks/test_plr.yml
+    image: ubuntu18-image-test
+    params:
+
+# Release GreenplumPython GP Package
+- name: greenplumPython_release
+  max_in_flight: 1
+  plan:
+  - aggregate:
+    - get: centos-gpdb-dev-7
+    - get: GreenplumPython_src
+  - task: plcontainer_gpdb_build
+    file: GreenplumPython_src/concourse/tasks/greenplumPython_release.yml
+    image: centos-gpdb-dev-7
+  - aggregate:
+    - put: greenplumPython-release
+      params:
+        file: greenplumPython-release/greenplum-python-*.tar.gz
