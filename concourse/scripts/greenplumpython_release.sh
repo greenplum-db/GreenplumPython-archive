@@ -10,6 +10,7 @@ set -exo pipefail
 
 CWDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TOP_DIR=${CWDIR}/../../../
+bash ${TOP_DIR}/GreenplumPython_src/concourse/scripts/test_plcontainer_python_prepare.sh;
 
 release_greenplumpython() {
   pushd GreenplumPython_src
