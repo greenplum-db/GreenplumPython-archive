@@ -176,7 +176,7 @@ resources:
 
 jobs:
 
-# test GrenplumR for plcontainer
+# test GrenplumPython for plcontainer
 - name: test_plcontainer_centos7
   plan:
   - aggregate:
