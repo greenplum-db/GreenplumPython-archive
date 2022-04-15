@@ -5,7 +5,7 @@ class GPConnection(object):
 
     def __init__(self):
         self.connection_pool = dict()
-        self.max_connectid = 1
+        self.max_connectid = 2
 
     def _sqlalchemy_connection_convert(self, conn):
         conn_alchemy = pd.io.sql._engine_builder(conn)
