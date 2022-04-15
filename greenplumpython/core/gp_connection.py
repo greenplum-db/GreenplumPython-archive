@@ -16,18 +16,21 @@ class GPConnection(object):
         return conn_alchemy
 
     def connect(self, host: str, port: int, database: str, user: str, password: str):
-        url = "postgresql+pygresql://%s:%s@%s:%d/%s" % (user, password, host, port, database)
+        url = "postgresql+psycopg2://%s:%s@%s:%d/%s" % (user, password, host, port, database)
         engine = sqlalchemy.create_engine(url)
         conn = engine.connect()
-        conn_alchemy = self._sqlalchemy_connection_convert(conn)
-        conn_pairs = (conn, conn_alchemy)
-        self.connection_pool[self.max_connectid] = conn_pairs
-        self.max_connectid += 1 
-        return conn_alchemy
-    
+        #conn_alchemy = self._sqlalchemy_connection_convert(conn)
+        #conn_pairs = (conn, conn_alchemy)
+        #self.connection_pool[self.max_connectid] = conn_pairs
+        self.connection_pool[self.max_connectid] = conn
+        self.max_connectid += 1
+        #return conn_alchemy
+        return conn
+        
     def get_connection(self, conn_id: int):
         if conn_id in self.connection_pool.keys():
-            return self.connection_pool[conn_id][1]
+            #return self.connection_pool[conn_id][1]
+            return self.connection_pool[conn_id]
         else:
             raise ValueError("conn id does not exist in GPConnection object")
     
@@ -36,7 +39,8 @@ class GPConnection(object):
     
     def close(self, conn_id:int):
         if conn_id in self.connection_pool.keys(): 
-            self.connection_pool[conn_id][0].close()
+            #self.connection_pool[conn_id][0].close()
+            self.connection_pool[conn_id].close()
             del self.connection_pool[conn_id]
         else:
             raise ValueError("conn id does not exist in GPConnection object")

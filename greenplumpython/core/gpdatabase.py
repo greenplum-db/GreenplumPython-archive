@@ -5,7 +5,7 @@ from greenplumpython.core.gptable_metadata import GPTableMetadata
 
 class GPDatabase(SQLDatabase):
     def __init__(self, conn, schema=None, meta=None):
-        super(GPDatabase, self).__init__(conn, schema, meta)
+        super(GPDatabase, self).__init__(conn, schema)
 
     def execute_query(self, db_sql):
         result = self.execute(db_sql)

@@ -1,5 +1,6 @@
 import pytest
 from greenplumpython.core.gptable_metadata import GPTableMetadata
+
 def test_normal_name():
     try:
         meta = GPTableMetadata('testname', [{'a':'int4'}], 'RANDOMLY')

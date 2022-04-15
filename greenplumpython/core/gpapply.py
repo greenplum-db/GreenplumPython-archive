@@ -13,8 +13,9 @@ def pythonExec(df, funcName, typeName, output, extra_args):
             internal_select.append(column)
             func_type_name.append(column)
 
-    for key, value in extra_args.items(): 
-        func_type_name.append(str(value[0]))
+    #for key, value in extra_args.items():
+        #func_type_name.append(str(value[0]))
+        #func_type_name.append(str(key))
     select_func = ""
     joined_type_name = ",".join(func_type_name)
     if output.name == None or output.name == "":
@@ -39,12 +40,17 @@ def gpApply(dataframe, py_func, db, output, runtime_id, runtime_type = 'plcontai
     s = inspect.getsource(py_func)
     function_name = randomString()
     typeName = randomStringType()
+    # params stoks all the arguments needed by py_func
     params = []
+    # columns stocks arguments name of py_func
     columns = inspect.getfullargspec(py_func)[0]
+    # extras stocks extra_args value with text formatting
+    extras = ""
 
     if dataframe == None:
         raise ValueError("No input dataframe provided")
 
+    # params stocks input table columns type
     for i, col in enumerate(dataframe.table_metadata.signature):
         for j, column in enumerate(col):
             params.append(column+" "+col[column])
@@ -52,8 +58,10 @@ def gpApply(dataframe, py_func, db, output, runtime_id, runtime_type = 'plcontai
     rest_args_num = len(columns) - len(params)
     args_index = 0 - rest_args_num
 
-    for key, value in kwargs.items(): 
-        params.append(columns[args_index] + " " + str(value[1]))
+    for key, value in kwargs.items():
+        #params.append(columns[args_index] + " " + str(value[1]))
+        #params.append(key + " " + str(value))
+        extras = extras + columns[args_index] + " = " + str(value[0]) + "\n"
         args_index = args_index + 1
     
     if output == None or output.signature == None:
@@ -64,7 +72,10 @@ def gpApply(dataframe, py_func, db, output, runtime_id, runtime_type = 'plcontai
     if runtime_type == 'plcontainer':
         runtime_id_str = '# container: %s' % (runtime_id)
     function_declare = "%s(%s)" % (function_name,",".join(params))
-    function_body = "CREATE OR REPLACE FUNCTION %s RETURNS %s AS $$\n%s\n%s\nreturn %s(%s) $$ LANGUAGE %s;" % (function_declare,typeName,runtime_id_str,s,py_func.__name__,",".join(columns),runtime_type)
+    if len(output.signature) == 1:
+        function_body = "CREATE OR REPLACE FUNCTION %s RETURNS %s AS $$\n%s%s\n%s\nreturn [%s(%s)] $$ LANGUAGE %s;" % (function_declare,typeName,extras,runtime_id_str,s,py_func.__name__,",".join(columns),runtime_type)
+    else :
+        function_body = "CREATE OR REPLACE FUNCTION %s RETURNS %s AS $$\n%s%s\n%s\nreturn %s(%s) $$ LANGUAGE %s;" % (function_declare, typeName, extras,runtime_id_str, s, py_func.__name__, ",".join(columns), runtime_type)
     select_sql = pythonExec(dataframe, function_name, typeName, output, kwargs)
     drop_sql = "DROP TYPE " + typeName + " CASCADE;"
     drop_function_sql = "DROP FUNCTION IF EXISTS %s;" % function_declare
