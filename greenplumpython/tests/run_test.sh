@@ -7,7 +7,7 @@ create_db (){
   echo "Create DB...."
   dropdb gppython || true
   createdb gppython
-  psql gppython -c 'create extension plpythonu'
+  psql gppython -c 'create extension plpython3u'
   psql gppython -f prepare_gppython.sql
   echo "Create DB finished"
 }
