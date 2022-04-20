@@ -1,5 +1,12 @@
 import setuptools
-import versioneer 
+import versioneer
+import os
+
+def _read_reqs(relpath):
+    fullpath = os.path.join(os.path.dirname(__file__), relpath)
+    with open(fullpath) as f:
+        return [s.strip() for s in f.readlines()
+                if (s.strip() and not s.startswith("#"))]
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -20,4 +27,5 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
+    install_requires=_read_reqs("requirements.txt"),
 )

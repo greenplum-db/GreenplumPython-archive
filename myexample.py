@@ -15,10 +15,23 @@ conn = connection.connect(dbIP, dbPort, dbname, username, password)
 # init GPDB Database instance
 gpdb_instance = gp.GPDatabase(conn)
 
-# a dataframe warpper for input table
+
+# create table t2 in database
 schema = "public"
 table_name = "t2"
+
+gpdb_instance.execute("DROP TABLE IF EXISTS t2;")
+gpdb_instance.execute("CREATE TABLE t2 (id int, name int);")
+gpdb_instance.execute("INSERT INTO t2 (id, name) (WITH numbers AS (SELECT * FROM generate_series(1, 5)) SELECT generate_series, generate_series +2 FROM numbers);")
+res = gpdb_instance.execute_query("select * from t2")
+print("----------------Table t2-------------------")
+print(res)
+
+
+# # a dataframe warpper for input table
 Dataframe_Wrapper_instance_input = gpdb_instance.get_table(table_name, schema)
+
+# ----------------- GPAPPLY -----------------------
 
 # set output table columns info 
 columns_output_types = list()
@@ -37,6 +50,11 @@ def input_py_func(id, name):
 # run gpapply and return result is a pandas dataframe
 #dataframe = gp.gpApply(Dataframe_Wrapper_instance_input, input_py_func, gpdb_instance, Table_Metadata_output, clear_existing = True, runtime_id = 'plc_r', runtime_type = 'plpython3u', **input_py_func_extra_args)
 dataframe = gp.gpApply(Dataframe_Wrapper_instance_input, input_py_func, gpdb_instance, Table_Metadata_output, clear_existing = True, runtime_id = 'plc_r', runtime_type = 'plpython3u')
+res = gpdb_instance.execute_query("select * from new_table")
+print("----------------gpapply id+name--------------------")
+print(res)
+
+# ----------------- GPTAPPLY -----------------------
 
 # set output table columns info
 columns_output_types = list()
@@ -59,3 +77,6 @@ group_by_index = "id"
 # run gpTapply
 #gp.gpTapply(Dataframe_Wrapper_instance_input, input_py_func_groupby, group_by_index, GPDatabase_instance, Table_Metadata_output = None, clear_existing = True, runtime_id = 'plc_r', runtime_type = 'plcontainer', **input_py_func_extra_args)
 gp.gptApply(Dataframe_Wrapper_instance_input, group_by_index, input_py_func_groupby, gpdb_instance, Table_Metadata_output, clear_existing = True, runtime_id = 'plc_r', runtime_type = 'plpython3u')
+res = gpdb_instance.execute_query("select * from new_table")
+print("-------------gptapply aggregate name-------------------")
+print(res)

@@ -9,7 +9,7 @@ else:
     port = int(port)
 db = os.getenv('GPDATABASE')
 if db is None or db is '':
-    db = "postgres"
+    db = "gppython"
 user = os.getenv('GPUSER')
 if user is None or user is '':
     user = "gpadmin"
