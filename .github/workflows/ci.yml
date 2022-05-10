@@ -2,10 +2,12 @@ name: CI
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
+    paths-ignore:
+      - "*.yml"
+      - "*.md"
+      - "*.sql"
 
 jobs:
   lint_and_test:
