@@ -1,11 +1,13 @@
-from greenplumpython.core.gptapply import gptApply
-from greenplumpython.tests.testdb import host, port, db, user, password
+import os
+
+import pytest
+
+from greenplumpython.core import sql
 from greenplumpython.core.gp_connection import GPConnection
 from greenplumpython.core.gpdatabase import GPDatabase
-from greenplumpython.core import sql
 from greenplumpython.core.gptable_metadata import GPTableMetadata
-
-import pytest, os
+from greenplumpython.core.gptapply import gptApply
+from greenplumpython.tests.testdb import db, host, password, port, user
 
 
 @pytest.fixture(scope="session", autouse=True)

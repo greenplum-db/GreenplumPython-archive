@@ -1,8 +1,10 @@
+import os
+
+import pytest
+
 from greenplumpython.core.gp_connection import GPConnection
 from greenplumpython.core.gpdatabase import GPDatabase
-from greenplumpython.tests.testdb import host, port, db, user, password
-import os
-import pytest
+from greenplumpython.tests.testdb import db, host, password, port, user
 
 
 @pytest.fixture(scope="session", autouse=True)

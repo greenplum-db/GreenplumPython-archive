@@ -1,7 +1,9 @@
 import inspect
 import random
 import string
+
 import numpy as np
+
 from greenplumpython.utils.apply_utils import *
 
 

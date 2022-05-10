@@ -1,4 +1,5 @@
 import pytest
+
 from greenplumpython.core.gptable_metadata import GPTableMetadata
 
 

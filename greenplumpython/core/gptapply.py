@@ -1,8 +1,10 @@
-import pandas as pd
-from greenplumpython.core.gpdatabase import GPDatabase
-from greenplumpython.core.dataframe_wrapper import DataFrameWrapper
-from greenplumpython.core.gptable_metadata import GPTableMetadata
 import inspect
+
+import pandas as pd
+
+from greenplumpython.core.dataframe_wrapper import DataFrameWrapper
+from greenplumpython.core.gpdatabase import GPDatabase
+from greenplumpython.core.gptable_metadata import GPTableMetadata
 from greenplumpython.utils.apply_utils import *
 
 

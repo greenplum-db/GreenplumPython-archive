@@ -1,6 +1,6 @@
-from pg import connect
-import sqlalchemy
 import pandas as pd
+import sqlalchemy
+from pg import connect
 
 
 class GPConnection(object):

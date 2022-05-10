@@ -1,4 +1,5 @@
-from pandas.io.sql import SQLDatabase, SQLTable, DataFrame
+from pandas.io.sql import DataFrame, SQLDatabase, SQLTable
+
 from greenplumpython.core.dataframe_wrapper import DataFrameWrapper
 from greenplumpython.core.gp_connection import GPConnection
 from greenplumpython.core.gptable_metadata import GPTableMetadata

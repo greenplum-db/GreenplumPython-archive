@@ -1,8 +1,9 @@
 import pytest
-from greenplumpython.tests.testdb import host, port, db, user, password
+
 from greenplumpython.core.gp_connection import GPConnection
 from greenplumpython.core.gpdatabase import GPDatabase
-from greenplumpython.utils.apply_utils import randomStringType, createTypeFunc
+from greenplumpython.tests.testdb import db, host, password, port, user
+from greenplumpython.utils.apply_utils import createTypeFunc, randomStringType
 
 
 @pytest.fixture(scope="session", autouse=True)

@@ -1,4 +1,5 @@
 from pandas.io.sql import DataFrame
+
 from greenplumpython.core.gptable_metadata import GPTableMetadata
 
 

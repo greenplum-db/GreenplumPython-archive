@@ -1,11 +1,12 @@
-from greenplumpython.core.gpapply import gpApply
-from greenplumpython.tests.testdb import host, port, db, user, password
-from greenplumpython.core.gp_connection import GPConnection
-from greenplumpython.core.gpdatabase import GPDatabase
-from greenplumpython.core import sql
-from greenplumpython.core.gptable_metadata import GPTableMetadata
 import time
 from datetime import timedelta
+
+from greenplumpython.core import sql
+from greenplumpython.core.gp_connection import GPConnection
+from greenplumpython.core.gpapply import gpApply
+from greenplumpython.core.gpdatabase import GPDatabase
+from greenplumpython.core.gptable_metadata import GPTableMetadata
+from greenplumpython.tests.testdb import db, host, password, port, user
 
 
 def py_func_1(a, b):
