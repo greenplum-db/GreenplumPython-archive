@@ -1,11 +1,11 @@
 import setuptools
-import versioneer 
+import versioneer
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="greenplum-python", # Replace with your own username
+    name="greenplum-python",  # Replace with your own username
     version=versioneer.get_version(),
     author="Greenplum Python",
     author_email="greenplum-python@vmware.com",
@@ -19,5 +19,5 @@ setuptools.setup(
         "License :: OSI Approved :: Apache License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
+    python_requires=">=3.6",
 )

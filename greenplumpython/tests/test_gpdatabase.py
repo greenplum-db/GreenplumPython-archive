@@ -4,7 +4,8 @@ from greenplumpython.tests.testdb import host, port, db, user, password
 import os
 import pytest
 
-@pytest.fixture(scope='session', autouse=True)
+
+@pytest.fixture(scope="session", autouse=True)
 def db_conn():
     # Will be executed before the first test
     connection = GPConnection()
@@ -13,16 +14,19 @@ def db_conn():
     # Will be executed after the last test
     connection.close(1)
 
+
 def test_get_table(db_conn):
     data = GPDatabase(db_conn)
     frame = data.get_table("employee", "public")
     assert frame.table_metadata.name == "employee"
     assert frame.table_metadata.signature[1]["payment"] == "int4"
 
+
 def test_execute_query(db_conn):
     data = GPDatabase(db_conn)
     dataq = data.execute_query("select name from employee")
     assert len(dataq) > 0
+
 
 def test_has_table(db_conn):
     data = GPDatabase(db_conn)
@@ -30,4 +34,3 @@ def test_has_table(db_conn):
     assert result == True
     result = data.check_table_if_exist("employee1", "public")
     assert result == False
-
