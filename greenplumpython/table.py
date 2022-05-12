@@ -1,6 +1,7 @@
 import random
 import string
 from typing import Iterable, NamedTuple
+
 import sqlalchemy
 
 
