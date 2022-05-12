@@ -23,7 +23,13 @@ def pythonExec(df, funcName, typeName, output, extra_args):
     if output.name == None or output.name == "":
         select_func = (
             "WITH gpdbtmpa AS (SELECT (%s(%s)) AS gpdbtmpb FROM (SELECT %s FROM %s) tmptbl) SELECT (gpdbtmpb::%s).* FROM gpdbtmpa;"
-            % (funcName, joined_type_name, joined_type_name, df.table_metadata.name, typeName)
+            % (
+                funcName,
+                joined_type_name,
+                joined_type_name,
+                df.table_metadata.name,
+                typeName,
+            )
         )
     else:
         if output.case_sensitive:
