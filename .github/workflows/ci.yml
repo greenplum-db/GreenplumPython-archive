@@ -41,4 +41,4 @@ jobs:
           black . --check --diff
       - name: Run isort lint
         run:  |
-          isort --profile black . -c -v
+          isort --profile black . -c --diff
