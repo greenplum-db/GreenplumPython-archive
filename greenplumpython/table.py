@@ -37,9 +37,7 @@ class Table(Node):
         if table_name is not None:
             self.name = table_name
         else:
-            self.name = "tb_" + "".join(
-                random.choice(string.ascii_lowercase) for _ in range(60)
-            )
+            self.name = "tb_" + "".join(random.choice(string.ascii_lowercase) for _ in range(60))
         if any(parents):
             self.db = next(iter(parents)).db
         else:
@@ -103,9 +101,7 @@ def table(table_name: str, db: Database) -> Table:
 
 
 class Expr(Node):
-    def __init__(
-        self, text: str, parents: Iterable["Node"] = [], as_name: str = None
-    ) -> None:
+    def __init__(self, text: str, parents: Iterable["Node"] = [], as_name: str = None) -> None:
         self.text = text
         self.parents = parents
         self.as_name = as_name
