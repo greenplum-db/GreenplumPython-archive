@@ -1,6 +1,8 @@
 import re
-class GPTableMetadata():
-    def __init__(self, name, signature = list(), distribute_on = '', case_sensitive = False):
+
+
+class GPTableMetadata:
+    def __init__(self, name, signature=list(), distribute_on="", case_sensitive=False):
         if self.check_output_name(name):
             self.name = name
         if self.check_signature(signature):
@@ -17,38 +19,38 @@ class GPTableMetadata():
         matches = re.finditer(regex, name, re.S)
         for matchNum, match in enumerate(matches, start=1):
             if len(match.group()) != len(name):
-                raise ValueError('Invalid output name')
+                raise ValueError("Invalid output name")
             else:
                 return True
 
     def check_signature(self, signature):
         if signature is None:
-            raise ValueError('Null signature is not supported')
+            raise ValueError("Null signature is not supported")
         elif isinstance(signature, list) and len(signature) != 0:
             return True
         else:
-            raise ValueError('Invalid signature type')
+            raise ValueError("Invalid signature type")
 
     def get_distribute_str(self, distribute_on):
         if distribute_on is None:
-            return ''
+            return ""
 
         if isinstance(distribute_on, list):
             if self.case_sensitive:
-                fields = ', '.join('"' + item + '"' for item in distribute_on)
+                fields = ", ".join('"' + item + '"' for item in distribute_on)
             else:
-                fields = ', '.join(distribute_on)
-            return 'DISTRIBUTED BY ('+fields+')'
+                fields = ", ".join(distribute_on)
+            return "DISTRIBUTED BY (" + fields + ")"
 
         if isinstance(distribute_on, str):
             dist = distribute_on.upper()
-            if dist == 'RANDOMLY':
-                return 'DISTRIBUTED RANDOMLY'
-            if dist == 'REPLICATED':
-                return 'DISTRIBUTED REPLICATED'
-            raise ValueError('Invalid distribute value')
+            if dist == "RANDOMLY":
+                return "DISTRIBUTED RANDOMLY"
+            if dist == "REPLICATED":
+                return "DISTRIBUTED REPLICATED"
+            raise ValueError("Invalid distribute value")
 
-        raise ValueError('invalid distributed type')
+        raise ValueError("invalid distributed type")
 
     def set_case_sensitive(self, case_sensitive):
         self.case_sensitive = case_sensitive

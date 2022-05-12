@@ -199,3 +199,9 @@ meta = gp.GPTableMeta(table_output_name, table_output_schema, columns_output_typ
 GPDatabase_instance.check_table_if_exist(table_name, schema)
 
 ```
+## PR
+
+- install dev requirements `pip install -r requirements-dev.txt`
+- `black` the code use `black .  --line-length 100`
+- `isort` the imports use `isort --profile black .`
+
