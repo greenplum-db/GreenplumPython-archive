@@ -19,4 +19,4 @@ def test_const_table(db: gp.Database):
     t_cols = t.columns().fetch()
     assert len(list(t_cols)) == 1
     for row in t_cols:
-        assert row['column_name'] == 'id'
+        assert row["column_name"] == "id"
