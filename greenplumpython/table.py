@@ -9,8 +9,8 @@ class Table:
         self,
         query: str,
         parents: Iterable["Table"] = [],
-        name: str = None,
-        db: db.Database = None,
+        name: Optional[str] = None,
+        db: Optional[db.Database] = None,
     ) -> None:
         self._query = query
         self._parents = parents
@@ -38,9 +38,11 @@ class Table:
         if isinstance(key, slice):
             raise NotImplementedError()
 
+    # FIXME: Add test
     def filter(self, expr: expr.Expr) -> "Table":
         return Table(f"SELECT * FROM {self._name} WHERE {str(expr)}", parents=[self])
 
+    # FIXME: Add test
     def select(self, target_list: Iterable) -> "Table":
         return Table(
             f"""
@@ -50,18 +52,19 @@ class Table:
             parents=[self],
         )
 
-    def columns(self) -> "Table":
+    def column_names(self) -> "Table":
         if any(self._parents):
             raise NotImplementedError()
         return Table(
             f"""
-                SELECT * 
+                SELECT column_name
                 FROM information_schema.columns 
                 WHERE table_name = quote_ident('{self._name}')
             """,
             db=self._db,
         )
 
+    @property
     def name(self) -> str:
         return self._name
 
@@ -70,7 +73,7 @@ class Table:
         tables_visited = set()
         current = 0
         while current < len(lineage):
-            for table in lineage[current].parents:
+            for table in lineage[current]._parents:
                 if table._name not in tables_visited:
                     lineage.append(table)
                     tables_visited.add(table._name)

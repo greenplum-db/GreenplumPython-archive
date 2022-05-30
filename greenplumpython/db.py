@@ -6,8 +6,8 @@ import psycopg2.extras
 
 class Database:
     def __init__(self, **params) -> None:
-        self.conn = psycopg2.connect(
-            ",".join([f"{k}={v}" for k, v in params.items()]),
+        self._conn = psycopg2.connect(
+            " ".join([f"{k}={v}" for k, v in params.items()]),
             cursor_factory=psycopg2.extras.RealDictCursor,
         )
 
