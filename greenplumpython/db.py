@@ -12,12 +12,12 @@ class Database:
         )
 
     def execute(self, query: str, args: Iterable = [], has_results: bool = True) -> Iterable:
-        with self.conn.cursor() as cursor:
+        with self._conn.cursor() as cursor:
             cursor.execute(query, args)
             return cursor.fetchall() if has_results else None
 
     def close(self) -> None:
-        self.conn.close()
+        self._conn.close()
 
 
 def database(**conn_strings) -> Database:

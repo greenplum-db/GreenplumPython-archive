@@ -1,4 +1,4 @@
-from typing import Iterable, Tuple
+from typing import Iterable, Optional, Tuple
 from uuid import uuid4
 
 from . import db, expr

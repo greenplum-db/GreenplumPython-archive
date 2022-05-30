@@ -16,7 +16,7 @@ def test_const_table(db: gp.Database):
     t = t.save_as("const_table", column_names=["id"])
     assert sorted([tuple(row.values()) for row in t.fetch()]) == sorted(rows)
 
-    t_cols = t.columns().fetch()
+    t_cols = t.column_names().fetch()
     assert len(list(t_cols)) == 1
     for row in t_cols:
         assert row["column_name"] == "id"
