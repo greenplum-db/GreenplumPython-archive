@@ -1,9 +1,12 @@
-from .table import Table
-from .database import Database
+from typing import TYPE_CHECKING, Iterable
+
+if TYPE_CHECKING:
+    from .db import Database
+    from .table import Table
 
 
 class Expr:
-    def __init__(self, text: str, parents: Iterable["Node"] = [], as_name: str = None) -> None:
+    def __init__(self, text: str, parents: Iterable["Expr"] = [], as_name: str = None) -> None:
         self.text = text
         self.parents = parents
         self.as_name = as_name
@@ -29,7 +32,7 @@ class BinaryExpr:
 
 
 class Column(Expr):
-    def __init__(self, name: str, table: Table, as_name: str = None) -> None:
+    def __init__(self, name: str, table: "Table", as_name: str = None) -> None:
         super().__init__(name, parents=[table], as_name=as_name)
         self.table = table
         self.name = name
