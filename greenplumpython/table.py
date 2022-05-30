@@ -1,8 +1,7 @@
-from .database import Database
+from typing import Iterable, Optional, Tuple
+from uuid import uuid4
 
-# table_name can be table/view name
-def table(table_name: str, db: Database) -> Table:
-    return Table(f"TABLE {table_name}", table_name=table_name, db=db)
+from . import db, expr
 
 
 class Table:
@@ -10,20 +9,16 @@ class Table:
         self,
         query: str,
         parents: Iterable["Table"] = [],
-        table_name: str = None,
-        db: Database = None,
+        name: Optional[str] = None,
+        db: Optional[db.Database] = None,
     ) -> None:
-        self.query = query
-        self.parents = parents
-        if table_name is not None:
-            self.name = table_name
-        else:
-            # FIXME: short UUID?
-            self.name = "tb_" + "".join(random.choice(string.ascii_lowercase) for _ in range(60))
+        self._query = query
+        self._parents = parents
+        self._name = "cte_" + uuid4().hex if name is None else name
         if any(parents):
-            self.db = next(iter(parents)).db
+            self._db = next(iter(parents))._db
         else:
-            self.db = db
+            self._db = db
 
     def __getitem__(self, key):
         """
@@ -35,28 +30,96 @@ class Table:
             - if key is a slice, then SELECT a portion of consecutive rows
         """
         if isinstance(key, str):
-            return Column(key, self)
+            return expr.Column(key, self)
         if isinstance(key, list):
             return self.select(key)
-        if isinstance(key, Expr):
+        if isinstance(key, expr.Expr):
             return self.filter(key)
         if isinstance(key, slice):
             raise NotImplementedError()
 
-    def filter(expr):
-        return Table(f"SELECT * FROM {self.name} WHERE {str(key)}", parents=[self])
+    # FIXME: Add test
+    def filter(self, expr: expr.Expr) -> "Table":
+        return Table(f"SELECT * FROM {self._name} WHERE {str(expr)}", parents=[self])
 
-    def select(self, expr_list: list):
+    # FIXME: Add test
+    def select(self, target_list: Iterable) -> "Table":
         return Table(
-            f"SELECT {','.join([str(target) for target in key])} FROM {self.name}", parents=[self]
+            f"""
+                SELECT {','.join([str(target) for target in target_list])} 
+                FROM {self._name}
+            """,
+            parents=[self],
         )
 
-    def describe(self):
-        raise NotImplementedError()
+    def column_names(self) -> "Table":
+        if any(self._parents):
+            raise NotImplementedError()
+        return Table(
+            f"""
+                SELECT column_name
+                FROM information_schema.columns 
+                WHERE table_name = quote_ident('{self._name}')
+            """,
+            db=self._db,
+        )
 
-    def name(self):
-        raise NotImplementedError()
+    @property
+    def name(self) -> str:
+        return self._name
 
-    # If all = false, use cursor to fetch
-    def fetch(all: bool = true):
-        raise NotImplementedError()
+    def _list_lineage(self) -> Iterable["Table"]:
+        lineage = [self]
+        tables_visited = set()
+        current = 0
+        while current < len(lineage):
+            for table in lineage[current]._parents:
+                if table._name not in tables_visited:
+                    lineage.append(table)
+                    tables_visited.add(table._name)
+            current += 1
+        return lineage
+
+    def _build_full_query(self) -> str:
+        if not any(self._parents):
+            return self._query
+        lineage = self._list_lineage()
+        cte_list = []
+        for table in reversed(lineage):
+            if table._name != self._name:
+                cte_list.append(f"{table._name} AS ({table._query})")
+        return "WITH " + ",".join(cte_list) + self.query
+
+    def fetch(self, all: bool = True) -> Iterable:
+        """
+        Fetch rows of this table.
+        - if all is True, fetch all rows at once
+        - otherwise, open a CURSOR and FETCH one row at a time
+        """
+        if not all:
+            raise NotImplementedError()
+        return self._db.execute(self._build_full_query())
+
+    def save_as(
+        self, table_name: str, temp: bool = True, column_names: Iterable[str] = []
+    ) -> "Table":
+        self._db.execute(
+            f"""
+            CREATE {'TEMP' if temp else ''} TABLE {table_name} ({','.join(column_names)}) 
+            AS {self._build_full_query()}
+            """,
+            has_results=False,
+        )
+        return table(table_name, self._db)
+
+
+# table_name can be table/view name
+def table(name: str, db: db.Database) -> Table:
+    return Table(f"TABLE {name}", name=name, db=db)
+
+
+def values(rows: Iterable[Tuple], db: db.Database) -> Table:
+    return Table(
+        f"VALUES {','.join(['(' + ','.join(str(datum) for datum in row) + ')' for row in rows])}",
+        db=db,
+    )
