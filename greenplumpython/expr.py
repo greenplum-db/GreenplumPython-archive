@@ -19,7 +19,7 @@ class Expr:
         raise NotImplementedError()
 
     # Attribute
-    def name():
+    def name(self):
         raise NotImplementedError()
 
 
@@ -35,11 +35,11 @@ class Column(Expr):
     def __init__(self, name: str, table: "Table", as_name: str = None) -> None:
         super().__init__(name, parents=[table], as_name=as_name)
         self.table = table
-        self.name = name
+        self._name = name
         self.db = table.db
 
     def __str__(self) -> str:
-        raise NotImplementedError()
+        return self.table.name + "." + self.name()
 
-    def name():
-        raise NotImplementedError()
+    def name(self) -> str:
+        return self._name

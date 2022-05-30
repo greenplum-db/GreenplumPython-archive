@@ -68,6 +68,10 @@ class Table:
     def name(self) -> str:
         return self._name
 
+    @property
+    def db(self) -> db.Database:
+        return self._db
+
     def _list_lineage(self) -> Iterable["Table"]:
         lineage = [self]
         tables_visited = set()
