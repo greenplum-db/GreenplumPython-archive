@@ -24,11 +24,23 @@ class Expr:
 
 
 class BinaryExpr:
-    def __init__(self, operator: str, left: Expr, right: Expr):
-        raise NotImplementedError()
+    def __init__(self, operator: str, left: Expr, right):
+        self.operator = operator
+        self.left = left
+        self.right = right
 
     def __str__(self) -> str:
-        raise NotImplementedError()
+        if isinstance(self.right, type(None)):
+            return str(self.left) + " " + self.operator + " " + "NULL"
+        if isinstance(self.right, str):
+            return str(self.left) + " " + self.operator + " \"" + self.right + "\""
+        if isinstance(self.right, bool):
+            if self.right:
+                return str(self.left) + " " + self.operator + " TRUE"
+            else:
+                return str(self.left) + " " + self.operator + " FALSE"
+
+        return str(self.left) + " " + self.operator + " " + str(self.right)
 
 
 class Column(Expr):
