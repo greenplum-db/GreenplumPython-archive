@@ -88,7 +88,7 @@ class Table:
         for table in reversed(lineage):
             if table._name != self._name:
                 cte_list.append(f"{table._name} AS ({table._query})")
-        return "WITH " + ",".join(cte_list) + self.query
+        return "WITH " + ",".join(cte_list) + self._query
 
     def fetch(self, all: bool = True) -> Iterable:
         """
