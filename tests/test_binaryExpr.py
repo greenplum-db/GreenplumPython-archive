@@ -57,3 +57,40 @@ def test_expr_bin_equal_bool(db: gp.Database):
     assert str(b5) == "temp1.id = TRUE"
     ret = t[b5].fetch()
     assert len(list(ret)) == 2
+
+
+@pytest.fixture
+def table_num(db: gp.Database):
+    generate_series = gp.function("generate_series", db)
+    t = generate_series(0, 9, as_name="id").to_table()
+    return t
+
+
+def test_expr_bin_lt(db: gp.Database, table_num: gp.Table):
+    b1 = table_num["id"] < 3
+    ret = table_num[b1].fetch()
+    assert len(list(ret)) == 3
+
+
+def test_expr_bin_le(db: gp.Database, table_num: gp.Table):
+    b1 = table_num["id"] <= 3
+    ret = table_num[b1].fetch()
+    assert len(list(ret)) == 4
+
+
+def test_expr_bin_gt(db: gp.Database, table_num: gp.Table):
+    b1 = table_num["id"] > 3
+    ret = table_num[b1].fetch()
+    assert len(list(ret)) == 6
+
+
+def test_expr_bin_ge(db: gp.Database, table_num: gp.Table):
+    b1 = table_num["id"] >= 3
+    ret = table_num[b1].fetch()
+    assert len(list(ret)) == 7
+
+
+def test_expr_bin_ne(db: gp.Database, table_num: gp.Table):
+    b1 = table_num["id"] != 3
+    ret = table_num[b1].fetch()
+    assert len(list(ret)) == 9

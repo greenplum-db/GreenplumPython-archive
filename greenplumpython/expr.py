@@ -14,6 +14,21 @@ class Expr:
             return BinaryExpr("is", self, other)
         return BinaryExpr("=", self, other)
 
+    def __lt__(self, other):
+        return BinaryExpr("<", self, other)
+
+    def __le__(self, other):
+        return BinaryExpr("<=", self, other)
+
+    def __gt__(self, other):
+        return BinaryExpr(">", self, other)
+
+    def __ge__(self, other):
+        return BinaryExpr(">=", self, other)
+
+    def __ne__(self, other):
+        return BinaryExpr("!=", self, other)
+
     def __str__(self) -> str:
         raise NotImplementedError()
 
