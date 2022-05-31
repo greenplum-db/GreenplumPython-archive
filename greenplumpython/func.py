@@ -16,7 +16,7 @@ class FunctionCall(Expr):
         self._db = db
 
     def __str__(self) -> str:
-        args_string = ",".join([str(arg) for arg in self._args]) if self._args else ""
+        args_string = ",".join([str(arg) for arg in self._args]) if any(self._args) else ""
         return f"{self._func_name}({args_string})"
 
     def to_table(self) -> Table:
