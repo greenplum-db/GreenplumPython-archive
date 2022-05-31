@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING, Iterable, Optional
 
 if TYPE_CHECKING:
     from .db import Database
@@ -6,11 +6,8 @@ if TYPE_CHECKING:
 
 
 class Expr:
-    def __init__(self, text: str, parents: Iterable["Expr"] = [], as_name: str = None) -> None:
-        self.text = text
-        self.parents = parents
-        self.as_name = as_name
-        self.db: Database = next(iter(parents)).db
+    def __init__(self, as_name: Optional[str] = None) -> None:
+        self._as_name = as_name
 
     def __eq__(self, other):
         return BinaryExpr("=", self, other)
@@ -32,9 +29,9 @@ class BinaryExpr:
 
 
 class Column(Expr):
-    def __init__(self, name: str, table: "Table", as_name: str = None) -> None:
+    def __init__(self, name: str, table: "Table", as_name: Optional[str] = None) -> None:
         super().__init__(name, parents=[table], as_name=as_name)
-        self.table = table
+        self._table = table
         self._name = name
 
     def __str__(self) -> str:
