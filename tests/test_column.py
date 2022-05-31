@@ -37,4 +37,4 @@ def test_expr_column_str_in_query(db: gp.Database, table: gp.Table):
     for row in ret:
         keys = list(row.keys())
         assert len(keys) == 1
-        assert 'id' in keys[0]
+        assert "id" in keys[0]
