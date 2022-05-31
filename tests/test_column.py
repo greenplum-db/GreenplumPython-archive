@@ -20,7 +20,7 @@ def table(db: gp.Database):
 
 def test_expr_column_name(db: gp.Database, table: gp.Table):
     c = gp.expr.Column("id", table)
-    assert c.name() == "id"
+    assert c.name == "id"
 
 
 def test_expr_column_str(db: gp.Database, table: gp.Table):
