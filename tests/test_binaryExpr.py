@@ -52,10 +52,8 @@ def test_expr_bin_equal_2expr(db: gp.Database):
 
 def test_expr_bin_equal_bool(db: gp.Database):
     rows = [("True",), ("False",), ("False",), ("True",)]
-    t = gp.values(rows, db=db)
-    t = t.save_as("temp1", column_names=["id"])
-    c = t["id"]
-    b5 = gp.expr.BinaryExpr("=", c, True)
+    t = gp.values(rows, db=db).save_as("temp1", column_names=["id"])
+    b5 = t["id"] == True
     assert str(b5) == "temp1.id = TRUE"
     ret = t[b5].fetch()
     assert len(list(ret)) == 2
