@@ -1,4 +1,5 @@
 import pytest
+
 import greenplumpython as gp
 
 
