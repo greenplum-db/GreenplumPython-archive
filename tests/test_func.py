@@ -9,10 +9,12 @@ def db() -> gp.Database:
     yield db
     db.close()
 
+
 def test_plain_func(db: gp.Database):
     version = gp.function("version", db)
     for row in version().to_table().fetch():
         assert "Greenplum" in row["version"]
+
 
 def test_set_returning_func(db: gp.Database):
     generate_series = gp.function("generate_series", db)
