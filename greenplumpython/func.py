@@ -8,7 +8,7 @@ from .table import Table
 
 class FunctionCall(Expr):
     def __init__(
-        self, func_name: str, db: Database, args: Iterable[Expr] = [], as_name: str = None
+        self, func_name: str, db: Database, args: Iterable[Expr] = [], as_name: Optional[str] = None
     ) -> None:
         super().__init__(as_name)
         self._func_name = func_name
