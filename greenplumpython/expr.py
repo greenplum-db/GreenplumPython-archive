@@ -36,7 +36,6 @@ class Column(Expr):
         super().__init__(name, parents=[table], as_name=as_name)
         self.table = table
         self._name = name
-        self.db = table.db
 
     def __str__(self) -> str:
         return self.table.name + "." + self.name()
