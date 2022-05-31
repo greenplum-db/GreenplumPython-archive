@@ -5,9 +5,15 @@ import versioneer
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+
+with open("requirements.txt") as f:
+    requirements = f.read().splitlines()
+
+
 setuptools.setup(
-    name="greenplum-python",  # Replace with your own username
+    name="greenplum-python",
     version=versioneer.get_version(),
+    install_requires=requirements,
     author="Greenplum Python",
     author_email="greenplum-python@vmware.com",
     description="Python interface for Greenplum",
@@ -20,5 +26,5 @@ setuptools.setup(
         "License :: OSI Approved :: Apache License",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.7",
 )

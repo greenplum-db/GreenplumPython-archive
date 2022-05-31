@@ -4,7 +4,7 @@ import greenplumpython as gp
 
 
 @pytest.fixture
-def db():
+def db() -> gp.Database:
     db = gp.database(host="localhost", dbname="gpadmin")
     yield db
     db.close()
