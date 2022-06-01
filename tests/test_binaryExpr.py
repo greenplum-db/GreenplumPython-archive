@@ -21,11 +21,11 @@ def test_expr_bin_equal_int(db: gp.Database):
 
 
 def test_expr_bin_equal_str(db: gp.Database):
-    rows = [("'aa'",), ("'bb'",), ("'cc'",)]
+    rows = [("'aaa'",), ("'bbb'",), ("'ccc'",)]
     t = gp.values(rows, db=db).save_as("temp2", column_names=["id"])
-    b2 = t["id"] == "aa"
-    assert str(b2) == str(gp.expr.BinaryExpr("=", t["id"], "aa"))
-    assert str(b2) == "temp2.id = 'aa'"
+    b2 = t["id"] == "aaa"
+    assert str(b2) == str(gp.expr.BinaryExpr("=", t["id"], "aaa"))
+    assert str(b2) == "temp2.id = 'aaa'"
     ret = t[b2].fetch()
     assert len(list(ret)) == 1
 
