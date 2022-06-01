@@ -101,7 +101,7 @@ class Table:
         return self._db.execute(self._build_full_query())
 
     def save_as(
-        self, table_name: str, temp: bool = True, column_names: Iterable[str] = []
+        self, table_name: str, temp: bool = False, column_names: Iterable[str] = []
     ) -> "Table":
         self._db.execute(
             f"""

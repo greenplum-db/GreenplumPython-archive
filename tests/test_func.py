@@ -1,3 +1,5 @@
+import inspect
+
 import pytest
 
 import greenplumpython as gp
@@ -20,3 +22,13 @@ def test_set_returning_func(db: gp.Database):
     generate_series = gp.function("generate_series", db)
     results = generate_series(0, 9, as_name="id").to_table().fetch()
     assert sorted([row["id"] for row in results]) == list(range(10))
+
+
+def test_create_func(db: gp.Database):
+    @gp.create_function(db)
+    def add(a: int, b: int) -> int:
+        return a + b
+
+    for row in add(1, 2, as_name="sum").to_table().fetch():
+        assert row["sum"] == 1 + 2
+        assert row["sum"] == inspect.unwrap(add)(1, 2)
