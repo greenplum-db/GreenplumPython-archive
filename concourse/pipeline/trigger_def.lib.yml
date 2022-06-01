@@ -1,0 +1,73 @@
+#@ load("base.lib.yml", "add_res_by_name")
+
+#! PR trigger. For pull request pipelines
+#@ def pr_trigger(res_map):
+#@   add_res_by_name(res_map, "greenplumpython_pr")
+auto_trigger: true
+to_get:
+  - get: greenplumpython_src
+    resource: greenplumpython_pr
+    params:
+      fetch_tags: true
+      submodules: true
+to_put_pre:
+  - put: greenplumpython_pr
+    params:
+      path: greenplumpython_src
+      status: pending
+to_put_post: #@ []
+on_failure:
+  put: greenplumpython_pr
+  params:
+    path: greenplumpython_src
+    status: failure
+on_error:
+  put: greenplumpython_pr
+  params:
+    path: greenplumpython_src
+    status: failure
+on_success:
+   put: greenplumpython_pr
+   params:
+     path: greenplumpython_src
+     status: success
+#@ end
+
+#! Commit trigger. For master pipelines
+#@ def commit_trigger(res_map):
+#@   add_res_by_name(res_map, "greenplumpython_commit")
+#@   add_res_by_name(res_map, "slack_notify")
+auto_trigger: true
+to_get:
+- get: greenplumpython_src
+  resource: greenplumpython_commit
+to_put_pre: #@ []
+to_put_post: #@ []
+#! To set the github commit status, https://github.com/Pix4D/cogito is a good choice.
+#! Unfortunately it doesn't work with Concourse 5.
+on_success:
+on_failure:
+  put: slack_notify
+  params:
+    alert_type: failed
+on_error:
+  put: slack_notify
+  params:
+    alert_type: errored
+#@ end
+
+#! Commit trigger. For dev pipelines. No webhook
+#@ def commit_dev_trigger(res_map):
+#@   add_res_by_name(res_map, "greenplumpython_commit_dev")
+auto_trigger: true
+to_get:
+- get: greenplumpython_src
+  resource: greenplumpython_commit_dev
+to_put_pre: #@ []
+to_put_post: #@ []
+#! To set the github commit status, https://github.com/Pix4D/cogito is a good choice.
+#! Unfortunately it doesn't work with Concourse 5.
+on_success:
+on_failure:
+on_error:
+#@ end
