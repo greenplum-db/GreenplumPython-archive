@@ -16,7 +16,7 @@ class Expr:
         raise NotImplementedError()
 
     # Attribute
-    def name():
+    def name(self):
         raise NotImplementedError()
 
 
@@ -30,12 +30,17 @@ class BinaryExpr:
 
 class Column(Expr):
     def __init__(self, name: str, table: "Table", as_name: Optional[str] = None) -> None:
-        super().__init__(name, parents=[table], as_name=as_name)
+        super().__init__(as_name=as_name)
         self._table = table
         self._name = name
 
     def __str__(self) -> str:
-        raise NotImplementedError()
+        return self.table.name + "." + self.name
 
-    def name():
-        raise NotImplementedError()
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def table(self) -> "Table":
+        return self._table

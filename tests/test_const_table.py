@@ -20,3 +20,11 @@ def test_const_table(db: gp.Database):
     assert len(list(t_cols)) == 1
     for row in t_cols:
         assert row["column_name"] == "id"
+
+
+def test_table_getitem(db: gp.Database):
+    rows = [(1,), (2,), (3,)]
+    t = gp.values(rows, db=db)
+    t = t.save_as("const_table", column_names=["id"])
+    c = t["id"]
+    assert str(c) == (t.name + ".id")
