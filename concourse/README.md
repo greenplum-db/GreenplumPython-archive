@@ -14,8 +14,8 @@ https://extensions.ci.gpdb.pivotal.io/teams/main/pipelines/PR:greenplumpython
 
 ### Main Branch Pipeline
 
-The development happens on the `gpdb` branch. The commit pipeline for the `gpdb`
-https://extensions.ci.gpdb.pivotal.io/teams/main/pipelines/COMMIT:greenplumpython:gpdb
+The development happens on the `master` branch. The commit pipeline for the `master`
+https://extensions.ci.gpdb.pivotal.io/teams/main/pipelines/COMMIT:greenplumpython:master
 
 
 # Fly a pipeline
@@ -46,7 +46,7 @@ https://extensions.ci.gpdb.pivotal.io/teams/main/pipelines/COMMIT:greenplumpytho
 
 ## Fly the release pipeline
 
-By default, the release is built from the `gpdb` branch.
+By default, the release is built from the `master` branch.
 
 The release pipeline should be located in https://prod.ci.gpdb.pivotal.io
 
