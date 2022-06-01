@@ -27,7 +27,7 @@ resources:
     disable_forks: false
     repository: greenplum-db/GreenplumPython
     access_token: ((github-access-token))
-    base_branch: main
+    base_branch: master
 # Commit trigger
 - name: greenplumpython_commit
   type: git
