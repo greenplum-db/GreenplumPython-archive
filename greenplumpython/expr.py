@@ -48,7 +48,7 @@ class BinaryExpr(Expr):
         if isinstance(self.right, type(None)):
             return str(self.left) + " " + self.operator + " " + "NULL"
         if isinstance(self.right, str):
-            return str(self.left) + " " + self.operator + " \'" + self.right + "\'"
+            return str(self.left) + " " + self.operator + " '" + self.right + "'"
         if isinstance(self.right, bool):
             if self.right:
                 return str(self.left) + " " + self.operator + " TRUE"
