@@ -29,6 +29,19 @@ def test_create_func(db: gp.Database):
     def add(a: int, b: int) -> int:
         return a + b
 
-    for row in add(1, 2, as_name="sum").to_table().fetch():
-        assert row["sum"] == 1 + 2
-        assert row["sum"] == inspect.unwrap(add)(1, 2)
+    for row in add(1, 2, as_name="result").to_table().fetch():
+        assert row["result"] == 1 + 2
+        assert row["result"] == inspect.unwrap(add)(1, 2)
+
+
+def test_create_func_multiline(db: gp.Database):
+    @gp.create_function(db)
+    def max(a: int, b: int) -> int:
+        if a > b:
+            return a
+        else:
+            return b
+
+    for row in max(1, 2, as_name="result").to_table().fetch():
+        assert row["result"] == 2
+        assert row["result"] == inspect.unwrap(max)(1, 2)

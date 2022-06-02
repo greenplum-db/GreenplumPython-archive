@@ -64,15 +64,12 @@ def create_function(
             func_lines = textwrap.dedent(inspect.getsource(func)).split("\n")
             func_body = "\n".join([line for line in func_lines if re.match(r"^\s", line)])
             db.execute(
-                textwrap.dedent(
-                    f"""
-                    CREATE {or_replace} FUNCTION {qualified_func_name} ({func_args_string})
-                    RETURNS {primitive_type_map[func_sig.return_annotation]}
-                    LANGUAGE {language_handler}
-                    AS $$ 
-                    {textwrap.dedent(func_body)} 
-                    $$
-                    """
+                (
+                    f"CREATE {or_replace} FUNCTION {qualified_func_name} ({func_args_string}) "
+                    f"RETURNS {primitive_type_map[func_sig.return_annotation]} "
+                    f"LANGUAGE {language_handler} "
+                    f"AS $$\n"
+                    f"{textwrap.dedent(func_body)} $$"
                 ),
                 has_results=False,
             )
