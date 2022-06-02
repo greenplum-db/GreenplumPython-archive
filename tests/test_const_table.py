@@ -48,10 +48,13 @@ def test_table_join_lt(db: gp.Database):
 
 
 def test_table_join_target(db: gp.Database):
+    # fmt: off
     rows1 = [(1, "'a1'",), (2, "'b1'",), (3, "'c1'",)]
     rows2 = [(1, "'a2'",), (2, "'b2'",), (3, "'c2'",)]
+    # fmt: on
     t1 = gp.values(rows1, db=db).save_as("temp1", temp=True, column_names=["id1", "n1"])
     t2 = gp.values(rows2, db=db).save_as("temp2", temp=True, column_names=["id2", "n2"])
-    ret = t1.join(t2, t1["id1"] == t2["id2"], how="left",
-                  target_list=[t1["id1"], t1["n1"], t2["n2"]]).fetch()
+    ret = t1.join(
+        t2, t1["id1"] == t2["id2"], how="left", target_list=[t1["id1"], t1["n1"], t2["n2"]]
+    ).fetch()
     assert "id2" not in list(list(ret)[0].keys())

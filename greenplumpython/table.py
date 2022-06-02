@@ -52,9 +52,17 @@ class Table:
             parents=[self],
         )
 
-    def join(self, other: "Table", expr: expr.Expr, how: Optional[str] = "natural", target_list: Optional[Iterable] = None) -> "Table":
-        select_str = ','.join([str(target) for target in target_list]) if target_list is not None else "*"
-        on_str = 'ON ' + str(expr) if how.upper() != "NATURAL" else None
+    def join(
+        self,
+        other: "Table",
+        expr: expr.Expr,
+        how: Optional[str] = "natural",
+        target_list: Optional[Iterable] = None,
+    ) -> "Table":
+        select_str = (
+            ",".join([str(target) for target in target_list]) if target_list is not None else "*"
+        )
+        on_str = "ON " + str(expr) if how.upper() != "NATURAL" else None
         return Table(
             f"""
                 SELECT {select_str} 
