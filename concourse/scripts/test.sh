@@ -3,8 +3,9 @@
 set -exo pipefail
 
 function _main() {
-    # FIXME: This should not be necessary. But our tests rely on this.
+    # FIXME: The test db and extension creation should be handled by python code.
     createdb gpadmin
+    psql gpadmin -c "CREATE LANGUAGE plpython3u;"
 
     # Run testing
     pushd /home/gpadmin/greenplumpython_src

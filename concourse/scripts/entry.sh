@@ -114,6 +114,7 @@ function install_gpdb() {
     # Start cluster
     source "/home/gpadmin/gpdb_src/concourse/scripts/common.bash"
     make_cluster
+    source /home/gpadmin/gpdb_src/gpAux/gpdemo/gpdemo-env.sh
 }
 
 function setup_gpadmin_bashrc() {
@@ -124,10 +125,15 @@ function setup_gpadmin_bashrc() {
     } >> /home/gpadmin/.bashrc
 }
 
+function install_plpython3() {
+    PGUSER=gpadmin gppkg -i bin_plpython3/*.gppkg
+}
+
 # Setup common environment
 install_dependencies
 setup_gpadmin
 install_gpdb
+install_plpython3
 setup_gpadmin_bashrc
 
 # Do the special setup with root permission for the each task, then run the real task script with
