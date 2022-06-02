@@ -36,12 +36,12 @@ def test_create_func(db: gp.Database):
 
 def test_create_func_multiline(db: gp.Database):
     @gp.create_function(db)
-    def max(a: int, b: int) -> int:
+    def my_max(a: int, b: int) -> int:
         if a > b:
             return a
         else:
             return b
 
-    for row in max(1, 2, as_name="result").to_table().fetch():
-        assert row["result"] == 2
-        assert row["result"] == inspect.unwrap(max)(1, 2)
+    for row in my_max(1, 2, as_name="result").to_table().fetch():
+        assert row["result"] == max(1, 2)
+        assert row["result"] == inspect.unwrap(my_max)(1, 2)
