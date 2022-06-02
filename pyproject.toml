@@ -9,9 +9,3 @@ include = [
     "greenplumpython",
     "setup.py"
 ]
-# FIXME: The lint error should be fixed for those files
-ignore = [
-    "*/table.py",
-    "*/db.py",
-    "*/expr.py"
-]
