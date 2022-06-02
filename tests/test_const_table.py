@@ -13,7 +13,7 @@ def db() -> gp.Database:
 def test_const_table(db: gp.Database):
     rows = [(1,), (2,), (3,)]
     t = gp.values(rows, db=db)
-    t = t.save_as("const_table", column_names=["id"])
+    t = t.save_as("const_table", column_names=["id"], temp=True)
     assert sorted([tuple(row.values()) for row in t.fetch()]) == sorted(rows)
 
     t_cols = t.column_names().fetch()
