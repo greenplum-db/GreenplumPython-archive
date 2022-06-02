@@ -69,6 +69,8 @@ def create_function(
                 if isinstance(arg, Expr) and arg.db is not None:
                     db = arg.db
                     break
+        if db is None:
+            raise Exception("Database is required to create function")
         db.execute(
             (
                 f"CREATE {or_replace} FUNCTION {qualified_func_name} ({func_args_string}) "
