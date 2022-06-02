@@ -24,6 +24,7 @@ def test_set_returning_func(db: gp.Database):
     assert sorted([row["id"] for row in results]) == list(range(10))
 
 
+# TODO: Test other data types
 def test_create_func(db: gp.Database):
     @gp.create_function
     def add(a: int, b: int) -> int:
