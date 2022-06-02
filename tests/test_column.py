@@ -14,7 +14,7 @@ def db():
 def table(db: gp.Database):
     rows = [(1,), (2,), (3,)]
     t = gp.values(rows, db=db)
-    t = t.save_as("const_table", column_names=["id"])
+    t = t.save_as("const_table", temp=True, column_names=["id"])
     return t
 
 
