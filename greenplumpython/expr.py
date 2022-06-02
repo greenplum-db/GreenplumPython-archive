@@ -1,13 +1,15 @@
 from typing import TYPE_CHECKING, Iterable, Optional
 
+from .db import Database
+
 if TYPE_CHECKING:
-    from .db import Database
     from .table import Table
 
 
 class Expr:
-    def __init__(self, as_name: Optional[str] = None) -> None:
+    def __init__(self, as_name: Optional[str] = None, db: Optional[Database] = None) -> None:
         self._as_name = as_name
+        self._db = db
 
     def __eq__(self, other):
         return BinaryExpr("=", self, other)
@@ -15,9 +17,13 @@ class Expr:
     def __str__(self) -> str:
         raise NotImplementedError()
 
-    # Attribute
+    @property
     def name():
         raise NotImplementedError()
+
+    @property
+    def db():
+        return self._db
 
 
 class BinaryExpr:
