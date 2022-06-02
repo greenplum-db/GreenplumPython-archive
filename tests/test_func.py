@@ -47,6 +47,7 @@ def test_create_func_multiline(db: gp.Database):
         assert row["result"] == max(1, 2)
         assert row["result"] == inspect.unwrap(my_max)(1, 2)
 
+
 # fmt: off
 def test_create_func_tab_indent(db: gp.Database):
 	@gp.create_function
