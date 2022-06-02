@@ -1,0 +1,123 @@
+#@ load("base.lib.yml", "add_res_by_conf", "add_res_by_name")
+#@ load("@ytt:template", "template")
+
+#! Use bin_gpdb_postfix="" to use a release version of gpdb binary
+#! Job config for centos7
+#@ def centos7_gpdb6_conf(release_build=False):
+res_test_image: centos7-gpdb6-image-test
+res_gpdb_bin: bin_gpdb6_centos7_debug
+res_gpdb_src: gpdb6_src
+res_plpython3_bin: bin_plpython3_gpdb6_rhel7
+os: rhel7
+#@ end
+
+#! Job config for rhel8
+#@ def rhel8_gpdb6_conf(release_build=False):
+res_test_image: rhel8-gpdb6-image-test
+res_gpdb_bin: bin_gpdb6_rhel8_debug
+res_gpdb_src: gpdb6_src
+res_plpython3_bin: bin_plpython3_gpdb6_rhel8
+os: rhel8
+#@ end
+
+#! The entry point of a pipeline. The job name must be 'entrance'.
+#@ def entrance_job(param):
+#@   trigger = param["trigger"]
+name: entrance
+on_failure: #@ trigger["on_failure"]
+on_error: #@ trigger["on_error"]
+plan:
+#@   for to_get in trigger["to_get"]:
+- trigger: #@ trigger["auto_trigger"]
+  _: #@ template.replace(to_get)
+#@   end
+#@   for to_put in trigger["to_put_pre"]:
+- #@ to_put
+#@   end
+#@ end
+
+#@ def exit_job(param):
+#@   trigger = param["trigger"]
+#@   confs = param["confs"]
+#@   passed_jobs = []
+#@   for conf in confs:
+#@     passed_jobs.append(build_test_job_name(conf))
+#@   end
+name: exit
+on_failure: #@ trigger["on_failure"]
+on_error: #@ trigger["on_error"]
+on_success: #@ trigger["on_success"]
+plan:
+#@   for to_get in trigger["to_get"]:
+- passed: passed_jobs
+  trigger: true
+  _: #@ template.replace(to_get)
+#@   end
+#@ end
+
+#@ def exit_pr_job(param):
+#@   trigger = param["trigger"]
+#@   confs = param["confs"]
+#@   passed_jobs = []
+#@   for conf in confs:
+#@     passed_jobs.append(build_test_job_name(conf))
+#@   end
+name: exit_pr
+on_failure: #@ trigger["on_failure"]
+on_error: #@ trigger["on_error"]
+on_success: #@ trigger["on_success"]
+plan:
+#@   for to_get in trigger["to_get"]:
+- passed: #@ passed_jobs
+  trigger: true
+  _: #@ template.replace(to_get)
+#@   end
+#@ end
+
+#@ def _test_task(conf):
+task: #@ "test_" + conf["os"]
+timeout: 2h
+config:
+  platform: linux
+  run:
+    path: greenplumpython_src/concourse/scripts/entry.sh
+    args:
+      - test
+  inputs:
+    - name: bin_gpdb
+    - name: gpdb_src
+    - name: greenplumpython_src
+    - name: bin_plpython3
+image: image_test
+params:
+#@ end
+
+#@ def build_test_job_name(conf):
+#@   return "build_test_" + conf["os"]
+#@ end
+#@ def build_test_job(param):
+#@   res_map = param["res_map"]
+#@   trigger = param["trigger"]
+#@   conf = param["conf"]
+#@   add_res_by_conf(res_map, conf)
+name: #@ build_test_job_name(conf)
+max_in_flight: 10
+on_failure: #@ trigger["on_failure"]
+on_error: #@ trigger["on_error"]
+plan:
+#@   for to_get in trigger["to_get"]:
+- passed: [entrance]
+  trigger: true
+  _: #@ template.replace(to_get)
+#@   end
+- in_parallel:
+  - get: image_test
+    resource: #@ conf["res_test_image"]
+  - get: bin_gpdb
+    resource: #@ conf["res_gpdb_bin"]
+  - get: gpdb_src
+    resource: #@ conf["res_gpdb_src"]
+  - get: bin_plpython3
+    resource: #@ conf["res_plpython3_bin"]
+- #@ _test_task(conf)
+#@ end
