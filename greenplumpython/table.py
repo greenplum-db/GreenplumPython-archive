@@ -1,8 +1,6 @@
 from typing import Iterable, Optional, Tuple
 from uuid import uuid4
 
-from sqlalchemy import column
-
 from . import db, expr
 
 
