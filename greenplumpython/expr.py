@@ -7,9 +7,15 @@ if TYPE_CHECKING:
 
 
 class Expr:
-    def __init__(self, as_name: Optional[str] = None, db: Optional[Database] = None) -> None:
+    def __init__(
+        self,
+        as_name: Optional[str] = None,
+        table: Optional[Database] = None,
+        db: Optional[Database] = None,
+    ) -> None:
         self._as_name = as_name
-        self._db = db
+        self._table = table
+        self._db = table.db if table is not None else db
 
     def __eq__(self, other):
         if isinstance(other, type(None)):
@@ -42,6 +48,10 @@ class Expr:
     def db(self) -> Database:
         return self._db
 
+    @property
+    def table(self) -> "Table":
+        return self._table
+
 
 class BinaryExpr(Expr):
     def __init__(self, operator: str, left: Expr, right, as_name: Optional[str] = None):
@@ -66,8 +76,7 @@ class BinaryExpr(Expr):
 
 class Column(Expr):
     def __init__(self, name: str, table: "Table", as_name: Optional[str] = None) -> None:
-        super().__init__(as_name=as_name)
-        self._table = table
+        super().__init__(as_name=as_name, table=table)
         self._name = name
 
     def __str__(self) -> str:

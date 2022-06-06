@@ -1,6 +1,8 @@
 from typing import Iterable, Optional, Tuple
 from uuid import uuid4
 
+from sqlalchemy import column
+
 from . import db, expr
 
 
@@ -122,8 +124,7 @@ def table(name: str, db: db.Database) -> Table:
     return Table(f"TABLE {name}", name=name, db=db)
 
 
-def values(rows: Iterable[Tuple], db: db.Database) -> Table:
-    return Table(
-        f"VALUES {','.join(['(' + ','.join(str(datum) for datum in row) + ')' for row in rows])}",
-        db=db,
-    )
+def values(rows: Iterable[Tuple], db: db.Database, column_names: Iterable[str] = []) -> Table:
+    rows_string = ",".join(["(" + ",".join(str(datum) for datum in row) + ")" for row in rows])
+    columns_string = f"({','.join(column_names)})" if any(column_names) else ""
+    return Table(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", db=db)
