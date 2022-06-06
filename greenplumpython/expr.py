@@ -10,7 +10,7 @@ class Expr:
     def __init__(
         self,
         as_name: Optional[str] = None,
-        table: Optional[Database] = None,
+        table: Optional["Table"] = None,
         db: Optional[Database] = None,
     ) -> None:
         self._as_name = as_name
