@@ -52,6 +52,19 @@ class Table:
             parents=[self],
         )
 
+    def like(self, cond: str) -> "Table":
+        col_names = self.column_names().fetch()
+        if len(list(col_names)) != 1:
+            raise Exception("Like Statement accept only one column")
+        col_name = col_names[0]["column_name"]
+        return Table(
+            f"""
+                SELECT {col_name}
+                FROM {self.name} 
+                WHERE {" ".join([col_name, cond])}
+            """
+        )
+
     def column_names(self) -> "Table":
         if any(self._parents):
             raise NotImplementedError()

@@ -80,3 +80,14 @@ class Column(Expr):
     @property
     def table(self) -> "Table":
         return self._table
+
+
+    def like(self, cond: str) -> "Table":
+        result = Table(
+            f"""
+                SELECT {self.name}
+                FROM {self._table} 
+                WHERE {" ".join([self.name, cond])}
+            """
+        )
+        return result[self.name]
