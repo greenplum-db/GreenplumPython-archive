@@ -1,6 +1,5 @@
 import functools
 import inspect
-from pyclbr import Function
 import re
 import textwrap
 from typing import Callable, Iterable, Optional, Union
