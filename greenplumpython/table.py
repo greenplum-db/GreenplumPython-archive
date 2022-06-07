@@ -52,25 +52,80 @@ class Table:
             parents=[self],
         )
 
-    def join(
+    def _join(
         self,
         other: "Table",
-        expr: expr.Expr,
-        how: Optional[str] = "natural",
         target_list: Optional[Iterable] = None,
+        how: Optional[str] = "NATURAL JOIN",
+        on_str: Optional[str] = None,
     ) -> "Table":
         select_str = (
             ",".join([str(target) for target in target_list]) if target_list is not None else "*"
         )
-        on_str = "ON " + str(expr) if how.upper() != "NATURAL" else None
         return Table(
             f"""
                 SELECT {select_str} 
-                FROM {self.name} {how.upper()} JOIN {other.name}
-                {str(on_str)}    
+                FROM {self.name} {how} {other.name}
+                {str(on_str)}  
             """,
             parents=[self, other],
         )
+
+    def inner_join(
+        self,
+        other: "Table",
+        cond: Optional[expr.Expr] = None,
+        target_list: Optional[Iterable] = None,
+    ):
+        on_str = " ".join(["ON", str(cond)])
+        return self._join(other, target_list, "INNER JOIN", on_str)
+
+    def left_join(
+        self,
+        other: "Table",
+        cond: Optional[expr.Expr] = None,
+        target_list: Optional[Iterable] = None,
+    ):
+        on_str = " ".join(["ON", str(cond)])
+        return self._join(other, target_list, "LEFT JOIN", on_str)
+
+    def right_join(
+        self,
+        other: "Table",
+        cond: Optional[expr.Expr] = None,
+        target_list: Optional[Iterable] = None,
+    ):
+        on_str = " ".join(["ON", str(cond)])
+        return self._join(other, target_list, "RIGHT JOIN", on_str)
+
+    def full_outer_join(
+        self,
+        other: "Table",
+        cond: Optional[expr.Expr] = None,
+        target_list: Optional[Iterable] = None,
+    ):
+        on_str = " ".join(["ON", str(cond)])
+        return self._join(other, target_list, "FULL JOIN", on_str)
+
+    def natural_join(
+        self,
+        other: "Table",
+        target_list: Optional[Iterable] = None,
+    ):
+        on_str = ""
+        return self._join(other, target_list, "FULL JOIN", on_str)
+
+    def cross_join(
+        self,
+        other: "Table",
+        target_list: Optional[Iterable] = None,
+    ):
+        on_str = ""
+        return self._join(other, target_list, "CROSS JOIN", on_str)
+
+    # TODO : use temp table for other or using alias?
+    def self_join(self, cond: Optional[expr.Expr] = None, target_list: Optional[Iterable] = None):
+        raise NotImplementedError()
 
     def column_names(self) -> "Table":
         if any(self._parents):
