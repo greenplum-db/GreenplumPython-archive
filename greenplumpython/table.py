@@ -1,4 +1,4 @@
-from typing import Iterable, Optional, Tuple
+from typing import Iterable, List, Optional, Tuple
 from uuid import uuid4
 
 from . import db, expr
@@ -69,18 +69,19 @@ class Table:
         return self._name
 
     @property
-    def db(self) -> db.Database:
+    def db(self) -> Optional[db.Database]:
         return self._db
 
-    def _list_lineage(self) -> Iterable["Table"]:
-        lineage = [self]
+    def _list_lineage(self) -> List["Table"]:
+        lineage = []
+        lineage.append(self)
         tables_visited = set()
         current = 0
         while current < len(lineage):
-            for table in lineage[current]._parents:
-                if table._name not in tables_visited:
-                    lineage.append(table)
-                    tables_visited.add(table._name)
+            for table_ in lineage[current]._parents:
+                if table_.name not in tables_visited:
+                    lineage.append(table_)
+                    tables_visited.add(table_.name)
             current += 1
         return lineage
 
@@ -102,11 +103,14 @@ class Table:
         """
         if not all:
             raise NotImplementedError()
-        return self._db.execute(self._build_full_query())
+        assert self._db is not None
+        result = self._db.execute(self._build_full_query())
+        return result if result is not None else []
 
     def save_as(
         self, table_name: str, temp: bool = False, column_names: Iterable[str] = []
     ) -> "Table":
+        assert self._db is not None
         self._db.execute(
             f"""
             CREATE {'TEMP' if temp else ''} TABLE {table_name} ({','.join(column_names)}) 

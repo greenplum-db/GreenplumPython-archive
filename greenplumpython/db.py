@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Iterable, List, Optional
 
 import psycopg2
 import psycopg2.extras
@@ -11,7 +11,7 @@ class Database:
             cursor_factory=psycopg2.extras.RealDictCursor,
         )
 
-    def execute(self, query: str, args: Iterable = [], has_results: bool = True) -> Iterable:
+    def execute(self, query: str, args: List = [], has_results: bool = True) -> Optional[Iterable]:
         with self._conn.cursor() as cursor:
             cursor.execute(query, args)
             return cursor.fetchall() if has_results else None
