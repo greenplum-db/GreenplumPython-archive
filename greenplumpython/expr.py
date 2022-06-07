@@ -81,7 +81,7 @@ class Column(Expr):
     def table(self) -> "Table":
         return self._table
 
-
+    # FIXME: test not ok
     def like(self, cond: str) -> "Table":
         result = Table(
             f"""

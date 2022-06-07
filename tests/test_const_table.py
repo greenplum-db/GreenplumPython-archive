@@ -30,6 +30,7 @@ def test_table_getitem(db: gp.Database):
     assert str(c) == (t.name + ".id")
 
 
+    # FIXME: test not ok
 def test_table_like(db: gp.Database):
     rows = [("'aaa'",), ("'bba'",), ("'acc'",)]
     t = gp.values(rows, db=db).save_as("temp2", column_names=["id"])

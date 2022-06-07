@@ -52,6 +52,7 @@ class Table:
             parents=[self],
         )
 
+    # FIXME: test not ok
     def like(self, cond: str) -> "Table":
         col_names = self.column_names().fetch()
         if len(list(col_names)) != 1:
