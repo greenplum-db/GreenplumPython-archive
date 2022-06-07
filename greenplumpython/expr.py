@@ -39,7 +39,7 @@ class Expr:
         raise NotImplementedError()
 
     @property
-    def db(self) -> Database:
+    def db(self) -> Optional[Database]:
         return self._db
 
 
