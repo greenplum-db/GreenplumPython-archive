@@ -80,3 +80,51 @@ def test_func_on_multi_columns(db: gp.Database):
     series = gp.values(rows, db=db, column_names=["a", "b"])
     results = multiply(series["a"], series["b"], as_name="result").to_table().fetch()
     assert sorted([row["result"] for row in results]) == [i * i for i in range(10)]
+
+
+def test_simple_agg(db: gp.Database):
+    rows = [(i,) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+    count = gp.aggregate("count", db=db)
+
+    results = count(numbers["val"]).to_table().fetch()
+    for row in results:
+        assert row["count"] == 10
+
+
+def test_agg_group_by(db: gp.Database):
+    rows = [(i, i % 2 == 0) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
+    count = gp.aggregate("count", db=db)
+
+    results = count(numbers["val"], group_by=["is_even"]).to_table().fetch()
+    for row in results:
+        assert ("is_even" in row) and (row["is_even"] is not None) and (row["count"] == 5)
+
+
+def test_create_agg(db: gp.Database):
+    @gp.create_aggregate
+    def my_sum(result: int, val: int) -> int:
+        if result is None:
+            return val
+        return result + val
+
+    rows = [(1,) for _ in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+    results = my_sum(numbers["val"], as_name="result").to_table().fetch()
+    for row in results:
+        assert row["result"] == 10
+
+
+def test_create_agg_multi_args(db: gp.Database):
+    @gp.create_aggregate
+    def manhattan_distance(result: int, a: int, b: int) -> int:
+        if result is None:
+            return abs(a - b)
+        return result + abs(a - b)
+
+    rows = [(1, 2) for _ in range(10)]
+    vectors = gp.values(rows, db=db, column_names=["a", "b"])
+    results = manhattan_distance(vectors["a"], vectors["b"], as_name="result").to_table().fetch()
+    for row in results:
+        assert row["result"] == 10
