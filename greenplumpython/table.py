@@ -72,17 +72,13 @@ class Table:
     def db(self) -> Optional[db.Database]:
         return self._db
 
-    @property
-    def parents(self) -> Iterable["Table"]:
-        return self._parents
-
     def _list_lineage(self) -> List["Table"]:
         lineage = []
         lineage.append(self)
         tables_visited = set()
         current = 0
         while current < len(lineage):
-            for table_ in lineage[current].parents:
+            for table_ in lineage[current]._parents:
                 if table_.name not in tables_visited:
                     lineage.append(table_)
                     tables_visited.add(table_.name)
@@ -99,7 +95,7 @@ class Table:
                 cte_list.append(f"{table._name} AS ({table._query})")
         return "WITH " + ",".join(cte_list) + self._query
 
-    def fetch(self, all: bool = True) -> Optional[List]:
+    def fetch(self, all: bool = True) -> Iterable:
         """
         Fetch rows of this table.
         - if all is True, fetch all rows at once
@@ -108,7 +104,8 @@ class Table:
         if not all:
             raise NotImplementedError()
         assert self._db is not None
-        return self._db.execute(self._build_full_query())
+        result = self._db.execute(self._build_full_query())
+        return result if result is not None else []
 
     def save_as(
         self, table_name: str, temp: bool = False, column_names: Iterable[str] = []
@@ -125,7 +122,7 @@ class Table:
 
 
 # table_name can be table/view name
-def table(name: str, db: Optional[db.Database]) -> Table:
+def table(name: str, db: db.Database) -> Table:
     return Table(f"TABLE {name}", name=name, db=db)
 
 
