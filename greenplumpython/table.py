@@ -38,6 +38,9 @@ class Table:
         if isinstance(key, slice):
             raise NotImplementedError()
 
+    def as_name(self, name_as: str) -> "Table":
+        return Table(f"SELECT * FROM {self.name}", parents=[self], name=name_as, db=self._db)
+
     # FIXME: Add test
     def filter(self, expr: expr.Expr) -> "Table":
         return Table(f"SELECT * FROM {self._name} WHERE {str(expr)}", parents=[self])
@@ -122,10 +125,6 @@ class Table:
     ):
         on_str = ""
         return self._join(other, target_list, "CROSS JOIN", on_str)
-
-    # TODO : use temp table for other or using alias?
-    def self_join(self, cond: Optional[expr.Expr] = None, target_list: Optional[Iterable] = None):
-        raise NotImplementedError()
 
     def column_names(self) -> "Table":
         if any(self._parents):

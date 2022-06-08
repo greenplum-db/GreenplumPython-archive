@@ -78,3 +78,13 @@ def test_table_cross_join(db: gp.Database):
     t2 = gp.values(rows2, db=db).save_as("temp2", temp=True, column_names=["n2"])
     ret = t1.cross_join(t2, target_list=[t1["id1"], t1["n1"], t2["n2"]]).fetch()
     assert len(list(ret)) == 9
+
+
+def test_table_self_join(db: gp.Database):
+    # fmt: off
+    rows1 = [(1, "'a1'",), (2, "'a2'",), (3, "'a3'",)]
+    # fmt: on
+    t1 = gp.values(rows1, db=db).save_as("temp1", temp=True, column_names=["id1", "n1"])
+    t2 = t1.as_name("temp2")
+    ret = t1.inner_join(t2, t1["id1"] == t2["id1"]).fetch()
+    assert len(list(ret)) == 3
