@@ -36,7 +36,18 @@ class Table:
         if isinstance(key, expr.Expr):
             return self.filter(key)
         if isinstance(key, slice):
-            raise NotImplementedError()
+            if key.step is not None:
+                raise NotImplementedError()
+            offset_clause = "" if key.start is None else f"OFFSET {key.start}"
+            limit_clause = (
+                ""
+                if key.stop is None
+                else f"LIMIT {key.stop if key.start is None else key.stop - key.start}"
+            )
+            return Table(
+                f"SELECT * FROM {self.name} {limit_clause} {offset_clause}",
+                parents=[self],
+            )
 
     # FIXME: Add test
     def filter(self, expr: expr.Expr) -> "Table":
