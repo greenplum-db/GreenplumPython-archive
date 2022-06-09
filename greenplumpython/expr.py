@@ -83,6 +83,7 @@ class Column(Expr):
         self._name = name
 
     def __str__(self) -> str:
+        assert self.table is not None
         return self.table.name + "." + self.name
 
     @property
