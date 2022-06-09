@@ -50,7 +50,7 @@ class Expr:
         return self._db
 
     @property
-    def table(self) -> "Table":
+    def table(self) -> Optional["Table"]:
         return self._table
 
 
@@ -88,7 +88,3 @@ class Column(Expr):
     @property
     def name(self) -> str:
         return self._name
-
-    @property
-    def table(self) -> "Table":
-        return self._table
