@@ -16,6 +16,7 @@ class Expr:
         self._as_name = as_name
         self._table = table
         self._db = table.db if table is not None else db
+        assert self._db is not None
 
     def __eq__(self, other):
         if isinstance(other, type(None)):
