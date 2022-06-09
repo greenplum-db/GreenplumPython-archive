@@ -64,9 +64,10 @@ def test_table_full_join_target(db: gp.Database):
     t1 = gp.values(rows1, db=db).save_as("temp1", temp=True, column_names=["id1", "n1"])
     t2 = gp.values(rows2, db=db).save_as("temp2", temp=True, column_names=["id2", "n2"])
     ret = t1.full_outer_join(
-        t2, t1["id1"] == t2["id2"], target_list=[t1["id1"], t1["n1"], t2["n2"]]
+        t2, t1["id1"] == t2["id2"], targets1=["id1", "n1"], targets2=["n2"]
     ).fetch()
     assert "id2" not in list(list(ret)[0].keys())
+    assert list(list(ret)[0].keys()) == ["id1", "n1", "n2"]
 
 
 def test_table_cross_join(db: gp.Database):
@@ -75,9 +76,13 @@ def test_table_cross_join(db: gp.Database):
     rows2 = [("'b1'",), ("'b2'",), ("'b3'",)]
     # fmt: on
     t1 = gp.values(rows1, db=db).save_as("temp1", temp=True, column_names=["id1", "n1"])
-    t2 = gp.values(rows2, db=db).save_as("temp2", temp=True, column_names=["n2"])
-    ret = t1.cross_join(t2, target_list=[t1["id1"], t1["n1"], t2["n2"]]).fetch()
+    t2 = gp.values(rows2, db=db).save_as("temp2", temp=True, column_names=["n1"])
+    ret = t1.cross_join(
+        t2, targets1=["id1 AS t1_id1", "n1 AS t1_n1"], targets2=["n1 AS t2_n1"]
+    ).fetch()
     assert len(list(ret)) == 9
+    assert "id1" not in list(list(ret)[0].keys())
+    assert list(list(ret)[0].keys()) == ["t1_id1", "t1_n1", "t2_n1"]
 
 
 def test_table_self_join(db: gp.Database):
@@ -86,5 +91,31 @@ def test_table_self_join(db: gp.Database):
     # fmt: on
     t1 = gp.values(rows1, db=db).save_as("temp1", temp=True, column_names=["id1", "n1"])
     t2 = t1.as_name("temp2")
-    ret = t1.inner_join(t2, t1["id1"] == t2["id1"]).fetch()
+    ret = t1.inner_join(
+        t2,
+        t1["id1"] == t2["id1"],
+        targets1=["*"],
+        targets2=["id1 AS t2_id1", "n1 AS t2_n1"],
+    ).fetch()
+    assert len(list(ret)) == 3
+    assert list(list(ret)[0].keys()) == ["id1", "n1", "t2_id1", "t2_n1"]
+
+
+def test_table_join_save(db: gp.Database):
+    # fmt: off
+    rows1 = [(1, "'a1'",), (2, "'a2'",), (3, "'a3'",)]
+    # fmt: on
+    t1 = gp.values(rows1, db=db).save_as("temp1", temp=True, column_names=["id1", "n1"])
+    t2 = t1.as_name("temp2")
+    t_join = t1.inner_join(
+        t2,
+        t1["id1"] == t2["id1"],
+        targets1=["*"],
+        targets2=["id1 AS t2_id1", "n1 AS t2_n1"],
+    )
+    t_join.save_as("table_join")
+    t_join_reload = gp.table("table_join", db=db)
+    ret = t_join_reload.fetch()
+    assert len(list(list(ret)[0].keys())) == 4
+    assert list(list(ret)[0].keys()) == ["id1", "n1", "t2_id1", "t2_n1"]
     assert len(list(ret)) == 3

@@ -58,13 +58,15 @@ class Table:
     def _join(
         self,
         other: "Table",
-        target_list: Optional[Iterable] = None,
+        targets1: List = ["*"],
+        targets2: List = ["*"],
         how: Optional[str] = "NATURAL JOIN",
         on_str: Optional[str] = None,
     ) -> "Table":
-        select_str = (
-            ",".join([str(target) for target in target_list]) if target_list is not None else "*"
-        )
+        targets_str1 = ",".join([self.name + ".{}".format(target) for target in targets1])
+        targets_str2 = ",".join([other.name + ".{}".format(target) for target in targets2])
+        targets = ",".join([targets_str1, targets_str2])
+        select_str = "*" if not targets else targets
         return Table(
             f"""
                 SELECT {select_str} 
@@ -78,53 +80,59 @@ class Table:
         self,
         other: "Table",
         cond: Optional[expr.Expr] = None,
-        target_list: Optional[Iterable] = None,
+        targets1: List = ["*"],
+        targets2: List = ["*"],
     ):
         on_str = " ".join(["ON", str(cond)])
-        return self._join(other, target_list, "INNER JOIN", on_str)
+        return self._join(other, targets1, targets2, "INNER JOIN", on_str)
 
     def left_join(
         self,
         other: "Table",
         cond: Optional[expr.Expr] = None,
-        target_list: Optional[Iterable] = None,
+        targets1: List = ["*"],
+        targets2: List = ["*"],
     ):
         on_str = " ".join(["ON", str(cond)])
-        return self._join(other, target_list, "LEFT JOIN", on_str)
+        return self._join(other, targets1, targets2, "LEFT JOIN", on_str)
 
     def right_join(
         self,
         other: "Table",
         cond: Optional[expr.Expr] = None,
-        target_list: Optional[Iterable] = None,
+        targets1: List = ["*"],
+        targets2: List = ["*"],
     ):
         on_str = " ".join(["ON", str(cond)])
-        return self._join(other, target_list, "RIGHT JOIN", on_str)
+        return self._join(other, targets1, targets2, "RIGHT JOIN", on_str)
 
     def full_outer_join(
         self,
         other: "Table",
         cond: Optional[expr.Expr] = None,
-        target_list: Optional[Iterable] = None,
+        targets1: List = ["*"],
+        targets2: List = ["*"],
     ):
         on_str = " ".join(["ON", str(cond)])
-        return self._join(other, target_list, "FULL JOIN", on_str)
+        return self._join(other, targets1, targets2, "FULL JOIN", on_str)
 
     def natural_join(
         self,
         other: "Table",
-        target_list: Optional[Iterable] = None,
+        targets1: List = ["*"],
+        targets2: List = ["*"],
     ):
         on_str = ""
-        return self._join(other, target_list, "FULL JOIN", on_str)
+        return self._join(other, targets1, targets2, "FULL JOIN", on_str)
 
     def cross_join(
         self,
         other: "Table",
-        target_list: Optional[Iterable] = None,
+        targets1: List = ["*"],
+        targets2: List = ["*"],
     ):
         on_str = ""
-        return self._join(other, target_list, "CROSS JOIN", on_str)
+        return self._join(other, targets1, targets2, "CROSS JOIN", on_str)
 
     def column_names(self) -> "Table":
         if any(self._parents):
@@ -181,10 +189,14 @@ class Table:
         result = self._db.execute(self._build_full_query())
         return result if result is not None else []
 
-    def save_as(
-        self, table_name: str, temp: bool = False, column_names: Iterable[str] = []
-    ) -> "Table":
+    def save_as(self, table_name: str, temp: bool = False, column_names: List[str] = []) -> "Table":
         assert self._db is not None
+        # When no column_names is not explicitly passed
+        # TODO : USE SLICE 1 ROW TO MANIPULATE LESS DATA
+        #        OR USING column_names() FUNCTION WITH RESULT ORDERED
+        if len(column_names) == 0:
+            ret = self.fetch()
+            column_names = list(list(ret)[0].keys())
         self._db.execute(
             f"""
             CREATE {'TEMP' if temp else ''} TABLE {table_name} ({','.join(column_names)}) 
