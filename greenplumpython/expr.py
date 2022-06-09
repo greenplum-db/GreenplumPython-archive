@@ -56,7 +56,9 @@ class Expr:
 
 class BinaryExpr(Expr):
     def __init__(self, operator: str, left: Expr, right, as_name: Optional[str] = None):
-        super().__init__(as_name=as_name)
+        table = left.table if left is not None and left.table is not None else right.table
+        db = left.db if left is not None and left.db is not None else right.db
+        super().__init__(as_name=as_name, table=table, db=db)
         self.operator = operator
         self.left = left
         self.right = right
