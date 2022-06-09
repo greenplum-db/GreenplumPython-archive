@@ -11,6 +11,12 @@ class Expr:
         self._as_name = as_name
         self._db = db
 
+    def __and__(self, other):
+        return BinaryExpr("AND", self, other)
+
+    def __or__(self, other):
+        return BinaryExpr("OR", self, other)
+
     def __eq__(self, other):
         if isinstance(other, type(None)):
             return BinaryExpr("is", self, other)

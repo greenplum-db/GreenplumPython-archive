@@ -12,7 +12,7 @@ def db():
 
 def test_expr_bin_equal_int(db: gp.Database):
     rows = [(1,), (2,), (3,), (2,)]
-    t = gp.values(rows, db=db).save_as("temp1", column_names=["id"])
+    t = gp.values(rows, db=db).save_as("temp1", column_names=["id"], temp=True)
     b1 = t["id"] == 2
     assert str(b1) == str(gp.expr.BinaryExpr("=", t["id"], 2))
     assert str(b1) == "temp1.id = 2"
@@ -22,7 +22,7 @@ def test_expr_bin_equal_int(db: gp.Database):
 
 def test_expr_bin_equal_str(db: gp.Database):
     rows = [("'aaa'",), ("'bbb'",), ("'ccc'",)]
-    t = gp.values(rows, db=db).save_as("temp2", column_names=["id"])
+    t = gp.values(rows, db=db).save_as("temp2", column_names=["id"], temp=True)
     b2 = t["id"] == "aaa"
     assert str(b2) == str(gp.expr.BinaryExpr("=", t["id"], "aaa"))
     assert str(b2) == "temp2.id = 'aaa'"
@@ -32,7 +32,7 @@ def test_expr_bin_equal_str(db: gp.Database):
 
 def test_expr_bin_equal_none(db: gp.Database):
     rows = [("'aa'",), ("NULL",), ("'cc'",)]
-    t = gp.values(rows, db=db).save_as("temp3", column_names=["id"])
+    t = gp.values(rows, db=db).save_as("temp3", column_names=["id"], temp=True)
     b3 = t["id"] == None
     assert str(b3) == str(gp.expr.BinaryExpr("is", t["id"], None))
     assert str(b3) == "temp3.id is NULL"
@@ -43,8 +43,8 @@ def test_expr_bin_equal_none(db: gp.Database):
 # TODO : Add Query Condition Test for JOIN
 def test_expr_bin_equal_2expr(db: gp.Database):
     rows = [(1,), (2,), (3,), (2,)]
-    t1 = gp.values(rows, db=db).save_as("temp4", column_names=["id"])
-    t2 = gp.values(rows, db=db).save_as("temp5", column_names=["id"])
+    t1 = gp.values(rows, db=db).save_as("temp4", column_names=["id"], temp=True)
+    t2 = gp.values(rows, db=db).save_as("temp5", column_names=["id"], temp=True)
     b4 = t1["id"] == t2["id"]
     assert str(b4) == str(gp.expr.BinaryExpr("=", t1["id"], t2["id"]))
     assert str(b4) == "temp4.id = temp5.id"
@@ -52,7 +52,7 @@ def test_expr_bin_equal_2expr(db: gp.Database):
 
 def test_expr_bin_equal_bool(db: gp.Database):
     rows = [("True",), ("False",), ("False",), ("True",)]
-    t = gp.values(rows, db=db).save_as("temp1", column_names=["id"])
+    t = gp.values(rows, db=db).save_as("temp1", column_names=["id"], temp=True)
     b5 = t["id"] == True
     assert str(b5) == "temp1.id = TRUE"
     ret = t[b5].fetch()
@@ -94,3 +94,21 @@ def test_expr_bin_ne(db: gp.Database, table_num: gp.Table):
     b1 = table_num["id"] != 3
     ret = table_num[b1].fetch()
     assert len(list(ret)) == 9
+
+
+def test_expr_bin_and(db: gp.Database, table_num: gp.Table):
+    b = (table_num["id"] >= 3) & (table_num["id"] < 8)
+    ret = table_num[b].fetch()
+    assert len(list(ret)) == 5
+    for row in ret:
+        assert 3 <= row["id"] < 8
+
+
+def test_expr_bin_or(db: gp.Database):
+    rows = [(1,), (2,), (3,), (-2,)]
+    t = gp.values(rows, db=db).save_as("temp4", column_names=["id"], temp=True)
+    b = (t["id"] >= 3) | (t["id"] < 0)
+    ret = t[b].fetch()
+    assert len(list(ret)) == 2
+    for row in ret:
+        assert 3 <= row["id"] or row["id"] < 0
