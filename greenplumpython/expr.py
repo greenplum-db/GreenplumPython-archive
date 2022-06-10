@@ -7,9 +7,16 @@ if TYPE_CHECKING:
 
 
 class Expr:
-    def __init__(self, as_name: Optional[str] = None, db: Optional[Database] = None) -> None:
+    def __init__(
+        self,
+        as_name: Optional[str] = None,
+        table: Optional["Table"] = None,
+        db: Optional[Database] = None,
+    ) -> None:
         self._as_name = as_name
-        self._db = db
+        self._table = table
+        self._db = table.db if table is not None else db
+        assert self._db is not None
 
     def __eq__(self, other):
         if isinstance(other, type(None)):
@@ -54,10 +61,16 @@ class Expr:
     def db(self) -> Optional[Database]:
         return self._db
 
+    @property
+    def table(self) -> Optional["Table"]:
+        return self._table
+
 
 class BinaryExpr(Expr):
     def __init__(self, operator: str, left: Expr, right, as_name: Optional[str] = None):
-        super().__init__(as_name=as_name)
+        table = left.table if left is not None and left.table is not None else right.table
+        db = left.db if left is not None and left.db is not None else right.db
+        super().__init__(as_name=as_name, table=table, db=db)
         self.operator = operator
         self.left = left
         self.right = right
@@ -95,17 +108,13 @@ class UnaryExpr(Expr):
 
 class Column(Expr):
     def __init__(self, name: str, table: "Table", as_name: Optional[str] = None) -> None:
-        super().__init__(as_name=as_name)
-        self._table = table
+        super().__init__(as_name=as_name, table=table)
         self._name = name
 
     def __str__(self) -> str:
+        assert self.table is not None
         return self.table.name + "." + self.name
 
     @property
     def name(self) -> str:
         return self._name
-
-    @property
-    def table(self) -> "Table":
-        return self._table
