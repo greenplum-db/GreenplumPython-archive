@@ -58,14 +58,14 @@ class Table:
     def _join(
         self,
         other: "Table",
-        targets1: List = ["*"],
-        targets2: List = ["*"],
-        how: Optional[str] = "NATURAL JOIN",
-        on_str: Optional[str] = None,
+        my_targets: List = ["*"],
+        other_targets: List = ["*"],
+        how: str = "JOIN",
+        on_str: str = "",
     ) -> "Table":
-        targets_str1 = ",".join([self.name + ".{}".format(target) for target in targets1])
-        targets_str2 = ",".join([other.name + ".{}".format(target) for target in targets2])
-        targets = ",".join([targets_str1, targets_str2])
+        my_targets_str = ",".join([self.name + ".{}".format(target) for target in my_targets])
+        other_targets_str = ",".join([other.name + ".{}".format(target) for target in other_targets])
+        targets = ",".join([my_targets_str, other_targets_str])
         select_str = "*" if not targets else targets
         return Table(
             f"""
@@ -79,60 +79,60 @@ class Table:
     def inner_join(
         self,
         other: "Table",
-        cond: Optional[expr.Expr] = None,
-        targets1: List = ["*"],
-        targets2: List = ["*"],
+        cond: expr.Expr,
+        my_targets: List = ["*"],
+        other_targets: List = ["*"],
     ):
         on_str = " ".join(["ON", str(cond)])
-        return self._join(other, targets1, targets2, "INNER JOIN", on_str)
+        return self._join(other, my_targets, other_targets, "INNER JOIN", on_str)
 
     def left_join(
         self,
         other: "Table",
-        cond: Optional[expr.Expr] = None,
-        targets1: List = ["*"],
-        targets2: List = ["*"],
+        cond: expr.Expr,
+        my_targets: List = ["*"],
+        other_targets: List = ["*"],
     ):
         on_str = " ".join(["ON", str(cond)])
-        return self._join(other, targets1, targets2, "LEFT JOIN", on_str)
+        return self._join(other, my_targets, other_targets, "LEFT JOIN", on_str)
 
     def right_join(
         self,
         other: "Table",
-        cond: Optional[expr.Expr] = None,
-        targets1: List = ["*"],
-        targets2: List = ["*"],
+        cond: expr.Expr,
+        my_targets: List = ["*"],
+        other_targets: List = ["*"],
     ):
         on_str = " ".join(["ON", str(cond)])
-        return self._join(other, targets1, targets2, "RIGHT JOIN", on_str)
+        return self._join(other, my_targets, other_targets, "RIGHT JOIN", on_str)
 
     def full_outer_join(
         self,
         other: "Table",
-        cond: Optional[expr.Expr] = None,
-        targets1: List = ["*"],
-        targets2: List = ["*"],
+        cond: expr.Expr,
+        my_targets: List = ["*"],
+        other_targets: List = ["*"],
     ):
         on_str = " ".join(["ON", str(cond)])
-        return self._join(other, targets1, targets2, "FULL JOIN", on_str)
+        return self._join(other, my_targets, other_targets, "FULL JOIN", on_str)
 
     def natural_join(
         self,
         other: "Table",
-        targets1: List = ["*"],
-        targets2: List = ["*"],
+        my_targets: List = ["*"],
+        other_targets: List = ["*"],
     ):
         on_str = ""
-        return self._join(other, targets1, targets2, "FULL JOIN", on_str)
+        return self._join(other, my_targets, other_targets, "FULL JOIN", on_str)
 
     def cross_join(
         self,
         other: "Table",
-        targets1: List = ["*"],
-        targets2: List = ["*"],
+        my_targets: List = ["*"],
+        other_targets: List = ["*"],
     ):
         on_str = ""
-        return self._join(other, targets1, targets2, "CROSS JOIN", on_str)
+        return self._join(other, my_targets, other_targets, "CROSS JOIN", on_str)
 
     def column_names(self) -> "Table":
         if any(self._parents):
