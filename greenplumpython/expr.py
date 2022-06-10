@@ -79,6 +79,8 @@ class BinaryExpr(Expr):
         if isinstance(self.right, type(None)):
             return str(self.left) + " " + self.operator + " " + "NULL"
         if isinstance(self.right, str):
+            if self.operator == "LIKE":
+                self.right = self.right.replace("%", "%%")
             return str(self.left) + " " + self.operator + " '" + self.right + "'"
         if isinstance(self.right, bool):
             if self.right:
@@ -118,3 +120,10 @@ class Column(Expr):
     @property
     def name(self) -> str:
         return self._name
+
+    @property
+    def table(self) -> Optional["Table"]:
+        return self._table
+
+    def like(self, cond: str) -> Expr:
+        return BinaryExpr("LIKE", self, cond)

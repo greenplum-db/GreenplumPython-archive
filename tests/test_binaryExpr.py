@@ -94,3 +94,18 @@ def test_expr_bin_ne(db: gp.Database, table_num: gp.Table):
     b1 = table_num["id"] != 3
     ret = table_num[b1].fetch()
     assert len(list(ret)) == 9
+
+
+def test_table_like(db: gp.Database):
+    rows = [("'aaa'",), ("'bba'",), ("'acac'",)]
+    t = gp.values(rows, db=db).save_as("temp1", column_names=["id"], temp=True)
+    result = t[t["id"].like("a%")].fetch()
+    assert len(list(result)) == 2
+    result = t[t["id"].like("%a")].fetch()
+    assert len(list(result)) == 2
+    result = t[t["id"].like("%a%")].fetch()
+    assert len(list(result)) == 3
+    result = t[t["id"].like("a%c")].fetch()
+    assert len(list(result)) == 1
+    result = t[t["id"].like("_a%")].fetch()
+    assert len(list(result)) == 1
