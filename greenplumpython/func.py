@@ -12,12 +12,22 @@ from .type import primitive_type_map
 
 class FunctionCall(Expr):
     def __init__(
-        self, func_name: str, db: Database, args: Iterable[Expr] = [], as_name: Optional[str] = None
+        self,
+        func_name: str,
+        args: Iterable[Expr] = [],
+        as_name: Optional[str] = None,
+        db: Optional[Database] = None,
     ) -> None:
-        super().__init__(as_name)
+        table: Optional[Table] = None
+        for arg in args:
+            if isinstance(arg, Expr) and arg.table is not None:
+                if table is None:
+                    table = arg.table
+                elif table.name != arg.table.name:
+                    raise Exception("Cannot pass arguments from more than one tables")
+        super().__init__(as_name, table=table, db=db)
         self._func_name = func_name
         self._args = args
-        self._db = db
 
     def __str__(self) -> str:
         args_string = ",".join([str(arg) for arg in self._args]) if any(self._args) else ""
@@ -25,13 +35,19 @@ class FunctionCall(Expr):
 
     def to_table(self) -> Table:
         as_string = f"AS {self._as_name}" if self._as_name is not None else ""
-        ret_table = Table(f"SELECT * FROM {str(self)} {as_string}", db=self._db)
-        return Table(f"SELECT * FROM {ret_table.name}", parents=[ret_table], db=self._db)
+        from_caluse = f"FROM {self.table.name}" if self.table is not None else ""
+        parents = [self.table] if self.table is not None else []
+        orig_func_table = Table(
+            f"SELECT {str(self)} {as_string} {from_caluse}", db=self._db, parents=parents
+        )
+        return Table(
+            f"SELECT * FROM {orig_func_table.name}", parents=[orig_func_table], db=self._db
+        )
 
 
 def function(name: str, db: Database) -> Callable[..., FunctionCall]:
     def make_function_call(*args: Expr, as_name: Optional[str] = None) -> FunctionCall:
-        return FunctionCall(name, db, args, as_name=as_name)
+        return FunctionCall(name, args, as_name=as_name, db=db)
 
     return make_function_call
 
@@ -81,6 +97,6 @@ def create_function(
             ),
             has_results=False,
         )
-        return FunctionCall(qualified_func_name, db, args, as_name=as_name)
+        return FunctionCall(qualified_func_name, args, as_name=as_name, db=db)
 
     return make_function_call
