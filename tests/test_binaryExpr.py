@@ -112,3 +112,18 @@ def test_expr_bin_or(db: gp.Database):
     assert len(list(ret)) == 2
     for row in ret:
         assert 3 <= row["id"] or row["id"] < 0
+
+
+def test_table_like(db: gp.Database):
+    rows = [("'aaa'",), ("'bba'",), ("'acac'",)]
+    t = gp.values(rows, db=db).save_as("temp1", column_names=["id"], temp=True)
+    result = t[t["id"].like("a%")].fetch()
+    assert len(list(result)) == 2
+    result = t[t["id"].like("%a")].fetch()
+    assert len(list(result)) == 2
+    result = t[t["id"].like("%a%")].fetch()
+    assert len(list(result)) == 3
+    result = t[t["id"].like("a%c")].fetch()
+    assert len(list(result)) == 1
+    result = t[t["id"].like("_a%")].fetch()
+    assert len(list(result)) == 1
