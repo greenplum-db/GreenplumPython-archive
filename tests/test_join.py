@@ -10,6 +10,100 @@ def db() -> gp.Database:
     db.close()
 
 
+@pytest.fixture
+def t1(db: gp.Database):
+    # fmt: off
+    rows1 = [(1, 0, "'a1'",), (2, 0, "'a2'",), (3, 0, "'a3'",)]
+    # fmt: on
+    t = gp.values(rows1, db=db).save_as("temp1", temp=True, column_names=["id1", "idd1", "n1"])
+    return t
+
+
+@pytest.fixture
+def t2(db: gp.Database):
+    # fmt: off
+    rows2 = [(1, 0, "'b1'",), (2, 0, "'b2'",), (3, 0, "'b3'",)]
+    # fmt: on
+    t = gp.values(rows2, db=db).save_as("temp2", temp=True, column_names=["id2", "idd2", "n2"])
+    return t
+
+
+def test_join_both_default_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
+    ret = t1._join(
+        t2,
+        my_targets=["*"],
+        other_targets=["*"],
+        how="INNER JOIN",
+        on_str="ON temp1.id1 = temp2.id2",
+    ).fetch()
+    assert list(list(ret)[0].keys()) == ["id1", "idd1", "n1", "id2", "idd2", "n2"]
+
+
+def test_join_both_empty_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
+    ret = t1._join(
+        t2, my_targets=[], other_targets=[], how="INNER JOIN", on_str="ON temp1.id1 = temp2.id2"
+    ).fetch()
+    assert list(list(ret)[0].keys()) == ["id1", "idd1", "n1", "id2", "idd2", "n2"]
+
+
+def test_join_df_emp_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
+    ret = t1._join(
+        t2, my_targets=[], other_targets=["*"], how="INNER JOIN", on_str="ON temp1.id1 = temp2.id2"
+    ).fetch()
+    assert list(list(ret)[0].keys()) == ["id2", "idd2", "n2"]
+
+
+def test_join_both_mulp_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
+    ret = t1._join(
+        t2,
+        my_targets=["id1", "n1"],
+        other_targets=["idd2"],
+        how="INNER JOIN",
+        on_str="ON temp1.id1 = temp2.id2",
+    ).fetch()
+    assert list(list(ret)[0].keys()) == ["id1", "n1", "idd2"]
+
+
+def test_join_no_exit_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
+    with pytest.raises(Exception, match=r"not_exist_target column not exists"):
+        ret = t1._join(
+            t2,
+            my_targets=["id1", "n1"],
+            other_targets=["not_exist_target"],
+            how="INNER JOIN",
+            on_str="ON temp1.id1 = temp2.id2",
+        ).fetch()
+
+
+def test_join_same_column_names_alias(db: gp.Database):
+    rows = [(1,), (2,), (3,)]
+    t1 = gp.values(rows, db=db).save_as("temp1", temp=True, column_names=["id"])
+    t2 = gp.values(rows, db=db).save_as("temp2", temp=True, column_names=["id"])
+    ret = t1._join(
+        t2,
+        my_targets=["id AS t1_id"],
+        other_targets=["id AS t2_id"],
+        how="INNER JOIN",
+        on_str="ON temp1.id = temp2.id",
+    ).fetch()
+    assert list(list(ret)[0].keys()) == ["t1_id", "t2_id"]
+
+
+def test_join_same_column_names(db: gp.Database):
+    rows = [(1, 1), (2, 1), (3, 1)]
+    t1 = gp.values(rows, db=db).save_as("temp1", temp=True, column_names=["id", "n1"])
+    t2 = gp.values(rows, db=db).save_as("temp2", temp=True, column_names=["id", "n2"])
+    ret = t1._join(
+        t2,
+        my_targets=["*"],
+        other_targets=["*"],
+        how="INNER JOIN",
+        on_str="ON temp1.id = temp2.id",
+    ).fetch()
+    # FIXME: Add alias automatically when there are same name in selected columns
+    assert list(list(ret)[0].keys()) == ["temp1_id", "n1", "temp2_id", "n2"]
+
+
 def test_table_inner_join_eq(db: gp.Database):
     rows = [(1,), (2,), (3,)]
     t1 = gp.values(rows, db=db).save_as("temp1", temp=True, column_names=["id"])

@@ -58,14 +58,57 @@ class Table:
     def _join(
         self,
         other: "Table",
-        my_targets: List = ["*"],
-        other_targets: List = ["*"],
-        how: str = "JOIN",
+        my_targets: List = [],
+        other_targets: List = [],
+        how: str = "",
         on_str: str = "",
     ) -> "Table":
-        my_targets_str = ",".join([self.name + ".{}".format(target) for target in my_targets])
-        other_targets_str = ",".join([other.name + ".{}".format(target) for target in other_targets])
-        targets = ",".join([my_targets_str, other_targets_str])
+        my_columns = []
+        other_columns = []
+        # FIXME : Better use column_names() function for column existence verification
+        my_cols = self.fetch()
+        other_cols = other.fetch()
+        for row in list(list(my_cols)[0].keys()):
+            my_columns.append(row)
+        for row in list(list(other_cols)[0].keys()):
+            other_columns.append(row)
+        # FIXME : Improve process of column name search,
+        #         and use '*' when no identical column names exists
+        if (my_targets == ["*"] and other_targets == ["*"]) or (
+            my_targets == [] and other_targets == []
+        ):
+            my_targets_str = ",".join(
+                [
+                    self.name
+                    + ".{}".format(target)
+                    + (" AS " + self.name + "_" + target if target in other_columns else "")
+                    for target in my_columns
+                ]
+            )
+            other_targets_str = ",".join(
+                [
+                    other.name
+                    + ".{}".format(target)
+                    + (" AS " + other.name + "_" + target if target in my_columns else "")
+                    for target in other_columns
+                ]
+            )
+        else:
+            for elem in my_targets + other_targets:
+                elem = elem.split(" AS ")[0]
+                if elem not in my_columns and elem not in other_columns and elem != "*":
+                    raise Exception(elem + " column not exists")
+            my_targets_str = ",".join([self.name + ".{}".format(target) for target in my_targets])
+            other_targets_str = ",".join(
+                [other.name + ".{}".format(target) for target in other_targets]
+            )
+        if my_targets != [] and other_targets == []:
+            targets = my_targets_str
+        elif my_targets == [] and other_targets != []:
+            targets = other_targets_str
+        else:
+            targets = ",".join([my_targets_str, other_targets_str])
+        targets = "" if targets == "," else targets
         select_str = "*" if not targets else targets
         return Table(
             f"""
