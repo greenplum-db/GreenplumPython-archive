@@ -39,16 +39,16 @@ class Expr:
         return BinaryExpr("!=", self, other)
 
     def __pos__(self):
-        return UnaryExpr("+", self)
+        return UnaryExpr("+", self, as_name='"+' + str(self) + '"')
 
     def __neg__(self):
-        return UnaryExpr("-", self)
+        return UnaryExpr("-", self, as_name='"-' + str(self) + '"')
 
     def __abs__(self):
-        return UnaryExpr("ABS", self)
+        return UnaryExpr("ABS", self, as_name='"Abs(' + str(self) + ')"')
 
     def __invert__(self):
-        return UnaryExpr("NOT", self)
+        return UnaryExpr("NOT", self, as_name='"Not(' + str(self) + ')"')
 
     def __str__(self) -> str:
         raise NotImplementedError()
@@ -93,18 +93,38 @@ class BinaryExpr(Expr):
 
 class UnaryExpr(Expr):
     def __init__(self, operator: str, right: Expr, as_name: Optional[str] = None):
-        super().__init__(as_name=as_name)
+        table = right.table
+        db = right.db
+        super().__init__(as_name=as_name, table=table, db=db)
+        if operator not in ["NOT", "ABS", "+", "-"]:
+            raise NotImplementedError(
+                f"{operator.upper()} is not a supported unary operator for Column\n"
+                f"Can only support 'NOT', 'ABS', 'POS' and 'NEG' unary operators"
+            )
         self.operator = operator
         self.right = right
 
     def __str__(self) -> str:
         if self.operator == "NOT":
-            return "NOT(" + str(self.right) + ') AS "Not(' + str(self.right) + ')"'
+            return (
+                "NOT("
+                + str(self.right)
+                + ") "
+                + ("AS " + self._as_name if self._as_name is not None else "")
+            )
         if self.operator == "ABS":
-            return "ABS(" + str(self.right) + ') AS "Abs(' + str(self.right) + ')"'
+            return (
+                "ABS("
+                + str(self.right)
+                + ") "
+                + ("AS " + self._as_name if self._as_name is not None else "")
+            )
 
         return (
-            self.operator + str(self.right) + " AS " + '"' + self.operator + str(self.right) + '"'
+            self.operator
+            + str(self.right)
+            + " "
+            + ("AS " + self._as_name if self._as_name is not None else "")
         )
 
 
