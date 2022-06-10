@@ -3,11 +3,10 @@ import inspect
 import pytest
 
 import greenplumpython as gp
-from greenplumpython.func import FunctionCall
 
 
 @pytest.fixture
-def db() -> gp.Database:
+def db():
     db = gp.database(host="localhost", dbname="gpadmin")
     yield db
     db.close()
@@ -62,3 +61,33 @@ def test_create_func_tab_indent(db: gp.Database):
 		assert row["result"] == min(1, 2)
 		assert row["result"] == inspect.unwrap(my_min)(1, 2)
 # fmt: on
+
+
+def test_func_on_one_column(db: gp.Database):
+    rows = [(i,) for i in range(-10, 0)]
+    series = gp.values(rows, db=db, column_names=["id"])
+    abs = gp.function("abs", db=db)
+    results = abs(series["id"]).to_table().fetch()
+    assert sorted([row["abs"] for row in results]) == list(range(1, 11))
+
+
+def test_func_on_multi_columns(db: gp.Database):
+    @gp.create_function
+    def multiply(a: int, b: int) -> int:
+        return a * b
+
+    rows = [(i, i) for i in range(10)]
+    series = gp.values(rows, db=db, column_names=["a", "b"])
+    results = multiply(series["a"], series["b"], as_name="result").to_table().fetch()
+    assert sorted([row["result"] for row in results]) == [i * i for i in range(10)]
+
+
+def test_func_on_more_than_one_table(db: gp.Database):
+    div = gp.function("div", db=db)
+    rows = [(1,) for _ in range(10)]
+    t1 = gp.values(rows, db=db, column_names=["i"])
+    t2 = gp.values(rows, db=db, column_names=["i"])
+    with pytest.raises(Exception) as exc_info:
+        div(t1["i"], t2["i"])
+    # FIXME: Create more specific exception classes and remove this
+    assert "Cannot pass arguments from more than one tables" == str(exc_info.value)
