@@ -10,5 +10,5 @@ primitive_type_map = {
 }
 
 
-def is_primitive(type_: Type) -> bool:
+def is_primitive_type(type_: Type) -> bool:
     return type_ in primitive_type_map
