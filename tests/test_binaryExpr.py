@@ -97,6 +97,24 @@ def test_expr_bin_ne(db: gp.Database, table_num: gp.Table):
     assert len(list(ret)) == 9
 
 
+def test_expr_bin_and(db: gp.Database, table_num: gp.Table):
+    b = (table_num["id"] >= 3) & (table_num["id"] < 8)
+    ret = table_num[b].fetch()
+    assert len(list(ret)) == 5
+    for row in ret:
+        assert 3 <= row["id"] < 8
+
+
+def test_expr_bin_or(db: gp.Database):
+    rows = [(1,), (2,), (3,), (-2,)]
+    t = gp.values(rows, db=db).save_as("temp4", column_names=["id"], temp=True)
+    b = (t["id"] >= 3) | (t["id"] < 0)
+    ret = t[b].fetch()
+    assert len(list(ret)) == 2
+    for row in ret:
+        assert 3 <= row["id"] or row["id"] < 0
+
+
 def test_table_like(db: gp.Database):
     rows = [("'aaa'",), ("'bba'",), ("'acac'",)]
     t = gp.values(rows, db=db).save_as("temp1", column_names=["id"], temp=True)
