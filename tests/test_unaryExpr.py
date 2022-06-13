@@ -13,7 +13,7 @@ def db():
 def test_expr_unary_not(db: gp.Database):
     rows = [("True",), ("False",), ("True",), ("True",)]
     t = gp.values(rows, db=db).save_as("temp1", column_names=["id"], temp=True)
-    b1 = ~t["id"]
+    b1 = (~t["id"]).rename('"Not(temp1.id)"')
     assert str(b1) == 'NOT(temp1.id) AS "Not(temp1.id)"'
     ret = list(t[["id", str(b1)]].fetch())
     for row in ret:
@@ -25,7 +25,7 @@ def test_expr_unary_not(db: gp.Database):
 def test_expr_unary_pos(db: gp.Database):
     rows = [(-1,), (-2,), (-3,), (-2,)]
     t = gp.values(rows, db=db).save_as("temp2", column_names=["id"], temp=True)
-    b2 = +t["id"]
+    b2 = (+t["id"]).rename('"+temp2.id"')
     assert str(b2) == '+temp2.id AS "+temp2.id"'
     ret = list(t[["id", str(b2)]].fetch())
     for row in ret:
@@ -35,7 +35,7 @@ def test_expr_unary_pos(db: gp.Database):
 def test_expr_unary_neg(db: gp.Database):
     rows = [(1,), (2,), (3,), (2,)]
     t = gp.values(rows, db=db).save_as("temp3", column_names=["id"], temp=True)
-    b3 = -t["id"]
+    b3 = (-t["id"]).rename('"-temp3.id"')
     assert str(b3) == '-temp3.id AS "-temp3.id"'
     ret = list(t[["id", str(b3)]].fetch())
     for row in ret:
@@ -45,7 +45,7 @@ def test_expr_unary_neg(db: gp.Database):
 def test_expr_unary_abs(db: gp.Database):
     rows = [(1,), (-2,), (-3,), (2,)]
     t = gp.values(rows, db=db).save_as("temp4", column_names=["id"], temp=True)
-    b4 = abs(t["id"])
+    b4 = abs(t["id"]).rename('"Abs(temp4.id)"')
     assert str(b4) == 'ABS(temp4.id) AS "Abs(temp4.id)"'
     ret = list(t[["id", str(b4)]].fetch())
     for row in ret:

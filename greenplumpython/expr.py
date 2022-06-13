@@ -1,3 +1,4 @@
+import copy
 from typing import TYPE_CHECKING, Iterable, Optional
 
 from .db import Database
@@ -45,18 +46,26 @@ class Expr:
         return BinaryExpr("!=", self, other)
 
     def __pos__(self):
-        return UnaryExpr("+", self, as_name='"+' + str(self) + '"')
+        return UnaryExpr("+", self)
 
     def __neg__(self):
-        return UnaryExpr("-", self, as_name='"-' + str(self) + '"')
+        return UnaryExpr("-", self)
 
     def __abs__(self):
-        return UnaryExpr("ABS", self, as_name='"Abs(' + str(self) + ')"')
+        return UnaryExpr("ABS", self)
 
     def __invert__(self):
-        return UnaryExpr("NOT", self, as_name='"Not(' + str(self) + ')"')
+        return UnaryExpr("NOT", self)
 
     def __str__(self) -> str:
+        return self._mystr() + (" AS " + self._as_name if self._as_name is not None else "")
+
+    def rename(self, new_name: str) -> "Expr":
+        new_expr = copy.copy(self)  # Shallow copy
+        new_expr._as_name = new_name
+        return new_expr
+
+    def _mystr(self) -> str:
         raise NotImplementedError()
 
     @property
@@ -81,7 +90,7 @@ class BinaryExpr(Expr):
         self.left = left
         self.right = right
 
-    def __str__(self) -> str:
+    def _mystr(self) -> str:
         if isinstance(self.right, type(None)):
             return str(self.left) + " " + self.operator + " " + "NULL"
         if isinstance(self.right, str):
@@ -110,28 +119,13 @@ class UnaryExpr(Expr):
         self.operator = operator
         self.right = right
 
-    def __str__(self) -> str:
+    def _mystr(self) -> str:
         if self.operator == "NOT":
-            return (
-                "NOT("
-                + str(self.right)
-                + ") "
-                + ("AS " + self._as_name if self._as_name is not None else "")
-            )
+            return "NOT(" + str(self.right) + ")"
         if self.operator == "ABS":
-            return (
-                "ABS("
-                + str(self.right)
-                + ") "
-                + ("AS " + self._as_name if self._as_name is not None else "")
-            )
+            return "ABS(" + str(self.right) + ")"
 
-        return (
-            self.operator
-            + str(self.right)
-            + " "
-            + ("AS " + self._as_name if self._as_name is not None else "")
-        )
+        return self.operator + str(self.right)
 
 
 class Column(Expr):
@@ -139,7 +133,7 @@ class Column(Expr):
         super().__init__(as_name=as_name, table=table)
         self._name = name
 
-    def __str__(self) -> str:
+    def _mystr(self) -> str:
         assert self.table is not None
         return self.table.name + "." + self.name
 
