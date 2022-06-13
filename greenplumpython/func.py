@@ -115,7 +115,6 @@ def create_function(
         func_body = "\n".join([line for line in func_lines if re.match(r"^\s", line)])
         if db is None:
             for arg in args:
-                print(arg.db)
                 if isinstance(arg, Expr) and arg.db is not None:
                     db = arg.db
                     break
