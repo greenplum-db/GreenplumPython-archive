@@ -82,14 +82,24 @@ def test_func_on_multi_columns(db: gp.Database):
     assert sorted([row["result"] for row in results]) == [i * i for i in range(10)]
 
 
+def test_func_on_more_than_one_table(db: gp.Database):
+    div = gp.function("div", db=db)
+    rows = [(1,) for _ in range(10)]
+    t1 = gp.values(rows, db=db, column_names=["i"])
+    t2 = gp.values(rows, db=db, column_names=["i"])
+    with pytest.raises(Exception) as exc_info:
+        div(t1["i"], t2["i"])
+    # FIXME: Create more specific exception classes and remove this
+    assert "Cannot pass arguments from more than one tables" == str(exc_info.value)
+
+
 def test_simple_agg(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
     count = gp.aggregate("count", db=db)
 
-    results = count(numbers["val"]).to_table().fetch()
-    for row in results:
-        assert row["count"] == 10
+    results = list(count(numbers["val"]).to_table().fetch())
+    assert len(results) == 1 and results[0]["count"] == 10
 
 
 def test_agg_group_by(db: gp.Database):
@@ -97,7 +107,8 @@ def test_agg_group_by(db: gp.Database):
     numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
     count = gp.aggregate("count", db=db)
 
-    results = count(numbers["val"], group_by=["is_even"]).to_table().fetch()
+    results = list(count(numbers["val"], group_by=["is_even"]).to_table().fetch())
+    assert len(results) == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["count"] == 5)
 
@@ -111,9 +122,8 @@ def test_create_agg(db: gp.Database):
 
     rows = [(1,) for _ in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
-    results = my_sum(numbers["val"], as_name="result").to_table().fetch()
-    for row in results:
-        assert row["result"] == 10
+    results = list(my_sum(numbers["val"], as_name="result").to_table().fetch())
+    assert len(results) == 1 and results[0]["result"] == 10
 
 
 def test_create_agg_multi_args(db: gp.Database):
@@ -125,17 +135,7 @@ def test_create_agg_multi_args(db: gp.Database):
 
     rows = [(1, 2) for _ in range(10)]
     vectors = gp.values(rows, db=db, column_names=["a", "b"])
-    results = manhattan_distance(vectors["a"], vectors["b"], as_name="result").to_table().fetch()
-    for row in results:
-        assert row["result"] == 10
-
-
-def test_func_on_more_than_one_table(db: gp.Database):
-    div = gp.function("div", db=db)
-    rows = [(1,) for _ in range(10)]
-    t1 = gp.values(rows, db=db, column_names=["i"])
-    t2 = gp.values(rows, db=db, column_names=["i"])
-    with pytest.raises(Exception) as exc_info:
-        div(t1["i"], t2["i"])
-    # FIXME: Create more specific exception classes and remove this
-    assert "Cannot pass arguments from more than one tables" == str(exc_info.value)
+    results = list(
+        manhattan_distance(vectors["a"], vectors["b"], as_name="result").to_table().fetch()
+    )
+    assert len(results) == 1 and results[0]["result"] == 10
