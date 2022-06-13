@@ -16,6 +16,10 @@ Install with `brew` on macOS:
 brew install tox
 ```
 
+`NodeJs` need to have version 12.X, otherwise `Pyright` can't be executed correctly. Possible scenarios:
+ - Error : Cannot find module 'worker_threads'
+ - Nothing happens when run `Pyright`
+
 ## Build & Test
 
 ### Lint

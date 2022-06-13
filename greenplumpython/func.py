@@ -27,7 +27,6 @@ class FunctionCall(Expr):
                     table = arg.table
                 elif table.name != arg.table.name:
                     raise Exception("Cannot pass arguments from more than one tables")
-        db = table.db if table is not None else db
         super().__init__(as_name, table=table, db=db)
         self._func_name = func_name
         self._args = args

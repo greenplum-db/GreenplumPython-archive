@@ -6,7 +6,7 @@ import greenplumpython as gp
 
 
 @pytest.fixture
-def db() -> gp.Database:
+def db():
     db = gp.database(host="localhost", dbname="gpadmin")
     yield db
     db.close()
@@ -128,3 +128,14 @@ def test_create_agg_multi_args(db: gp.Database):
     results = manhattan_distance(vectors["a"], vectors["b"], as_name="result").to_table().fetch()
     for row in results:
         assert row["result"] == 10
+
+
+def test_func_on_more_than_one_table(db: gp.Database):
+    div = gp.function("div", db=db)
+    rows = [(1,) for _ in range(10)]
+    t1 = gp.values(rows, db=db, column_names=["i"])
+    t2 = gp.values(rows, db=db, column_names=["i"])
+    with pytest.raises(Exception) as exc_info:
+        div(t1["i"], t2["i"])
+    # FIXME: Create more specific exception classes and remove this
+    assert "Cannot pass arguments from more than one tables" == str(exc_info.value)
