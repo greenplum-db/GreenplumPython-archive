@@ -5,7 +5,7 @@ import greenplumpython as gp
 
 @pytest.fixture
 def db() -> gp.Database:
-    db = gp.database(host="localhost", dbname="gpadmin")
+    db = gp.database(host="localhost", dbname="postgres")
     yield db
     db.close()
 
@@ -30,11 +30,19 @@ def t2(db: gp.Database):
 
 @pytest.fixture
 def zoo_1(db: gp.Database):
+    # fmt: off
+    rows = [(1, "'Lion'",), (2, "'Tiger'",), (3, "'Wolf'",), (4, "'Fox'")]
+    # fmt: on
+    t = gp.values(rows, db=db).save_as("zoo1", column_names=["id", "animal"])
     return gp.table("zoo1", db)
 
 
 @pytest.fixture
 def zoo_2(db: gp.Database):
+    # fmt: off
+    rows = [(1, "'Tiger'",), (2, "'Lion'",), (3, "'Rhino'",), (4, "'Panther'")]
+    # fmt: on
+    t = gp.values(rows, db=db).save_as("zoo2", column_names=["id", "animal"])
     return gp.table("zoo2", db)
 
 
