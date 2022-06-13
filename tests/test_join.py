@@ -5,7 +5,7 @@ import greenplumpython as gp
 
 @pytest.fixture
 def db() -> gp.Database:
-    db = gp.database(host="localhost", dbname="postgres")
+    db = gp.database(host="localhost", dbname="gpadmin")
     yield db
     db.close()
 
@@ -46,11 +46,9 @@ def zoo_2(db: gp.Database):
     return gp.table("zoo2", db)
 
 
-def test_join_both_default_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
+def test_join_default_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
     ret = t1._join(
         t2,
-        my_targets=["*"],
-        other_targets=["*"],
         how="INNER JOIN",
         on_str="ON temp1.id1 = temp2.id2",
     ).fetch()
@@ -58,39 +56,35 @@ def test_join_both_default_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
 
 
 def test_join_both_empty_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
-    ret = t1._join(
-        t2, my_targets=[], other_targets=[], how="INNER JOIN", on_str="ON temp1.id1 = temp2.id2"
-    ).fetch()
+    ret = t1._join(t2, targets=[], how="INNER JOIN", on_str="ON temp1.id1 = temp2.id2").fetch()
     assert list(list(ret)[0].keys()) == ["id1", "idd1", "n1", "id2", "idd2", "n2"]
 
 
-def test_join_df_emp_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
+def test_join_all_emp_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
     ret = t1._join(
-        t2, my_targets=[], other_targets=["*"], how="INNER JOIN", on_str="ON temp1.id1 = temp2.id2"
+        t2, targets=[t2["*"]], how="INNER JOIN", on_str="ON temp1.id1 = temp2.id2"
     ).fetch()
     assert list(list(ret)[0].keys()) == ["id2", "idd2", "n2"]
+
+
+def test_join_all_one_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
+    ret = t1._join(
+        t2, targets=[t2["*"], t1["id1"]], how="INNER JOIN", on_str="ON temp1.id1 = temp2.id2"
+    ).fetch()
+    assert list(list(ret)[0].keys()) == ["id2", "idd2", "n2", "id1"]
 
 
 def test_join_both_mulp_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
     ret = t1._join(
         t2,
-        my_targets=["id1", "n1"],
-        other_targets=["idd2"],
+        targets=[t1["id1"], t1["n1"], t2["idd2"]],
         how="INNER JOIN",
         on_str="ON temp1.id1 = temp2.id2",
     ).fetch()
     assert list(list(ret)[0].keys()) == ["id1", "n1", "idd2"]
 
 
-def test_join_no_exit_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
-    with pytest.raises(Exception, match=r"not_exist_target column not exists"):
-        ret = t1._join(
-            t2,
-            my_targets=["id1", "n1"],
-            other_targets=["not_exist_target"],
-            how="INNER JOIN",
-            on_str="ON temp1.id1 = temp2.id2",
-        ).fetch()
+# FIXME : Test for no exist target column
 
 
 def test_join_same_column_names_alias(db: gp.Database):
@@ -99,8 +93,7 @@ def test_join_same_column_names_alias(db: gp.Database):
     t2 = gp.values(rows, db=db).save_as("temp2", temp=True, column_names=["id"])
     ret = t1._join(
         t2,
-        my_targets=["id AS t1_id"],
-        other_targets=["id AS t2_id"],
+        targets=[t1["id"].rename("t1_id"), t2["id"].rename("t2_id")],
         how="INNER JOIN",
         on_str="ON temp1.id = temp2.id",
     ).fetch()
@@ -113,25 +106,40 @@ def test_join_same_column_names(db: gp.Database):
     t2 = gp.values(rows, db=db).save_as("temp2", temp=True, column_names=["id", "n2"])
     ret = t1._join(
         t2,
-        my_targets=["*"],
-        other_targets=["*"],
         how="INNER JOIN",
         on_str="ON temp1.id = temp2.id",
     ).fetch()
-    # FIXME: Add alias automatically when there are same name in selected columns
-    assert list(list(ret)[0].keys()) == ["temp1_id", "n1", "temp2_id", "n2"]
+    # FIXME: Test for when there are same name in selected columns
 
 
 def test_table_inner_join_eq(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
-    ret = zoo_1.inner_join(zoo_2, zoo_1["animal"] == zoo_2["animal"]).fetch()
+    ret = zoo_1.inner_join(
+        zoo_2,
+        zoo_1["animal"] == zoo_2["animal"],
+        targets=[
+            zoo_1["animal"].rename("zoo1_animal"),
+            zoo_2["animal"].rename("zoo2_animal"),
+            zoo_1["id"].rename("zoo1_id"),
+            zoo_2["id"].rename("zoo2_id"),
+        ],
+    ).fetch()
     assert len(list(ret)) == 2
     for row in list(ret):
         assert row["zoo1_animal"] == row["zoo2_animal"]
         assert row["zoo1_animal"] == "Lion" or row["zoo1_animal"] == "Tiger"
 
 
-def test_table_left_join_lt(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
-    ret = zoo_1.left_join(zoo_2, zoo_1["animal"] == zoo_2["animal"]).fetch()
+def test_table_left_join_eq(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
+    ret = zoo_1.left_join(
+        zoo_2,
+        zoo_1["animal"] == zoo_2["animal"],
+        targets=[
+            zoo_1["animal"].rename("zoo1_animal"),
+            zoo_2["animal"].rename("zoo2_animal"),
+            zoo_1["id"].rename("zoo1_id"),
+            zoo_2["id"].rename("zoo2_id"),
+        ],
+    ).fetch()
     assert len(list(ret)) == 4
     for row in list(ret):
         if row["zoo1_animal"] == "Lion" or row["zoo1_animal"] == "Tiger":
@@ -141,8 +149,17 @@ def test_table_left_join_lt(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
             assert row["zoo2_id"] is None
 
 
-def test_table_right_join_lt(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
-    ret = zoo_1.right_join(zoo_2, zoo_1["animal"] == zoo_2["animal"]).fetch()
+def test_table_right_join_eq(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
+    ret = zoo_1.right_join(
+        zoo_2,
+        zoo_1["animal"] == zoo_2["animal"],
+        targets=[
+            zoo_1["animal"].rename("zoo1_animal"),
+            zoo_2["animal"].rename("zoo2_animal"),
+            zoo_1["id"].rename("zoo1_id"),
+            zoo_2["id"].rename("zoo2_id"),
+        ],
+    ).fetch()
     assert len(list(ret)) == 4
     for row in list(ret):
         if row["zoo2_animal"] == "Lion" or row["zoo2_animal"] == "Tiger":
@@ -152,8 +169,17 @@ def test_table_right_join_lt(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
             assert row["zoo1_id"] is None
 
 
-def test_table_full_join_target(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
-    ret = zoo_1.full_outer_join(zoo_2, zoo_1["animal"] == zoo_2["animal"]).fetch()
+def test_table_full_join_eq(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
+    ret = zoo_1.full_outer_join(
+        zoo_2,
+        zoo_1["animal"] == zoo_2["animal"],
+        targets=[
+            zoo_1["animal"].rename("zoo1_animal"),
+            zoo_2["animal"].rename("zoo2_animal"),
+            zoo_1["id"].rename("zoo1_id"),
+            zoo_2["id"].rename("zoo2_id"),
+        ],
+    ).fetch()
     assert len(list(ret)) == 6
     for row in list(ret):
         if row["zoo2_animal"] == "Lion" or row["zoo2_animal"] == "Tiger":
@@ -168,7 +194,15 @@ def test_table_full_join_target(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Tabl
 
 
 def test_table_cross_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
-    ret = zoo_1.cross_join(zoo_2).fetch()
+    ret = zoo_1.cross_join(
+        zoo_2,
+        targets=[
+            zoo_1["animal"].rename("zoo1_animal"),
+            zoo_2["animal"].rename("zoo2_animal"),
+            zoo_1["id"].rename("zoo1_id"),
+            zoo_2["id"].rename("zoo2_id"),
+        ],
+    ).fetch()
     assert len(list(ret)) == 16
     ini1_dict = {"Tiger": 0, "Lion": 0, "Wolf": 0, "Fox": 0}
     ini2_dict = {"Tiger": 0, "Lion": 0, "Rhino": 0, "Panther": 0}
@@ -185,7 +219,16 @@ def test_table_cross_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
 
 def test_table_self_join(db: gp.Database, zoo_1: gp.Table):
     zoo_2 = zoo_1.as_name("zoo2")
-    ret = zoo_1.inner_join(zoo_2, zoo_1["animal"] == zoo_2["animal"]).fetch()
+    ret = zoo_1.inner_join(
+        zoo_2,
+        zoo_1["animal"] == zoo_2["animal"],
+        targets=[
+            zoo_1["animal"].rename("zoo1_animal"),
+            zoo_2["animal"].rename("zoo2_animal"),
+            zoo_1["id"].rename("zoo1_id"),
+            zoo_2["id"].rename("zoo2_id"),
+        ],
+    ).fetch()
     assert len(list(ret)) == 4
     for row in list(ret):
         assert row["zoo1_animal"] == row["zoo2_animal"]
@@ -193,7 +236,16 @@ def test_table_self_join(db: gp.Database, zoo_1: gp.Table):
 
 def test_table_join_save(db: gp.Database, zoo_1: gp.Table):
     zoo_2 = zoo_1.as_name("zoo2")
-    t_join = zoo_1.inner_join(zoo_2, zoo_1["animal"] == zoo_2["animal"])
+    t_join = zoo_1.inner_join(
+        zoo_2,
+        zoo_1["animal"] == zoo_2["animal"],
+        targets=[
+            zoo_1["id"].rename("zoo1_id"),
+            zoo_1["animal"].rename("zoo1_animal"),
+            zoo_2["id"].rename("zoo2_id"),
+            zoo_2["animal"].rename("zoo2_animal"),
+        ],
+    )
     t_join.save_as("table_join")
     t_join_reload = gp.table("table_join", db=db)
     ret = t_join_reload.fetch()

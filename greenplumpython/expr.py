@@ -1,3 +1,4 @@
+import copy
 from typing import TYPE_CHECKING, Iterable, Optional
 
 from .db import Database
@@ -45,6 +46,14 @@ class Expr:
         return BinaryExpr("!=", self, other)
 
     def __str__(self) -> str:
+        return self._mystr() + (" AS " + self._as_name if self._as_name is not None else "")
+
+    def rename(self, new_name: str) -> "Expr":
+        new_expr = copy.copy(self)  # Shallow copy
+        new_expr._as_name = new_name
+        return new_expr
+
+    def _mystr(self) -> str:
         raise NotImplementedError()
 
     @property
@@ -69,7 +78,7 @@ class BinaryExpr(Expr):
         self.left = left
         self.right = right
 
-    def __str__(self) -> str:
+    def _mystr(self) -> str:
         if isinstance(self.right, type(None)):
             return str(self.left) + " " + self.operator + " " + "NULL"
         if isinstance(self.right, str):
@@ -90,7 +99,7 @@ class Column(Expr):
         super().__init__(as_name=as_name, table=table)
         self._name = name
 
-    def __str__(self) -> str:
+    def _mystr(self) -> str:
         assert self.table is not None
         return self.table.name + "." + self.name
 
