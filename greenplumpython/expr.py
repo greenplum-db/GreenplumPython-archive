@@ -18,6 +18,12 @@ class Expr:
         self._db = table.db if table is not None else db
         assert self._db is not None
 
+    def __and__(self, other):
+        return BinaryExpr("AND", self, other)
+
+    def __or__(self, other):
+        return BinaryExpr("OR", self, other)
+
     def __eq__(self, other):
         if isinstance(other, type(None)):
             return BinaryExpr("is", self, other)
