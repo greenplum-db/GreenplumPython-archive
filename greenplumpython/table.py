@@ -58,9 +58,9 @@ class Table:
     def _join(
         self,
         other: "Table",
-        targets: List = [],
-        how: str = "",
-        on_str: str = "",
+        targets: List,
+        how: str,
+        on_str: str,
     ) -> "Table":
         # FIXME : Raise Error if target columns don't exist
         # FIXME : Same column name in both table
@@ -116,7 +116,7 @@ class Table:
         targets: List = [],
     ):
         on_str = ""
-        return self._join(other, targets, "FULL JOIN", on_str)
+        return self._join(other, targets, "NATURAL JOIN", on_str)
 
     def cross_join(
         self,

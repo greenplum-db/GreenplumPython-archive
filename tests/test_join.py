@@ -46,9 +46,10 @@ def zoo_2(db: gp.Database):
     return gp.table("zoo2", db)
 
 
-def test_join_default_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
+def test_join_both_all_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
     ret = t1._join(
         t2,
+        targets=[t1["*"], t2["*"]],
         how="INNER JOIN",
         on_str="ON temp1.id1 = temp2.id2",
     ).fetch()
@@ -60,7 +61,7 @@ def test_join_both_empty_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
     assert list(list(ret)[0].keys()) == ["id1", "idd1", "n1", "id2", "idd2", "n2"]
 
 
-def test_join_all_emp_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
+def test_join_all_empty_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
     ret = t1._join(
         t2, targets=[t2["*"]], how="INNER JOIN", on_str="ON temp1.id1 = temp2.id2"
     ).fetch()
@@ -106,13 +107,14 @@ def test_join_same_column_names(db: gp.Database):
     t2 = gp.values(rows, db=db).save_as("temp2", temp=True, column_names=["id", "n2"])
     ret = t1._join(
         t2,
+        targets=[],
         how="INNER JOIN",
         on_str="ON temp1.id = temp2.id",
     ).fetch()
     # FIXME: Test for when there are same name in selected columns
 
 
-def test_table_inner_join_eq(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
+def test_table_inner_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
     ret = zoo_1.inner_join(
         zoo_2,
         zoo_1["animal"] == zoo_2["animal"],
@@ -129,7 +131,7 @@ def test_table_inner_join_eq(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
         assert row["zoo1_animal"] == "Lion" or row["zoo1_animal"] == "Tiger"
 
 
-def test_table_left_join_eq(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
+def test_table_left_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
     ret = zoo_1.left_join(
         zoo_2,
         zoo_1["animal"] == zoo_2["animal"],
@@ -149,7 +151,7 @@ def test_table_left_join_eq(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
             assert row["zoo2_id"] is None
 
 
-def test_table_right_join_eq(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
+def test_table_right_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
     ret = zoo_1.right_join(
         zoo_2,
         zoo_1["animal"] == zoo_2["animal"],
@@ -169,7 +171,7 @@ def test_table_right_join_eq(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
             assert row["zoo1_id"] is None
 
 
-def test_table_full_join_eq(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
+def test_table_full_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
     ret = zoo_1.full_outer_join(
         zoo_2,
         zoo_1["animal"] == zoo_2["animal"],
@@ -191,6 +193,31 @@ def test_table_full_join_eq(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
             assert (row["zoo1_id"] is None and row["zoo2_id"] is not None) or (
                 row["zoo1_id"] is not None and row["zoo2_id"] is None
             )
+
+
+def test_table_natural_join(db: gp.Database):
+    # fmt: off
+    rows1 = [("'Smart Phone'", 1,), ("'Laptop'", 2,), ("'Tablet'", 3,)]
+    rows2 = [("'iPhone'", 1,), ("'Samsung Galaxy'", 1,), ("'HP Elite'", 2,),
+             ("'Lenovo Thinkpad'", 2,), ("'iPad'", 3,), ("'Kindle Fire'", 3)]
+    # fmt: on
+    categories = gp.values(rows1, db=db).save_as(
+        "categories", temp=True, column_names=["category_name", "category_id"]
+    )
+    products = gp.values(rows2, db=db).save_as(
+        "products", temp=True, column_names=["product_name", "category_id"]
+    )
+
+    ret = categories.natural_join(products).fetch()
+    assert len(list(ret)) == 6
+    assert list(list(ret)[0].keys()) == ["category_id", "category_name", "product_name"]
+    for row in list(ret):
+        if row["category_name"] == "Smart Phone":
+            assert row["category_id"] == 1
+        elif row["category_name"] == "Laptop":
+            assert row["category_id"] == 2
+        elif row["category_name"] == "Tablet":
+            assert row["category_id"] == 3
 
 
 def test_table_cross_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):

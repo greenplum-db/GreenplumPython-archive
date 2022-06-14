@@ -41,4 +41,8 @@ def test_expr_column_str_in_query(db: gp.Database, table: gp.Table):
 
 
 def test_expr_column_rename(db: gp.Database, table: gp.Table):
-    assert str(table["id"].rename("table_id")) == "const_table.id AS table_id"
+    t = table["id"]
+    t_renamed = t.rename("table_id")
+    assert t is not t_renamed
+    assert str(t_renamed) == "const_table.id AS table_id"
+    assert str(t) == "const_table.id"
