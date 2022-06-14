@@ -45,6 +45,18 @@ class Expr:
     def __ne__(self, other):
         return BinaryExpr("!=", self, other)
 
+    def __pos__(self):
+        return UnaryExpr("+", self)
+
+    def __neg__(self):
+        return UnaryExpr("-", self)
+
+    def __abs__(self):
+        return UnaryExpr("ABS", self)
+
+    def __invert__(self):
+        return UnaryExpr("NOT", self)
+
     def __str__(self) -> str:
         return self._mystr() + (" AS " + self._as_name if self._as_name is not None else "")
 
@@ -92,6 +104,28 @@ class BinaryExpr(Expr):
                 return str(self.left) + " " + self.operator + " FALSE"
 
         return str(self.left) + " " + self.operator + " " + str(self.right)
+
+
+class UnaryExpr(Expr):
+    def __init__(self, operator: str, right: Expr, as_name: Optional[str] = None):
+        table = right.table
+        db = right.db
+        super().__init__(as_name=as_name, table=table, db=db)
+        if operator not in ["NOT", "ABS", "+", "-"]:
+            raise NotImplementedError(
+                f"{operator.upper()} is not a supported unary operator for Column\n"
+                f"Can only support 'NOT', 'ABS', 'POS' and 'NEG' unary operators"
+            )
+        self.operator = operator
+        self.right = right
+
+    def _mystr(self) -> str:
+        if self.operator == "NOT":
+            return "NOT(" + str(self.right) + ")"
+        if self.operator == "ABS":
+            return "ABS(" + str(self.right) + ")"
+
+        return self.operator + str(self.right)
 
 
 class Column(Expr):
