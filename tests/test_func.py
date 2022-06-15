@@ -113,6 +113,30 @@ def test_agg_group_by(db: gp.Database):
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["count"] == 5)
 
 
+def test_agg_group_by_multi_columns(db: gp.Database):
+    rows = [(i, i % 2 == 0, i % 3 == 0) for i in range(6)]  # 0, 1, 2, 3, 4, 5
+    numbers = gp.values(rows, db=db, column_names=["val", "is_even", "is_multiple_of_3"])
+    count = gp.aggregate("count", db=db)
+
+    results = list(
+        count(numbers["val"], group_by=["is_even", "is_multiple_of_3"]).to_table().fetch()
+    )
+    assert len(results) == 2 * 2
+    for row in results:
+        assert (
+            ("is_even" in row)
+            and (row["is_even"] is not None)
+            and ("is_multiple_of_3" in row)
+            and (row["is_multiple_of_3"] is not None)
+        )
+        assert (
+            (row["is_even"] and row["is_multiple_of_3"] and row["count"] == 1)  # 0
+            or (row["is_even"] and not row["is_multiple_of_3"] and row["count"] == 2)  # 2, 4
+            or (not row["is_even"] and row["is_multiple_of_3"] and row["count"] == 1)  # 3
+            or (not row["is_even"] and not row["is_multiple_of_3"] and row["count"] == 2)  # 1, 5
+        )
+
+
 def test_create_agg(db: gp.Database):
     @gp.create_aggregate
     def my_sum(result: int, val: int) -> int:
@@ -139,3 +163,14 @@ def test_create_agg_multi_args(db: gp.Database):
         manhattan_distance(vectors["a"], vectors["b"], as_name="result").to_table().fetch()
     )
     assert len(results) == 1 and results[0]["result"] == 10
+
+
+def test_func_long_name(db: gp.Database):
+    @gp.create_function
+    def loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong() -> None:
+        return
+
+    with pytest.raises(Exception) as exc_info:
+        loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong(db=db)
+    # FIXME: Create more specific exception classes and remove this
+    assert "Function name should be no longer than 64 bytes." == str(exc_info.value)
