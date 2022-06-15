@@ -1,3 +1,4 @@
+import copy
 from typing import TYPE_CHECKING, Iterable, Optional
 
 from .db import Database
@@ -44,7 +45,27 @@ class Expr:
     def __ne__(self, other):
         return BinaryExpr("!=", self, other)
 
+    def __pos__(self):
+        return UnaryExpr("+", self)
+
+    def __neg__(self):
+        return UnaryExpr("-", self)
+
+    def __abs__(self):
+        return UnaryExpr("ABS", self)
+
+    def __invert__(self):
+        return UnaryExpr("NOT", self)
+
     def __str__(self) -> str:
+        return self._sql_str() + (" AS " + self._as_name if self._as_name is not None else "")
+
+    def rename(self, new_name: str) -> "Expr":
+        new_expr = copy.copy(self)  # Shallow copy
+        new_expr._as_name = new_name
+        return new_expr
+
+    def _sql_str(self) -> str:
         raise NotImplementedError()
 
     @property
@@ -69,7 +90,7 @@ class BinaryExpr(Expr):
         self.left = left
         self.right = right
 
-    def __str__(self) -> str:
+    def _sql_str(self) -> str:
         if isinstance(self.right, type(None)):
             return str(self.left) + " " + self.operator + " " + "NULL"
         if isinstance(self.right, str):
@@ -85,12 +106,34 @@ class BinaryExpr(Expr):
         return str(self.left) + " " + self.operator + " " + str(self.right)
 
 
+class UnaryExpr(Expr):
+    def __init__(self, operator: str, right: Expr, as_name: Optional[str] = None):
+        table = right.table
+        db = right.db
+        super().__init__(as_name=as_name, table=table, db=db)
+        if operator not in ["NOT", "ABS", "+", "-"]:
+            raise NotImplementedError(
+                f"{operator.upper()} is not a supported unary operator for Column\n"
+                f"Can only support 'NOT', 'ABS', 'POS' and 'NEG' unary operators"
+            )
+        self.operator = operator
+        self.right = right
+
+    def _sql_str(self) -> str:
+        if self.operator == "NOT":
+            return "NOT(" + str(self.right) + ")"
+        if self.operator == "ABS":
+            return "ABS(" + str(self.right) + ")"
+
+        return self.operator + str(self.right)
+
+
 class Column(Expr):
     def __init__(self, name: str, table: "Table", as_name: Optional[str] = None) -> None:
         super().__init__(as_name=as_name, table=table)
         self._name = name
 
-    def __str__(self) -> str:
+    def _sql_str(self) -> str:
         assert self.table is not None
         return self.table.name + "." + self.name
 

@@ -49,6 +49,9 @@ class Table:
                 parents=[self],
             )
 
+    def as_name(self, name_as: str) -> "Table":
+        return Table(f"SELECT * FROM {self.name}", parents=[self], name=name_as, db=self._db)
+
     # FIXME: Add test
     def filter(self, expr: expr.Expr) -> "Table":
         return Table(f"SELECT * FROM {self._name} WHERE {str(expr)}", parents=[self])
@@ -62,6 +65,77 @@ class Table:
             """,
             parents=[self],
         )
+
+    def _join(
+        self,
+        other: "Table",
+        targets: List,
+        how: str,
+        on_str: str,
+    ) -> "Table":
+        # FIXME : Raise Error if target columns don't exist
+        # FIXME : Same column name in both table
+        select_str = ",".join([str(target) for target in targets]) if targets != [] else "*"
+        return Table(
+            f"""
+                SELECT {select_str} 
+                FROM {self.name} {how} {other.name}
+                {str(on_str)}  
+            """,
+            parents=[self, other],
+        )
+
+    def inner_join(
+        self,
+        other: "Table",
+        cond: expr.Expr,
+        targets: List = [],
+    ):
+        on_str = " ".join(["ON", str(cond)])
+        return self._join(other, targets, "INNER JOIN", on_str)
+
+    def left_join(
+        self,
+        other: "Table",
+        cond: expr.Expr,
+        targets: List = [],
+    ):
+        on_str = " ".join(["ON", str(cond)])
+        return self._join(other, targets, "LEFT JOIN", on_str)
+
+    def right_join(
+        self,
+        other: "Table",
+        cond: expr.Expr,
+        targets: List = [],
+    ):
+        on_str = " ".join(["ON", str(cond)])
+        return self._join(other, targets, "RIGHT JOIN", on_str)
+
+    def full_outer_join(
+        self,
+        other: "Table",
+        cond: expr.Expr,
+        targets: List = [],
+    ):
+        on_str = " ".join(["ON", str(cond)])
+        return self._join(other, targets, "FULL JOIN", on_str)
+
+    def natural_join(
+        self,
+        other: "Table",
+        targets: List = [],
+    ):
+        on_str = ""
+        return self._join(other, targets, "NATURAL JOIN", on_str)
+
+    def cross_join(
+        self,
+        other: "Table",
+        targets: List = [],
+    ):
+        on_str = ""
+        return self._join(other, targets, "CROSS JOIN", on_str)
 
     def column_names(self) -> "Table":
         if any(self._parents):
@@ -118,10 +192,14 @@ class Table:
         result = self._db.execute(self._build_full_query())
         return result if result is not None else []
 
-    def save_as(
-        self, table_name: str, temp: bool = False, column_names: Iterable[str] = []
-    ) -> "Table":
+    def save_as(self, table_name: str, temp: bool = False, column_names: List[str] = []) -> "Table":
         assert self._db is not None
+        # When no column_names is not explicitly passed
+        # TODO : USE SLICE 1 ROW TO MANIPULATE LESS DATA
+        #        OR USING column_names() FUNCTION WITH RESULT ORDERED
+        if len(column_names) == 0:
+            ret = self.fetch()
+            column_names = list(list(ret)[0].keys())
         self._db.execute(
             f"""
             CREATE {'TEMP' if temp else ''} TABLE {table_name} ({','.join(column_names)}) 
