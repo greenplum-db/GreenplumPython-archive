@@ -101,7 +101,7 @@ def create_function(
         or_replace = "OR REPLACE" if replace_if_exists else ""
         schema_name = "pg_temp" if temp else (schema if schema is not None else "")
         func_name = func.__name__ if name is None else name
-        if len(func_name) > 64: # i.e. NAMELEN in PostgreSQL
+        if len(func_name) > 64:  # i.e. NAMELEN in PostgreSQL
             raise Exception("Function name should be no longer than 64 bytes.")
         qualified_func_name = ".".join([schema_name, func_name])
         if not temp and name is None:
