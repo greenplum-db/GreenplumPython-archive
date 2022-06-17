@@ -13,8 +13,9 @@ primitive_type_map = {
 # FIXME: Annotate the argument type for this function
 def to_pg_type(annotation) -> str:
     if hasattr(annotation, "__origin__"):
-        print("Origin =", annotation.__origin__)
-        if annotation.__origin__ == typing.List:
+        # The `or` here is to make the function work on Python 3.6.
+        # Python 3.6 is the default Python version on CentOS 7 and Ubuntu 18.04
+        if annotation.__origin__ == list or annotation.__origin__ == typing.List:
             return f"{to_pg_type(annotation.__args__[0])}[]"
         raise NotImplementedError()
     else:
