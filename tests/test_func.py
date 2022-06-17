@@ -1,4 +1,5 @@
 import inspect
+from typing import List
 
 import pytest
 
@@ -174,3 +175,29 @@ def test_func_long_name(db: gp.Database):
         loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong(db=db)
     # FIXME: Create more specific exception classes and remove this
     assert "Function name should be no longer than 64 bytes." == str(exc_info.value)
+
+
+def test_array_func(db: gp.Database):
+    @gp.create_array_function
+    def my_sum(val_list: List[int]) -> int:
+        return sum(val_list)
+
+    rows = [(1,) for _ in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+    results = list(my_sum(numbers["val"], as_name="result").to_table().fetch())
+    assert len(results) == 1 and results[0]["result"] == 10
+
+
+def test_array_func_group_by(db: gp.Database):
+    @gp.create_array_function
+    def my_sum(val_list: List[int]) -> int:
+        return sum(val_list)
+
+    rows = [(1, i % 2 == 0) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
+    results = list(
+        my_sum(numbers["val"], group_by=["is_even"], as_name="result").to_table().fetch()
+    )
+    assert len(results) == 2
+    for row in results:
+        assert ("is_even" in row) and (row["is_even"] is not None) and (row["result"] == 5)
