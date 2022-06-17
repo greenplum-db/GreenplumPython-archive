@@ -8,7 +8,7 @@ from uuid import uuid4
 from .db import Database
 from .expr import Expr
 from .table import Table
-from .type import primitive_type_map
+from .type import to_pg_type
 
 
 class FunctionCall(Expr):
@@ -32,12 +32,11 @@ class FunctionCall(Expr):
         self._args = args
         self._group_by = group_by
 
-    def __str__(self) -> str:
+    def _serialize(self) -> str:
         args_string = ",".join([str(arg) for arg in self._args]) if any(self._args) else ""
         return f"{self._func_name}({args_string})"
 
     def to_table(self) -> Table:
-        as_string = f"AS {self._as_name}" if self._as_name is not None else ""
         from_caluse = f"FROM {self.table.name}" if self.table is not None else ""
         group_by_columns = (
             ",".join([str(column) for column in self._group_by])
@@ -49,7 +48,7 @@ class FunctionCall(Expr):
         orig_func_table = Table(
             " ".join(
                 [
-                    f"SELECT {str(self)} {as_string}",
+                    f"SELECT {str(self)}",
                     "," + group_by_columns if group_by_columns != "" else "",
                     from_caluse,
                     group_by_clause,
@@ -65,6 +64,14 @@ class FunctionCall(Expr):
     @property
     def qualified_func_name(self) -> str:
         return self._func_name
+
+
+class ArrayFunctionCall(FunctionCall):
+    def _serialize(self) -> str:
+        args_string = (
+            ",".join([f"array_agg({str(arg)})" for arg in self._args]) if any(self._args) else ""
+        )
+        return f"{self._func_name}({args_string})"
 
 
 def function(name: str, db: Database) -> Callable[..., FunctionCall]:
@@ -109,7 +116,7 @@ def create_function(
         func_sig = inspect.signature(func)
         func_args_string = ",".join(
             [
-                f"{param.name} {primitive_type_map[param.annotation]}"
+                f"{param.name} {to_pg_type(param.annotation)}"
                 for param in func_sig.parameters.values()
             ]
         )
@@ -126,7 +133,7 @@ def create_function(
         db.execute(
             (
                 f"CREATE {or_replace} FUNCTION {qualified_func_name} ({func_args_string}) "
-                f"RETURNS {primitive_type_map[func_sig.return_annotation]} "
+                f"RETURNS {to_pg_type(func_sig.return_annotation)} "
                 f"LANGUAGE {language_handler} "
                 f"AS $$\n"
                 f"{textwrap.dedent(func_body)} $$"
@@ -167,19 +174,49 @@ def create_aggregate(
         param_list = iter(sig.parameters.values())
         state_param = next(param_list)
         args_string = ",".join(
-            [f"{param.name} {primitive_type_map[param.annotation]}" for param in param_list]
+            [f"{param.name} {to_pg_type(param.annotation)}" for param in param_list]
         )
         trans_func_call.db.execute(
             f"""
             CREATE {or_replace} AGGREGATE {qualified_agg_name} ({args_string}) (
                 SFUNC = {trans_func_call.qualified_func_name},
-                STYPE = {primitive_type_map[state_param.annotation]}
+                STYPE = {to_pg_type(state_param.annotation)}
             )
             """,
             has_results=False,
         )
         return FunctionCall(
             qualified_agg_name, args=args, group_by=group_by, as_name=as_name, db=db
+        )
+
+    return make_function_call
+
+
+# FIXME: Add test cases for optional parameters
+def create_array_function(
+    func: Callable,
+    name: Optional[str] = None,
+    schema: Optional[str] = None,
+    temp: bool = True,
+    replace_if_exists: bool = False,
+    language_handler: str = "plpython3u",
+) -> Callable:
+    @functools.wraps(func)
+    def make_function_call(
+        *args: Expr,
+        group_by: Optional[Iterable[Union[Expr, str]]] = None,
+        as_name: Optional[str] = None,
+        db: Optional[Database] = None,
+    ) -> ArrayFunctionCall:
+        array_func_call = create_function(
+            func, name, schema, temp, replace_if_exists, language_handler
+        )(*args, as_name=as_name, db=db)
+        return ArrayFunctionCall(
+            array_func_call.qualified_func_name,
+            args=args,
+            group_by=group_by,
+            as_name=as_name,
+            db=db,
         )
 
     return make_function_call
