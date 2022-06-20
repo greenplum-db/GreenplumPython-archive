@@ -1,4 +1,4 @@
-from typing import Iterable, List, Optional, Tuple
+from typing import Iterable, List, Optional, Tuple, Union
 from uuid import uuid4
 
 from . import db, expr
@@ -11,10 +11,12 @@ class Table:
         parents: Iterable["Table"] = [],
         name: Optional[str] = None,
         db: Optional[db.Database] = None,
+        order_by: Optional[Union[Iterable, dict]] = None,
     ) -> None:
         self._query = query
         self._parents = parents
         self._name = "cte_" + uuid4().hex if name is None else name
+        self._order_by = order_by
         if any(parents):
             self._db = next(iter(parents))._db
         else:
@@ -44,8 +46,9 @@ class Table:
                 if key.stop is None
                 else f"LIMIT {key.stop if key.start is None else key.stop - key.start}"
             )
+            order_by_clause = "" if self._order_by is None else self.order_by_str()
             return Table(
-                f"SELECT * FROM {self.name} {limit_clause} {offset_clause}",
+                f"SELECT * FROM {self.name} {order_by_clause} {limit_clause} {offset_clause}",
                 parents=[self],
             )
 
@@ -65,6 +68,35 @@ class Table:
             """,
             parents=[self],
         )
+
+    # FIXME: Add tests for more CTEs
+    def order_by(self, order_list: Iterable) -> "Table":
+        return Table(
+            f"""
+                SELECT *
+                FROM {self.name}
+            """,
+            parents=[self],
+            order_by=order_list,
+        )
+
+    def order_by_str(self) -> str:
+        order_by_clause = (
+            ""
+            if self._order_by is None
+            else (
+                f"""
+                    ORDER BY
+                    {','.join([' '.join([col, order]) for col, order in self._order_by.items()])}
+                """
+                if isinstance(self._order_by, dict)
+                else f"""
+                        ORDER BY
+                        {','.join([order_index for order_index in self._order_by])}
+                    """
+            )
+        )
+        return order_by_clause
 
     def _join(
         self,
@@ -178,7 +210,8 @@ class Table:
         for table in reversed(lineage):
             if table._name != self._name:
                 cte_list.append(f"{table._name} AS ({table._query})")
-        return "WITH " + ",".join(cte_list) + self._query
+        order_by_clause = self.order_by_str()
+        return "WITH " + ",".join(cte_list) + self._query + order_by_clause
 
     def fetch(self, all: bool = True) -> Iterable:
         """
