@@ -58,14 +58,14 @@ class Expr:
         return UnaryExpr("NOT", self)
 
     def __str__(self) -> str:
-        return self._sql_str() + (" AS " + self._as_name if self._as_name is not None else "")
+        return self._serialize() + (" AS " + self._as_name if self._as_name is not None else "")
 
     def rename(self, new_name: str) -> "Expr":
         new_expr = copy.copy(self)  # Shallow copy
         new_expr._as_name = new_name
         return new_expr
 
-    def _sql_str(self) -> str:
+    def _serialize(self) -> str:
         raise NotImplementedError()
 
     @property
@@ -90,7 +90,7 @@ class BinaryExpr(Expr):
         self.left = left
         self.right = right
 
-    def _sql_str(self) -> str:
+    def _serialize(self) -> str:
         if isinstance(self.right, type(None)):
             return str(self.left) + " " + self.operator + " " + "NULL"
         if isinstance(self.right, str):
@@ -119,7 +119,7 @@ class UnaryExpr(Expr):
         self.operator = operator
         self.right = right
 
-    def _sql_str(self) -> str:
+    def _serialize(self) -> str:
         if self.operator == "NOT":
             return "NOT(" + str(self.right) + ")"
         if self.operator == "ABS":
@@ -133,7 +133,7 @@ class Column(Expr):
         super().__init__(as_name=as_name, table=table)
         self._name = name
 
-    def _sql_str(self) -> str:
+    def _serialize(self) -> str:
         assert self.table is not None
         return self.table.name + "." + self.name
 
