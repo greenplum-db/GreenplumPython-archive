@@ -222,7 +222,7 @@ class Table:
         indexed_cols = ",".join([str(col) for col in columns])
         self._db.execute(
             f"CREATE INDEX {index_name} ON {self.name} USING {method} ({indexed_cols})",
-            has_results=False
+            has_results=False,
         )
 
     def explain(self) -> Iterable[str]:
