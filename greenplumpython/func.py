@@ -8,7 +8,7 @@ from uuid import uuid4
 from .db import Database
 from .expr import Expr
 from .table import Table
-from .type import to_pg_type
+from .type import create_type, primitive_type_map, to_pg_type, type_exists
 
 
 class FunctionCall(Expr):
@@ -103,7 +103,10 @@ def create_function(
 ) -> Callable:
     @functools.wraps(func)
     def make_function_call(
-        *args: Expr, as_name: Optional[str] = None, db: Optional[Database] = None
+        *args: Expr,
+        as_name: Optional[str] = None,
+        db: Optional[Database] = None,
+        obj: Optional[object] = None,
     ) -> FunctionCall:
         or_replace = "OR REPLACE" if replace_if_exists else ""
         schema_name = "pg_temp" if temp else (schema if schema is not None else "")
@@ -130,6 +133,9 @@ def create_function(
                     break
         if db is None:
             raise Exception("Database is required to create function")
+        if obj is not None:
+            if not type_exists(func_sig.return_annotation):
+                create_type(obj, obj.__class__.__name__, db)
         db.execute(
             (
                 f"CREATE {or_replace} FUNCTION {qualified_func_name} ({func_args_string}) "

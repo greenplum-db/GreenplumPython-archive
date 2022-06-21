@@ -8,7 +8,7 @@ import greenplumpython as gp
 
 @pytest.fixture
 def db():
-    db = gp.database(host="localhost", dbname="gpadmin")
+    db = gp.database(host="localhost", dbname="gpadmi")
     yield db
     db.close()
 
@@ -201,3 +201,23 @@ def test_array_func_group_by(db: gp.Database):
     assert len(results) == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["result"] == 5)
+
+
+def test_func_return_comp_type(db: gp.Database):
+    class Person:
+        def __init__(
+            self,
+            first_name: str = "",
+            last_name: str = "",
+        ) -> None:
+            self._first_name = first_name
+            self._last_name = last_name
+
+    @gp.create_function
+    def create_person(first: str, last: str) -> Person:
+        return {"first_name": first, "last_name": last}
+
+    for row in (
+        create_person("'Amy'", "'An'", as_name="result", db=db, obj=Person()).to_table().fetch()
+    ):
+        print(row["result"])
