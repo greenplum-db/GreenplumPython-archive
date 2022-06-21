@@ -88,8 +88,8 @@ class BinaryExpr(Expr):
     def __init__(
         self,
         operator: str,
-        left: Expr,
-        right: Expr,
+        left,
+        right,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ):

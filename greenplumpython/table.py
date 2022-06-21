@@ -220,13 +220,17 @@ class Table:
             raise Exception("Cannot create index on tables not in the system catalog.")
         index_name: str = name if name is not None else "idx_" + uuid4().hex
         indexed_cols = ",".join([str(col) for col in columns])
+        assert self._db is not None
         self._db.execute(
             f"CREATE INDEX {index_name} ON {self.name} USING {method} ({indexed_cols})",
             has_results=False,
         )
 
     def explain(self) -> Iterable[str]:
-        return self._db.execute("EXPLAIN " + self._build_full_query())
+        assert self._db is not None
+        results = self._db.execute("EXPLAIN " + self._build_full_query())
+        assert results is not None
+        return results
 
 
 # table_name can be table/view name
