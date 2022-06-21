@@ -1,10 +1,8 @@
 import copy
-from typing import TYPE_CHECKING, Iterable, Optional
+from typing import Optional
 
 from .db import Database
-
-if TYPE_CHECKING:
-    from .table import Table
+from .table import Table
 
 
 class Expr:
@@ -77,14 +75,29 @@ class Expr:
         return self._db
 
     @property
-    def table(self) -> Optional["Table"]:
+    def table(self) -> Optional[Table]:
         return self._table
+
+    def to_table(self) -> Table:
+        from_clause = f"FROM {self.table.name}" if self.table is not None else ""
+        parents = [self.table] if self.table is not None else []
+        return Table(f"SELECT {str(self)} {from_clause}", parents=parents, db=self._db)
 
 
 class BinaryExpr(Expr):
-    def __init__(self, operator: str, left: Expr, right, as_name: Optional[str] = None):
-        table = left.table if left is not None and left.table is not None else right.table
-        db = left.db if left is not None and left.db is not None else right.db
+    def __init__(
+        self,
+        operator: str,
+        left: Expr,
+        right: Expr,
+        as_name: Optional[str] = None,
+        db: Optional[Database] = None,
+    ):
+        table: Optional[Table] = None
+        if isinstance(left, Expr) and left.table is not None:
+            table = left.table
+        if isinstance(right, Expr) and right.table is not None:
+            table = right.table
         super().__init__(as_name=as_name, table=table, db=db)
         self.operator = operator
         self.left = left
@@ -107,9 +120,14 @@ class BinaryExpr(Expr):
 
 
 class UnaryExpr(Expr):
-    def __init__(self, operator: str, right: Expr, as_name: Optional[str] = None):
-        table = right.table
-        db = right.db
+    def __init__(
+        self,
+        operator: str,
+        right: Expr,
+        as_name: Optional[str] = None,
+        db: Optional[Database] = None,
+    ):
+        table = right.table if isinstance(right, Expr) else None
         super().__init__(as_name=as_name, table=table, db=db)
         if operator not in ["NOT", "ABS", "+", "-"]:
             raise NotImplementedError(

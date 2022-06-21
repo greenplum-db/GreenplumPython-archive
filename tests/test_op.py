@@ -1,0 +1,43 @@
+from typing import List
+import greenplumpython as gp
+import pytest
+
+
+@pytest.fixture
+def db():
+    db = gp.database(host="localhost", dbname="gpadmin")
+    yield db
+    db.close()
+
+
+def test_op_on_consts(db: gp.Database):
+    regex_match = gp.operator("~", db)
+    # FIXME: Remove the single quotes after implementing the const wrapper
+    result = list(regex_match("'hello'", "h.*o").rename("is_matched").to_table().fetch())
+    assert len(result) == 1 and result[0]["is_matched"]
+
+
+def test_op_index(db: gp.Database):
+    import json
+
+    class Student:
+        def __init__(self, name: str, grade: int, courses: List[str]) -> None:
+            self.name = name
+            self.grade = grade
+            self.courses = courses
+
+    john = Student("john", 9, ["math", "english"])
+    # FIXME: Remove type casting after implementing the const wrapper
+    rows = [(f"'{json.dumps(john.__dict__)}'::jsonb",)]
+    student = gp.values(rows, db=db, column_names=["info"]).save_as("student", temp=True)
+    student.create_index(["info"], method="gin")
+
+    db["enable_seqscan"] = False
+    json_contains = gp.operator("@>", db)
+    results = student[json_contains(student["info"], json.dumps({"name": "john"}))].explain()
+    uses_index_scan = False
+    for row in results:
+        if "Index Scan" in row["QUERY PLAN"]:
+            uses_index_scan = True
+            break
+    assert uses_index_scan

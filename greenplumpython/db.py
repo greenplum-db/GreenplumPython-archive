@@ -19,6 +19,14 @@ class Database:
     def close(self) -> None:
         self._conn.close()
 
+    # FIXME: Should we use this to set GUCs?
+    # 
+    # How to get other "global" variables, e.g. CURRENT_ROLE, CURRENT_TIMETAMP, etc.?
+    def __setitem__(self, key, value):
+        if not isinstance(key, str):
+            raise NotImplementedError()
+        self.execute(f"SET {key} TO {value}", has_results=False)
+
 
 def database(**conn_strings) -> Database:
     return Database(**conn_strings)

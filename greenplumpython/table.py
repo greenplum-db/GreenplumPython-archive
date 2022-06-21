@@ -1,7 +1,10 @@
-from typing import Iterable, List, Optional, Tuple
+from typing import TYPE_CHECKING, Iterable, List, Optional, Tuple, Union
 from uuid import uuid4
 
-from . import db, expr
+from . import db
+
+if TYPE_CHECKING:
+    from .expr import Column, Expr
 
 
 class Table:
@@ -29,11 +32,13 @@ class Table:
             - if key is an Expr, then SELECT a subset of rows per the value of the Expr;
             - if key is a slice, then SELECT a portion of consecutive rows
         """
+        from .expr import Column, Expr
+
         if isinstance(key, str):
-            return expr.Column(key, self)
+            return Column(key, self)
         if isinstance(key, list):
             return self.select(key)
-        if isinstance(key, expr.Expr):
+        if isinstance(key, Expr):
             return self.filter(key)
         if isinstance(key, slice):
             raise NotImplementedError()
@@ -42,7 +47,7 @@ class Table:
         return Table(f"SELECT * FROM {self.name}", parents=[self], name=name_as, db=self._db)
 
     # FIXME: Add test
-    def filter(self, expr: expr.Expr) -> "Table":
+    def filter(self, expr: "Expr") -> "Table":
         return Table(f"SELECT * FROM {self._name} WHERE {str(expr)}", parents=[self])
 
     # FIXME: Add test
@@ -77,7 +82,7 @@ class Table:
     def inner_join(
         self,
         other: "Table",
-        cond: expr.Expr,
+        cond: "Expr",
         targets: List = [],
     ):
         on_str = " ".join(["ON", str(cond)])
@@ -86,7 +91,7 @@ class Table:
     def left_join(
         self,
         other: "Table",
-        cond: expr.Expr,
+        cond: "Expr",
         targets: List = [],
     ):
         on_str = " ".join(["ON", str(cond)])
@@ -95,7 +100,7 @@ class Table:
     def right_join(
         self,
         other: "Table",
-        cond: expr.Expr,
+        cond: "Expr",
         targets: List = [],
     ):
         on_str = " ".join(["ON", str(cond)])
@@ -104,7 +109,7 @@ class Table:
     def full_outer_join(
         self,
         other: "Table",
-        cond: expr.Expr,
+        cond: "Expr",
         targets: List = [],
     ):
         on_str = " ".join(["ON", str(cond)])
@@ -146,6 +151,13 @@ class Table:
     def db(self) -> Optional[db.Database]:
         return self._db
 
+    # This is used to filter out tables that are derived from other tables.
+    #
+    # Actually we cannot determine if a table is recorded in the system catalogs
+    # without querying the db.
+    def _in_catalog(self) -> bool:
+        return "TABLE" in self._query
+
     def _list_lineage(self) -> List["Table"]:
         lineage = []
         lineage.append(self)
@@ -153,20 +165,20 @@ class Table:
         current = 0
         while current < len(lineage):
             for table_ in lineage[current]._parents:
-                if table_.name not in tables_visited:
+                if table_.name not in tables_visited and not table_._in_catalog():
                     lineage.append(table_)
                     tables_visited.add(table_.name)
             current += 1
         return lineage
 
     def _build_full_query(self) -> str:
-        if not any(self._parents):
-            return self._query
         lineage = self._list_lineage()
         cte_list = []
         for table in reversed(lineage):
             if table._name != self._name:
                 cte_list.append(f"{table._name} AS ({table._query})")
+        if len(cte_list) == 0:
+            return self._query
         return "WITH " + ",".join(cte_list) + self._query
 
     def fetch(self, all: bool = True) -> Iterable:
@@ -197,6 +209,24 @@ class Table:
             has_results=False,
         )
         return table(table_name, self._db)
+
+    def create_index(
+        self,
+        columns: Iterable[Union["Column", str]],
+        method: str = "btree",
+        name: Optional[str] = None,
+    ) -> None:
+        if not self._in_catalog():
+            raise Exception("Cannot create index on tables not in the system catalog.")
+        index_name: str = name if name is not None else "idx_" + uuid4().hex
+        indexed_cols = ",".join([str(col) for col in columns])
+        self._db.execute(
+            f"CREATE INDEX {index_name} ON {self.name} USING {method} ({indexed_cols})",
+            has_results=False
+        )
+
+    def explain(self) -> Iterable[str]:
+        return self._db.execute("EXPLAIN " + self._build_full_query())
 
 
 # table_name can be table/view name
