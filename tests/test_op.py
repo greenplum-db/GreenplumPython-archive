@@ -1,6 +1,8 @@
 from typing import List
-import greenplumpython as gp
+
 import pytest
+
+import greenplumpython as gp
 
 
 @pytest.fixture
