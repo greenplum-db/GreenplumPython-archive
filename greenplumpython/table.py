@@ -156,7 +156,7 @@ class Table:
     # Actually we cannot determine if a table is recorded in the system catalogs
     # without querying the db.
     def _in_catalog(self) -> bool:
-        return "TABLE" in self._query
+        return self._query.startswith("TABLE")
 
     def _list_lineage(self) -> List["Table"]:
         lineage = []
