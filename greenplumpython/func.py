@@ -109,7 +109,7 @@ def create_function(
         schema_name = "pg_temp" if temp else (schema if schema is not None else "")
         func_name = func.__name__ if name is None else name
         if len(func_name) > 63:  # i.e. NAMEDATALEN - 1 in PostgreSQL
-            raise Exception("Function name should be no longer than 64 bytes.")
+            raise Exception("Function name should be no longer than 63 bytes.")
         qualified_func_name = ".".join([schema_name, func_name])
         if not temp and name is None:
             raise NotImplementedError("Name is required for a non-temp function")
