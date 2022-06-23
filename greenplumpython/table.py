@@ -210,25 +210,28 @@ class Table:
         )
         return table(table_name, self._db)
 
-    def create_index(
-        self,
-        columns: Iterable[Union["Column", str]],
-        method: str = "btree",
-        name: Optional[str] = None,
-    ) -> None:
-        if not self._in_catalog():
-            raise Exception("Cannot create index on tables not in the system catalog.")
-        index_name: str = name if name is not None else "idx_" + uuid4().hex
-        indexed_cols = ",".join([str(col) for col in columns])
-        assert self._db is not None
-        self._db.execute(
-            f"CREATE INDEX {index_name} ON {self.name} USING {method} ({indexed_cols})",
-            has_results=False,
-        )
+    # TODO: Uncomment or remove this.
+    #
+    # def create_index(
+    #     self,
+    #     columns: Iterable[Union["Column", str]],
+    #     method: str = "btree",
+    #     name: Optional[str] = None,
+    # ) -> None:
+    #     if not self._in_catalog():
+    #         raise Exception("Cannot create index on tables not in the system catalog.")
+    #     index_name: str = name if name is not None else "idx_" + uuid4().hex
+    #     indexed_cols = ",".join([str(col) for col in columns])
+    #     assert self._db is not None
+    #     self._db.execute(
+    #         f"CREATE INDEX {index_name} ON {self.name} USING {method} ({indexed_cols})",
+    #         has_results=False,
+    #     )
 
-    def explain(self) -> Iterable[str]:
+    # FIXME: Should we choose JSON as the default format?
+    def explain(self, format: str = "TEXT") -> Iterable:
         assert self._db is not None
-        results = self._db.execute("EXPLAIN " + self._build_full_query())
+        results = self._db.execute(f"EXPLAIN (FORMAT {format}) {self._build_full_query()}")
         assert results is not None
         return results
 

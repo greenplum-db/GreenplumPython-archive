@@ -32,9 +32,9 @@ def test_op_index(db: gp.Database):
     # FIXME: Remove type casting after implementing the const wrapper
     rows = [(f"'{json.dumps(john.__dict__)}'::jsonb",)]
     student = gp.values(rows, db=db, column_names=["info"]).save_as("student", temp=True)
-    student.create_index(["info"], method="gin")
+    db.execute("CREATE INDEX student_name ON student USING gin (info)", has_results=False)
 
-    db["enable_seqscan"] = False
+    db.set_config("enable_seqscan", False)
     json_contains = gp.operator("@>", db)
     results = student[json_contains(student["info"], json.dumps({"name": "john"}))].explain()
     uses_index_scan = False

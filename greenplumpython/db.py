@@ -22,9 +22,8 @@ class Database:
     # FIXME: Should we use this to set GUCs?
     #
     # How to get other "global" variables, e.g. CURRENT_ROLE, CURRENT_TIMETAMP, etc.?
-    def __setitem__(self, key, value):
-        if not isinstance(key, str):
-            raise NotImplementedError()
+    def set_config(self, key: str, value):
+        assert isinstance(key, str)
         self.execute(f"SET {key} TO {value}", has_results=False)
 
 
