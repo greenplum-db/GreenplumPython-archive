@@ -8,7 +8,7 @@ import greenplumpython as gp
 
 @pytest.fixture
 def db():
-    db = gp.database(host="localhost", dbname="gpadmi")
+    db = gp.database(host="localhost", dbname="postgres")
     yield db
     db.close()
 
@@ -205,6 +205,9 @@ def test_array_func_group_by(db: gp.Database):
 
 def test_func_return_comp_type(db: gp.Database):
     class Person:
+        _first_name: str
+        _last_name: str
+
         def __init__(
             self,
             first_name: str = "",
@@ -218,6 +221,8 @@ def test_func_return_comp_type(db: gp.Database):
         return {"first_name": first, "last_name": last}
 
     for row in (
-        create_person("'Amy'", "'An'", as_name="result", db=db, obj=Person()).to_table().fetch()
+        create_person("'Amy'", "'An'", as_name="result", db=db, class_type=Person)
+        .to_table()
+        .fetch()
     ):
         print(row["result"])

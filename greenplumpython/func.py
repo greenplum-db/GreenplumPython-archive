@@ -106,7 +106,7 @@ def create_function(
         *args: Expr,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
-        obj: Optional[object] = None,
+        class_type=None,
     ) -> FunctionCall:
         or_replace = "OR REPLACE" if replace_if_exists else ""
         schema_name = "pg_temp" if temp else (schema if schema is not None else "")
@@ -119,7 +119,7 @@ def create_function(
         func_sig = inspect.signature(func)
         func_args_string = ",".join(
             [
-                f"{param.name} {to_pg_type(param.annotation)}"
+                f"{param.name} {to_pg_type(param.annotation, db)}"
                 for param in func_sig.parameters.values()
             ]
         )
@@ -133,13 +133,13 @@ def create_function(
                     break
         if db is None:
             raise Exception("Database is required to create function")
-        if obj is not None:
-            if not type_exists(func_sig.return_annotation):
-                create_type(obj, obj.__class__.__name__, db)
+        if class_type is not None:
+            if not type_exists(func_sig.return_annotation, db):
+                create_type(class_type, class_type.__name__, db)
         db.execute(
             (
                 f"CREATE {or_replace} FUNCTION {qualified_func_name} ({func_args_string}) "
-                f"RETURNS {to_pg_type(func_sig.return_annotation)} "
+                f"RETURNS {to_pg_type(func_sig.return_annotation, db)} "
                 f"LANGUAGE {language_handler} "
                 f"AS $$\n"
                 f"{textwrap.dedent(func_body)} $$"
@@ -180,13 +180,13 @@ def create_aggregate(
         param_list = iter(sig.parameters.values())
         state_param = next(param_list)
         args_string = ",".join(
-            [f"{param.name} {to_pg_type(param.annotation)}" for param in param_list]
+            [f"{param.name} {to_pg_type(param.annotation, db)}" for param in param_list]
         )
         trans_func_call.db.execute(
             f"""
             CREATE {or_replace} AGGREGATE {qualified_agg_name} ({args_string}) (
                 SFUNC = {trans_func_call.qualified_func_name},
-                STYPE = {to_pg_type(state_param.annotation)}
+                STYPE = {to_pg_type(state_param.annotation, db)}
             )
             """,
             has_results=False,
