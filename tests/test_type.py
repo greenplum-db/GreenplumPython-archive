@@ -30,3 +30,12 @@ def test_type_drop(db: gp.Database):
     type.create_type(Person, "Person", db)
     type.drop_type("Person", db)
     type.create_type(Person, "Person", db)
+
+
+def test_type_exists(db: gp.Database):
+    class Person:
+        _first_name: str
+        _last_name: str
+
+    type.create_type(Person, "Person", db)
+    assert type.type_exists(Person, db)

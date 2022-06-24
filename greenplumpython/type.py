@@ -44,7 +44,7 @@ def drop_type(type_name, db):
 
 
 def type_exists(class_type, db):
-    return class_type in db.get_udt_list()
+    return class_type.__name__ in db.get_udt_list()
 
 
 # FIXME: Annotate the argument type for this function
