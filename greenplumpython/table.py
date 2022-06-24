@@ -66,8 +66,20 @@ class Table:
             parents=[self],
         )
 
+    def _order_by_str(self, order_by: Iterable) -> str:
+        order_by_clause = (
+            f"""
+                {','.join([' '.join([col, order]) for col, order in order_by.items()])}
+            """
+            if isinstance(order_by, dict)
+            else f"""
+                    {','.join([order_index for order_index in order_by])}
+                """
+        )
+        return order_by_clause
+
     def top(self, count: int, order_by: Iterable, skip: int = 0):
-        order_by_clause = order_by_str(order_by)
+        order_by_clause = self._order_by_str(order_by)
         return Table(
             f"""
                 SELECT * FROM {self.name}
@@ -231,16 +243,3 @@ def values(rows: Iterable[Tuple], db: db.Database, column_names: Iterable[str] =
     rows_string = ",".join(["(" + ",".join(str(datum) for datum in row) + ")" for row in rows])
     columns_string = f"({','.join(column_names)})" if any(column_names) else ""
     return Table(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", db=db)
-
-
-def order_by_str(order_by: Iterable) -> str:
-    order_by_clause = (
-        f"""
-            {','.join([' '.join([col, order]) for col, order in order_by.items()])}
-        """
-        if isinstance(order_by, dict)
-        else f"""
-                {','.join([order_index for order_index in order_by])}
-            """
-    )
-    return order_by_clause
