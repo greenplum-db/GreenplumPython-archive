@@ -1,4 +1,4 @@
-from typing import Iterable, List, Optional, Tuple
+from typing import Iterable, List, Optional, Tuple, Union
 from uuid import uuid4
 
 from . import db, expr
@@ -36,7 +36,18 @@ class Table:
         if isinstance(key, expr.Expr):
             return self.filter(key)
         if isinstance(key, slice):
-            raise NotImplementedError()
+            if key.step is not None:
+                raise NotImplementedError()
+            offset_clause = "" if key.start is None else f"OFFSET {key.start}"
+            limit_clause = (
+                ""
+                if key.stop is None
+                else f"LIMIT {key.stop if key.start is None else key.stop - key.start}"
+            )
+            return Table(
+                f"SELECT * FROM {self.name} {limit_clause} {offset_clause}",
+                parents=[self],
+            )
 
     def as_name(self, name_as: str) -> "Table":
         return Table(f"SELECT * FROM {self.name}", parents=[self], name=name_as, db=self._db)
@@ -51,6 +62,31 @@ class Table:
             f"""
                 SELECT {','.join([str(target) for target in target_list])} 
                 FROM {self._name}
+            """,
+            parents=[self],
+        )
+
+    @staticmethod
+    def _order_by_str(order_by: Iterable) -> str:
+        order_by_clause = (
+            f"""
+                {','.join([' '.join([col, order]) for col, order in order_by.items()])}
+            """
+            if isinstance(order_by, dict)
+            else f"""
+                    {','.join([order_index for order_index in order_by])}
+                """
+        )
+        return order_by_clause
+
+    def top(self, count: int, order_by: Iterable, skip: int = 0):
+        order_by_clause = self._order_by_str(order_by)
+        return Table(
+            f"""
+                SELECT * FROM {self.name}
+                ORDER BY {order_by_clause}
+                LIMIT {count}
+                OFFSET {skip}
             """,
             parents=[self],
         )
