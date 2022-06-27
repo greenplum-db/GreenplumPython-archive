@@ -54,6 +54,11 @@ class Database:
     def close(self) -> None:
         self._conn.close()
 
+    # FIXME: How to get other "global" variables, e.g. CURRENT_ROLE, CURRENT_TIMETAMP, etc.?
+    def set_config(self, key: str, value):
+        assert isinstance(key, str)
+        self.execute(f"SET {key} TO {value}", has_results=False)
+
 
 def database(**conn_strings) -> Database:
     return Database(**conn_strings)
