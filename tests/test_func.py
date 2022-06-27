@@ -174,7 +174,7 @@ def test_func_long_name(db: gp.Database):
     with pytest.raises(Exception) as exc_info:
         loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong(db=db)
     # FIXME: Create more specific exception classes and remove this
-    assert "Function name should be no longer than 64 bytes." == str(exc_info.value)
+    assert "Function name should be no longer than 63 bytes." == str(exc_info.value)
 
 
 def test_array_func(db: gp.Database):
