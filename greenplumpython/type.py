@@ -1,6 +1,7 @@
 import re
 import typing
 from typing import get_type_hints
+from uuid import uuid4
 
 import greenplumpython as gp
 
@@ -15,24 +16,26 @@ primitive_type_map = {
 
 
 # TODO : Add tests for all function
-def create_type(class_type, type_name, db):
+def create_type(class_type, db, as_name=None, is_temp=True) -> str:
+    type_name = "type_" + uuid4().hex if as_name is None else as_name
+    temp_str = "pg_temp." if is_temp else ""
     att_type_str = ",\n\t\t\t\t".join(
         [
             f"""
-            {re.sub(r"^_+|_+$", "", name)} {to_pg_type(type_t, db) }
+            {re.sub(r"^_+|_+$", "", name)} {to_pg_type(type_t, db)}
             """
             for name, type_t in get_type_hints(class_type).items()
         ]
     )
     db.execute(
         f"""
-            CREATE TYPE {type_name} AS (
+            CREATE TYPE {temp_str}{type_name} AS (
                 {att_type_str}
             )
         """,
         has_results=False,
     )
-    db.add_udt(type_name)
+    return type_name
 
 
 def drop_type(type_name, db):
@@ -40,15 +43,10 @@ def drop_type(type_name, db):
         f"DROP TYPE IF EXISTS {type_name} CASCADE",
         has_results=False,
     )
-    db.remove_udt(type_name)
-
-
-def type_exists(class_type, db):
-    return class_type.__name__ in db.get_udt_list()
 
 
 # FIXME: Annotate the argument type for this function
-def to_pg_type(annotation, db) -> str:
+def to_pg_type(annotation, db, as_name=None, is_temp=True) -> str:
     if hasattr(annotation, "__origin__"):
         # The `or` here is to make the function work on Python 3.6.
         # Python 3.6 is the default Python version on CentOS 7 and Ubuntu 18.04
@@ -59,6 +57,5 @@ def to_pg_type(annotation, db) -> str:
         if annotation in primitive_type_map:
             return primitive_type_map[annotation]
         else:
-            if annotation.__name__ in db.get_udt_list():
-                return annotation.__name__
+            return create_type(annotation, db, as_name=as_name, is_temp=is_temp)
         raise NotImplementedError()  # TODO: Support composite types

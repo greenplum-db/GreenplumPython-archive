@@ -8,7 +8,7 @@ from uuid import uuid4
 from .db import Database
 from .expr import Expr
 from .table import Table
-from .type import create_type, primitive_type_map, to_pg_type, type_exists
+from .type import to_pg_type
 
 
 class FunctionCall(Expr):
@@ -100,13 +100,14 @@ def create_function(
     temp: bool = True,
     replace_if_exists: bool = False,
     language_handler: str = "plpython3u",
+    return_type_as_name: Optional[str] = None,
+    type_is_temp: bool = True,
 ) -> Callable:
     @functools.wraps(func)
     def make_function_call(
         *args: Expr,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
-        class_type=None,
     ) -> FunctionCall:
         or_replace = "OR REPLACE" if replace_if_exists else ""
         schema_name = "pg_temp" if temp else (schema if schema is not None else "")
@@ -133,13 +134,11 @@ def create_function(
                     break
         if db is None:
             raise Exception("Database is required to create function")
-        if class_type is not None:
-            if not type_exists(func_sig.return_annotation, db):
-                create_type(class_type, class_type.__name__, db)
+        return_type = to_pg_type(func_sig.return_annotation, db, return_type_as_name, type_is_temp)
         db.execute(
             (
                 f"CREATE {or_replace} FUNCTION {qualified_func_name} ({func_args_string}) "
-                f"RETURNS {to_pg_type(func_sig.return_annotation, db)} "
+                f"RETURNS {return_type} "
                 f"LANGUAGE {language_handler} "
                 f"AS $$\n"
                 f"{textwrap.dedent(func_body)} $$"

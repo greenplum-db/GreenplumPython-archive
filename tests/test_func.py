@@ -8,7 +8,7 @@ import greenplumpython as gp
 
 @pytest.fixture
 def db():
-    db = gp.database(host="localhost", dbname="postgres")
+    db = gp.database(host="localhost", dbname="gpadmin")
     yield db
     db.close()
 
@@ -220,9 +220,5 @@ def test_func_return_comp_type(db: gp.Database):
     def create_person(first: str, last: str) -> Person:
         return {"first_name": first, "last_name": last}
 
-    for row in (
-        create_person("'Amy'", "'An'", as_name="result", db=db, class_type=Person)
-        .to_table()
-        .fetch()
-    ):
+    for row in create_person("'Amy'", "'An'", as_name="result", db=db).to_table().fetch():
         print(row["result"])
