@@ -6,10 +6,20 @@
 Welcome to GreenplumPython's documentation!
 ===========================================
 
+Presentation
+============
+**GreenplumPython** is a Python library, precisely an API which allows the users to Manipulate Greenplum Database with Python without exporting the data to his local machine, and without deep knowledge of SQL.
+
+There are explanations about the implementation and examples.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
+   install
+   basic
+   modules
+   examples
 
 
 Indices and tables
