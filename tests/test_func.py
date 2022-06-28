@@ -221,4 +221,4 @@ def test_func_return_comp_type(db: gp.Database):
         return {"first_name": first, "last_name": last}
 
     for row in create_person("'Amy'", "'An'", as_name="result", db=db).to_table().fetch():
-        print(row["result"])
+        assert row["result"] == "(Amy,An)"
