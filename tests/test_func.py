@@ -51,16 +51,18 @@ def test_create_func_multiline(db: gp.Database):
 
 # fmt: off
 def test_create_func_tab_indent(db: gp.Database):
-	@gp.create_function
-	def my_min(a: int, b: int) -> int:
-		if a < b:
-			return a
-		else:
-			return b
+    @gp.create_function
+    def my_min(a: int, b: int) -> int:
+        if a < b:
+            return a
+        else:
+            return b
 
-	for row in my_min(1, 2, as_name="result", db=db).to_table().fetch():
-		assert row["result"] == min(1, 2)
-		assert row["result"] == inspect.unwrap(my_min)(1, 2)
+    for row in my_min(1, 2, as_name="result", db=db).to_table().fetch():
+        assert row["result"] == min(1, 2)
+        assert row["result"] == inspect.unwrap(my_min)(1, 2)
+
+
 # fmt: on
 
 
@@ -134,7 +136,8 @@ def test_agg_group_by_multi_columns(db: gp.Database):
             (row["is_even"] and row["is_multiple_of_3"] and row["count"] == 1)  # 0
             or (row["is_even"] and not row["is_multiple_of_3"] and row["count"] == 2)  # 2, 4
             or (not row["is_even"] and row["is_multiple_of_3"] and row["count"] == 1)  # 3
-            or (not row["is_even"] and not row["is_multiple_of_3"] and row["count"] == 2)  # 1, 5
+            or (not row["is_even"] and not row["is_multiple_of_3"] and row["count"] == 2)
+            # 1, 5
         )
 
 
@@ -208,17 +211,45 @@ def test_func_return_comp_type(db: gp.Database):
         _first_name: str
         _last_name: str
 
-        def __init__(
-            self,
-            first_name: str = "",
-            last_name: str = "",
-        ) -> None:
-            self._first_name = first_name
-            self._last_name = last_name
-
     @gp.create_function
     def create_person(first: str, last: str) -> Person:
         return {"first_name": first, "last_name": last}
 
-    for row in create_person("'Amy'", "'An'", as_name="result", db=db).to_table().fetch():
-        assert row["result"] == "(Amy,An)"
+    for row in create_person("'Amy'", "'An'", db=db).to_table().fetch():
+        assert row["first_name"] == "Amy" and row["last_name"] == "An"
+
+
+def test_func_comp_type_column(db: gp.Database):
+    class Pair:
+        _num: int
+        _next: int
+
+    @gp.create_function
+    def create_pair(num: int) -> Pair:
+        return {"num": num, "next": num + 1}
+
+    rows = [(i,) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+    for row in create_pair(numbers["val"], db=db).to_table().fetch():
+        assert row["next"] == row["num"] + 1
+
+
+def test_func_comp_type_setof(db: gp.Database):
+    class Pair:
+        _num: int
+        _next: int
+
+    @gp.create_function
+    def create_pair(num: int) -> List[Pair]:
+        return [(num, num + 1) for _ in range(5)]
+
+    rows = [(i,) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+    ret = list(create_pair(numbers["val"], db=db).to_table().fetch())
+    assert len(ret) == 50
+    dict_record = {i: 0 for i in range(10)}
+    for row in ret:
+        dict_record[row["num"]] += 1
+        assert row["next"] == row["num"] + 1
+    for key in dict_record:
+        assert dict_record[key] == 5

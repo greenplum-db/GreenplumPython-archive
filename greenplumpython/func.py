@@ -8,7 +8,7 @@ from uuid import uuid4
 from .db import Database
 from .expr import Expr
 from .table import Table
-from .type import to_pg_type
+from .type import primitive_type_map, to_pg_type
 
 
 class FunctionCall(Expr):
@@ -19,6 +19,7 @@ class FunctionCall(Expr):
         group_by: Optional[Iterable[Union[Expr, str]]] = None,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
+        is_return_comp: Optional[bool] = False,
     ) -> None:
         table: Optional[Table] = None
         for arg in args:
@@ -31,13 +32,14 @@ class FunctionCall(Expr):
         self._func_name = func_name
         self._args = args
         self._group_by = group_by
+        self._is_return_comp = is_return_comp
 
     def _serialize(self) -> str:
         args_string = ",".join([str(arg) for arg in self._args]) if any(self._args) else ""
         return f"{self._func_name}({args_string})"
 
     def to_table(self) -> Table:
-        from_caluse = f"FROM {self.table.name}" if self.table is not None else ""
+        from_caluse = "FROM " + (f"{self.table.name}" if self.table is not None else str(self))
         group_by_columns = (
             ",".join([str(column) for column in self._group_by])
             if self._group_by is not None
@@ -48,7 +50,12 @@ class FunctionCall(Expr):
         orig_func_table = Table(
             " ".join(
                 [
-                    f"SELECT {str(self)}",
+                    f"""
+                        SELECT {(str(self) if self.table is not None else '*') if (not self._is_return_comp or self.table is None) 
+                                else '('+str(self)+').*'
+                                
+                    }
+                    """,
                     "," + group_by_columns if group_by_columns != "" else "",
                     from_caluse,
                     group_by_clause,
@@ -57,9 +64,7 @@ class FunctionCall(Expr):
             db=self._db,
             parents=parents,
         )
-        return Table(
-            f"SELECT * FROM {orig_func_table.name}", parents=[orig_func_table], db=self._db
-        )
+        return orig_func_table
 
     @property
     def qualified_func_name(self) -> str:
@@ -145,7 +150,10 @@ def create_function(
             ),
             has_results=False,
         )
-        return FunctionCall(qualified_func_name, args=args, as_name=as_name, db=db)
+        is_return_comp = func_sig.return_annotation not in primitive_type_map
+        return FunctionCall(
+            qualified_func_name, args=args, as_name=as_name, db=db, is_return_comp=is_return_comp
+        )
 
     return make_function_call
 
