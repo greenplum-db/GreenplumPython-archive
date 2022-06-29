@@ -1,6 +1,7 @@
-from tabulate import tabulate
 from typing import TYPE_CHECKING, Iterable, List, Optional, Tuple
 from uuid import uuid4
+
+from tabulate import tabulate
 
 from . import db
 
