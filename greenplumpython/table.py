@@ -1,3 +1,4 @@
+from tabulate import tabulate
 from typing import TYPE_CHECKING, Iterable, List, Optional, Tuple
 from uuid import uuid4
 
@@ -245,6 +246,9 @@ class Table:
             has_results=False,
         )
         return table(table_name, self._db)
+
+    def display(self):
+        return tabulate(self.fetch(), headers="keys", tablefmt="html")
 
     # TODO: Uncomment or remove this.
     #
