@@ -139,7 +139,9 @@ def create_function(
                     break
         if db is None:
             raise Exception("Database is required to create function")
-        return_type = to_pg_type(func_sig.return_annotation, db, return_type_as_name, type_is_temp)
+        return_type = to_pg_type(
+            func_sig.return_annotation, db, return_type_as_name, type_is_temp, True
+        )
         db.execute(
             (
                 f"CREATE {or_replace} FUNCTION {qualified_func_name} ({func_args_string}) "
