@@ -8,7 +8,7 @@ from uuid import uuid4
 from .db import Database
 from .expr import Expr
 from .table import Table
-from .type import to_pg_type, to_pg_const
+from .type import to_pg_const, to_pg_type
 
 
 class FunctionCall(Expr):

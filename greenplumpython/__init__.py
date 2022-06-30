@@ -1,4 +1,5 @@
 from .db import Database, database
+from .expr import get_type
 from .func import (
     aggregate,
     create_aggregate,
@@ -8,4 +9,3 @@ from .func import (
 )
 from .op import operator
 from .table import Table, table, values
-from .expr import get_type
