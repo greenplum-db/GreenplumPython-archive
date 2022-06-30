@@ -72,8 +72,8 @@ def test_create_type_recursive(db: gp.Database):
         _first_person: Person
         _second_person: Person
 
-    def create_couple() -> Couple():
-        return Couple
+    def create_couple() -> Couple:
+        return Couple()
 
     # FIXME : In this case, program will create twice Person type
     #         when creating Couple type with different type_name
