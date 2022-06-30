@@ -51,16 +51,16 @@ def test_create_func_multiline(db: gp.Database):
 
 # fmt: off
 def test_create_func_tab_indent(db: gp.Database):
-    @gp.create_function
-    def my_min(a: int, b: int) -> int:
-        if a < b:
-            return a
-        else:
-            return b
+        @gp.create_function
+        def my_min(a: int, b: int) -> int:
+                if a < b:
+                        return a
+                else:
+                        return b
 
-    for row in my_min(1, 2, as_name="result", db=db).to_table().fetch():
-        assert row["result"] == min(1, 2)
-        assert row["result"] == inspect.unwrap(my_min)(1, 2)
+        for row in my_min(1, 2, as_name="result", db=db).to_table().fetch():
+                assert row["result"] == min(1, 2)
+                assert row["result"] == inspect.unwrap(my_min)(1, 2)
 
 
 # fmt: on
@@ -136,8 +136,7 @@ def test_agg_group_by_multi_columns(db: gp.Database):
             (row["is_even"] and row["is_multiple_of_3"] and row["count"] == 1)  # 0
             or (row["is_even"] and not row["is_multiple_of_3"] and row["count"] == 2)  # 2, 4
             or (not row["is_even"] and row["is_multiple_of_3"] and row["count"] == 1)  # 3
-            or (not row["is_even"] and not row["is_multiple_of_3"] and row["count"] == 2)
-            # 1, 5
+            or (not row["is_even"] and not row["is_multiple_of_3"] and row["count"] == 2)  # 1, 5
         )
 
 

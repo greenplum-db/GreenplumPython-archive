@@ -18,7 +18,9 @@ def test_type_create(db: gp.Database):
         _first_name: str
         _last_name: str
 
-    type.create_type(Person, db, as_name="Person", is_temp=False)
+    type_name = type.create_type(Person, db, as_name="Person", is_temp=False)
+    assert isinstance(type_name, str)
+    assert type_name == "Person"
     with pytest.raises(Exception) as exc_info:
         type.create_type(Person, db, as_name="Person", is_temp=False)
     assert 'type "person" already exists\n' in str(exc_info.value)
@@ -61,7 +63,7 @@ def test_type_drop(db: gp.Database):
     type.create_type(Person, db, as_name="Person", is_temp=False)
 
 
-def test_create_type_rec(db: gp.Database):
+def test_create_type_recursive(db: gp.Database):
     class Person:
         _first_name: str
         _last_name: str
@@ -70,7 +72,7 @@ def test_create_type_rec(db: gp.Database):
         _first_person: Person
         _second_person: Person
 
-    def create_couple() -> Couple:
+    def create_couple() -> Couple():
         return Couple
 
     # FIXME : In this case, program will create twice Person type

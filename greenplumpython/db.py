@@ -1,4 +1,4 @@
-from typing import Iterable, List, Literal, Optional
+from typing import Iterable, List, Optional
 
 import psycopg2
 import psycopg2.extras
