@@ -8,7 +8,7 @@ from uuid import uuid4
 from .db import Database
 from .expr import Expr
 from .table import Table
-from .type import to_pg_type
+from .type import to_pg_type, to_pg_const
 
 
 class FunctionCall(Expr):
@@ -33,7 +33,13 @@ class FunctionCall(Expr):
         self._group_by = group_by
 
     def _serialize(self) -> str:
-        args_string = ",".join([str(arg) for arg in self._args]) if any(self._args) else ""
+        args_string = (
+            ",".join(
+                [str(arg) if isinstance(arg, Expr) else to_pg_const(arg) for arg in self._args]
+            )
+            if any(self._args)
+            else ""
+        )
         return f"{self._func_name}({args_string})"
 
     def to_table(self) -> Table:

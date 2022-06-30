@@ -1,8 +1,9 @@
 import copy
-from typing import Optional
+from typing import Callable, Optional
 
 from .db import Database
 from .table import Table
+from .type import to_pg_const
 
 
 class Expr:
@@ -55,6 +56,9 @@ class Expr:
     def __invert__(self):
         return UnaryExpr("NOT", self)
 
+    def like(self, pattern: str) -> "Expr":
+        return BinaryExpr("LIKE", self, pattern)
+
     def __str__(self) -> str:
         return self._serialize() + (" AS " + self._as_name if self._as_name is not None else "")
 
@@ -104,19 +108,9 @@ class BinaryExpr(Expr):
         self.right = right
 
     def _serialize(self) -> str:
-        if isinstance(self.right, type(None)):
-            return str(self.left) + " " + self.operator + " " + "NULL"
-        if isinstance(self.right, str):
-            if self.operator == "LIKE":
-                self.right = self.right.replace("%", "%%")
-            return str(self.left) + " " + self.operator + " '" + self.right + "'"
-        if isinstance(self.right, bool):
-            if self.right:
-                return str(self.left) + " " + self.operator + " TRUE"
-            else:
-                return str(self.left) + " " + self.operator + " FALSE"
-
-        return str(self.left) + " " + self.operator + " " + str(self.right)
+        left_str = str(self.left) if isinstance(self.left, Expr) else to_pg_const(self.left)
+        right_str = str(self.right) if isinstance(self.right, Expr) else to_pg_const(self.right)
+        return f"({left_str} {self.operator} {right_str})"
 
 
 class UnaryExpr(Expr):
@@ -138,18 +132,48 @@ class UnaryExpr(Expr):
         self.right = right
 
     def _serialize(self) -> str:
-        if self.operator == "NOT":
-            return "NOT(" + str(self.right) + ")"
-        if self.operator == "ABS":
-            return "ABS(" + str(self.right) + ")"
+        right_str = str(self.right) if isinstance(self.right, Expr) else to_pg_const(self.right)
+        return f"{self.operator}({right_str})"
 
-        return self.operator + str(self.right)
+
+class TypeCast(Expr):
+    def __init__(
+        self,
+        obj,
+        type_name: str,
+        as_name: Optional[str] = None,
+        db: Optional[Database] = None,
+    ) -> None:
+        table = obj.table if isinstance(obj, Expr) else None
+        super().__init__(as_name, table, db)
+        self._obj = obj
+        self._type_name = type_name
+
+    def _serialize(self) -> str:
+        obj_str = self._obj._serialize() if isinstance(self._obj, Expr) else to_pg_const(self._obj)
+        return f"{obj_str}::{self._type_name}"
+
+
+class Type:
+    def __init__(self, name: str, db: Database) -> None:
+        self._name = name
+        self._db = db
+
+    def __call__(self, obj) -> TypeCast:
+        return TypeCast(obj, self._name, db=self._db)
+
+
+# FIXME: Rename gp.table(), gp.function(), etc. to get_table(), get_function(), etc.
+# FIXME: Make these functions methods of a Database, e.g. from gp.get_type("int", db) to db.get_type("int")
+def get_type(name: str, db: Database) -> Type:
+    return Type(name, db=db)
 
 
 class Column(Expr):
     def __init__(self, name: str, table: "Table", as_name: Optional[str] = None) -> None:
         super().__init__(as_name=as_name, table=table)
         self._name = name
+        self._type: Optional[Type] = None  # TODO: Add type inference
 
     def _serialize(self) -> str:
         assert self.table is not None
@@ -162,6 +186,3 @@ class Column(Expr):
     @property
     def table(self) -> Optional["Table"]:
         return self._table
-
-    def like(self, cond: str) -> Expr:
-        return BinaryExpr("LIKE", self, cond)
