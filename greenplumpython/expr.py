@@ -16,6 +16,7 @@ class Expr:
         - an Operator
         - a Function
     """
+
     def __init__(
         self,
         as_name: Optional[str] = None,
@@ -172,6 +173,7 @@ class BinaryExpr(Expr):
     """
     Herited from Expr. Representation of a Binary Expression
     """
+
     def __init__(
         self,
         operator: str,
@@ -218,6 +220,7 @@ class UnaryExpr(Expr):
     """
     Herited from Expr. Representation of an Unary Expression.
     """
+
     def __init__(
         self,
         operator: str,
@@ -255,6 +258,7 @@ class Column(Expr):
     """
     Herited from Expr. Representation of a python object Column.
     """
+
     def __init__(self, name: str, table: "Table", as_name: Optional[str] = None) -> None:
         """
         Creates a Column

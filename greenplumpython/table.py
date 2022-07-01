@@ -21,6 +21,7 @@ class Table:
     """
     Representation of Table object.
     """
+
     def __init__(
         self,
         query: str,
@@ -243,24 +244,24 @@ class Table:
         targets: List = [],
     ):
         """
-            Returns left join of self and another Table using condition, and only select targeted columns
+        Returns left join of self and another Table using condition, and only select targeted columns
 
-            Args:
-                other: Table : table to use to do the join
-                cond: Expr : join on condition
-                targets : List : list of targeted columns for joined table
+        Args:
+            other: Table : table to use to do the join
+            cond: Expr : join on condition
+            targets : List : list of targeted columns for joined table
 
-            Returns
-                Table : left joined table
+        Returns
+            Table : left joined table
 
-            The result table can select all columns of both tables, or a selection of columns. User can
-            also rename column_name to resolve conflicts
+        The result table can select all columns of both tables, or a selection of columns. User can
+        also rename column_name to resolve conflicts
 
-            .. code-block::  python
+        .. code-block::  python
 
-               ret = zoo_1.left_join(zoo_2, zoo_1["animal1"] == zoo_2["animal2"])
+           ret = zoo_1.left_join(zoo_2, zoo_1["animal1"] == zoo_2["animal2"])
 
-            """
+        """
         on_str = " ".join(["ON", str(cond)])
         return self._join(other, targets, "LEFT JOIN", on_str)
 

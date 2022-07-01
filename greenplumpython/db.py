@@ -12,6 +12,7 @@ class Database:
     Representation of Greenplum Database.
     Each Database object has an instance **conn**
     """
+
     def __init__(self, **params) -> None:
         """
         Create a connection using psycopg2.
