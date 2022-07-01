@@ -1,13 +1,14 @@
 GreenplumPython
 ===============
 
-The **GreenplumPython** library contains 3 main modules:
+The **GreenplumPython** library contains 5 main modules:
 
 .. toctree::
    :maxdepth: 5
 
-    db
-    table
-    expr
-    func
-    type
+   db
+   table
+   expr
+   func
+   op
+   type

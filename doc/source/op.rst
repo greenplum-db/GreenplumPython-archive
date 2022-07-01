@@ -1,6 +1,6 @@
-Type
+Operator
 ========
 
-.. automodule:: type
+.. automodule:: op
    :members:
    :undoc-members:
