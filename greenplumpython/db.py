@@ -13,31 +13,7 @@ class Database:
     Each Database object has an instance **conn**
     """
 
-    def __init__(self, **params) -> None:
-        """
-        Create a connection using psycopg2.
-
-        There are different ways to passing database information:
-
-        .. code-block::  python
-
-           db = database(host="localhost", dbname=dbname)
-
-        If it is a connection to localhost.
-
-        Or, a connection can be established by passing more detailed information:
-
-        .. code-block::  python
-
-            db = gp.database(
-                    host=dbIP,
-                    dbname=dbname,
-                    user=username,
-                    password=password,
-                    port=dbPort
-                )
-
-        """
+    def __init__(self, params) -> None:
         self._conn = psycopg2.connect(
             " ".join([f"{k}={v}" for k, v in params.items()]),
             cursor_factory=psycopg2.extras.RealDictCursor,
@@ -86,8 +62,41 @@ class Database:
         self.execute(f"SET {key} TO {value}", has_results=False)
 
 
-def database(**conn_strings) -> Database:
+def database(host="localhost",
+            dbname="postgres",
+            user="",
+            password="",
+            port=7000,
+            **conn_strings) -> Database:
     """
-    Return an Object Database
+    Create a connection using psycopg2.
+
+    The default database name is "postgres" and default port number is 7000
+
+    There are different ways to passing database information:
+
+    .. code-block::  python
+
+       db = database(host="localhost", dbname=dbname)
+
+    If it is a connection to localhost.
+
+    Or, a connection can be established by passing more detailed information:
+
+    .. code-block::  python
+
+        db = database(
+                host=dbIP,
+                dbname=dbname,
+                user=username,
+                password=password,
+                port=dbPort
+            )
+
     """
-    return Database(**conn_strings)
+    params = {"host":host, "dbname":dbname, "port":port}
+    if user is not "":
+        params["user"] = user
+    if password is not "":
+        params["password"] = password
+    return Database({**params, **conn_strings})

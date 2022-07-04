@@ -29,15 +29,6 @@ class Table:
         name: Optional[str] = None,
         db: Optional[db.Database] = None,
     ) -> None:
-        """
-        Create a Table object using query.
-
-        Args:
-            query: str : query to get the corresponded table
-            parents: Iterable[Table] : table origins to proceed transformation
-            name: Optional[str] : name of table
-            db: Optional[Database] : database where executes the query
-        """
         self._query = query
         self._parents = parents
         self._name = "cte_" + uuid4().hex if name is None else name
@@ -501,7 +492,7 @@ class Table:
 # table_name can be table/view name
 def table(name: str, db: db.Database) -> Table:
     """
-    Returns a Table object
+    Returns a Table object using table name and associated database
     """
     return Table(f"TABLE {name}", name=name, db=db)
 

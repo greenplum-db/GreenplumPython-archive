@@ -23,14 +23,6 @@ class Expr:
         table: Optional["Table"] = None,
         db: Optional[Database] = None,
     ) -> None:
-        """
-        Create an Expr object
-
-        Args:
-            as_name: Optional[str] : name of expression
-            table: Optional[Table] : table associated
-            db: Optional[Database] : database associated
-        """
         self._as_name = as_name
         self._table = table
         self._db = table.db if table is not None else db
@@ -182,14 +174,6 @@ class BinaryExpr(Expr):
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ):
-        """
-        Creates a BinaryExpr
-
-        Args:
-            operator : str : can be logical operator or other
-            left : Expr : a column
-            right : Undefined : can be Column, str, int, or other
-        """
         table: Optional[Table] = None
         if isinstance(left, Expr) and left.table is not None:
             table = left.table
@@ -228,13 +212,6 @@ class UnaryExpr(Expr):
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ):
-        """
-        Creates a UnaryExpr
-
-        Args:
-            operator : str
-            right : Expr: a Column
-        """
         table = right.table if isinstance(right, Expr) else None
         super().__init__(as_name=as_name, table=table, db=db)
         if operator not in ["NOT", "ABS", "+", "-"]:
@@ -260,14 +237,6 @@ class Column(Expr):
     """
 
     def __init__(self, name: str, table: "Table", as_name: Optional[str] = None) -> None:
-        """
-        Creates a Column
-
-        Args:
-            name : str : column name
-            table : Table : table associated
-            as_name : Optional[str] : use for rename
-        """
         super().__init__(as_name=as_name, table=table)
         self._name = name
 
