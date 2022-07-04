@@ -62,12 +62,10 @@ class Database:
         self.execute(f"SET {key} TO {value}", has_results=False)
 
 
-def database(host="localhost",
-            dbname="postgres",
-            user="",
-            password="",
-            port=7000,
-            **conn_strings) -> Database:
+def database(
+    host="localhost", dbname="postgres", user="", password="", port=7000, **conn_strings
+) -> Database:
+
     """
     Create a connection using psycopg2.
 
@@ -94,7 +92,7 @@ def database(host="localhost",
             )
 
     """
-    params = {"host":host, "dbname":dbname, "port":port}
+    params = {"host": host, "dbname": dbname, "port": port}
     if user is not "":
         params["user"] = user
     if password is not "":
