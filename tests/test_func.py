@@ -212,10 +212,10 @@ def test_func_return_comp_type(db: gp.Database):
 
     @gp.create_function
     def create_person(first: str, last: str) -> Person:
-        return {"first_name": first, "last_name": last}
+        return {"_first_name": first, "_last_name": last}
 
     for row in create_person("'Amy'", "'An'", db=db).to_table().fetch():
-        assert row["first_name"] == "Amy" and row["last_name"] == "An"
+        assert row["_first_name"] == "Amy" and row["_last_name"] == "An"
 
 
 def test_func_comp_type_column(db: gp.Database):
@@ -225,12 +225,12 @@ def test_func_comp_type_column(db: gp.Database):
 
     @gp.create_function
     def create_pair(num: int) -> Pair:
-        return {"num": num, "next": num + 1}
+        return {"_num": num, "_next": num + 1}
 
     rows = [(i,) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
     for row in create_pair(numbers["val"], db=db).to_table().fetch():
-        assert row["next"] == row["num"] + 1
+        assert row["_next"] == row["_num"] + 1
 
 
 def test_func_comp_type_setof(db: gp.Database):
@@ -248,7 +248,7 @@ def test_func_comp_type_setof(db: gp.Database):
     assert len(ret) == 50
     dict_record = {i: 0 for i in range(10)}
     for row in ret:
-        dict_record[row["num"]] += 1
-        assert row["next"] == row["num"] + 1
+        dict_record[row["_num"]] += 1
+        assert row["_next"] == row["_num"] + 1
     for key in dict_record:
         assert dict_record[key] == 5
