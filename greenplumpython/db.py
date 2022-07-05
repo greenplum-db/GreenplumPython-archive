@@ -63,7 +63,12 @@ class Database:
 
 
 def database(
-    host="localhost", dbname="postgres", user="", password="", port=7000, **conn_strings
+    host="localhost",
+    dbname: Optional[str] = None,
+    user: Optional[str] = None,
+    password: Optional[str] = None,
+    port: Optional[int] = None,
+    **conn_strings,
 ) -> Database:
 
     """
@@ -92,9 +97,13 @@ def database(
             )
 
     """
-    params = {"host": host, "dbname": dbname, "port": port}
-    if user is not "":
+    params = {"host": host}
+    if dbname is not None:
+        params["dbname"] = dbname
+    if port is not None:
+        params["port"] = str(port)
+    if user is not None:
         params["user"] = user
-    if password is not "":
+    if password is not None:
         params["password"] = password
     return Database({**params, **conn_strings})
