@@ -74,7 +74,12 @@ def database(
     """
     Create a connection using psycopg2.
 
-    The default database name is "postgres" and default port number is 7000
+    Args:
+        host: str : default value = "localhost"
+        dbname: str : default value = None
+        user: str : Optional
+        password: str : Optional
+        port: int : Optional
 
     There are different ways to passing database information:
 
@@ -82,9 +87,10 @@ def database(
 
        db = database(host="localhost", dbname=dbname)
 
-    If it is a connection to localhost.
+    If it is a connection to localhost, password can be ignored.
 
-    Or, a connection can be established by passing more detailed information:
+    Or, a connection can be established by passing more detailed information, in this case,
+    password is needed for connexion:
 
     .. code-block::  python
 
