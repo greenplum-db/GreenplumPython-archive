@@ -22,7 +22,7 @@ def create_type(class_type, db, as_name=None, is_temp=True) -> str:
     att_type_str = ",\n\t\t\t\t".join(
         [
             f"""
-            {re.sub(r"^_+|_+$", "", name)} {to_pg_type(type_t, db)}
+            {name} {to_pg_type(type_t, db)}
             """
             for name, type_t in get_type_hints(class_type).items()
         ]
