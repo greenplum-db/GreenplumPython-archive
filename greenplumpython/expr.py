@@ -1,5 +1,5 @@
 import copy
-from typing import Callable, Optional
+from typing import Optional
 
 from .db import Database
 from .table import Table
