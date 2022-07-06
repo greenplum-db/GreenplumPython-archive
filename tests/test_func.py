@@ -252,3 +252,19 @@ def test_func_comp_type_setof(db: gp.Database):
         assert row["_next"] == row["_num"] + 1
     for key in dict_record:
         assert dict_record[key] == 5
+
+
+def test_array_func_comp_type(db: gp.Database):
+    class Stat:
+        sum: int
+        count: int
+
+    @gp.create_array_function
+    def my_stat(val_list: List[int]) -> Stat:
+        return {"sum": sum(val_list), "count": len(val_list)}
+
+    rows = [(i,) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+    ret = list(my_stat(numbers["val"], db=db).to_table().fetch())
+    for row in ret:
+        assert row["sum"] == sum(list([i for i in range(10)])) and row["count"] == len(rows)

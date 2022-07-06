@@ -70,6 +70,12 @@ class FunctionCall(Expr):
     def qualified_func_name(self) -> str:
         return self._func_name
 
+    @property
+    def is_return_comp(self) -> bool:
+        if self._is_return_comp is not None:
+            return self._is_return_comp
+        return False
+
 
 class ArrayFunctionCall(FunctionCall):
     def _serialize(self) -> str:
@@ -232,6 +238,7 @@ def create_array_function(
             group_by=group_by,
             as_name=as_name,
             db=db,
+            is_return_comp=array_func_call.is_return_comp,
         )
 
     return make_function_call

@@ -1,4 +1,5 @@
 import inspect
+from typing import List
 
 import pytest
 
@@ -8,7 +9,7 @@ from greenplumpython import type
 
 @pytest.fixture
 def db():
-    db = gp.database(host="localhost", dbname="postgres")
+    db = gp.database(host="localhost", dbname="gpadmin")
     yield db
     db.close()
 
@@ -60,6 +61,15 @@ def test_type_drop(db: gp.Database):
 
     type.create_type(Person, db, as_name="Person", is_temp=False)
     type.drop_type("Person", db)
+    type.create_type(Person, db, as_name="Person", is_temp=False)
+
+
+# FIXME : Add assert
+def test_type_attribute_is_list(db: gp.Database):
+    class Person:
+        _first_name: List[str]
+        _last_name: str
+
     type.create_type(Person, db, as_name="Person", is_temp=False)
 
 

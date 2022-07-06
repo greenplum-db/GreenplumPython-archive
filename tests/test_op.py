@@ -13,7 +13,7 @@ def db():
 
 
 def test_op_on_consts(db: gp.Database):
-    regex_match = gp.operator("~", db)
+    regex_match = gp.binaryOperator("~", db)
     # FIXME: Remove the single quotes after implementing the const wrapper
     result = list(regex_match("'hello'", "h.*o").rename("is_matched").to_table().fetch())
     assert len(result) == 1 and result[0]["is_matched"]
@@ -35,7 +35,7 @@ def test_op_index(db: gp.Database):
     db.execute("CREATE INDEX student_name ON student USING gin (info)", has_results=False)
 
     db.set_config("enable_seqscan", False)
-    json_contains = gp.operator("@>", db)
+    json_contains = gp.binaryOperator("@>", db)
     results = student[json_contains(student["info"], json.dumps({"name": "john"}))].explain()
     uses_index_scan = False
     for row in results:
@@ -43,3 +43,6 @@ def test_op_index(db: gp.Database):
             uses_index_scan = True
             break
     assert uses_index_scan
+
+
+# FIXME : Add test for unary operator
