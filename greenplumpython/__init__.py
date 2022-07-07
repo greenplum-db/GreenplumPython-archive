@@ -6,5 +6,5 @@ from .func import (
     create_function,
     function,
 )
-from .op import binaryOperator, unaryOperator
+from .op import operator
 from .table import Table, table, values
