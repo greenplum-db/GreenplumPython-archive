@@ -96,14 +96,6 @@ class Table:
             parents=[self],
         )
 
-    def group_by(self, grouping_list) -> "Table":
-        return Table(
-            f"""
-                {self._query} GROUP BY {','.join([group_by_index for group_by_index in grouping_list])}
-            """,
-            parents=self._parents,
-        )
-
     def _join(
         self,
         other: "Table",
