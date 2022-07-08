@@ -43,3 +43,6 @@ def test_op_index(db: gp.Database):
             uses_index_scan = True
             break
     assert uses_index_scan
+
+
+# FIXME : Add test for unary operator

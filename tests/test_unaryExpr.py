@@ -26,7 +26,7 @@ def test_expr_unary_pos(db: gp.Database):
     rows = [(-1,), (-2,), (-3,), (-2,)]
     t = gp.values(rows, db=db).save_as("temp2", column_names=["id"], temp=True)
     b2 = (+t["id"]).rename('"+temp2.id"')
-    assert str(b2) == '+temp2.id AS "+temp2.id"'
+    assert str(b2) == '+(temp2.id) AS "+temp2.id"'
     ret = list(t[["id", str(b2)]].fetch())
     for row in ret:
         assert row["+temp2.id"] == +(row["id"])
@@ -36,7 +36,7 @@ def test_expr_unary_neg(db: gp.Database):
     rows = [(1,), (2,), (3,), (2,)]
     t = gp.values(rows, db=db).save_as("temp3", column_names=["id"], temp=True)
     b3 = (-t["id"]).rename('"-temp3.id"')
-    assert str(b3) == '-temp3.id AS "-temp3.id"'
+    assert str(b3) == '-(temp3.id) AS "-temp3.id"'
     ret = list(t[["id", str(b3)]].fetch())
     for row in ret:
         assert row["-temp3.id"] == -(row["id"])
@@ -50,12 +50,3 @@ def test_expr_unary_abs(db: gp.Database):
     ret = list(t[["id", str(b4)]].fetch())
     for row in ret:
         assert row["Abs(temp4.id)"] == abs(row["id"])
-
-
-def test_expr_unary_unsupport(db: gp.Database):
-    rows = [(1,), (2,), (3,), (4,)]
-    t = gp.values(rows, db=db).save_as("temp5", column_names=["id"], temp=True)
-    with pytest.raises(
-        NotImplementedError, match=r"Can only support 'NOT', 'ABS', 'POS' and 'NEG' unary operators"
-    ):
-        gp.expr.UnaryExpr("!", t["id"])
