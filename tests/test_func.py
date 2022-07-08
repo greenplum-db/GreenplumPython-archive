@@ -138,6 +138,19 @@ def test_agg_group_by_multi_columns(db: gp.Database):
         )
 
 
+def test_ordered_by_agg(db: gp.Database):
+    rows = [(i, i % 3) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val", "record"])
+    percentile_disc = gp.ordered_aggregate("percentile_disc", db=db)
+
+    results = list(
+        percentile_disc(0.5, order_by=[numbers["record"]], as_name="median").to_table().fetch()
+    )
+    assert len(results) == 1
+    for row in results:
+        assert row["median"] == 1
+
+
 def test_create_agg(db: gp.Database):
     @gp.create_aggregate
     def my_sum(result: int, val: int) -> int:

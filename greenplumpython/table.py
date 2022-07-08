@@ -196,16 +196,21 @@ class Table:
 
     def _list_lineage(self) -> List["Table"]:
         lineage = []
-        lineage.append(self)
+        lineage.insert(0, self)
         tables_visited = set()
         current = 0
         while current < len(lineage):
-            for table_ in lineage[current]._parents:
-                if table_.name not in tables_visited and not table_._in_catalog():
-                    lineage.append(table_)
-                    tables_visited.add(table_.name)
+            if lineage[current].name not in tables_visited and not lineage[current]._in_catalog():
+                self._topologicalSort(lineage[current], tables_visited, lineage)
             current += 1
         return lineage
+
+    def _topologicalSort(self, t, visited, lineage):
+        visited.add(t.name)
+        for i in t._parents:
+            if i.name not in visited and not i._in_catalog():
+                self._topologicalSort(i, visited, lineage)
+        lineage.insert(0, t)
 
     def _build_full_query(self) -> str:
         lineage = self._list_lineage()
