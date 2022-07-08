@@ -96,6 +96,14 @@ class Table:
             parents=[self],
         )
 
+    def group_by(self, grouping_list) -> "Table":
+        return Table(
+            f"""
+                {self._query} GROUP BY {','.join([group_by_index for group_by_index in grouping_list])}
+            """,
+            parents=self._parents,
+        )
+
     def _join(
         self,
         other: "Table",
@@ -200,7 +208,7 @@ class Table:
         tables_visited = set()
         current = 0
         while current < len(lineage):
-            for table_ in lineage[current]._parents:
+            for table_ in reversed(lineage[current]._parents):
                 if table_.name not in tables_visited and not table_._in_catalog():
                     lineage.append(table_)
                     tables_visited.add(table_.name)

@@ -291,3 +291,41 @@ def test_table_join_ine(db: gp.Database):
     assert len(list(ret)) == 6
     for row in list(ret):
         assert row["a"] < row["b"]
+
+
+def test_table_multiple_self_join(db: gp.Database, zoo_1: gp.Table):
+    zoo_2 = zoo_1.as_name("zoo2")
+    zoo_3 = zoo_2.as_name("zoo3")
+    t_join = zoo_1.inner_join(
+        zoo_2,
+        zoo_1["animal"] == zoo_2["animal"],
+        targets=[
+            zoo_1["id"].rename("zoo1_id"),
+            zoo_1["animal"].rename("zoo1_animal"),
+            zoo_2["id"].rename("zoo2_id"),
+            zoo_2["animal"].rename("zoo2_animal"),
+        ],
+    )
+    ret = t_join.inner_join(
+        zoo_3,
+        t_join["zoo1_animal"] == zoo_3["animal"],
+    ).fetch()
+    assert len(list(ret)) == 4
+    for row in list(ret):
+        assert row["zoo2_animal"] == row["animal"]
+
+
+def test_join_recursive_join(db: gp.Database, zoo_1: gp.Table):
+    zoo_1_label = zoo_1[["*", "random() AS __samp_out_label"]]
+    # FIXME : Change to gp.aggregation_order_by
+    zoo_1_perc = zoo_1_label[
+        ["percentile_disc(0.5) within GROUP ( ORDER BY __samp_out_label) AS __samp_out_label"]
+    ]
+    zoo_1_half = list(
+        zoo_1_label.inner_join(
+            zoo_1_perc,
+            (zoo_1_label["__samp_out_label"] <= zoo_1_perc["__samp_out_label"]),
+            targets=[zoo_1_label["*"]],
+        ).fetch()
+    )
+    assert len(zoo_1_half) == 2
