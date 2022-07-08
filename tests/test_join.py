@@ -315,19 +315,18 @@ def test_table_multiple_self_join(db: gp.Database, zoo_1: gp.Table):
         assert row["zoo2_animal"] == row["animal"]
 
 
-def test_join_recursive_join(db: gp.Database, zoo_1: gp.Table):
-    zoo_1_label = zoo_1[["*", "random() AS __samp_out_label"]]
+def test_join_recursive_join(db: gp.Database):
+    rows = [(i,) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+    mod = gp.function("mod", db)
+    label = numbers[["*", mod(numbers["val"], 2)]]
     percentile_disc = gp.ordered_aggregate("percentile_disc", db=db)
-    zoo_1_perc = percentile_disc(
-        0.5,
-        order_by=[zoo_1_label["__samp_out_label"]],
-        as_name="__samp_out_label",
-    ).to_table()
+    percentile = percentile_disc(0.5, order_by=[label["mod"]], as_name="mod").to_table()
     zoo_1_half = list(
-        zoo_1_label.inner_join(
-            zoo_1_perc,
-            (zoo_1_label["__samp_out_label"] <= zoo_1_perc["__samp_out_label"]),
-            targets=[zoo_1_label["*"]],
+        label.inner_join(
+            percentile,
+            (label["mod"] <= percentile["mod"]),
+            targets=[label["*"]],
         ).fetch()
     )
-    assert len(zoo_1_half) == 2
+    assert len(zoo_1_half) == 5
