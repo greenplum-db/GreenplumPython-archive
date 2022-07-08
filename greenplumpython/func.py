@@ -19,7 +19,7 @@ class FunctionCall(Expr):
         group_by: Optional[Iterable[Union[Expr, str]]] = None,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
-        is_return_comp: Optional[bool] = False,
+        is_return_comp: bool = False,
     ) -> None:
         table: Optional[Table] = None
         for arg in args:
