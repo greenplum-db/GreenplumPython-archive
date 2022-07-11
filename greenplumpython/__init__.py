@@ -5,7 +5,6 @@ from .func import (
     create_array_function,
     create_function,
     function,
-    ordered_aggregate,
 )
 from .op import operator
 from .table import Table, table, values

@@ -17,7 +17,6 @@ class FunctionCall(Expr):
         func_name: str,
         args: Iterable[Expr] = [],
         group_by: Optional[Iterable[Union[Expr, str]]] = None,
-        order_by: Optional[Iterable[Union[Expr, str]]] = None,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
         is_return_comp: bool = False,
@@ -29,19 +28,10 @@ class FunctionCall(Expr):
                     table = arg.table
                 elif table.name != arg.table.name:
                     raise Exception("Cannot pass arguments from more than one tables")
-        if table is None:
-            if order_by is not None:
-                for col in order_by:
-                    if isinstance(col, Expr) and col.table is not None:
-                        if table is None:
-                            table = col.table
-                        elif table.name != col.table.name:
-                            raise Exception("Cannot order by from another table")
         super().__init__(as_name, table=table, db=db)
         self._func_name = func_name
         self._args = args
         self._group_by = group_by
-        self._order_by = order_by
         self._is_return_comp = is_return_comp
 
     def _serialize(self) -> str:
@@ -56,16 +46,6 @@ class FunctionCall(Expr):
             else ""
         )
         group_by_clause = f"GROUP BY {group_by_columns}" if self._group_by is not None else ""
-        order_by_columns = (
-            ",".join([str(column) for column in self._order_by])
-            if self._order_by is not None
-            else ""
-        )
-        order_by_clause = (
-            f"WITHIN GROUP (ORDER BY {order_by_columns}) {('AS ' + self._as_name) if self._as_name is not None else ''}"
-            if self._order_by is not None
-            else ""
-        )
         parents = [self.table] if self.table is not None else []
         orig_func_table = Table(
             " ".join(
@@ -74,10 +54,9 @@ class FunctionCall(Expr):
                         SELECT 
                         {group_by_columns if group_by_columns != "" else ""}
                         {"," if group_by_columns != "" else ""}
-                        {((str(self) if self.table is not None else '*') if (not self._is_return_comp or self.table is None) 
-                                else '('+str(self)+').*') if order_by_columns == "" else self._serialize()
+                        {(str(self) if self.table is not None else '*') if (not self._is_return_comp or self.table is None) 
+                                else '('+str(self)+').*'
                         }
-                        {order_by_clause if order_by_columns != "" else ""}
                     """,
                     from_caluse,
                     group_by_clause,
@@ -121,22 +100,6 @@ def aggregate(name: str, db: Database) -> Callable[..., FunctionCall]:
         as_name: Optional[str] = None,
     ) -> FunctionCall:
         return FunctionCall(name, args, group_by=group_by, as_name=as_name, db=db)
-
-    return make_function_call
-
-
-def ordered_aggregate(name: str, db: Database) -> Callable[..., FunctionCall]:
-    def make_function_call(
-        *args: Expr,
-        group_by: Optional[Iterable[Union[Expr, str]]] = None,
-        order_by: Optional[Iterable[Union[Expr, str]]] = None,
-        as_name: Optional[str] = None,
-    ) -> FunctionCall:
-        # FIXME: ORDER BY with ASC and DESC option
-        # FIXME: PARTITION BY clause
-        return FunctionCall(
-            name, args, group_by=group_by, order_by=order_by, as_name=as_name, db=db
-        )
 
     return make_function_call
 
