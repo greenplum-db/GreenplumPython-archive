@@ -123,11 +123,6 @@ class UnaryExpr(Expr):
     ):
         table = right.table if isinstance(right, Expr) else None
         super().__init__(as_name=as_name, table=table, db=db)
-        if operator not in ["NOT", "ABS", "+", "-"]:
-            raise NotImplementedError(
-                f"{operator.upper()} is not a supported unary operator for Column\n"
-                f"Can only support 'NOT', 'ABS', 'POS' and 'NEG' unary operators"
-            )
         self.operator = operator
         self.right = right
 

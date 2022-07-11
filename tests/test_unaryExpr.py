@@ -50,12 +50,3 @@ def test_expr_unary_abs(db: gp.Database):
     ret = list(t[["id", str(b4)]].fetch())
     for row in ret:
         assert row["Abs(temp4.id)"] == abs(row["id"])
-
-
-def test_expr_unary_unsupport(db: gp.Database):
-    rows = [(1,), (2,), (3,), (4,)]
-    t = gp.values(rows, db=db).save_as("temp5", column_names=["id"], temp=True)
-    with pytest.raises(
-        NotImplementedError, match=r"Can only support 'NOT', 'ABS', 'POS' and 'NEG' unary operators"
-    ):
-        gp.expr.UnaryExpr("!", t["id"])
