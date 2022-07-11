@@ -320,13 +320,13 @@ def test_join_recursive_join(db: gp.Database):
     numbers = gp.values(rows, db=db, column_names=["val"])
     mod = gp.function("mod", db)
     label = numbers[["*", mod(numbers["val"], 2)]]
-    percentile_disc = gp.ordered_aggregate("percentile_disc", db=db)
-    percentile = percentile_disc(0.5, order_by=[label["mod"]], as_name="mod").to_table()
-    zoo_1_half = list(
+    ret_mod = list(
         label.inner_join(
-            percentile,
-            (label["mod"] <= percentile["mod"]),
-            targets=[label["*"]],
+            numbers,
+            (label["val"] == numbers["val"]),
+            targets=[numbers["val"], label["mod"]],
         ).fetch()
     )
-    assert len(zoo_1_half) == 5
+    assert len(ret_mod) == 10
+    for row in ret_mod:
+        assert row["mod"] == row["val"] % 2
