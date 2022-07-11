@@ -212,7 +212,7 @@ def test_func_return_comp_type(db: gp.Database):
     def create_person(first: str, last: str) -> Person:
         return {"_first_name": first, "_last_name": last}
 
-    for row in create_person("'Amy'", "'An'", db=db).to_table().fetch():
+    for row in create_person("Amy", "An", db=db).to_table().fetch():
         assert row["_first_name"] == "Amy" and row["_last_name"] == "An"
 
 

@@ -1,9 +1,7 @@
-import re
-import typing
-from typing import get_type_hints
+from typing import List, get_type_hints
 from uuid import uuid4
 
-import greenplumpython as gp
+from psycopg2.extensions import adapt
 
 primitive_type_map = {
     None: "void",
@@ -50,7 +48,7 @@ def to_pg_type(annotation, db, as_name=None, is_temp=True, is_return=False) -> s
     if hasattr(annotation, "__origin__"):
         # The `or` here is to make the function work on Python 3.6.
         # Python 3.6 is the default Python version on CentOS 7 and Ubuntu 18.04
-        if annotation.__origin__ == list or annotation.__origin__ == typing.List:
+        if annotation.__origin__ == list or annotation.__origin__ == List:
             if annotation.__args__[0] in primitive_type_map:
                 return f"{to_pg_type(annotation.__args__[0], db)}[]"
             if is_return:
@@ -61,4 +59,8 @@ def to_pg_type(annotation, db, as_name=None, is_temp=True, is_return=False) -> s
             return primitive_type_map[annotation]
         else:
             return create_type(annotation, db, as_name=as_name, is_temp=is_temp)
-        raise NotImplementedError()  # TODO: Support composite types
+
+
+def to_pg_const(obj) -> str:
+    # In Python 3, all `str`s are encoded in UTF-8
+    return adapt(obj).getquoted().decode("utf-8")
