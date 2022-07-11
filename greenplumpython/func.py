@@ -132,6 +132,8 @@ def ordered_aggregate(name: str, db: Database) -> Callable[..., FunctionCall]:
         order_by: Optional[Iterable[Union[Expr, str]]] = None,
         as_name: Optional[str] = None,
     ) -> FunctionCall:
+        # FIXME: ORDER BY with ASC and DESC option
+        # FIXME: PARTITION BY clause
         return FunctionCall(
             name, args, group_by=group_by, order_by=order_by, as_name=as_name, db=db
         )
