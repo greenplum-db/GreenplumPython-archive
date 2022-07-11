@@ -5,7 +5,7 @@ import greenplumpython as gp
 
 @pytest.fixture
 def db() -> gp.Database:
-    db = gp.database(host="localhost", dbname="postgres")
+    db = gp.database(host="localhost", dbname="gpadmin")
     yield db
     db.close()
 
@@ -62,14 +62,7 @@ def test_union_order_by(db: gp.Database, top_rated_films: gp.Table, most_popular
 
 
 def test_union_select(db: gp.Database, top_rated_films: gp.Table, most_popular_films: gp.Table):
-    ret = list(
-        top_rated_films.union(
-            most_popular_films,
-            my_targets=[
-                top_rated_films["title"].rename("titltle"),
-                top_rated_films["release_year"],
-            ],
-        ).fetch()
-    )
+    top_rated_films = top_rated_films[[top_rated_films["title"].rename("titltle"), top_rated_films["release_year"]]]
+    ret = list(top_rated_films.union(most_popular_films).fetch())
     assert len(ret) == 5
     assert list(list(ret)[0].keys()) == ["titltle", "release_year"]

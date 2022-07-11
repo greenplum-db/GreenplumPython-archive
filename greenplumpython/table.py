@@ -99,23 +99,15 @@ class Table:
     def union(
         self,
         other: "Table",
-        my_targets: List = [],
-        other_targets: List = [],
         is_all: bool = False,
         order_by: Optional[Iterable] = None,
     ):
-        my_select_str = (
-            ",".join([str(target) for target in my_targets]) if my_targets != [] else "*"
-        )
-        other_select_str = (
-            ",".join([str(target) for target in other_targets]) if other_targets != [] else "*"
-        )
         return Table(
             f"""
-                SELECT {my_select_str} 
+                SELECT *
                 FROM {self.name} 
                 UNION {"ALL" if is_all else ""}
-                SELECT {other_select_str}
+                SELECT *
                 FROM {other.name}
                 {("ORDER BY" + self._order_by_str(order_by)) if order_by is not None else ""}  
             """,
