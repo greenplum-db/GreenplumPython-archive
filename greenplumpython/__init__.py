@@ -1,4 +1,5 @@
 from .db import Database, database
+from .expr import get_type
 from .func import (
     aggregate,
     create_aggregate,
