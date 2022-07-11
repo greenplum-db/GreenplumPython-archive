@@ -71,31 +71,6 @@ class Table:
             parents=[self],
         )
 
-    @staticmethod
-    def _order_by_str(order_by: Iterable) -> str:
-        order_by_clause = (
-            f"""
-                {','.join([' '.join([col, order]) for col, order in order_by.items()])}
-            """
-            if isinstance(order_by, dict)
-            else f"""
-                    {','.join([order_index for order_index in order_by])}
-                """
-        )
-        return order_by_clause
-
-    def top(self, count: int, order_by: Iterable, skip: int = 0):
-        order_by_clause = self._order_by_str(order_by)
-        return Table(
-            f"""
-                SELECT * FROM {self.name}
-                ORDER BY {order_by_clause}
-                LIMIT {count}
-                OFFSET {skip}
-            """,
-            parents=[self],
-        )
-
     def _join(
         self,
         other: "Table",
