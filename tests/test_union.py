@@ -47,20 +47,6 @@ def test_union_all(db: gp.Database, top_rated_films: gp.Table, most_popular_film
     assert cpt == 2
 
 
-def test_union_order_by(db: gp.Database, top_rated_films: gp.Table, most_popular_films: gp.Table):
-    order = [
-        "12 Angry Men",
-        "An American Pickle",
-        "Greyhound",
-        "The Godfather",
-        "The Godfather",
-        "The Shawshank Redemption",
-    ]
-    ret = list(top_rated_films.union(most_popular_films, is_all=True, order_by=["title"]).fetch())
-    for i, row in enumerate(ret):
-        assert row["title"] == order[i]
-
-
 def test_union_select(db: gp.Database, top_rated_films: gp.Table, most_popular_films: gp.Table):
     top_rated_films = top_rated_films[
         [top_rated_films["title"].rename("titltle"), top_rated_films["release_year"]]

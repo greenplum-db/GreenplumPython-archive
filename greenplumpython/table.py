@@ -100,7 +100,6 @@ class Table:
         self,
         other: "Table",
         is_all: bool = False,
-        order_by: Optional[Iterable] = None,
     ):
         return Table(
             f"""
@@ -109,7 +108,6 @@ class Table:
                 UNION {"ALL" if is_all else ""}
                 SELECT *
                 FROM {other.name}
-                {("ORDER BY" + self._order_by_str(order_by)) if order_by is not None else ""}  
             """,
             parents=[self, other],
         )
