@@ -291,3 +291,42 @@ def test_table_join_ine(db: gp.Database):
     assert len(list(ret)) == 6
     for row in list(ret):
         assert row["a"] < row["b"]
+
+
+def test_table_multiple_self_join(db: gp.Database, zoo_1: gp.Table):
+    zoo_2 = zoo_1.as_name("zoo2")
+    zoo_3 = zoo_2.as_name("zoo3")
+    t_join = zoo_1.inner_join(
+        zoo_2,
+        zoo_1["animal"] == zoo_2["animal"],
+        targets=[
+            zoo_1["id"].rename("zoo1_id"),
+            zoo_1["animal"].rename("zoo1_animal"),
+            zoo_2["id"].rename("zoo2_id"),
+            zoo_2["animal"].rename("zoo2_animal"),
+        ],
+    )
+    ret = t_join.inner_join(
+        zoo_3,
+        t_join["zoo1_animal"] == zoo_3["animal"],
+    ).fetch()
+    assert len(list(ret)) == 4
+    for row in list(ret):
+        assert row["zoo2_animal"] == row["animal"]
+
+
+def test_join_recursive_join(db: gp.Database):
+    rows = [(i,) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+    mod = gp.function("mod", db)
+    label = numbers[["*", mod(numbers["val"], 2)]]
+    ret_mod = list(
+        label.inner_join(
+            numbers,
+            (label["val"] == numbers["val"]),
+            targets=[numbers["val"], label["mod"]],
+        ).fetch()
+    )
+    assert len(ret_mod) == 10
+    for row in ret_mod:
+        assert row["mod"] == row["val"] % 2
