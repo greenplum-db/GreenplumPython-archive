@@ -318,8 +318,7 @@ def test_table_multiple_self_join(db: gp.Database, zoo_1: gp.Table):
 def test_join_recursive_join(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
-    mod = gp.function("mod", db)
-    label = numbers[["*", mod(numbers["val"], 2)]]
+    label = numbers[["*", (numbers["val"] % 2).rename("mod")]]
     ret_mod = list(
         label.inner_join(
             numbers,

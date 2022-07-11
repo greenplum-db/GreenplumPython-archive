@@ -44,6 +44,9 @@ class Expr:
     def __ne__(self, other):
         return BinaryExpr("!=", self, other)
 
+    def __mod__(self, other):
+        return BinaryExpr("%", self, other)
+
     def __pos__(self):
         return UnaryExpr("+", self)
 
