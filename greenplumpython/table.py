@@ -201,15 +201,15 @@ class Table:
         current = 0
         while current < len(lineage):
             if lineage[current].name not in tables_visited and not lineage[current]._in_catalog():
-                self._topologicalSort(lineage[current], tables_visited, lineage)
+                self._depth_first_search(lineage[current], tables_visited, lineage)
             current += 1
         return lineage
 
-    def _topologicalSort(self, t, visited, lineage):
+    def _depth_first_search(self, t, visited, lineage):
         visited.add(t.name)
         for i in t._parents:
             if i.name not in visited and not i._in_catalog():
-                self._topologicalSort(i, visited, lineage)
+                self._depth_first_search(i, visited, lineage)
         lineage.append(t)
 
     def _build_full_query(self) -> str:
