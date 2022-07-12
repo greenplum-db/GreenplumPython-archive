@@ -8,7 +8,7 @@ from uuid import uuid4
 from .db import Database
 from .expr import Expr
 from .table import Table
-from .type import to_pg_type
+from .type import primitive_type_map, to_pg_const, to_pg_type
 
 
 class FunctionCall(Expr):
@@ -19,6 +19,7 @@ class FunctionCall(Expr):
         group_by: Optional[Iterable[Union[Expr, str]]] = None,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
+        is_return_comp: bool = False,
     ) -> None:
         table: Optional[Table] = None
         for arg in args:
@@ -31,13 +32,20 @@ class FunctionCall(Expr):
         self._func_name = func_name
         self._args = args
         self._group_by = group_by
+        self._is_return_comp = is_return_comp
 
     def _serialize(self) -> str:
-        args_string = ",".join([str(arg) for arg in self._args]) if any(self._args) else ""
+        args_string = (
+            ",".join(
+                [str(arg) if isinstance(arg, Expr) else to_pg_const(arg) for arg in self._args]
+            )
+            if any(self._args)
+            else ""
+        )
         return f"{self._func_name}({args_string})"
 
     def to_table(self) -> Table:
-        from_caluse = f"FROM {self.table.name}" if self.table is not None else ""
+        from_caluse = "FROM " + (f"{self.table.name}" if self.table is not None else str(self))
         group_by_columns = (
             ",".join([str(column) for column in self._group_by])
             if self._group_by is not None
@@ -48,7 +56,12 @@ class FunctionCall(Expr):
         orig_func_table = Table(
             " ".join(
                 [
-                    f"SELECT {str(self)}",
+                    f"""
+                        SELECT {(str(self) if self.table is not None else '*') if (not self._is_return_comp or self.table is None) 
+                                else '('+str(self)+').*'
+                                
+                    }
+                    """,
                     "," + group_by_columns if group_by_columns != "" else "",
                     from_caluse,
                     group_by_clause,
@@ -57,13 +70,17 @@ class FunctionCall(Expr):
             db=self._db,
             parents=parents,
         )
-        return Table(
-            f"SELECT * FROM {orig_func_table.name}", parents=[orig_func_table], db=self._db
-        )
+        return orig_func_table
 
     @property
     def qualified_func_name(self) -> str:
         return self._func_name
+
+    @property
+    def is_return_comp(self) -> bool:
+        if self._is_return_comp is not None:
+            return self._is_return_comp
+        return False
 
 
 class ArrayFunctionCall(FunctionCall):
@@ -100,10 +117,14 @@ def create_function(
     temp: bool = True,
     replace_if_exists: bool = False,
     language_handler: str = "plpython3u",
+    return_type_as_name: Optional[str] = None,
+    type_is_temp: bool = True,
 ) -> Callable:
     @functools.wraps(func)
     def make_function_call(
-        *args: Expr, as_name: Optional[str] = None, db: Optional[Database] = None
+        *args: Expr,
+        as_name: Optional[str] = None,
+        db: Optional[Database] = None,
     ) -> FunctionCall:
         or_replace = "OR REPLACE" if replace_if_exists else ""
         schema_name = "pg_temp" if temp else (schema if schema is not None else "")
@@ -116,7 +137,7 @@ def create_function(
         func_sig = inspect.signature(func)
         func_args_string = ",".join(
             [
-                f"{param.name} {to_pg_type(param.annotation)}"
+                f"{param.name} {to_pg_type(param.annotation, db)}"
                 for param in func_sig.parameters.values()
             ]
         )
@@ -130,17 +151,23 @@ def create_function(
                     break
         if db is None:
             raise Exception("Database is required to create function")
+        return_type = to_pg_type(
+            func_sig.return_annotation, db, return_type_as_name, type_is_temp, True
+        )
         db.execute(
             (
                 f"CREATE {or_replace} FUNCTION {qualified_func_name} ({func_args_string}) "
-                f"RETURNS {to_pg_type(func_sig.return_annotation)} "
+                f"RETURNS {return_type} "
                 f"LANGUAGE {language_handler} "
                 f"AS $$\n"
                 f"{textwrap.dedent(func_body)} $$"
             ),
             has_results=False,
         )
-        return FunctionCall(qualified_func_name, args=args, as_name=as_name, db=db)
+        is_return_comp = func_sig.return_annotation not in primitive_type_map
+        return FunctionCall(
+            qualified_func_name, args=args, as_name=as_name, db=db, is_return_comp=is_return_comp
+        )
 
     return make_function_call
 
@@ -174,13 +201,13 @@ def create_aggregate(
         param_list = iter(sig.parameters.values())
         state_param = next(param_list)
         args_string = ",".join(
-            [f"{param.name} {to_pg_type(param.annotation)}" for param in param_list]
+            [f"{param.name} {to_pg_type(param.annotation, db)}" for param in param_list]
         )
         trans_func_call.db.execute(
             f"""
             CREATE {or_replace} AGGREGATE {qualified_agg_name} ({args_string}) (
                 SFUNC = {trans_func_call.qualified_func_name},
-                STYPE = {to_pg_type(state_param.annotation)}
+                STYPE = {to_pg_type(state_param.annotation, db)}
             )
             """,
             has_results=False,
@@ -217,6 +244,7 @@ def create_array_function(
             group_by=group_by,
             as_name=as_name,
             db=db,
+            is_return_comp=array_func_call.is_return_comp,
         )
 
     return make_function_call

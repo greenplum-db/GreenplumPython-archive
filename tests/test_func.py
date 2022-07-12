@@ -201,3 +201,68 @@ def test_array_func_group_by(db: gp.Database):
     assert len(results) == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["result"] == 5)
+
+
+def test_func_return_comp_type(db: gp.Database):
+    class Person:
+        _first_name: str
+        _last_name: str
+
+    @gp.create_function
+    def create_person(first: str, last: str) -> Person:
+        return {"_first_name": first, "_last_name": last}
+
+    for row in create_person("Amy", "An", db=db).to_table().fetch():
+        assert row["_first_name"] == "Amy" and row["_last_name"] == "An"
+
+
+def test_func_comp_type_column(db: gp.Database):
+    class Pair:
+        _num: int
+        _next: int
+
+    @gp.create_function
+    def create_pair(num: int) -> Pair:
+        return {"_num": num, "_next": num + 1}
+
+    rows = [(i,) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+    for row in create_pair(numbers["val"], db=db).to_table().fetch():
+        assert row["_next"] == row["_num"] + 1
+
+
+def test_func_comp_type_setof(db: gp.Database):
+    class Pair:
+        _num: int
+        _next: int
+
+    @gp.create_function
+    def create_pair(num: int) -> List[Pair]:
+        return [(num, num + 1) for _ in range(5)]
+
+    rows = [(i,) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+    ret = list(create_pair(numbers["val"], db=db).to_table().fetch())
+    assert len(ret) == 50
+    dict_record = {i: 0 for i in range(10)}
+    for row in ret:
+        dict_record[row["_num"]] += 1
+        assert row["_next"] == row["_num"] + 1
+    for key in dict_record:
+        assert dict_record[key] == 5
+
+
+def test_array_func_comp_type(db: gp.Database):
+    class Stat:
+        sum: int
+        count: int
+
+    @gp.create_array_function
+    def my_stat(val_list: List[int]) -> Stat:
+        return {"sum": sum(val_list), "count": len(val_list)}
+
+    rows = [(i,) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+    ret = list(my_stat(numbers["val"], db=db).to_table().fetch())
+    for row in ret:
+        assert row["sum"] == sum(list([i for i in range(10)])) and row["count"] == len(rows)

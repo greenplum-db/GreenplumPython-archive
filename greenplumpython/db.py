@@ -19,7 +19,7 @@ class Database:
             cursor_factory=psycopg2.extras.RealDictCursor,
         )
 
-    def execute(self, query: str, args: List = [], has_results: bool = True) -> Optional[Iterable]:
+    def execute(self, query: str, has_results: bool = True) -> Optional[Iterable]:
         """
         Return the result of SQL query executed in Database
 
@@ -37,7 +37,7 @@ class Database:
 
         """
         with self._conn.cursor() as cursor:
-            cursor.execute(query, args)
+            cursor.execute(query)
             return cursor.fetchall() if has_results else None
 
     def close(self) -> None:
