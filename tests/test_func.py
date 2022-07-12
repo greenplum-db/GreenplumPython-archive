@@ -94,6 +94,21 @@ def test_func_on_more_than_one_table(db: gp.Database):
     assert "Cannot pass arguments from more than one tables" == str(exc_info.value)
 
 
+def test_create_func_optional_params(db: gp.Database):
+    @gp.create_function
+    def multiply(a: int, b: int) -> int:
+        return a * b
+
+    @gp.create_function(replace_if_exists=True)
+    def multiply(a: int, b: int) -> int:
+        return a * b * 2
+
+    rows = [(i, i) for i in range(10)]
+    series = gp.values(rows, db=db, column_names=["a", "b"])
+    results = multiply(series["a"], series["b"], as_name="result").to_table().fetch()
+    assert sorted([row["result"] for row in results]) == [i * i * 2 for i in range(10)]
+
+
 def test_simple_agg(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
@@ -166,6 +181,25 @@ def test_create_agg_multi_args(db: gp.Database):
     assert len(results) == 1 and results[0]["result"] == 10
 
 
+def test_create_agg_optional_params(db: gp.Database):
+    @gp.create_aggregate
+    def my_sum(result: int, val: int) -> int:
+        if result is None:
+            return val
+        return result + val
+
+    @gp.create_aggregate(replace_if_exists=True)
+    def my_sum(result: int, val: int) -> int:
+        if result is None:
+            return 5 + val
+        return result + val
+
+    rows = [(1,) for _ in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+    results = list(my_sum(numbers["val"], as_name="result").to_table().fetch())
+    assert len(results) == 1 and results[0]["result"] == 15
+
+
 def test_func_long_name(db: gp.Database):
     @gp.create_function
     def loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong() -> None:
@@ -201,6 +235,21 @@ def test_array_func_group_by(db: gp.Database):
     assert len(results) == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["result"] == 5)
+
+
+def test_array_func(db: gp.Database):
+    @gp.create_array_function
+    def my_sum(val_list: List[int]) -> int:
+        return sum(val_list)
+
+    @gp.create_array_function(replace_if_exists=True)
+    def my_sum(val_list: List[int]) -> int:
+        return 5 + sum(val_list)
+
+    rows = [(1,) for _ in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+    results = list(my_sum(numbers["val"], as_name="result").to_table().fetch())
+    assert len(results) == 1 and results[0]["result"] == 15
 
 
 def test_func_return_comp_type(db: gp.Database):

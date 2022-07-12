@@ -111,7 +111,7 @@ def aggregate(name: str, db: Database) -> Callable[..., FunctionCall]:
 
 # FIXME: Add test cases for optional parameters
 def create_function(
-    func: Callable,
+    func: Optional[Callable] = None,
     name: Optional[str] = None,
     schema: Optional[str] = None,
     temp: bool = True,
@@ -120,6 +120,18 @@ def create_function(
     return_type_as_name: Optional[str] = None,
     type_is_temp: bool = True,
 ) -> Callable:
+    if not func:
+        return functools.partial(
+            create_function,
+            name=name,
+            schema=schema,
+            temp=temp,
+            replace_if_exists=replace_if_exists,
+            language_handler=language_handler,
+            return_type_as_name=return_type_as_name,
+            type_is_temp=type_is_temp,
+        )
+
     @functools.wraps(func)
     def make_function_call(
         *args: Expr,
@@ -174,13 +186,23 @@ def create_function(
 
 # FIXME: Add test cases for optional parameters
 def create_aggregate(
-    trans_func: Callable,
+    trans_func: Optional[Callable] = None,
     name: Optional[str] = None,
     schema: Optional[str] = None,
     temp: bool = True,
     replace_if_exists: bool = False,
     language_handler: str = "plpython3u",
 ) -> Callable:
+    if not trans_func:
+        return functools.partial(
+            create_aggregate,
+            name=name,
+            schema=schema,
+            temp=temp,
+            replace_if_exists=replace_if_exists,
+            language_handler=language_handler,
+        )
+
     @functools.wraps(trans_func)
     def make_function_call(
         *args: Expr,
@@ -221,13 +243,23 @@ def create_aggregate(
 
 # FIXME: Add test cases for optional parameters
 def create_array_function(
-    func: Callable,
+    func: Optional[Callable] = None,
     name: Optional[str] = None,
     schema: Optional[str] = None,
     temp: bool = True,
     replace_if_exists: bool = False,
     language_handler: str = "plpython3u",
 ) -> Callable:
+    if not func:
+        return functools.partial(
+            create_array_function,
+            name=name,
+            schema=schema,
+            temp=temp,
+            replace_if_exists=replace_if_exists,
+            language_handler=language_handler,
+        )
+
     @functools.wraps(func)
     def make_function_call(
         *args: Expr,
