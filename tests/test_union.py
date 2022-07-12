@@ -38,7 +38,7 @@ def test_union(db: gp.Database, top_rated_films: gp.Table, most_popular_films: g
 
 
 def test_union_all(db: gp.Database, top_rated_films: gp.Table, most_popular_films: gp.Table):
-    ret = list(top_rated_films.union(most_popular_films, is_all=True).fetch())
+    ret = list(top_rated_films.union(most_popular_films, all=True).fetch())
     assert len(ret) == 6
     cpt = 0
     for row in ret:

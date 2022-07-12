@@ -99,13 +99,13 @@ class Table:
     def union(
         self,
         other: "Table",
-        is_all: bool = False,
+        all: bool = False,
     ):
         return Table(
             f"""
                 SELECT *
                 FROM {self.name} 
-                UNION {"ALL" if is_all else ""}
+                UNION {"ALL" if all else ""}
                 SELECT *
                 FROM {other.name}
             """,
