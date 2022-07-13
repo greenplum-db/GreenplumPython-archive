@@ -107,6 +107,27 @@ def test_create_func_optional_params(db: gp.Database):
     series = gp.values(rows, db=db, column_names=["a", "b"])
     results = multiply(series["a"], series["b"], as_name="result").to_table().fetch()
     assert sorted([row["result"] for row in results]) == [i * i * 2 for i in range(10)]
+    assert sorted([row["result"] for row in results]) == [
+        inspect.unwrap(multiply)(i, i) for i in range(10)
+    ]
+
+
+def test_create_func_optional_params_name(db: gp.Database):
+    @gp.create_function
+    def multiply(a: int, b: int) -> int:
+        return a * b
+
+    @gp.create_function(name="multiply", replace_if_exists=True)
+    def multiply2(a: int, b: int) -> int:
+        return a * b * 2
+
+    rows = [(i, i) for i in range(10)]
+    series = gp.values(rows, db=db, column_names=["a", "b"])
+    results = multiply2(series["a"], series["b"]).to_table().fetch()
+    assert sorted([row["multiply"] for row in results]) == [i * i * 2 for i in range(10)]
+    assert sorted([row["multiply"] for row in results]) == [
+        inspect.unwrap(multiply2)(i, i) for i in range(10)
+    ]
 
 
 def test_simple_agg(db: gp.Database):
