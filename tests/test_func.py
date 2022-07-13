@@ -209,7 +209,7 @@ def test_create_agg_optional_params(db: gp.Database):
             return val
         return result + val
 
-    @gp.create_aggregate(replace_if_exists=True)
+    @gp.create_aggregate(name="mysum")
     def my_sum(result: int, val: int) -> int:
         if result is None:
             return 5 + val
@@ -217,8 +217,8 @@ def test_create_agg_optional_params(db: gp.Database):
 
     rows = [(1,) for _ in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
-    results = list(my_sum(numbers["val"], as_name="result").to_table().fetch())
-    assert len(results) == 1 and results[0]["result"] == 15
+    results = list(my_sum(numbers["val"]).to_table().fetch())
+    assert len(results) == 1 and results[0]["mysum"] == 15
 
 
 def test_func_long_name(db: gp.Database):

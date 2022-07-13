@@ -37,7 +37,6 @@ class Database:
 
         """
         with self._conn.cursor() as cursor:
-            print(query)
             cursor.execute(query)
             return cursor.fetchall() if has_results else None
 

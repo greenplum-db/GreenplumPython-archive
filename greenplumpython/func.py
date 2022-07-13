@@ -190,7 +190,6 @@ def create_aggregate(
     name: Optional[str] = None,
     schema: Optional[str] = None,
     temp: bool = True,
-    replace_if_exists: bool = False,
     language_handler: str = "plpython3u",
 ) -> Callable:
     if not trans_func:
@@ -199,7 +198,6 @@ def create_aggregate(
             name=name,
             schema=schema,
             temp=temp,
-            replace_if_exists=replace_if_exists,
             language_handler=language_handler,
         )
 
@@ -211,9 +209,8 @@ def create_aggregate(
         db: Optional[Database] = None,
     ) -> FunctionCall:
         trans_func_call = create_function(
-            trans_func, "func_" + uuid4().hex, schema, temp, replace_if_exists, language_handler
+            trans_func, "func_" + uuid4().hex, schema, temp, False, language_handler
         )(*args, as_name=as_name, db=db)
-        or_replace = "OR REPLACE" if replace_if_exists else ""
         schema_name = "pg_temp" if temp else schema if schema is not None else ""
         agg_name = trans_func.__name__ if name is None else name
         qualified_agg_name = ".".join([schema_name, agg_name])
@@ -227,7 +224,7 @@ def create_aggregate(
         )
         trans_func_call.db.execute(
             f"""
-            CREATE {or_replace} AGGREGATE {qualified_agg_name} ({args_string}) (
+            CREATE AGGREGATE {qualified_agg_name} ({args_string}) (
                 SFUNC = {trans_func_call.qualified_func_name},
                 STYPE = {to_pg_type(state_param.annotation, db)}
             )
