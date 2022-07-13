@@ -166,13 +166,6 @@ def create_function(
         return_type = to_pg_type(
             func_sig.return_annotation, db, return_type_as_name, type_is_temp, True
         )
-        print(
-            f"CREATE {or_replace} FUNCTION {qualified_func_name} ({func_args_string}) "
-            f"RETURNS {return_type} "
-            f"LANGUAGE {language_handler} "
-            f"AS $$\n"
-            f"{textwrap.dedent(func_body)} $$"
-        )
         db.execute(
             (
                 f"CREATE {or_replace} FUNCTION {qualified_func_name} ({func_args_string}) "
@@ -231,14 +224,6 @@ def create_aggregate(
         state_param = next(param_list)
         args_string = ",".join(
             [f"{param.name} {to_pg_type(param.annotation, db)}" for param in param_list]
-        )
-        print(
-            f"""
-            CREATE {or_replace} AGGREGATE {qualified_agg_name} ({args_string}) (
-            SFUNC = {trans_func_call.qualified_func_name},
-            STYPE = {to_pg_type(state_param.annotation, db)}
-        )
-        """
         )
         trans_func_call.db.execute(
             f"""
