@@ -8,7 +8,7 @@ user calling `fetch()` function.
 
 All modifications made by users are only saved to database when calling `save_as()` function.
 """
-from typing import TYPE_CHECKING, Iterable, List, Optional, Tuple
+from typing import TYPE_CHECKING, Dict, Iterable, List, Optional, Tuple, Union
 from uuid import uuid4
 
 from . import db
@@ -109,7 +109,7 @@ class Table:
         return Table(f"SELECT * FROM {self._name} WHERE {str(expr)}", parents=[self])
 
     # FIXME: Add test
-    def select(self, target_list: Iterable) -> "Table":
+    def select(self, target_list: Iterable[Union[str, "Expr"]]) -> "Table":
         """
         Returns table with targeted columns
 
@@ -128,7 +128,7 @@ class Table:
         )
 
     @staticmethod
-    def _order_by_str(order_by: Iterable) -> str:
+    def _order_by_str(order_by: Union[Iterable[str], Dict[str, str]]) -> str:
         """
         Private method returns ORDER BY statement according to the list of targets
 
@@ -149,7 +149,9 @@ class Table:
         )
         return order_by_clause
 
-    def top(self, count: int, order_by: Iterable, skip: int = 0) -> "Table":
+    def top(
+        self, count: int, order_by: Union[Iterable[str], Dict[str, str]], skip: int = 0
+    ) -> "Table":
         """
         Returns top k rows of tables skipping n rows wth order
 
@@ -191,7 +193,7 @@ class Table:
     def _join(
         self,
         other: "Table",
-        targets: List,
+        targets: List["Expr"],
         how: str,
         on_str: str,
     ) -> "Table":
@@ -214,7 +216,7 @@ class Table:
         self,
         other: "Table",
         cond: "Expr",
-        targets: List = [],
+        targets: List["Expr"] = [],
     ):
         """
         Returns inner join of self and another Table using condition, and only select targeted columns
@@ -248,7 +250,7 @@ class Table:
         self,
         other: "Table",
         cond: "Expr",
-        targets: List = [],
+        targets: List["Expr"] = [],
     ):
         """
         Returns left join of self and another Table using condition, and only select targeted columns
@@ -276,7 +278,7 @@ class Table:
         self,
         other: "Table",
         cond: "Expr",
-        targets: List = [],
+        targets: List["Expr"] = [],
     ):
         """
         Returns right join of self and another Table using condition, and only select targeted columns
@@ -304,7 +306,7 @@ class Table:
         self,
         other: "Table",
         cond: "Expr",
-        targets: List = [],
+        targets: List["Expr"] = [],
     ):
         """
         Returns full outer join of self and another Table using condition, and only select targeted columns
@@ -331,13 +333,14 @@ class Table:
     def natural_join(
         self,
         other: "Table",
-        targets: List = [],
+        targets: List["Expr"] = [],
     ):
         """
         Returns natural join of self and another Table, and only select targeted columns
 
         Args:
             other: Table : table to use to do the join
+            targets : List : list of targeted columns for joined table
 
         Returns
             Table : natural joined table
@@ -355,13 +358,14 @@ class Table:
     def cross_join(
         self,
         other: "Table",
-        targets: List = [],
+        targets: List["Expr"] = [],
     ):
         """
         Returns cross join of self and another Table, and only select targeted columns
 
         Args:
             other: Table : table to use to do the join
+            targets : List : list of targeted columns for joined table
 
         Returns
             Table : natural joined table
@@ -414,9 +418,9 @@ class Table:
         return self._query.startswith("TABLE")
 
     def _list_lineage(self) -> List["Table"]:
-        lineage = []
+        lineage: List["Table"] = []
         lineage.append(self)
-        tables_visited = set()
+        tables_visited: set[str] = set()
         current = 0
         while current < len(lineage):
             if lineage[current].name not in tables_visited and not lineage[current]._in_catalog():
@@ -433,8 +437,8 @@ class Table:
 
     def _build_full_query(self) -> str:
         lineage = self._list_lineage()
-        cte_list = []
-        for table in lineage:
+        cte_list: List[str] = []
+        for table in reversed(lineage):
             if table._name != self._name:
                 cte_list.append(f"{table._name} AS ({table._query})")
         if len(cte_list) == 0:

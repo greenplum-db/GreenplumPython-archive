@@ -1,7 +1,9 @@
-from typing import List, get_type_hints
+from typing import List, Optional, Union, get_type_hints
 from uuid import uuid4
 
 from psycopg2.extensions import adapt
+
+import greenplumpython
 
 primitive_type_map = {
     None: "void",
@@ -14,7 +16,9 @@ primitive_type_map = {
 
 
 # TODO : Add tests for all function
-def create_type(class_type, db, as_name=None, is_temp=True) -> str:
+def create_type(
+    class_type, db: greenplumpython.Database, as_name: Optional[str] = None, is_temp: bool = True
+) -> str:
     type_name = "type_" + uuid4().hex if as_name is None else as_name
     temp_str = "pg_temp." if is_temp else ""
     att_type_str = ",\n\t\t\t\t".join(
@@ -44,7 +48,13 @@ def drop_type(type_name, db):
 
 
 # FIXME: Annotate the argument type for this function
-def to_pg_type(annotation, db, as_name=None, is_temp=True, is_return=False) -> str:
+def to_pg_type(
+    annotation,
+    db: Optional[greenplumpython.Database] = None,
+    as_name: Optional[str] = None,
+    is_temp: bool = True,
+    is_return: bool = False,
+) -> Union[str, None]:
     if hasattr(annotation, "__origin__"):
         # The `or` here is to make the function work on Python 3.6.
         # Python 3.6 is the default Python version on CentOS 7 and Ubuntu 18.04
@@ -58,7 +68,8 @@ def to_pg_type(annotation, db, as_name=None, is_temp=True, is_return=False) -> s
         if annotation in primitive_type_map:
             return primitive_type_map[annotation]
         else:
-            return create_type(annotation, db, as_name=as_name, is_temp=is_temp)
+            if db is not None:
+                return create_type(annotation, db, as_name=as_name, is_temp=is_temp)
 
 
 def to_pg_const(obj) -> str:

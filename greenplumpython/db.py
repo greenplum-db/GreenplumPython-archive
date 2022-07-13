@@ -1,7 +1,7 @@
 """
 This  module can create a connection to a Greenplum database
 """
-from typing import Iterable, List, Optional
+from typing import Iterable, Optional
 
 import psycopg2
 import psycopg2.extras
@@ -13,7 +13,7 @@ class Database:
     Each Database object has an instance **conn**
     """
 
-    def __init__(self, params) -> None:
+    def __init__(self, params: "dict[str, str]") -> None:
         self._conn = psycopg2.connect(
             " ".join([f"{k}={v}" for k, v in params.items()]),
             cursor_factory=psycopg2.extras.RealDictCursor,
@@ -63,12 +63,11 @@ class Database:
 
 
 def database(
-    host="localhost",
+    host: str = "localhost",
     dbname: Optional[str] = None,
     user: Optional[str] = None,
     password: Optional[str] = None,
     port: Optional[int] = None,
-    **conn_strings,
 ) -> Database:
 
     """
@@ -112,4 +111,4 @@ def database(
         params["user"] = user
     if password is not None:
         params["password"] = password
-    return Database({**params, **conn_strings})
+    return Database(params)
