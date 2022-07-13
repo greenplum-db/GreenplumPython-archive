@@ -8,7 +8,7 @@ import greenplumpython as gp
 
 @pytest.fixture
 def db():
-    db = gp.database(host="localhost", dbname="gpadmin")
+    db = gp.database(host="localhost", dbname="postgres")
     yield db
     db.close()
 
