@@ -2,7 +2,7 @@ import functools
 import inspect
 import re
 import textwrap
-from typing import Callable, Iterable, Optional, Union
+from typing import Any, Callable, Iterable, Optional, Union
 from uuid import uuid4
 
 from .db import Database
@@ -15,7 +15,7 @@ class FunctionCall(Expr):
     def __init__(
         self,
         func_name: str,
-        args: Iterable[Expr] = [],
+        args: Iterable[Any] = [],
         group_by: Optional[Iterable[Union[Expr, str]]] = None,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
@@ -122,7 +122,7 @@ def create_function(
 ) -> Callable:
     @functools.wraps(func)
     def make_function_call(
-        *args: Expr,
+        *args: Any,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ) -> FunctionCall:

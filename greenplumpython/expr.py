@@ -2,7 +2,7 @@
 This module creates a Python object Expr.
 """
 import copy
-from typing import Optional
+from typing import Any, Optional
 
 from .db import Database
 from .table import Table
@@ -29,21 +29,21 @@ class Expr:
         self._db = table.db if table is not None else db
         assert self._db is not None
 
-    def __and__(self, other):
+    def __and__(self, other: "Expr"):
         """
         Operator &
         Returns a Binary Expression AND
         """
         return BinaryExpr("AND", self, other)
 
-    def __or__(self, other):
+    def __or__(self, other: "Expr"):
         """
         Operator |
         Returns a Binary Expression OR
         """
         return BinaryExpr("OR", self, other)
 
-    def __eq__(self, other):
+    def __eq__(self, other: "Expr"):
         """
         Operator ==
         Returns a Binary Expression EQUAL
@@ -52,35 +52,35 @@ class Expr:
             return BinaryExpr("is", self, other)
         return BinaryExpr("=", self, other)
 
-    def __lt__(self, other):
+    def __lt__(self, other: "Expr"):
         """
         Operator <
         Returns a Binary Expression LESS THAN
         """
         return BinaryExpr("<", self, other)
 
-    def __le__(self, other):
+    def __le__(self, other: "Expr"):
         """
         Operator <=
         Returns a Binary Expression LESS EQUAL
         """
         return BinaryExpr("<=", self, other)
 
-    def __gt__(self, other):
+    def __gt__(self, other: "Expr"):
         """
         Operator >
         Returns a Binary Expression GREATER THAN
         """
         return BinaryExpr(">", self, other)
 
-    def __ge__(self, other):
+    def __ge__(self, other: "Expr"):
         """
         Operator >=
         Returns a Binary Expression GREATER EQUAL
         """
         return BinaryExpr(">=", self, other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: "Expr"):
         """
         Operator !=
         Returns a Binary Expression NOT EQUAL
@@ -176,8 +176,8 @@ class BinaryExpr(Expr):
     def __init__(
         self,
         operator: str,
-        left,
-        right,
+        left: Any,
+        right: Any,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ):
@@ -209,13 +209,13 @@ class UnaryExpr(Expr):
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ):
-        table = right.table if isinstance(right, Expr) else None
+        table = right.table
         super().__init__(as_name=as_name, table=table, db=db)
         self.operator = operator
         self.right = right
 
     def _serialize(self) -> str:
-        right_str = str(self.right) if isinstance(self.right, Expr) else to_pg_const(self.right)
+        right_str = str(self.right)
         return f"{self.operator}({right_str})"
 
 
