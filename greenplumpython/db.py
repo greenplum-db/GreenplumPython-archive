@@ -37,8 +37,8 @@ class Database:
 
         """
         with self._conn.cursor() as cursor:
-            cursor.execute(query)
             print(query)
+            cursor.execute(query)
             return cursor.fetchall() if has_results else None
 
     def close(self) -> None:
