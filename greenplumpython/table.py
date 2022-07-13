@@ -1,3 +1,13 @@
+"""
+This module creates a Python object Table which keep in memory all the user modifications
+on a table, in order to proceed SQL query. It concatenates different pieces of queries
+together using CTEs.
+
+Table sends the aggregated SQL query to the database and return the final result only when
+user calling `fetch()` function.
+
+All modifications made by users are only saved to database when calling `save_as()` function.
+"""
 from typing import TYPE_CHECKING, Iterable, List, Optional, Tuple
 from uuid import uuid4
 
@@ -8,6 +18,10 @@ if TYPE_CHECKING:
 
 
 class Table:
+    """
+    Representation of Table object.
+    """
+
     def __init__(
         self,
         query: str,
@@ -26,11 +40,32 @@ class Table:
     def __getitem__(self, key):
         """
         Returns
-        - a Column of the current Table if key is string, or
-        - a new Table from the current Table per the type of key:
-            - if key is a list, then SELECT a subset of columns, a.k.a. targets;
-            - if key is an Expr, then SELECT a subset of rows per the value of the Expr;
-            - if key is a slice, then SELECT a portion of consecutive rows
+            - a Column of the current Table if key is string
+
+            .. code-block::  python
+
+               id_col = tab["id"]
+
+            - a new Table from the current Table per the type of key:
+
+                - if key is a list, then SELECT a subset of columns, a.k.a. targets;
+
+                .. code-block::  python
+
+                   id_table = tab[["id"]]
+
+                - if key is an Expr, then SELECT a subset of rows per the value of the Expr;
+
+                .. code-block::  python
+
+                   id_cond_table = tab[tab["id"] == 0]
+
+                - if key is a slice, then SELECT a portion of consecutive rows
+
+                .. code-block::  python
+
+                   slice_table = tab[2:5]
+
         """
         from .expr import Column, Expr
 
@@ -55,14 +90,35 @@ class Table:
             )
 
     def as_name(self, name_as: str) -> "Table":
+        """
+        Returns the table with a new name.
+        """
         return Table(f"SELECT * FROM {self.name}", parents=[self], name=name_as, db=self._db)
 
     # FIXME: Add test
     def filter(self, expr: "Expr") -> "Table":
+        """
+        Returns the table filtered by Expression.
+
+        Args:
+            expr: Expr : where condition statement
+
+        Returns:
+            Table : Table filtered according expr passed in argument
+        """
         return Table(f"SELECT * FROM {self._name} WHERE {str(expr)}", parents=[self])
 
     # FIXME: Add test
     def select(self, target_list: Iterable) -> "Table":
+        """
+        Returns table with targeted columns
+
+        Args:
+            target_list: Iterable : list of targeted columns
+
+        Returns:
+            Table : Table selected only with targeted columns
+        """
         return Table(
             f"""
                 SELECT {','.join([str(target) for target in target_list])} 
@@ -78,6 +134,9 @@ class Table:
         how: str,
         on_str: str,
     ) -> "Table":
+        """
+        Private function returns table results by joining two tables
+        """
         # FIXME : Raise Error if target columns don't exist
         # FIXME : Same column name in both table
         select_str = ",".join([str(target) for target in targets]) if targets != [] else "*"
@@ -96,6 +155,31 @@ class Table:
         cond: "Expr",
         targets: List = [],
     ):
+        """
+        Returns inner join of self and another Table using condition, and only select targeted columns
+
+        Args:
+            other: Table : table to use to do the join
+            cond: Expr : join on condition
+            targets : List : list of targeted columns for joined table
+
+        Returns
+            Table : inner joined table
+
+        The result table can select all columns of both tables, or a selection of columns. User can
+        also rename column_name to resolve conflicts
+
+        .. code-block::  python
+
+           ret = zoo_1.inner_join(zoo_2,
+                                  zoo_1["animal1"] == zoo_2["animal2"],
+                                  targets=[
+                                    zoo_1["animal1"].rename("zoo1_animal"),
+                                    zoo_2["animal2"].rename("zoo2_animal"),
+                                  ],
+            )
+
+        """
         on_str = " ".join(["ON", str(cond)])
         return self._join(other, targets, "INNER JOIN", on_str)
 
@@ -105,6 +189,25 @@ class Table:
         cond: "Expr",
         targets: List = [],
     ):
+        """
+        Returns left join of self and another Table using condition, and only select targeted columns
+
+        Args:
+            other: Table : table to use to do the join
+            cond: Expr : join on condition
+            targets : List : list of targeted columns for joined table
+
+        Returns
+            Table : left joined table
+
+        The result table can select all columns of both tables, or a selection of columns. User can
+        also rename column_name to resolve conflicts
+
+        .. code-block::  python
+
+           ret = zoo_1.left_join(zoo_2, zoo_1["animal1"] == zoo_2["animal2"])
+
+        """
         on_str = " ".join(["ON", str(cond)])
         return self._join(other, targets, "LEFT JOIN", on_str)
 
@@ -114,6 +217,25 @@ class Table:
         cond: "Expr",
         targets: List = [],
     ):
+        """
+        Returns right join of self and another Table using condition, and only select targeted columns
+
+        Args:
+            other: Table : table to use to do the join
+            cond: Expr : join on condition
+            targets : List : list of targeted columns for joined table
+
+        Returns
+            Table : right joined table
+
+        The result table can select all columns of both tables, or a selection of columns. User can
+        also rename column_name to resolve conflicts
+
+        .. code-block::  python
+
+           ret = zoo_1.right_join(zoo_2, zoo_1["animal1"] == zoo_2["animal2"])
+
+        """
         on_str = " ".join(["ON", str(cond)])
         return self._join(other, targets, "RIGHT JOIN", on_str)
 
@@ -123,6 +245,25 @@ class Table:
         cond: "Expr",
         targets: List = [],
     ):
+        """
+        Returns full outer join of self and another Table using condition, and only select targeted columns
+
+        Args:
+            other: Table : table to use to do the join
+            cond: Expr : join on condition
+            targets : List : list of targeted columns for joined table
+
+        Returns
+            Table : full outer joined table
+
+        The result table can select all columns of both tables, or a selection of columns. User can
+        also rename column_name to resolve conflicts
+
+        .. code-block::  python
+
+           ret = zoo_1.full_join(zoo_2, zoo_1["animal1"] == zoo_2["animal2"])
+
+        """
         on_str = " ".join(["ON", str(cond)])
         return self._join(other, targets, "FULL JOIN", on_str)
 
@@ -131,6 +272,22 @@ class Table:
         other: "Table",
         targets: List = [],
     ):
+        """
+        Returns natural join of self and another Table, and only select targeted columns
+
+        Args:
+            other: Table : table to use to do the join
+
+        Returns
+            Table : natural joined table
+
+        The result table is an implicit join based on the same column names in the joined tables
+
+        .. code-block::  python
+
+           ret = categories.natural_join(products)
+
+        """
         on_str = ""
         return self._join(other, targets, "NATURAL JOIN", on_str)
 
@@ -139,10 +296,30 @@ class Table:
         other: "Table",
         targets: List = [],
     ):
+        """
+        Returns cross join of self and another Table, and only select targeted columns
+
+        Args:
+            other: Table : table to use to do the join
+
+        Returns
+            Table : natural joined table
+
+        The result table can select all columns of both tables, or a selection of columns. User can
+        also rename column_name to resolve conflicts
+
+        .. code-block::  python
+
+           ret = zoo_1.cross_join(zoo_2)
+
+        """
         on_str = ""
         return self._join(other, targets, "CROSS JOIN", on_str)
 
     def column_names(self) -> "Table":
+        """
+        Returns list of column names of self
+        """
         if any(self._parents):
             raise NotImplementedError()
         return Table(
@@ -156,10 +333,16 @@ class Table:
 
     @property
     def name(self) -> str:
+        """
+        Returns name of Table
+        """
         return self._name
 
     @property
     def db(self) -> Optional[db.Database]:
+        """
+        Returns database associated with Table
+        """
         return self._db
 
     # This is used to filter out tables that are derived from other tables.
@@ -205,6 +388,17 @@ class Table:
         return result if result is not None else []
 
     def save_as(self, table_name: str, temp: bool = False, column_names: List[str] = []) -> "Table":
+        """
+        Save the Table to database as a real Greenplum Table
+
+        Args:
+            table_name : str
+            temp : bool : if table is temporary
+            column_names : List : list of column names
+
+        Returns:
+            Table : table saved in database
+        """
         assert self._db is not None
         # When no column_names is not explicitly passed
         # TODO : USE SLICE 1 ROW TO MANIPULATE LESS DATA
@@ -241,6 +435,9 @@ class Table:
 
     # FIXME: Should we choose JSON as the default format?
     def explain(self, format: str = "TEXT") -> Iterable:
+        """
+        Explaind the table's query
+        """
         assert self._db is not None
         results = self._db.execute(f"EXPLAIN (FORMAT {format}) {self._build_full_query()}")
         assert results is not None
@@ -249,10 +446,23 @@ class Table:
 
 # table_name can be table/view name
 def table(name: str, db: db.Database) -> Table:
+    """
+    Returns a Table object using table name and associated database
+    """
     return Table(f"TABLE {name}", name=name, db=db)
 
 
 def values(rows: Iterable[Tuple], db: db.Database, column_names: Iterable[str] = []) -> Table:
+    """
+    Returns a Table using list of values given
+
+    .. code-block::  python
+
+       rows = [(1,), (2,), (3,)]
+        t = gp.values(rows, db=db)
+        t = t.save_as("const_table", column_names=["id"], temp=True)
+
+    """
     rows_string = ",".join(["(" + ",".join(str(datum) for datum in row) + ")" for row in rows])
     columns_string = f"({','.join(column_names)})" if any(column_names) else ""
     return Table(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", db=db)
