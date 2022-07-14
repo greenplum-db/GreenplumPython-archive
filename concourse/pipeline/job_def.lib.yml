@@ -5,7 +5,7 @@
 #! Job config for centos7
 #@ def centos7_gpdb6_conf(release_build=False):
 res_test_image: centos7-gpdb6-image-test
-res_gpdb_bin: bin_gpdb6_centos7_debug
+res_gpdb_bin: bin_gpdb6_centos7
 res_gpdb_src: gpdb6_src
 res_plpython3_bin: bin_plpython3_gpdb6_rhel7
 os: rhel7
@@ -14,10 +14,19 @@ os: rhel7
 #! Job config for rhel8
 #@ def rhel8_gpdb6_conf(release_build=False):
 res_test_image: rhel8-gpdb6-image-test
-res_gpdb_bin: bin_gpdb6_rhel8_debug
+res_gpdb_bin: bin_gpdb6_rhel8
 res_gpdb_src: gpdb6_src
 res_plpython3_bin: bin_plpython3_gpdb6_rhel8
 os: rhel8
+#@ end
+
+#! Job config for ubuntu18
+#@ def ubuntu18_gpdb6_conf(release_build=False):
+res_test_image: ubuntu18-gpdb6-image-test
+res_gpdb_bin: bin_gpdb6_ubuntu18
+res_gpdb_src: gpdb6_src
+res_plpython3_bin: bin_plpython3_gpdb6_ubuntu18
+os: ubuntu1804
 #@ end
 
 #! The entry point of a pipeline. The job name must be 'entrance'.
