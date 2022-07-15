@@ -13,6 +13,12 @@ def db():
     db.close()
 
 
+@pytest.fixture
+def series(db: gp.Database):
+    rows = [(i, i) for i in range(10)]
+    return gp.values(rows, db=db, column_names=["a", "b"])
+
+
 def test_plain_func(db: gp.Database):
     version = gp.function("version", db)
     for row in version().to_table().fetch():
@@ -72,13 +78,11 @@ def test_func_on_one_column(db: gp.Database):
     assert sorted([row["abs"] for row in results]) == list(range(1, 11))
 
 
-def test_func_on_multi_columns(db: gp.Database):
+def test_func_on_multi_columns(db: gp.Database, series: gp.Table):
     @gp.create_function
     def multiply(a: int, b: int) -> int:
         return a * b
 
-    rows = [(i, i) for i in range(10)]
-    series = gp.values(rows, db=db, column_names=["a", "b"])
     results = multiply(series["a"], series["b"], as_name="result").to_table().fetch()
     assert sorted([row["result"] for row in results]) == [i * i for i in range(10)]
 
@@ -94,28 +98,40 @@ def test_func_on_more_than_one_table(db: gp.Database):
     assert "Cannot pass arguments from more than one tables" == str(exc_info.value)
 
 
-def test_create_func_optional_params(db: gp.Database):
+def test_create_func_optional_params_replace(db: gp.Database, series: gp.Table):
     @gp.create_function
     def multiply(a: int, b: int) -> int:
         return a * b
+
+    results = multiply(series["a"], series["b"], as_name="result").to_table().fetch()
+    assert sorted([row["result"] for row in results]) == [i * i for i in range(10)]
 
     @gp.create_function(replace_if_exists=True)
     def multiply(a: int, b: int) -> int:
         return a * b * 2
 
-    rows = [(i, i) for i in range(10)]
-    series = gp.values(rows, db=db, column_names=["a", "b"])
     results = multiply(series["a"], series["b"], as_name="result").to_table().fetch()
     assert sorted([row["result"] for row in results]) == [i * i * 2 for i in range(10)]
     assert sorted([row["result"] for row in results]) == [
         inspect.unwrap(multiply)(i, i) for i in range(10)
     ]
 
+    @gp.create_function(replace_if_exists=False)
+    def multiply(a: int, b: int) -> int:
+        return a * b * 2
 
-def test_create_func_optional_params_name(db: gp.Database):
+    with pytest.raises(Exception) as exc_info:
+        multiply(series["a"], series["b"], as_name="result").to_table().fetch()
+    assert 'function "multiply" already exists with same argument types\n' == str(exc_info.value)
+
+
+def test_create_func_optional_params_name(db: gp.Database, series: gp.Table):
     @gp.create_function
     def multiply(a: int, b: int) -> int:
         return a * b
+
+    results = multiply(series["a"], series["b"], as_name="result").to_table().fetch()
+    assert sorted([row["result"] for row in results]) == [i * i for i in range(10)]
 
     @gp.create_function(name="multiply", replace_if_exists=True)
     def multiply2(a: int, b: int) -> int:
