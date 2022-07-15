@@ -175,13 +175,13 @@ class Table:
     def union(
         self,
         other: "Table",
-        all: bool = False,
+        is_all: bool = False,
     ):
         return Table(
             f"""
                 SELECT *
                 FROM {self.name} 
-                UNION {"ALL" if all else ""}
+                UNION {"ALL" if is_all else ""}
                 SELECT *
                 FROM {other.name}
             """,
@@ -436,13 +436,13 @@ class Table:
             return self._query
         return "WITH " + ",".join(cte_list) + self._query
 
-    def fetch(self, all: bool = True) -> Iterable:
+    def fetch(self, is_all: bool = True) -> Iterable:
         """
         Fetch rows of this table.
-        - if all is True, fetch all rows at once
+        - if is_all is True, fetch all rows at once
         - otherwise, open a CURSOR and FETCH one row at a time
         """
-        if not all:
+        if not is_all:
             raise NotImplementedError()
         assert self._db is not None
         result = self._db.execute(self._build_full_query())
