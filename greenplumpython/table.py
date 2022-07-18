@@ -8,7 +8,8 @@ user calling `fetch()` function.
 
 All modifications made by users are only saved to database when calling `save_as()` function.
 """
-from typing import TYPE_CHECKING, Dict, Iterable, List, Optional, Tuple, Union
+from functools import singledispatch
+from typing import TYPE_CHECKING, Dict, Iterable, List, Optional, Tuple, Union, overload
 from uuid import uuid4
 
 from . import db
@@ -37,7 +38,40 @@ class Table:
         else:
             self._db = db
 
-    def __getitem__(self, key):
+    @singledispatch
+    def _getitem(self, key):
+        from .expr import Column, Expr
+
+        if isinstance(key, str):
+            return Column(key, self)
+        if isinstance(key, list):
+            return self.select(key)
+        if isinstance(key, Expr):
+            return self.filter(key)
+        if isinstance(key, slice):
+            if key.step is not None:
+                raise NotImplementedError()
+            offset_clause = "" if key.start is None else f"OFFSET {key.start}"
+            limit_clause = (
+                ""
+                if key.stop is None
+                else f"LIMIT {key.stop if key.start is None else key.stop - key.start}"
+            )
+            return Table(
+                f"SELECT * FROM {self.name} {limit_clause} {offset_clause}",
+                parents=[self],
+            )
+
+    @overload
+    def __getitem__(self, arg) -> "Table":
+        ...
+
+    @overload
+    def __getitem__(self, key: str) -> "Expr":
+        ...
+
+    def __getitem__(self, *args, **kwargs):
+
         """
         Returns
             - a Column of the current Table if key is string
@@ -67,27 +101,7 @@ class Table:
                    slice_table = tab[2:5]
 
         """
-        from .expr import Column, Expr
-
-        if isinstance(key, str):
-            return Column(key, self)
-        if isinstance(key, list):
-            return self.select(key)
-        if isinstance(key, Expr):
-            return self.filter(key)
-        if isinstance(key, slice):
-            if key.step is not None:
-                raise NotImplementedError()
-            offset_clause = "" if key.start is None else f"OFFSET {key.start}"
-            limit_clause = (
-                ""
-                if key.stop is None
-                else f"LIMIT {key.stop if key.start is None else key.stop - key.start}"
-            )
-            return Table(
-                f"SELECT * FROM {self.name} {limit_clause} {offset_clause}",
-                parents=[self],
-            )
+        return self._getitem(*args, **kwargs)
 
     def as_name(self, name_as: str) -> "Table":
         """
