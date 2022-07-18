@@ -133,7 +133,6 @@ class Table:
         ...
 
     def __getitem__(self, *args, **kwargs):  # type: ignore
-
         """
         Returns
             - a Column of the current Table if key is string
