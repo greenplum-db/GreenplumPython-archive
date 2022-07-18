@@ -8,7 +8,7 @@ user calling `fetch()` function.
 
 All modifications made by users are only saved to database when calling `save_as()` function.
 """
-from functools import singledispatch
+from functools import singledispatchmethod
 from typing import TYPE_CHECKING, Dict, Iterable, List, Optional, Tuple, Union, overload
 from uuid import uuid4
 
@@ -38,36 +38,49 @@ class Table:
         else:
             self._db = db
 
-    @singledispatch
+    @singledispatchmethod
     def _getitem(self, key):
-        from .expr import Column, Expr
+        raise NotImplementedError()
 
-        if isinstance(key, str):
-            return Column(key, self)
-        if isinstance(key, list):
-            return self.select(key)
-        if isinstance(key, Expr):
-            return self.filter(key)
-        if isinstance(key, slice):
-            if key.step is not None:
-                raise NotImplementedError()
-            offset_clause = "" if key.start is None else f"OFFSET {key.start}"
-            limit_clause = (
-                ""
-                if key.stop is None
-                else f"LIMIT {key.stop if key.start is None else key.stop - key.start}"
-            )
-            return Table(
-                f"SELECT * FROM {self.name} {limit_clause} {offset_clause}",
-                parents=[self],
-            )
+    @_getitem.register(list)
+    def _(self, key: List[Union[str, "Expr"]]) -> "Table":
+        return self.select(key)
+
+    @_getitem.register
+    def _(self, key: str):
+        from .expr import Column
+
+        return Column(key, self)
+
+    @_getitem.register
+    def _(self, key: slice):
+        if key.step is not None:
+            raise NotImplementedError()
+        offset_clause = "" if key.start is None else f"OFFSET {key.start}"
+        limit_clause = (
+            ""
+            if key.stop is None
+            else f"LIMIT {key.stop if key.start is None else key.stop - key.start}"
+        )
+        return Table(
+            f"SELECT * FROM {self.name} {limit_clause} {offset_clause}",
+            parents=[self],
+        )
 
     @overload
-    def __getitem__(self, arg) -> "Table":
+    def __getitem__(self, key) -> "Table":
+        ...
+
+    @overload
+    def __getitem__(self, key: List[Union[str, "Expr"]]) -> "Table":
         ...
 
     @overload
     def __getitem__(self, key: str) -> "Expr":
+        ...
+
+    @overload
+    def __getitem__(self, key: slice) -> Optional["Table"]:
         ...
 
     def __getitem__(self, *args, **kwargs):
