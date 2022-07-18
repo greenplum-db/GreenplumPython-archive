@@ -111,7 +111,7 @@ def aggregate(name: str, db: Database) -> Callable[..., FunctionCall]:
 
 # FIXME: Add test cases for optional parameters
 def create_function(
-    func: Callable,
+    func: Optional[Callable] = None,
     name: Optional[str] = None,
     schema: Optional[str] = None,
     temp: bool = True,
@@ -120,6 +120,19 @@ def create_function(
     return_type_as_name: Optional[str] = None,
     type_is_temp: bool = True,
 ) -> Callable:
+    # If need extra parameters when creating function
+    if not func:
+        return functools.partial(
+            create_function,
+            name=name,
+            schema=schema,
+            temp=temp,
+            replace_if_exists=replace_if_exists,
+            language_handler=language_handler,
+            return_type_as_name=return_type_as_name,
+            type_is_temp=type_is_temp,
+        )
+
     @functools.wraps(func)
     def make_function_call(
         *args: Expr,
@@ -174,13 +187,22 @@ def create_function(
 
 # FIXME: Add test cases for optional parameters
 def create_aggregate(
-    trans_func: Callable,
+    trans_func: Optional[Callable] = None,
     name: Optional[str] = None,
     schema: Optional[str] = None,
     temp: bool = True,
-    replace_if_exists: bool = False,
     language_handler: str = "plpython3u",
 ) -> Callable:
+    # If need extra parameters when creating function
+    if not trans_func:
+        return functools.partial(
+            create_aggregate,
+            name=name,
+            schema=schema,
+            temp=temp,
+            language_handler=language_handler,
+        )
+
     @functools.wraps(trans_func)
     def make_function_call(
         *args: Expr,
@@ -189,9 +211,8 @@ def create_aggregate(
         db: Optional[Database] = None,
     ) -> FunctionCall:
         trans_func_call = create_function(
-            trans_func, "func_" + uuid4().hex, schema, temp, replace_if_exists, language_handler
+            trans_func, "func_" + uuid4().hex, schema, temp, False, language_handler
         )(*args, as_name=as_name, db=db)
-        or_replace = "OR REPLACE" if replace_if_exists else ""
         schema_name = "pg_temp" if temp else schema if schema is not None else ""
         agg_name = trans_func.__name__ if name is None else name
         qualified_agg_name = ".".join([schema_name, agg_name])
@@ -205,7 +226,7 @@ def create_aggregate(
         )
         trans_func_call.db.execute(
             f"""
-            CREATE {or_replace} AGGREGATE {qualified_agg_name} ({args_string}) (
+            CREATE AGGREGATE {qualified_agg_name} ({args_string}) (
                 SFUNC = {trans_func_call.qualified_func_name},
                 STYPE = {to_pg_type(state_param.annotation, db)}
             )
@@ -221,13 +242,24 @@ def create_aggregate(
 
 # FIXME: Add test cases for optional parameters
 def create_array_function(
-    func: Callable,
+    func: Optional[Callable] = None,
     name: Optional[str] = None,
     schema: Optional[str] = None,
     temp: bool = True,
     replace_if_exists: bool = False,
     language_handler: str = "plpython3u",
 ) -> Callable:
+    # If need extra parameters when creating function
+    if not func:
+        return functools.partial(
+            create_array_function,
+            name=name,
+            schema=schema,
+            temp=temp,
+            replace_if_exists=replace_if_exists,
+            language_handler=language_handler,
+        )
+
     @functools.wraps(func)
     def make_function_call(
         *args: Expr,
