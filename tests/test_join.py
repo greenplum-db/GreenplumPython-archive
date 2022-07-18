@@ -319,13 +319,14 @@ def test_join_recursive_join(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
     label = numbers[["*", (numbers["val"] % 2).rename("mod")]]
+    percentile = label[["percentile_disc(0.5) WITHIN GROUP (ORDER BY mod) AS mod"]]
     ret_mod = list(
         label.inner_join(
-            numbers,
-            (label["val"] == numbers["val"]),
-            targets=[numbers["val"], label["mod"]],
+            percentile,
+            (label["mod"] == percentile["mod"]),
+            targets=[label["val"], percentile["mod"]],
         ).fetch()
     )
-    assert len(ret_mod) == 10
+    assert len(ret_mod) == 5
     for row in ret_mod:
         assert row["mod"] == row["val"] % 2
