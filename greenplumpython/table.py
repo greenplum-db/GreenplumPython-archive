@@ -9,13 +9,11 @@ user calling `fetch()` function.
 All modifications made by users are only saved to database when calling `save_as()` function.
 """
 from functools import singledispatchmethod
-from typing import TYPE_CHECKING, Dict, Iterable, List, Optional, Tuple, Union, overload
+from typing import Dict, Iterable, List, Optional, Tuple, Union, overload
 from uuid import uuid4
 
 from . import db
-
-if TYPE_CHECKING:
-    from .expr import Expr
+from .expr import Column, Expr
 
 
 class Table:
@@ -42,14 +40,16 @@ class Table:
     def _getitem(self, key):
         raise NotImplementedError()
 
+    @_getitem.register(Expr)
+    def _(self, key: Expr):
+        return self.filter(key)
+
     @_getitem.register(list)
-    def _(self, key: List[Union[str, "Expr"]]) -> "Table":
+    def _(self, key: List[Union[str, Expr]]) -> "Table":
         return self.select(key)
 
     @_getitem.register
     def _(self, key: str):
-        from .expr import Column
-
         return Column(key, self)
 
     @_getitem.register
@@ -72,11 +72,15 @@ class Table:
         ...
 
     @overload
-    def __getitem__(self, key: List[Union[str, "Expr"]]) -> "Table":
+    def __getitem__(self, key: List[Union[str, Expr]]) -> "Table":
         ...
 
     @overload
-    def __getitem__(self, key: str) -> "Expr":
+    def __getitem__(self, key: Expr) -> "Table":
+        ...
+
+    @overload
+    def __getitem__(self, key: str) -> Expr:
         ...
 
     @overload
