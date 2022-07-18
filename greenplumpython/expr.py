@@ -2,11 +2,13 @@
 This module creates a Python object Expr.
 """
 import copy
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from .db import Database
-from .table import Table
 from .type import to_pg_const
+
+if TYPE_CHECKING:
+    from .table import Table
 
 
 class Expr:
@@ -156,16 +158,18 @@ class Expr:
         return self._db
 
     @property
-    def table(self) -> Optional[Table]:
+    def table(self) -> Optional["Table"]:
         """
         Returns Expr associated table
         """
         return self._table
 
-    def to_table(self) -> Table:
+    def to_table(self) -> "Table":
         """
         Returns a Table
         """
+        from .table import Table
+
         from_clause = f"FROM {self.table.name}" if self.table is not None else ""
         parents = [self.table] if self.table is not None else []
         return Table(f"SELECT {str(self)} {from_clause}", parents=parents, db=self._db)
