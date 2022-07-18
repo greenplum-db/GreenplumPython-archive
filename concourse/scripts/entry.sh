@@ -51,6 +51,20 @@ OS_NAME=$(_determine_os)
 # Everything has been linked there.
 export CONCOURSE_WORK_DIR=${PWD}
 
+install_extra_build_dependencies() {
+    case "$OS_NAME" in
+    rhel7)
+        yum install -y wget
+        wget https://bootstrap.pypa.io/pip/get-pip.py
+        ;;
+    rhel8)
+        ;;
+    ubuntu*)
+        wget https://bootstrap.pypa.io/pip/get-pip.py
+        ;;
+    *) ;;
+    esac
+}
 
 # Dependency installers
 # Ideally all dependencies should exist in the docker image. Use this script to install them only
@@ -58,6 +72,12 @@ export CONCOURSE_WORK_DIR=${PWD}
 # Download the dependencies with concourse resources as much as possible, then we could benifit from
 # concourse's resource cache system.
 install_dependencies() {
+    unset PYTHONPATH
+    unset PYTHONHOME
+    # for rhel7 and ubuntu18 python3.9 has no pip
+    if [ "$OS_NAME" != rhel8 ]; then
+        python3.9 get-pip.py
+    fi
     pip3 install tox
 }
 
@@ -129,11 +149,13 @@ function install_plpython3() {
     PGUSER=gpadmin gppkg -i bin_plpython3/*.gppkg
 }
 
-# Setup common environment
-install_dependencies
+
+# Setup common environment 
+install_extra_build_dependencies
 setup_gpadmin
 install_gpdb
 install_plpython3
+install_dependencies
 setup_gpadmin_bashrc
 
 # Do the special setup with root permission for the each task, then run the real task script with
