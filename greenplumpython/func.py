@@ -120,6 +120,7 @@ def create_function(
     return_type_as_name: Optional[str] = None,
     type_is_temp: bool = True,
 ) -> Callable:
+    # If need extra parameters when creating function
     if not func:
         return functools.partial(
             create_function,
@@ -192,6 +193,7 @@ def create_aggregate(
     temp: bool = True,
     language_handler: str = "plpython3u",
 ) -> Callable:
+    # If need extra parameters when creating function
     if not trans_func:
         return functools.partial(
             create_aggregate,
@@ -247,6 +249,7 @@ def create_array_function(
     replace_if_exists: bool = False,
     language_handler: str = "plpython3u",
 ) -> Callable:
+    # If need extra parameters when creating function
     if not func:
         return functools.partial(
             create_array_function,

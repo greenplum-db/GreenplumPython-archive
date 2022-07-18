@@ -274,17 +274,21 @@ def test_array_func_group_by(db: gp.Database):
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["result"] == 5)
 
 
-def test_array_func(db: gp.Database):
+def test_array_func_replace(db: gp.Database):
+    rows = [(1,) for _ in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+
     @gp.create_array_function
     def my_sum(val_list: List[int]) -> int:
         return sum(val_list)
+
+    results = list(my_sum(numbers["val"], as_name="result").to_table().fetch())
+    assert len(results) == 1 and results[0]["result"] == 10
 
     @gp.create_array_function(replace_if_exists=True)
     def my_sum(val_list: List[int]) -> int:
         return 5 + sum(val_list)
 
-    rows = [(1,) for _ in range(10)]
-    numbers = gp.values(rows, db=db, column_names=["val"])
     results = list(my_sum(numbers["val"], as_name="result").to_table().fetch())
     assert len(results) == 1 and results[0]["result"] == 15
 
