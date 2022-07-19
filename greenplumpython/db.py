@@ -1,7 +1,7 @@
 """
 This  module can create a connection to a Greenplum database
 """
-from typing import Iterable, Optional
+from typing import Any, Iterable, Optional, Tuple
 
 import psycopg2
 import psycopg2.extras
@@ -14,12 +14,12 @@ class Database:
     """
 
     def __init__(self, params: "dict[str, str]") -> None:
-        self._conn = psycopg2.connect(
+        self._conn = psycopg2.connect(  # type: ignore
             " ".join([f"{k}={v}" for k, v in params.items()]),
             cursor_factory=psycopg2.extras.RealDictCursor,
         )
 
-    def execute(self, query: str, has_results: bool = True) -> Optional[Iterable]:
+    def execute(self, query: str, has_results: bool = True) -> Optional[Iterable[Tuple[Any]]]:
         """
         Return the result of SQL query executed in Database
 
@@ -47,7 +47,7 @@ class Database:
         self._conn.close()
 
     # FIXME: How to get other "global" variables, e.g. CURRENT_ROLE, CURRENT_TIMETAMP, etc.?
-    def set_config(self, key: str, value):
+    def set_config(self, key: str, value: Any):
         """
         Set Database parameters
 

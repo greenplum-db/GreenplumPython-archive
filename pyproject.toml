@@ -9,3 +9,12 @@ include = [
     "greenplumpython",
     "setup.py"
 ]
+
+typeCheckingMode = "strict"
+reportUnknownMemberType = false
+reportIncompatibleMethodOverride = false
+reportOverlappingOverload = false
+reportGeneralTypeIssues = false
+reportUnusedImport = false
+reportImportCycles = false
+
