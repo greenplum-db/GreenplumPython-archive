@@ -1,9 +1,10 @@
-from typing import List, Optional, Union, get_type_hints
+from typing import Any, List, Optional, Union, get_type_hints
 from uuid import uuid4
 
-from psycopg2.extensions import adapt
+from psycopg2.extensions import adapt  # type: ignore
 
 import greenplumpython
+from greenplumpython.db import Database
 
 primitive_type_map = {
     None: "void",
@@ -17,7 +18,10 @@ primitive_type_map = {
 
 # TODO : Add tests for all function
 def create_type(
-    class_type, db: greenplumpython.Database, as_name: Optional[str] = None, is_temp: bool = True
+    class_type: object,
+    db: greenplumpython.Database,
+    as_name: Optional[str] = None,
+    is_temp: bool = True,
 ) -> str:
     type_name = "type_" + uuid4().hex if as_name is None else as_name
     temp_str = "pg_temp." if is_temp else ""
@@ -40,7 +44,7 @@ def create_type(
     return type_name
 
 
-def drop_type(type_name, db):
+def drop_type(type_name: str, db: Database):
     db.execute(
         f"DROP TYPE IF EXISTS {type_name} CASCADE",
         has_results=False,
@@ -49,7 +53,7 @@ def drop_type(type_name, db):
 
 # FIXME: Annotate the argument type for this function
 def to_pg_type(
-    annotation,
+    annotation: Any,
     db: Optional[greenplumpython.Database] = None,
     as_name: Optional[str] = None,
     is_temp: bool = True,
@@ -72,6 +76,6 @@ def to_pg_type(
                 return create_type(annotation, db, as_name=as_name, is_temp=is_temp)
 
 
-def to_pg_const(obj) -> str:
+def to_pg_const(obj: object) -> str:
     # In Python 3, all `str`s are encoded in UTF-8
-    return adapt(obj).getquoted().decode("utf-8")
+    return adapt(obj).getquoted().decode("utf-8")  # type: ignore

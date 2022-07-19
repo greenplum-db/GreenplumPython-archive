@@ -111,7 +111,7 @@ def aggregate(name: str, db: Database) -> Callable[..., FunctionCall]:
 
 # FIXME: Add test cases for optional parameters
 def create_function(
-    func: Optional[Callable] = None,
+    func: Optional[Callable] = None,  # type: ignore
     name: Optional[str] = None,
     schema: Optional[str] = None,
     temp: bool = True,
@@ -119,11 +119,11 @@ def create_function(
     language_handler: str = "plpython3u",
     return_type_as_name: Optional[str] = None,
     type_is_temp: bool = True,
-) -> Callable:
+) -> Callable:  # type: ignore
     # If need extra parameters when creating function
     if not func:
         return functools.partial(
-            create_function,
+            create_function,  # type: ignore
             name=name,
             schema=schema,
             temp=temp,
@@ -133,7 +133,7 @@ def create_function(
             type_is_temp=type_is_temp,
         )
 
-    @functools.wraps(func)
+    @functools.wraps(func)  # type: ignore
     def make_function_call(
         *args: Any,
         as_name: Optional[str] = None,
@@ -147,7 +147,7 @@ def create_function(
         qualified_func_name = ".".join([schema_name, func_name])
         if not temp and name is None:
             raise NotImplementedError("Name is required for a non-temp function")
-        func_sig = inspect.signature(func)
+        func_sig = inspect.signature(func)  # type: ignore
         func_args_string = ",".join(
             [
                 f"{param.name} {to_pg_type(param.annotation, db)}"
@@ -155,7 +155,7 @@ def create_function(
             ]
         )
         # FIXME: include things in func.__closure__
-        func_lines = textwrap.dedent(inspect.getsource(func)).split("\n")
+        func_lines = textwrap.dedent(inspect.getsource(func)).split("\n")  # type: ignore
         func_body = "\n".join([line for line in func_lines if re.match(r"^\s", line)])
         if db is None:
             for arg in args:
@@ -187,30 +187,30 @@ def create_function(
 
 # FIXME: Add test cases for optional parameters
 def create_aggregate(
-    trans_func: Optional[Callable] = None,
+    trans_func: Optional[Callable] = None,  # type: ignore
     name: Optional[str] = None,
     schema: Optional[str] = None,
     temp: bool = True,
     language_handler: str = "plpython3u",
-) -> Callable:
+) -> Callable:  # type: ignore
     # If need extra parameters when creating function
     if not trans_func:
         return functools.partial(
-            create_aggregate,
+            create_aggregate,  # type: ignore
             name=name,
             schema=schema,
             temp=temp,
             language_handler=language_handler,
         )
 
-    @functools.wraps(trans_func)
+    @functools.wraps(trans_func)  # type: ignore
     def make_function_call(
         *args: Expr,
         group_by: Optional[Iterable[Union[Expr, str]]] = None,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ) -> FunctionCall:
-        trans_func_call = create_function(
+        trans_func_call = create_function(  # type: ignore
             trans_func, "func_" + uuid4().hex, schema, temp, False, language_handler
         )(*args, as_name=as_name, db=db)
         schema_name = "pg_temp" if temp else schema if schema is not None else ""
@@ -218,16 +218,17 @@ def create_aggregate(
         qualified_agg_name = ".".join([schema_name, agg_name])
         if not temp and name is None:
             raise NotImplementedError("Name is required for a non-temp function")
-        sig = inspect.signature(trans_func)
+        sig = inspect.signature(trans_func)  # type: ignore
         param_list = iter(sig.parameters.values())
         state_param = next(param_list)
         args_string = ",".join(
             [f"{param.name} {to_pg_type(param.annotation, db)}" for param in param_list]
         )
-        trans_func_call.db.execute(
+        trans_func_call_func_name: str = trans_func_call.qualified_func_name  # type: ignore
+        trans_func_call.db.execute(  # type: ignore
             f"""
             CREATE AGGREGATE {qualified_agg_name} ({args_string}) (
-                SFUNC = {trans_func_call.qualified_func_name},
+                SFUNC = {trans_func_call_func_name},
                 STYPE = {to_pg_type(state_param.annotation, db)}
             )
             """,
@@ -242,17 +243,17 @@ def create_aggregate(
 
 # FIXME: Add test cases for optional parameters
 def create_array_function(
-    func: Optional[Callable] = None,
+    func: Optional[Callable] = None,  # type: ignore
     name: Optional[str] = None,
     schema: Optional[str] = None,
     temp: bool = True,
     replace_if_exists: bool = False,
     language_handler: str = "plpython3u",
-) -> Callable:
+) -> Callable:  # type: ignore
     # If need extra parameters when creating function
     if not func:
         return functools.partial(
-            create_array_function,
+            create_array_function,  # type: ignore
             name=name,
             schema=schema,
             temp=temp,
@@ -260,23 +261,23 @@ def create_array_function(
             language_handler=language_handler,
         )
 
-    @functools.wraps(func)
+    @functools.wraps(func)  # type: ignore
     def make_function_call(
         *args: Expr,
         group_by: Optional[Iterable[Union[Expr, str]]] = None,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ) -> ArrayFunctionCall:
-        array_func_call = create_function(
+        array_func_call = create_function(  # type: ignore
             func, name, schema, temp, replace_if_exists, language_handler
         )(*args, as_name=as_name, db=db)
         return ArrayFunctionCall(
-            array_func_call.qualified_func_name,
+            array_func_call.qualified_func_name,  # type: ignore
             args=args,
             group_by=group_by,
             as_name=as_name,
             db=db,
-            is_return_comp=array_func_call.is_return_comp,
+            is_return_comp=array_func_call.is_return_comp,  # type: ignore
         )
 
     return make_function_call

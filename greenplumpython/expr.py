@@ -2,7 +2,7 @@
 This module creates a Python object Expr.
 """
 import copy
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from .db import Database
 from .type import to_pg_const
@@ -31,21 +31,21 @@ class Expr:
         self._db = table.db if table is not None else db
         assert self._db is not None
 
-    def __and__(self, other: "Expr"):
+    def __and__(self, other: "Expr") -> "Expr":
         """
         Operator &
         Returns a Binary Expression AND
         """
         return BinaryExpr("AND", self, other)
 
-    def __or__(self, other: "Expr"):
+    def __or__(self, other: "Expr") -> "Expr":
         """
         Operator |
         Returns a Binary Expression OR
         """
         return BinaryExpr("OR", self, other)
 
-    def __eq__(self, other: "Expr"):
+    def __eq__(self, other: "Expr") -> "Expr":
         """
         Operator ==
         Returns a Binary Expression EQUAL
@@ -54,66 +54,66 @@ class Expr:
             return BinaryExpr("is", self, other)
         return BinaryExpr("=", self, other)
 
-    def __lt__(self, other: "Expr"):
+    def __lt__(self, other: "Expr") -> "Expr":
         """
         Operator <
         Returns a Binary Expression LESS THAN
         """
         return BinaryExpr("<", self, other)
 
-    def __le__(self, other: "Expr"):
+    def __le__(self, other: "Expr") -> "Expr":
         """
         Operator <=
         Returns a Binary Expression LESS EQUAL
         """
         return BinaryExpr("<=", self, other)
 
-    def __gt__(self, other: "Expr"):
+    def __gt__(self, other: "Expr") -> "Expr":
         """
         Operator >
         Returns a Binary Expression GREATER THAN
         """
         return BinaryExpr(">", self, other)
 
-    def __ge__(self, other: "Expr"):
+    def __ge__(self, other: "Expr") -> "Expr":
         """
         Operator >=
         Returns a Binary Expression GREATER EQUAL
         """
         return BinaryExpr(">=", self, other)
 
-    def __ne__(self, other: "Expr"):
+    def __ne__(self, other: "Expr") -> "Expr":
         """
         Operator !=
         Returns a Binary Expression NOT EQUAL
         """
         return BinaryExpr("!=", self, other)
 
-    def __mod__(self, other):
+    def __mod__(self, other: Union[int, "Expr"]) -> "Expr":
         return BinaryExpr("%", self, other)
 
-    def __pos__(self):
+    def __pos__(self) -> "Expr":
         """
         Operator +
         Returns a Unary Expression POSITIVE
         """
         return UnaryExpr("+", self)
 
-    def __neg__(self):
+    def __neg__(self) -> "Expr":
         """
         Operator -
         Returns a Unary Expression NEGATIVE
         """
         return UnaryExpr("-", self)
 
-    def __abs__(self):
+    def __abs__(self) -> "Expr":
         """
         Operator abs()
         Returns a Unary Expression ABSOLUTE
         """
         return UnaryExpr("ABS", self)
 
-    def __invert__(self):
+    def __invert__(self) -> "Expr":
         """
         Operator ~
         Returns a Unary Expression NOT
@@ -229,7 +229,7 @@ class UnaryExpr(Expr):
 class TypeCast(Expr):
     def __init__(
         self,
-        obj,
+        obj: object,
         type_name: str,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
@@ -249,7 +249,7 @@ class Type:
         self._name = name
         self._db = db
 
-    def __call__(self, obj) -> TypeCast:
+    def __call__(self, obj: object) -> TypeCast:
         return TypeCast(obj, self._name, db=self._db)
 
 
