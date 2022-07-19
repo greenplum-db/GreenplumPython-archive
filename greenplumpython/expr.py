@@ -2,7 +2,8 @@
 This module creates a Python object Expr.
 """
 import copy
-from typing import TYPE_CHECKING, Any, Optional, Union
+from functools import singledispatchmethod
+from typing import TYPE_CHECKING, Any, Optional, Union, overload
 
 from .db import Database
 from .type import to_pg_const
@@ -180,7 +181,8 @@ class BinaryExpr(Expr):
     Herited from Expr. Representation of a Binary Expression
     """
 
-    def __init__(
+    @singledispatchmethod
+    def _init(
         self,
         operator: str,
         left: Any,
@@ -197,6 +199,49 @@ class BinaryExpr(Expr):
         self.operator = operator
         self.left = left
         self.right = right
+
+    @overload
+    def __init__(
+        self,
+        operator: str,
+        left: "Expr",
+        right: "Expr",
+        as_name: Optional[str] = None,
+        db: Optional[Database] = None,
+    ):
+        ...
+
+    @overload
+    def __init__(
+        self,
+        operator: str,
+        left: "Expr",
+        right: int,
+        as_name: Optional[str] = None,
+        db: Optional[Database] = None,
+    ):
+        ...
+
+    @overload
+    def __init__(
+        self,
+        operator: str,
+        left: "Expr",
+        right: str,
+        as_name: Optional[str] = None,
+        db: Optional[Database] = None,
+    ):
+        ...
+
+    def __init__(
+        self,
+        operator: str,
+        left: Any,
+        right: Any,
+        as_name: Optional[str] = None,
+        db: Optional[Database] = None,
+    ):
+        self._init(operator, left, right, as_name, db)
 
     def _serialize(self) -> str:
         left_str = str(self.left) if isinstance(self.left, Expr) else to_pg_const(self.left)
