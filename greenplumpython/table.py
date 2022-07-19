@@ -9,7 +9,7 @@ user calling `fetch()` function.
 All modifications made by users are only saved to database when calling `save_as()` function.
 """
 from functools import singledispatchmethod
-from typing import Dict, Iterable, List, Optional, Tuple, Union, overload
+from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Union, overload
 from uuid import uuid4
 
 from . import db
@@ -37,7 +37,7 @@ class Table:
             self._db = db
 
     @singledispatchmethod
-    def _getitem(self, key):
+    def _getitem(self, key):  # type: ignore
         raise NotImplementedError()
 
     @_getitem.register(Expr)
@@ -68,7 +68,7 @@ class Table:
         )
 
     @overload
-    def __getitem__(self, key) -> "Table":
+    def __getitem__(self, key) -> "Table":  # type: ignore
         ...
 
     @overload
@@ -87,7 +87,7 @@ class Table:
     def __getitem__(self, key: slice) -> Optional["Table"]:
         ...
 
-    def __getitem__(self, *args, **kwargs):
+    def __getitem__(self, *args, **kwargs):  # type: ignore
 
         """
         Returns
@@ -118,7 +118,7 @@ class Table:
                    slice_table = tab[2:5]
 
         """
-        return self._getitem(*args, **kwargs)
+        return self._getitem(*args, **kwargs)  # type: ignore
 
     def as_name(self, name_as: str) -> "Table":
         """
@@ -171,7 +171,7 @@ class Table:
         """
         order_by_clause = (
             f"""
-                {','.join([' '.join([col, order]) for col, order in order_by.items()])}
+                {','.join([' '.join([col, order_by[col]]) for col in order_by])}
             """
             if isinstance(order_by, dict)
             else f"""
@@ -371,6 +371,7 @@ class Table:
 
         Args:
             other: Table : table to use to do the join
+            targets : List : list of targeted columns for joined table
 
         Returns
             Table : natural joined table
@@ -395,6 +396,7 @@ class Table:
 
         Args:
             other: Table : table to use to do the join
+            targets : List : list of targeted columns for joined table
 
         Returns
             Table : natural joined table
@@ -447,8 +449,7 @@ class Table:
         return self._query.startswith("TABLE")
 
     def _list_lineage(self) -> List["Table"]:
-        lineage: List["Table"] = []
-        lineage.append(self)
+        lineage: List["Table"] = [self]
         tables_visited: set[str] = set()
         current = 0
         while current < len(lineage):
@@ -457,7 +458,7 @@ class Table:
             current += 1
         return lineage
 
-    def _depth_first_search(self, t, visited, lineage):
+    def _depth_first_search(self, t: "Table", visited: Set[str], lineage: List["Table"]):
         visited.add(t.name)
         for i in t._parents:
             if i.name not in visited and not i._in_catalog():
@@ -474,7 +475,7 @@ class Table:
             return self._query
         return "WITH " + ",".join(cte_list) + self._query
 
-    def fetch(self, is_all: bool = True) -> Iterable:
+    def fetch(self, is_all: bool = True) -> Iterable[Tuple[Any]]:
         """
         Fetch rows of this table.
         - if is_all is True, fetch all rows at once
@@ -504,7 +505,7 @@ class Table:
         #        OR USING column_names() FUNCTION WITH RESULT ORDERED
         if len(column_names) == 0:
             ret = self.fetch()
-            column_names = list(list(ret)[0].keys())
+            column_names = list(list(ret)[0].keys())  # type: ignore
         self._db.execute(
             f"""
             CREATE {'TEMP' if temp else ''} TABLE {table_name} ({','.join(column_names)}) 
@@ -533,7 +534,7 @@ class Table:
     #     )
 
     # FIXME: Should we choose JSON as the default format?
-    def explain(self, format: str = "TEXT") -> Iterable:
+    def explain(self, format: str = "TEXT") -> Iterable[Tuple[str]]:
         """
         Explaind the table's query
         """
@@ -551,7 +552,7 @@ def table(name: str, db: db.Database) -> Table:
     return Table(f"TABLE {name}", name=name, db=db)
 
 
-def values(rows: Iterable[Tuple], db: db.Database, column_names: Iterable[str] = []) -> Table:
+def values(rows: Iterable[Tuple[Any]], db: db.Database, column_names: Iterable[str] = []) -> Table:
     """
     Returns a Table using list of values given
 
