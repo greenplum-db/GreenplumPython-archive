@@ -10,6 +10,7 @@ include = [
     "setup.py"
 ]
 
+ignore = ["greenplumpython/util.py"]
 typeCheckingMode = "strict"
 reportUnknownMemberType = false
 reportIncompatibleMethodOverride = false
