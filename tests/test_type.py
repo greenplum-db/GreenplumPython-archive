@@ -1,4 +1,5 @@
 import inspect
+from os import environ
 from typing import List
 
 import pytest
@@ -9,7 +10,12 @@ from greenplumpython.type import create_type, drop_type
 
 @pytest.fixture
 def db():
-    db = gp.database(host="localhost", dbname="gpadmin")
+    db = gp.database(
+        host="localhost",
+        dbname="gpadmin",
+        user=environ.get("POSTGRES_USER"),
+        password=environ.get("POSTGRES_PASSWORD"),
+    )
     yield db
     db.close()
 
