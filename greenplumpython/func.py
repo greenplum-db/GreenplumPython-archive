@@ -11,7 +11,7 @@ from .table import Table
 from .type import primitive_type_map, to_pg_const, to_pg_type
 
 
-class FunctionCall(Expr):
+class FunctionExpr(Expr):
     def __init__(
         self,
         func_name: str,
@@ -83,7 +83,7 @@ class FunctionCall(Expr):
         return False
 
 
-class ArrayFunctionCall(FunctionCall):
+class ArrayFunctionExpr(FunctionExpr):
     def _serialize(self) -> str:
         args_string = (
             ",".join([f"array_agg({str(arg)})" for arg in self._args]) if any(self._args) else ""
@@ -91,20 +91,20 @@ class ArrayFunctionCall(FunctionCall):
         return f"{self._func_name}({args_string})"
 
 
-def function(name: str, db: Database) -> Callable[..., FunctionCall]:
-    def make_function_call(*args: Expr, as_name: Optional[str] = None) -> FunctionCall:
-        return FunctionCall(name, args, as_name=as_name, db=db)
+def function(name: str, db: Database) -> Callable[..., FunctionExpr]:
+    def make_function_call(*args: Expr, as_name: Optional[str] = None) -> FunctionExpr:
+        return FunctionExpr(name, args, as_name=as_name, db=db)
 
     return make_function_call
 
 
-def aggregate(name: str, db: Database) -> Callable[..., FunctionCall]:
+def aggregate(name: str, db: Database) -> Callable[..., FunctionExpr]:
     def make_function_call(
         *args: Expr,
         group_by: Optional[Iterable[Union[Expr, str]]] = None,
         as_name: Optional[str] = None,
-    ) -> FunctionCall:
-        return FunctionCall(name, args, group_by=group_by, as_name=as_name, db=db)
+    ) -> FunctionExpr:
+        return FunctionExpr(name, args, group_by=group_by, as_name=as_name, db=db)
 
     return make_function_call
 
@@ -138,7 +138,7 @@ def create_function(
         *args: Expr,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
-    ) -> FunctionCall:
+    ) -> FunctionExpr:
         or_replace = "OR REPLACE" if replace_if_exists else ""
         schema_name = "pg_temp" if temp else (schema if schema is not None else "")
         func_name = func.__name__ if name is None else name
@@ -178,7 +178,7 @@ def create_function(
             has_results=False,
         )
         is_return_comp = func_sig.return_annotation not in primitive_type_map
-        return FunctionCall(
+        return FunctionExpr(
             qualified_func_name, args=args, as_name=as_name, db=db, is_return_comp=is_return_comp
         )
 
@@ -209,7 +209,7 @@ def create_aggregate(
         group_by: Optional[Iterable[Union[Expr, str]]] = None,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
-    ) -> FunctionCall:
+    ) -> FunctionExpr:
         trans_func_call = create_function(
             trans_func, "func_" + uuid4().hex, schema, temp, False, language_handler
         )(*args, as_name=as_name, db=db)
@@ -233,7 +233,7 @@ def create_aggregate(
             """,
             has_results=False,
         )
-        return FunctionCall(
+        return FunctionExpr(
             qualified_agg_name, args=args, group_by=group_by, as_name=as_name, db=db
         )
 
@@ -266,11 +266,11 @@ def create_array_function(
         group_by: Optional[Iterable[Union[Expr, str]]] = None,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
-    ) -> ArrayFunctionCall:
+    ) -> ArrayFunctionExpr:
         array_func_call = create_function(
             func, name, schema, temp, replace_if_exists, language_handler
         )(*args, as_name=as_name, db=db)
-        return ArrayFunctionCall(
+        return ArrayFunctionExpr(
             array_func_call.qualified_func_name,
             args=args,
             group_by=group_by,

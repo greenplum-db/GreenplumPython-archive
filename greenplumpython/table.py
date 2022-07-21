@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Iterable, List, Optional, Tuple
 from uuid import uuid4
 
 from . import db
+from .group import TableRowGroup
 
 if TYPE_CHECKING:
     from .expr import Expr
@@ -492,6 +493,15 @@ class Table:
         results = self._db.execute(f"EXPLAIN (FORMAT {format}) {self._build_full_query()}")
         assert results is not None
         return results
+
+    def group_by(self, *group_by: "Expr") -> TableRowGroup:
+        """
+        State transition diagram:
+        Table --group_by()-> TableRowGroup --aggregate()-> FunctionExpr
+          ^                                                    |
+          |------------------------- to_table() ---------------|
+        """
+        return TableRowGroup(self, group_by)
 
 
 # table_name can be table/view name
