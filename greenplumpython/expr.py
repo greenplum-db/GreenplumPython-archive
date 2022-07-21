@@ -35,21 +35,21 @@ class Expr:
     def __and__(self, other: "Expr") -> "Expr":
         """
         Operator &
-        Returns a Binary Expression AND
+        Returns a Binary Expression AND between self and another Expr
         """
         return BinaryExpr("AND", self, other)
 
     def __or__(self, other: "Expr") -> "Expr":
         """
         Operator |
-        Returns a Binary Expression OR
+        Returns a Binary Expression OR between self and another Expr
         """
         return BinaryExpr("OR", self, other)
 
     def __eq__(self, other: "Expr") -> "Expr":
         """
         Operator ==
-        Returns a Binary Expression EQUAL
+        Returns a Binary Expression EQUAL between self and another Expr
         """
         if isinstance(other, type(None)):
             return BinaryExpr("is", self, other)
@@ -58,78 +58,82 @@ class Expr:
     def __lt__(self, other: "Expr") -> "Expr":
         """
         Operator <
-        Returns a Binary Expression LESS THAN
+        Returns a Binary Expression LESS THAN between self and another Expr
         """
         return BinaryExpr("<", self, other)
 
     def __le__(self, other: "Expr") -> "Expr":
         """
         Operator <=
-        Returns a Binary Expression LESS EQUAL
+        Returns a Binary Expression LESS EQUAL between self and another Expr
         """
         return BinaryExpr("<=", self, other)
 
     def __gt__(self, other: "Expr") -> "Expr":
         """
         Operator >
-        Returns a Binary Expression GREATER THAN
+        Returns a Binary Expression GREATER THAN between self and another Expr
         """
         return BinaryExpr(">", self, other)
 
     def __ge__(self, other: "Expr") -> "Expr":
         """
         Operator >=
-        Returns a Binary Expression GREATER EQUAL
+        Returns a Binary Expression GREATER EQUAL between self and another Expr
         """
         return BinaryExpr(">=", self, other)
 
     def __ne__(self, other: "Expr") -> "Expr":
         """
         Operator !=
-        Returns a Binary Expression NOT EQUAL
+        Returns a Binary Expression NOT EQUAL between self and another Expr
         """
         return BinaryExpr("!=", self, other)
 
     def __mod__(self, other: Union[int, "Expr"]) -> "Expr":
+        """
+        Operator %
+        Returns a Binary Expression Modulo between an Expr and an integer or an Expr
+        """
         return BinaryExpr("%", self, other)
 
     def __pos__(self) -> "Expr":
         """
         Operator +
-        Returns a Unary Expression POSITIVE
+        Returns a Unary Expression POSITIVE of self
         """
         return UnaryExpr("+", self)
 
     def __neg__(self) -> "Expr":
         """
         Operator -
-        Returns a Unary Expression NEGATIVE
+        Returns a Unary Expression NEGATIVE of self
         """
         return UnaryExpr("-", self)
 
     def __abs__(self) -> "Expr":
         """
         Operator abs()
-        Returns a Unary Expression ABSOLUTE
+        Returns a Unary Expression ABSOLUTE of self
         """
         return UnaryExpr("ABS", self)
 
     def __invert__(self) -> "Expr":
         """
         Operator ~
-        Returns a Unary Expression NOT
+        Returns a Unary Expression NOT of self
         """
         return UnaryExpr("NOT", self)
 
     def like(self, pattern: str) -> "Expr":
         """
-        Returns BinaryExpr in order to deploy LIKE statement
+        Returns BinaryExpr in order to apply LIKE statement on self with pattern
         """
         return BinaryExpr("LIKE", self, pattern)
 
     def __str__(self) -> str:
         """
-        Returns string statement of Expr
+        Returns string statement of Expr, ie : name + AS (optional)
         """
         return self._serialize() + (" AS " + self._as_name if self._as_name is not None else "")
 
@@ -167,7 +171,7 @@ class Expr:
 
     def to_table(self) -> "Table":
         """
-        Returns a Table
+        Returns a Table, method for Function object
         """
         from .table import Table
 
@@ -178,7 +182,7 @@ class Expr:
 
 class BinaryExpr(Expr):
     """
-    Herited from Expr. Representation of a Binary Expression
+    Inherited from Expr. Representation of a Binary Expression
     """
 
     @singledispatchmethod
@@ -241,6 +245,12 @@ class BinaryExpr(Expr):
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ):
+        """
+
+        Args:
+            left: Any : could be an Expr object or object in primitive types (int, str, etc)
+            right: Any : could be an Expr object or object in primitive types (int, str, etc)
+        """
         self._init(operator, left, right, as_name, db)
 
     def _serialize(self) -> str:
@@ -251,7 +261,7 @@ class BinaryExpr(Expr):
 
 class UnaryExpr(Expr):
     """
-    Herited from Expr. Representation of an Unary Expression.
+    Inherited from Expr. Representation of a Unary Expression.
     """
 
     def __init__(
@@ -261,6 +271,11 @@ class UnaryExpr(Expr):
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ):
+        """
+
+        Args:
+            right: Expr
+        """
         table = right.table
         super().__init__(as_name=as_name, table=table, db=db)
         self.operator = operator
@@ -272,6 +287,10 @@ class UnaryExpr(Expr):
 
 
 class TypeCast(Expr):
+    """
+    Inherited from Expr. Representation of a Type Casting.
+    """
+
     def __init__(
         self,
         obj: object,
@@ -279,6 +298,12 @@ class TypeCast(Expr):
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ) -> None:
+        """
+
+        Args:
+            obj: object : which will be applied type casting
+            type_name : str : name of type which object will be cast
+        """
         table = obj.table if isinstance(obj, Expr) else None
         super().__init__(as_name, table, db)
         self._obj = obj
@@ -290,6 +315,10 @@ class TypeCast(Expr):
 
 
 class Type:
+    """
+    A Type object in Greenplum Database.
+    """
+
     def __init__(self, name: str, db: Database) -> None:
         self._name = name
         self._db = db
@@ -299,14 +328,19 @@ class Type:
 
 
 # FIXME: Rename gp.table(), gp.function(), etc. to get_table(), get_function(), etc.
-# FIXME: Make these functions methods of a Database, e.g. from gp.get_type("int", db) to db.get_type("int")
+# FIXME: Make these functions methods of a Database,
+#  e.g. from gp.get_type("int", db) to db.get_type("int")
 def get_type(name: str, db: Database) -> Type:
+    """
+    Returns the type corresponding to the name in the database given.
+    """
+
     return Type(name, db=db)
 
 
 class Column(Expr):
     """
-    Herited from Expr. Representation of a python object Column.
+    Inherited from Expr. Representation of a python object Column.
     """
 
     def __init__(self, name: str, table: "Table", as_name: Optional[str] = None) -> None:
@@ -321,7 +355,7 @@ class Column(Expr):
     @property
     def name(self) -> str:
         """
-        Reurns column name
+        Returns column name
         """
         return self._name
 
