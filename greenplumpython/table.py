@@ -1,12 +1,13 @@
 """
-This module creates a Python object Table which keep in memory all the user modifications
-on a table, in order to proceed SQL query. It concatenates different pieces of queries
+This module creates a Python object Table which keeps in memory all the user modifications
+on a table, in order to proceed with SQL query. It concatenates different pieces of queries
 together using CTEs.
 
-Table sends the aggregated SQL query to the database and return the final result only when
+Table sends the aggregated SQL query to the database and returns the final result only when
 user calling `fetch()` function.
 
-All modifications made by users are only saved to database when calling `save_as()` function.
+All modifications made by users are only saved to the database when calling the `save_as()`
+function.
 """
 from functools import singledispatchmethod
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Union, overload
@@ -250,7 +251,8 @@ class Table:
         targets: List["Expr"] = [],
     ):
         """
-        Returns inner join of self and another Table using condition, and only select targeted columns
+        Returns inner join of self and another Table using condition, and only select targeted
+        columns
 
         Args:
             other: Table : table to use to do the join
@@ -284,7 +286,8 @@ class Table:
         targets: List["Expr"] = [],
     ):
         """
-        Returns left join of self and another Table using condition, and only select targeted columns
+        Returns left join of self and another Table using condition, and only select targeted
+        columns
 
         Args:
             other: Table : table to use to do the join
@@ -312,7 +315,8 @@ class Table:
         targets: List["Expr"] = [],
     ):
         """
-        Returns right join of self and another Table using condition, and only select targeted columns
+        Returns right join of self and another Table using condition, and only select targeted
+        columns
 
         Args:
             other: Table : table to use to do the join
@@ -340,7 +344,8 @@ class Table:
         targets: List["Expr"] = [],
     ):
         """
-        Returns full outer join of self and another Table using condition, and only select targeted columns
+        Returns full outer join of self and another Table using condition, and only select targeted
+        columns
 
         Args:
             other: Table : table to use to do the join
@@ -449,9 +454,8 @@ class Table:
         return self._query.startswith("TABLE")
 
     def _list_lineage(self) -> List["Table"]:
-        lineage: List["Table"] = []
-        lineage.append(self)
-        tables_visited: set[str] = set()
+        lineage: List["Table"] = [self]
+        tables_visited: Set[str] = set()
         current = 0
         while current < len(lineage):
             if lineage[current].name not in tables_visited and not lineage[current]._in_catalog():
@@ -537,7 +541,7 @@ class Table:
     # FIXME: Should we choose JSON as the default format?
     def explain(self, format: str = "TEXT") -> Iterable[Tuple[str]]:
         """
-        Explaind the table's query
+        Explained the table's query
         """
         assert self._db is not None
         results = self._db.execute(f"EXPLAIN (FORMAT {format}) {self._build_full_query()}")
