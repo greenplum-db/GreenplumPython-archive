@@ -6,7 +6,6 @@ if TYPE_CHECKING:
     from .func import FunctionExpr
 
 
-
 class TableRowGroup:
     def __init__(self, table: "Table", group_by: Iterable["Expr"]) -> None:
         self._table = table
