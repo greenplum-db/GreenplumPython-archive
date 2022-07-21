@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING, Callable, Iterable
 
 if TYPE_CHECKING:
-    from .table import Table
     from .expr import Expr
     from .func import FunctionExpr
+    from .table import Table
 
 
 class TableRowGroup:
