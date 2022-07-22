@@ -3,8 +3,7 @@ from uuid import uuid4
 
 from psycopg2.extensions import adapt  # type: ignore
 
-import greenplumpython
-from greenplumpython.db import Database
+from .db import Database
 
 # -- Map between Python and Greenplum primitive types
 primitive_type_map = {
@@ -21,7 +20,7 @@ primitive_type_map = {
 # TODO : Add tests for all function
 def create_type(
     class_type: object,
-    db: greenplumpython.Database,
+    db: Database,
     as_name: Optional[str] = None,
     is_temp: bool = True,
 ) -> str:
@@ -69,7 +68,7 @@ def drop_type(type_name: str, db: Database):
 # FIXME: Annotate the argument type for this function
 def to_pg_type(
     annotation: Any,
-    db: Optional[greenplumpython.Database] = None,
+    db: Optional[Database] = None,
     as_name: Optional[str] = None,
     is_temp: bool = True,
     is_return: bool = False,
