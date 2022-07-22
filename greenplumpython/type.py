@@ -6,8 +6,6 @@ from psycopg2.extensions import adapt  # type: ignore
 from .db import Database
 
 # -- Map between Python and Greenplum primitive types
-
-# -- Map between Python and Greenplum primitive types
 primitive_type_map = {
     None: "void",
     int: "integer",
