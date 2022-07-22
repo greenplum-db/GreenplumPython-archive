@@ -20,6 +20,50 @@ from .expr import Column, Expr
 class Table:
     """
     Representation of Table object.
+
+    .. function:: __getitem__(key: str) -> Expr
+
+    Returns
+
+        Column of the current Table which named key
+
+        .. code-block::  python
+
+           id_col = tab["id"]
+
+    .. function:: __getitem__(key: List[Union[str, Expr]]) -> Table
+        :noindex:
+
+    Returns
+
+        Table from the current Table which select a subset of columns, a.k.a. targets;
+
+            .. code-block::  python
+
+               id_table = tab[["id"]]
+
+    .. function:: __getitem__(key: Expr]) -> Table
+        :noindex:
+
+    Returns
+
+        Table from the current Table which select a subset of rows per the value of the Expr;
+
+            .. code-block::  python
+
+               id_cond_table = tab[tab["id"] == 0]
+
+    .. function:: __getitem__(key: slice]) -> Table
+        :noindex:
+
+    Returns
+
+        Table from the current Table which select a portion of consecutive rows
+
+            .. code-block::  python
+
+               slice_table = tab[2:5]
+
     """
 
     def __init__(
