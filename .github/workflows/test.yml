@@ -8,6 +8,11 @@ on:
     paths-ignore:
       - "*.md"
 
+env:
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_DB: greenplum_python_test
+  POSTGRES_USER: postgres 
+
 jobs:
   build:
     name: Test P${{ matrix.python-version }}, PSQL${{matrix.postgres-version}}
@@ -29,9 +34,9 @@ jobs:
         # I use this one
         image: thorinschiffer/postgres-plpython:${{ matrix.postgres-version }}
         env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: greenplum_python_test
-          POSTGRES_USER: postgres 
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ env.POSTGRES_DB }}
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
         ports:
         - 5432:5432
   
