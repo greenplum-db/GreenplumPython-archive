@@ -5,13 +5,7 @@ import pytest
 
 import greenplumpython as gp
 from greenplumpython.type import create_type, drop_type
-
-
-@pytest.fixture
-def db():
-    db = gp.database(host="localhost", dbname="gpadmin")
-    yield db
-    db.close()
+from tests import db
 
 
 def test_type_cast(db: gp.Database):
