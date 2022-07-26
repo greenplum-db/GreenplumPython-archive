@@ -28,7 +28,7 @@ jobs:
       - name: Set up Node # for pyright
         uses: actions/setup-node@v1
         with:
-          node-version: '12'
+          node_version: '12'
       - name: Set Variables
         id: set_variables
         run: |
