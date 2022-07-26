@@ -15,3 +15,4 @@ def db():
     )
     yield db
     db.close()
+
