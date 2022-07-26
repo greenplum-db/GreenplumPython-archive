@@ -9,9 +9,9 @@ on:
       - "*.md"
 
 env:
-  POSTGRES_PASSWORD: postgres
-  POSTGRES_DB: greenplum_python_test
-  POSTGRES_USER: postgres 
+  PGPASSWORD: postgres
+  TESTDB: greenplum_python_test
+  PGUSER: postgres 
 
 jobs:
   build:
@@ -34,9 +34,9 @@ jobs:
         # I use this one
         image: thorinschiffer/postgres-plpython:${{ matrix.postgres-version }}
         env:
-          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ env.POSTGRES_DB }}
-          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_USER: ${{ env.PGUSER }}
+          POSTGRES_PASSWORD: ${{ env.PGPASSWORD }}
+          POSTGRES_DB: ${{ env.TESTDB }}
         ports:
         - 5432:5432
   
@@ -52,10 +52,10 @@ jobs:
         pip install tox==3.25.0
     - name: Create plpython3u language and environment
       run: |
-        psql postgres://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@localhost/${{ env.POSTGRES_DB }} -c "CREATE LANGUAGE plpython3u;"
+        psql postgres://${{ env.PGUSER }}:${{ env.PGPASSWORD }}@localhost/${{ env.TESTDB }} -c "CREATE LANGUAGE plpython3u;"
     - name: Run Tests
       run: |
-        export POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }}
-        export POSTGRES_USER=${{ env.POSTGRES_USER }}
-        export POSTGRES_DB=${{ env.POSTGRES_DB }}
+        export POSTGRES_PASSWORD=${{ env.PGPASSWORD }}
+        export POSTGRES_USER=${{ env.PGUSER }}
+        export POSTGRES_DB=${{ env.TESTDB }}
         tox -e ${{ matrix.tox_test }}

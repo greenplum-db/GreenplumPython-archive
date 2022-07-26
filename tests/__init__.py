@@ -7,11 +7,12 @@ import greenplumpython as gp
 
 @pytest.fixture()
 def db():
+    # for the connection both work for GitHub Actions and concourse
     db = gp.database(
         host="localhost",
-        dbname=environ.get("POSTGRES_DB", "gpadmin"),
-        user=environ.get("POSTGRES_USER"),
-        password=environ.get("POSTGRES_PASSWORD"),
+        dbname=environ.get("TESTDB", "gpadmin"),
+        user=environ.get("PGUSER"),
+        password=environ.get("PGPASSWORD"),
     )
     yield db
     db.close()
