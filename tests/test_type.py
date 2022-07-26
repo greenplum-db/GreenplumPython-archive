@@ -1,23 +1,11 @@
 import inspect
-from os import environ
 from typing import List
 
 import pytest
 
 import greenplumpython as gp
 from greenplumpython.type import create_type, drop_type
-
-
-@pytest.fixture
-def db():
-    db = gp.database(
-        host="localhost",
-        dbname="gpadmin",
-        user=environ.get("POSTGRES_USER"),
-        password=environ.get("POSTGRES_PASSWORD"),
-    )
-    yield db
-    db.close()
+from tests import db
 
 
 def test_type_cast(db: gp.Database):

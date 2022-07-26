@@ -30,8 +30,8 @@ jobs:
         image: thorinschiffer/postgres-plpython:${{ matrix.postgres-version }}
         env:
           POSTGRES_PASSWORD: postgres
-          # GreenplumPython use gpadmin as db name
-          POSTGRES_DB: gpadmin
+          POSTGRES_DB: greenplum_python_test
+          POSTGRES_USER: postgres 
         ports:
         - 5432:5432
   
@@ -47,10 +47,10 @@ jobs:
         pip install tox==3.25.0
     - name: Create plpython3u language and environment
       run: |
-        psql postgres://postgres:postgres@localhost/gpadmin -c "CREATE LANGUAGE plpython3u;"
+        psql postgres://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@localhost/${{ env.POSTGRES_DB }} -c "CREATE LANGUAGE plpython3u;"
     - name: Run Tests
       run: |
-        export POSTGRES_PASSWORD=postgres
-        export POSTGRES_USER=postgres
+        export POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }}
+        export POSTGRES_USER=${{ env.POSTGRES_USER }}
+        export POSTGRES_DB=${{ env.POSTGRES_DB }}
         tox -e ${{ matrix.tox_test }}
-  

@@ -1,20 +1,7 @@
-from os import environ
-
 import pytest
 
 import greenplumpython as gp
-
-
-@pytest.fixture
-def db() -> gp.Database:
-    db = gp.database(
-        host="localhost",
-        dbname="gpadmin",
-        user=environ.get("POSTGRES_USER"),
-        password=environ.get("POSTGRES_PASSWORD"),
-    )
-    yield db
-    db.close()
+from tests import db
 
 
 @pytest.fixture

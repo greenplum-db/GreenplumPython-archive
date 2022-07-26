@@ -1,12 +1,13 @@
 from os import environ
 
 import greenplumpython as gp
+from tests import db
 
 
 def test_db():
     db = gp.database(
         host="localhost",
-        dbname="gpadmin",
+        dbname=environ.get("POSTGRES_DB", "gpadmin"),
         user=environ.get("POSTGRES_USER"),
         password=environ.get("POSTGRES_PASSWORD"),
     )
