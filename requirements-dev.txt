@@ -2,4 +2,4 @@ black==22.3.0
 isort==5.10.1
 pytest==7.0.1
 pglast==3.10
-pyright
+pyright==1.1.250
