@@ -351,3 +351,22 @@ def test_array_func_comp_type(db: gp.Database):
     ret = list(my_stat(numbers["val"], db=db).to_table().fetch())
     for row in ret:
         assert row["sum"] == sum(list([i for i in range(10)])) and row["count"] == len(rows)
+
+
+def test_func_method_chain_table(db: gp.Database):
+    rows = [(i,) for i in range(-10, 0)]
+    series = gp.values(rows, db=db, column_names=["id"])
+    abs = gp.function("abs", db=db)
+    results = series.apply(abs, series["id"]).to_table().fetch()
+    assert sorted([row["abs"] for row in results]) == list(range(1, 11))
+
+
+def test_func_method_chain_const_and_column(db: gp.Database):
+    @gp.create_function
+    def label(type: str, id: int) -> str:
+        return type + str(id)
+
+    rows = [(i,) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+    result = numbers.apply(label, ("label", numbers["val"])).to_table().fetch()
+    print(result[0])

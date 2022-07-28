@@ -8,13 +8,14 @@ user calling `fetch()` function.
 
 All modifications made by users are only saved to database when calling `save_as()` function.
 """
-from typing import TYPE_CHECKING, Iterable, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Iterable, List, Optional, Tuple
 from uuid import uuid4
 
 from . import db
 
 if TYPE_CHECKING:
     from .expr import Expr
+    from .func import FunctionCall
 
 
 class Table:
@@ -508,6 +509,14 @@ class Table:
         results = self._db.execute(f"EXPLAIN (FORMAT {format}) {self._build_full_query()}")
         assert results is not None
         return results
+
+    @staticmethod
+    # FIXME : define func type
+    # FIXME : Add more tests
+    def apply(func, arg=Iterable[Any]) -> "FunctionCall":
+        if isinstance(arg, Iterable):
+            return func(*arg)
+        return func(arg)
 
 
 # table_name can be table/view name
