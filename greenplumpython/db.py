@@ -1,7 +1,7 @@
 """
 This  module can create a connection to a Greenplum database
 """
-from typing import Iterable, List, Optional
+from typing import Iterable, Optional
 
 import psycopg2
 import psycopg2.extras
@@ -60,6 +60,14 @@ class Database:
         """
         assert isinstance(key, str)
         self.execute(f"SET {key} TO {value}", has_results=False)
+
+    def get_table(self, name: str):
+        """
+        Returns a Table object using table name and self
+        """
+        from .table import table
+
+        return table(name, self)
 
 
 def database(
