@@ -510,10 +510,9 @@ class Table:
         assert results is not None
         return results
 
-    @staticmethod
     # FIXME : define func type
     # FIXME : Add more tests
-    def apply(func, arg=Iterable[Any]) -> "FunctionCall":
+    def apply(self, func, arg=Iterable[Any]) -> "FunctionCall":
         if isinstance(arg, Iterable):
             return func(*arg)
         return func(arg)

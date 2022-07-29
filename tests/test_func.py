@@ -369,4 +369,6 @@ def test_func_method_chain_const_and_column(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
     result = numbers.apply(label, ("label", numbers["val"])).to_table().fetch()
-    print(result[0])
+    assert len(result) == 10
+    for row in result:
+        assert row["label"].startswith("label")
