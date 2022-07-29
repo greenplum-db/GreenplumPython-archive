@@ -512,10 +512,13 @@ class Table:
 
     # FIXME : define func type
     # FIXME : Add more tests
-    def apply(self, func, arg=Iterable[Any]) -> "FunctionCall":
-        if isinstance(arg, Iterable):
-            return func(*arg)
-        return func(arg)
+    def apply(self, func) -> "FunctionCall":
+        LAMBDA = lambda: 0
+        if isinstance(func, type(LAMBDA)) and func.__name__ == LAMBDA.__name__:
+            return func(self)
+        else:
+            # FIXME : for automatic column map by given only the name of the function to apply
+            raise NotImplementedError("Not implemented for automatic column map")
 
 
 # table_name can be table/view name

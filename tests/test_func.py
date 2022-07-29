@@ -357,7 +357,7 @@ def test_func_method_chain_table(db: gp.Database):
     rows = [(i,) for i in range(-10, 0)]
     series = gp.values(rows, db=db, column_names=["id"])
     abs = gp.function("abs", db=db)
-    results = series.apply(abs, series["id"]).to_table().fetch()
+    results = series.apply(lambda row: abs(row["id"])).to_table().fetch()
     assert sorted([row["abs"] for row in results]) == list(range(1, 11))
 
 
@@ -368,7 +368,25 @@ def test_func_method_chain_const_and_column(db: gp.Database):
 
     rows = [(i,) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
-    result = numbers.apply(label, ("label", numbers["val"])).to_table().fetch()
+    result = numbers.apply(lambda row: label("label", row["val"])).to_table().fetch()
     assert len(result) == 10
     for row in result:
         assert row["label"].startswith("label")
+
+
+def test_func_method_chain_lambda_column(db: gp.Database):
+    rows = [(i,) for i in range(-10, 0)]
+    gp.values(rows, db=db, column_names=["id"]).save_as("series", temp=True)
+    abs = gp.function("abs", db=db)
+    results = db.get_table("series")[["id"]].apply(lambda row: abs(row["id"])).to_table().fetch()
+    assert sorted([row["abs"] for row in results]) == list(range(1, 11))
+
+
+def test_func_method_chain_auto_column_mapping(db: gp.Database):
+    rows = [(i,) for i in range(-10, 0)]
+    gp.values(rows, db=db, column_names=["id"]).save_as("series", temp=True)
+    abs = gp.function("abs", db=db)
+    with pytest.raises(Exception) as exc_info:
+        db.get_table("series")[["id"]].apply(abs).to_table().fetch()
+    # FIXME: Get column names of table then add auto mapping
+    assert "Not implemented for automatic column map" == str(exc_info.value)
