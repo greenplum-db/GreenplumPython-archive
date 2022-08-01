@@ -20,11 +20,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.7", "3.9"]
+        python-version: ["3.8", "3.9"]
         postgres-version: [10, 11, 12]
         include:
-          - tox_test: "test_py37"
-            python-version: "3.7"
+          - tox_test: "test_py38"
+            python-version: "3.8"
           - tox_test: "test_py39"
             python-version: "3.9"
 
@@ -38,7 +38,7 @@ jobs:
           POSTGRES_PASSWORD: ${{ env.PGPASSWORD }}
           POSTGRES_DB: ${{ env.TESTDB }}
         ports:
-        - 5432:5432
+          - 5432:5432
   
     steps:
     - uses: actions/checkout@v2
