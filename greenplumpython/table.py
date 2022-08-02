@@ -513,7 +513,7 @@ class Table:
     # FIXME : define func type
     # FIXME : Add more tests
     def apply(self, func) -> "FunctionCall":
-        if callable(func) and func.__name__ == (lambda: _).__name__:
+        if callable(func) and func.__name__ == "<lambda>":
             return func(self)
         else:
             # FIXME : for automatic column map by given only the name of the function to apply
