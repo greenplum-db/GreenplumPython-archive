@@ -37,6 +37,16 @@ def test_table_getitem_str(db: gp.Database):
     assert str(c) == (t.name + ".id")
 
 
+def test_table_getitem_sub_columns(db: gp.Database):
+    # fmt: off
+    rows = [(1, 2,), (1, 3,), (2, 2,), (3, 1,), (3, 4,)]
+    # fmt: on
+    t = gp.values(rows, db=db)
+    t = t.save_as("const_table", temp=True, column_names=["id", "num"])
+    t_sub = t[["id", "num"]]
+    assert t_sub.columns == ["id", "num"]
+
+
 def test_table_top_skip(db: gp.Database, t: gp.Table):
     ret = list(t.top(5, ["id"], 2).fetch())
     assert len(ret) == 5
