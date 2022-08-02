@@ -363,8 +363,8 @@ def test_func_method_chain_table(db: gp.Database):
 
 def test_func_method_chain_const_and_column(db: gp.Database):
     @gp.create_function
-    def label(type: str, id: int) -> str:
-        return type + str(id)
+    def label(type_or_type: str, id: int) -> str:
+        return type_or_type + str(id)
 
     rows = [(i,) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])

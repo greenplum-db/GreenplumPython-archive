@@ -8,7 +8,7 @@ user calling `fetch()` function.
 
 All modifications made by users are only saved to database when calling `save_as()` function.
 """
-from typing import TYPE_CHECKING, Any, Iterable, List, Optional, Tuple
+from typing import TYPE_CHECKING, Iterable, List, Optional, Tuple
 from uuid import uuid4
 
 from . import db
@@ -513,8 +513,7 @@ class Table:
     # FIXME : define func type
     # FIXME : Add more tests
     def apply(self, func) -> "FunctionCall":
-        LAMBDA = lambda: 0
-        if isinstance(func, type(LAMBDA)) and func.__name__ == LAMBDA.__name__:
+        if callable(func) and func.__name__ == (lambda: _).__name__:
             return func(self)
         else:
             # FIXME : for automatic column map by given only the name of the function to apply
