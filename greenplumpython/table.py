@@ -472,7 +472,7 @@ class Table:
     def _build_full_query(self) -> str:
         lineage = self._list_lineage()
         cte_list: List[str] = []
-        for table in reversed(lineage):
+        for table in lineage:
             if table._name != self._name:
                 cte_list.append(f"{table._name} AS ({table._query})")
         if len(cte_list) == 0:
