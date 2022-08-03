@@ -69,7 +69,7 @@ def test_join_all_one_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
         t2, targets=[t2["*"], t1["id1"]], how="INNER JOIN", on_str="ON temp1.id1 = temp2.id2"
     )
     assert list(list(ret.fetch())[0].keys()) == ["id2", "idd2", "n2", "id1"]
-    assert ret.columns == []
+    assert ret.columns is None
 
 
 def test_join_both_mulp_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):

@@ -222,7 +222,7 @@ class Table:
             and str(other["*"]) not in target_str_list
             # FIXME : Add analyze for other cases
             # FIXME : For example when select * and both table has attribute "columns"
-            else [],
+            else None,
         )
 
     def inner_join(
