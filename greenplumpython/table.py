@@ -29,7 +29,7 @@ class Table:
         parents: Iterable["Table"] = [],
         name: Optional[str] = None,
         db: Optional[db.Database] = None,
-        columns: Optional[Iterable[str]] = [],
+        columns: Optional[Iterable[str]] = None,
     ) -> None:
         self._query = query
         self._parents = parents
