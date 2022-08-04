@@ -109,7 +109,6 @@ set -v
     sp \
     -p "${pipeline_name}" \
     -c "${yml_path}" \
-    -v "gcs-bucket=pivotal-gpdb-concourse-resources-prod" \
     -v "${proj_name}-branch=${branch}"
 set +v
 
