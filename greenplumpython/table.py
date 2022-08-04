@@ -1,20 +1,20 @@
 """
-This module creates a Python object Table which keep in memory all the user modifications
-on a table, in order to proceed SQL query. It concatenates different pieces of queries
+This module creates a Python object Table which keeps in memory all the user modifications
+on a table, in order to proceed with SQL query. It concatenates different pieces of queries
 together using CTEs.
 
-Table sends the aggregated SQL query to the database and return the final result only when
+Table sends the aggregated SQL query to the database and returns the final result only when
 user calling `fetch()` function.
 
-All modifications made by users are only saved to database when calling `save_as()` function.
+All modifications made by users are only saved to the database when calling the `save_as()`
+function.
 """
-from typing import TYPE_CHECKING, Iterable, List, Optional, Tuple
+from functools import singledispatchmethod
+from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Union, overload
 from uuid import uuid4
 
 from . import db
-
-if TYPE_CHECKING:
-    from .expr import Expr
+from .expr import Column, Expr
 
 
 class Table:
@@ -37,7 +37,58 @@ class Table:
         else:
             self._db = db
 
-    def __getitem__(self, key):
+    @singledispatchmethod
+    def _getitem(self, key):  # type: ignore
+        raise NotImplementedError()
+
+    @_getitem.register(Expr)
+    def _(self, key: Expr):
+        return self.filter(key)
+
+    @_getitem.register(list)
+    def _(self, key: List[Union[str, Expr]]) -> "Table":
+        return self.select(key)
+
+    @_getitem.register
+    def _(self, key: str):
+        return Column(key, self)
+
+    @_getitem.register
+    def _(self, key: slice):
+        if key.step is not None:
+            raise NotImplementedError()
+        offset_clause = "" if key.start is None else f"OFFSET {key.start}"
+        limit_clause = (
+            ""
+            if key.stop is None
+            else f"LIMIT {key.stop if key.start is None else key.stop - key.start}"
+        )
+        return Table(
+            f"SELECT * FROM {self.name} {limit_clause} {offset_clause}",
+            parents=[self],
+        )
+
+    @overload
+    def __getitem__(self, key) -> "Table":  # type: ignore
+        ...
+
+    @overload
+    def __getitem__(self, key: List[Union[str, Expr]]) -> "Table":
+        ...
+
+    @overload
+    def __getitem__(self, key: Expr) -> "Table":
+        ...
+
+    @overload
+    def __getitem__(self, key: str) -> Expr:
+        ...
+
+    @overload
+    def __getitem__(self, key: slice) -> Optional["Table"]:
+        ...
+
+    def __getitem__(self, *args, **kwargs):  # type: ignore
         """
         Returns
             - a Column of the current Table if key is string
@@ -67,27 +118,7 @@ class Table:
                    slice_table = tab[2:5]
 
         """
-        from .expr import Column, Expr
-
-        if isinstance(key, str):
-            return Column(key, self)
-        if isinstance(key, list):
-            return self.select(key)
-        if isinstance(key, Expr):
-            return self.filter(key)
-        if isinstance(key, slice):
-            if key.step is not None:
-                raise NotImplementedError()
-            offset_clause = "" if key.start is None else f"OFFSET {key.start}"
-            limit_clause = (
-                ""
-                if key.stop is None
-                else f"LIMIT {key.stop if key.start is None else key.stop - key.start}"
-            )
-            return Table(
-                f"SELECT * FROM {self.name} {limit_clause} {offset_clause}",
-                parents=[self],
-            )
+        return self._getitem(*args, **kwargs)  # type: ignore
 
     def as_name(self, name_as: str) -> "Table":
         """
@@ -109,7 +140,7 @@ class Table:
         return Table(f"SELECT * FROM {self._name} WHERE {str(expr)}", parents=[self])
 
     # FIXME: Add test
-    def select(self, target_list: Iterable) -> "Table":
+    def select(self, target_list: Iterable[Union[str, "Expr"]]) -> "Table":
         """
         Returns table with targeted columns
 
@@ -128,7 +159,7 @@ class Table:
         )
 
     @staticmethod
-    def _order_by_str(order_by: Iterable) -> str:
+    def _order_by_str(order_by: Union[Iterable[str], Dict[str, str]]) -> str:
         """
         Private method returns ORDER BY statement according to the list of targets
 
@@ -140,7 +171,7 @@ class Table:
         """
         order_by_clause = (
             f"""
-                {','.join([' '.join([col, order]) for col, order in order_by.items()])}
+                {','.join([' '.join([col, order_by[col]]) for col in order_by])}
             """
             if isinstance(order_by, dict)
             else f"""
@@ -149,7 +180,9 @@ class Table:
         )
         return order_by_clause
 
-    def top(self, count: int, order_by: Iterable, skip: int = 0) -> "Table":
+    def top(
+        self, count: int, order_by: Union[Iterable[str], Dict[str, str]], skip: int = 0
+    ) -> "Table":
         """
         Returns top k rows of tables skipping n rows wth order
 
@@ -191,7 +224,7 @@ class Table:
     def _join(
         self,
         other: "Table",
-        targets: List,
+        targets: List["Expr"],
         how: str,
         on_str: str,
     ) -> "Table":
@@ -214,10 +247,11 @@ class Table:
         self,
         other: "Table",
         cond: "Expr",
-        targets: List = [],
+        targets: List["Expr"] = [],
     ):
         """
-        Returns inner join of self and another Table using condition, and only select targeted columns
+        Returns inner join of self and another Table using condition, and only select targeted
+        columns
 
         Args:
             other: Table : table to use to do the join
@@ -248,10 +282,11 @@ class Table:
         self,
         other: "Table",
         cond: "Expr",
-        targets: List = [],
+        targets: List["Expr"] = [],
     ):
         """
-        Returns left join of self and another Table using condition, and only select targeted columns
+        Returns left join of self and another Table using condition, and only select targeted
+        columns
 
         Args:
             other: Table : table to use to do the join
@@ -276,10 +311,11 @@ class Table:
         self,
         other: "Table",
         cond: "Expr",
-        targets: List = [],
+        targets: List["Expr"] = [],
     ):
         """
-        Returns right join of self and another Table using condition, and only select targeted columns
+        Returns right join of self and another Table using condition, and only select targeted
+        columns
 
         Args:
             other: Table : table to use to do the join
@@ -304,10 +340,11 @@ class Table:
         self,
         other: "Table",
         cond: "Expr",
-        targets: List = [],
+        targets: List["Expr"] = [],
     ):
         """
-        Returns full outer join of self and another Table using condition, and only select targeted columns
+        Returns full outer join of self and another Table using condition, and only select targeted
+        columns
 
         Args:
             other: Table : table to use to do the join
@@ -331,13 +368,14 @@ class Table:
     def natural_join(
         self,
         other: "Table",
-        targets: List = [],
+        targets: List["Expr"] = [],
     ):
         """
         Returns natural join of self and another Table, and only select targeted columns
 
         Args:
             other: Table : table to use to do the join
+            targets : List : list of targeted columns for joined table
 
         Returns
             Table : natural joined table
@@ -355,13 +393,14 @@ class Table:
     def cross_join(
         self,
         other: "Table",
-        targets: List = [],
+        targets: List["Expr"] = [],
     ):
         """
         Returns cross join of self and another Table, and only select targeted columns
 
         Args:
             other: Table : table to use to do the join
+            targets : List : list of targeted columns for joined table
 
         Returns
             Table : natural joined table
@@ -414,9 +453,8 @@ class Table:
         return self._query.startswith("TABLE")
 
     def _list_lineage(self) -> List["Table"]:
-        lineage = []
-        lineage.append(self)
-        tables_visited = set()
+        lineage: List["Table"] = [self]
+        tables_visited: Set[str] = set()
         current = 0
         while current < len(lineage):
             if lineage[current].name not in tables_visited and not lineage[current]._in_catalog():
@@ -424,7 +462,7 @@ class Table:
             current += 1
         return lineage
 
-    def _depth_first_search(self, t, visited, lineage):
+    def _depth_first_search(self, t: "Table", visited: Set[str], lineage: List["Table"]):
         visited.add(t.name)
         for i in t._parents:
             if i.name not in visited and not i._in_catalog():
@@ -433,7 +471,7 @@ class Table:
 
     def _build_full_query(self) -> str:
         lineage = self._list_lineage()
-        cte_list = []
+        cte_list: List[str] = []
         for table in lineage:
             if table._name != self._name:
                 cte_list.append(f"{table._name} AS ({table._query})")
@@ -441,7 +479,7 @@ class Table:
             return self._query
         return "WITH " + ",".join(cte_list) + self._query
 
-    def fetch(self, is_all: bool = True) -> Iterable:
+    def fetch(self, is_all: bool = True) -> Iterable[Tuple[Any]]:
         """
         Fetch rows of this table.
         - if is_all is True, fetch all rows at once
@@ -471,7 +509,7 @@ class Table:
         #        OR USING column_names() FUNCTION WITH RESULT ORDERED
         if len(column_names) == 0:
             ret = self.fetch()
-            column_names = list(list(ret)[0].keys())
+            column_names = list(list(ret)[0].keys())  # type: ignore
         self._db.execute(
             f"""
             CREATE {'TEMP' if temp else ''} TABLE {table_name} ({','.join(column_names)}) 
@@ -500,9 +538,9 @@ class Table:
     #     )
 
     # FIXME: Should we choose JSON as the default format?
-    def explain(self, format: str = "TEXT") -> Iterable:
+    def explain(self, format: str = "TEXT") -> Iterable[Tuple[str]]:
         """
-        Explaind the table's query
+        Explained the table's query
         """
         assert self._db is not None
         results = self._db.execute(f"EXPLAIN (FORMAT {format}) {self._build_full_query()}")
@@ -518,7 +556,7 @@ def table(name: str, db: db.Database) -> Table:
     return Table(f"TABLE {name}", name=name, db=db)
 
 
-def values(rows: Iterable[Tuple], db: db.Database, column_names: Iterable[str] = []) -> Table:
+def values(rows: Iterable[Tuple[Any]], db: db.Database, column_names: Iterable[str] = []) -> Table:
     """
     Returns a Table using list of values given
 
