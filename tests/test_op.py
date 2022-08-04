@@ -1,15 +1,7 @@
 from typing import List
 
-import pytest
-
 import greenplumpython as gp
-
-
-@pytest.fixture
-def db():
-    db = gp.database(host="localhost", dbname="gpadmin")
-    yield db
-    db.close()
+from tests import db
 
 
 def test_op_on_consts(db: gp.Database):

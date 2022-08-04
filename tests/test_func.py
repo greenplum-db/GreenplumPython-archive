@@ -1,16 +1,11 @@
 import inspect
+from os import environ
 from typing import List
 
 import pytest
 
 import greenplumpython as gp
-
-
-@pytest.fixture
-def db():
-    db = gp.database(host="localhost", dbname="gpadmin")
-    yield db
-    db.close()
+from tests import db
 
 
 @pytest.fixture
@@ -22,7 +17,7 @@ def series(db: gp.Database):
 def test_plain_func(db: gp.Database):
     version = gp.function("version", db)
     for row in version().to_table().fetch():
-        assert "Greenplum" in row["version"]
+        assert "Greenplum" in row["version"] or row["version"].startswith("PostgreSQL")
 
 
 def test_set_returning_func(db: gp.Database):
