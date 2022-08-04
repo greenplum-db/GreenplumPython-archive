@@ -10,10 +10,26 @@ All modifications made by users are only saved to the database when calling the 
 function.
 """
 from functools import singledispatchmethod
-from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Union, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    Union,
+    overload,
+)
 from uuid import uuid4
 
 from . import db
+
+if TYPE_CHECKING:
+    from .func import FunctionCall
+
 from .expr import Column, Expr
 
 
@@ -28,10 +44,12 @@ class Table:
         parents: Iterable["Table"] = [],
         name: Optional[str] = None,
         db: Optional[db.Database] = None,
+        columns: Optional[Iterable[str]] = None,
     ) -> None:
         self._query = query
         self._parents = parents
         self._name = "cte_" + uuid4().hex if name is None else name
+        self._columns = columns
         if any(parents):
             self._db = next(iter(parents))._db
         else:
@@ -156,6 +174,7 @@ class Table:
                 FROM {self._name}
             """,
             parents=[self],
+            columns=target_list,
         )
 
     @staticmethod
@@ -224,7 +243,7 @@ class Table:
     def _join(
         self,
         other: "Table",
-        targets: List["Expr"],
+        targets: List["Column"],
         how: str,
         on_str: str,
     ) -> "Table":
@@ -233,7 +252,8 @@ class Table:
         """
         # FIXME : Raise Error if target columns don't exist
         # FIXME : Same column name in both table
-        select_str = ",".join([str(target) for target in targets]) if targets != [] else "*"
+        target_str_list = [str(target) for target in targets]
+        select_str = ",".join(target_str_list) if targets != [] else "*"
         return Table(
             f"""
                 SELECT {select_str} 
@@ -241,13 +261,22 @@ class Table:
                 {str(on_str)}  
             """,
             parents=[self, other],
+            columns=[
+                target.as_name if target.as_name is not None else target.name for target in targets
+            ]
+            if targets != []
+            and str(self["*"]) not in target_str_list
+            and str(other["*"]) not in target_str_list
+            # FIXME : Add analyze for other cases
+            # FIXME : For example when select * and both table has attribute "columns"
+            else None,
         )
 
     def inner_join(
         self,
         other: "Table",
         cond: "Expr",
-        targets: List["Expr"] = [],
+        targets: List["Column"] = [],
     ):
         """
         Returns inner join of self and another Table using condition, and only select targeted
@@ -282,7 +311,7 @@ class Table:
         self,
         other: "Table",
         cond: "Expr",
-        targets: List["Expr"] = [],
+        targets: List["Column"] = [],
     ):
         """
         Returns left join of self and another Table using condition, and only select targeted
@@ -311,7 +340,7 @@ class Table:
         self,
         other: "Table",
         cond: "Expr",
-        targets: List["Expr"] = [],
+        targets: List["Column"] = [],
     ):
         """
         Returns right join of self and another Table using condition, and only select targeted
@@ -340,7 +369,7 @@ class Table:
         self,
         other: "Table",
         cond: "Expr",
-        targets: List["Expr"] = [],
+        targets: List["Column"] = [],
     ):
         """
         Returns full outer join of self and another Table using condition, and only select targeted
@@ -368,7 +397,7 @@ class Table:
     def natural_join(
         self,
         other: "Table",
-        targets: List["Expr"] = [],
+        targets: List["Column"] = [],
     ):
         """
         Returns natural join of self and another Table, and only select targeted columns
@@ -393,7 +422,7 @@ class Table:
     def cross_join(
         self,
         other: "Table",
-        targets: List["Expr"] = [],
+        targets: List["Column"] = [],
     ):
         """
         Returns cross join of self and another Table, and only select targeted columns
@@ -444,6 +473,13 @@ class Table:
         Returns database associated with Table
         """
         return self._db
+
+    @property
+    def columns(self) -> Optional[Iterable[str]]:
+        """
+        Returns columns of Table
+        """
+        return self._columns
 
     # This is used to filter out tables that are derived from other tables.
     #
@@ -546,6 +582,18 @@ class Table:
         results = self._db.execute(f"EXPLAIN (FORMAT {format}) {self._build_full_query()}")
         assert results is not None
         return results
+
+    # FIXME : define func type
+    # FIXME : Add more tests
+    def apply(self, func: Callable) -> "FunctionCall":  # type: ignore
+        """
+        Apply function func on self by auto mapping columns to function's arguments.
+        Raise errors if columns are unknown.
+        """
+        if not self.columns:
+            raise NotImplementedError("Columns unknown for current table")
+        args = [self[column] for column in self.columns]
+        return func(*args)  # type: ignore
 
 
 # table_name can be table/view name

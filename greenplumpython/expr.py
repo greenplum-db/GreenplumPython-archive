@@ -156,6 +156,13 @@ class Expr:
         raise NotImplementedError()
 
     @property
+    def as_name(self) -> str:
+        """
+        Returns Expr Alias name
+        """
+        return self._as_name
+
+    @property
     def db(self) -> Optional[Database]:
         """
         Returns Expr associated database

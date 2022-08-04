@@ -351,3 +351,60 @@ def test_array_func_comp_type(db: gp.Database):
     ret = list(my_stat(numbers["val"], db=db).to_table().fetch())
     for row in ret:
         assert row["sum"] == sum(list([i for i in range(10)])) and row["count"] == len(rows)
+
+
+def test_func_apply_unknown_columns(db: gp.Database):
+    rows = [(i,) for i in range(-10, 0)]
+    series = gp.values(rows, db=db, column_names=["id"])
+    abs = gp.function("abs", db=db)
+    with pytest.raises(Exception) as exc_info:
+        series.apply(abs).to_table().fetch()
+    assert "Columns unknown for current table" == str(exc_info.value)
+
+
+def test_func_apply_const_and_column(db: gp.Database):
+    @gp.create_function
+    def label(type_or_type: str, num: int) -> str:
+        return type_or_type + str(num)
+
+    rows = [(i,) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+    result = numbers[["val"]].apply(lambda c: label("label", c)).to_table().fetch()
+    assert len(result) == 10
+    for row in result:
+        assert row["label"].startswith("label")
+
+
+def test_func_apply_auto_column_mapping_select(db: gp.Database):
+    @gp.create_function
+    def my_sum(num1: int, num2: int) -> int:
+        return num1 + num2
+
+    # fmt: off
+    rows = [(i, i,) for i in range(0, 10)]
+    # fmt: on
+    gp.values(rows, db=db, column_names=["n1", "n2"]).save_as("series", temp=True)
+    results = db.get_table("series")[["n1", "n2"]].apply(my_sum).to_table().fetch()
+    assert sorted([row["my_sum"] for row in results]) == list(range(0, 20, 2))
+
+
+def test_func_apply_auto_column_mapping_join(db: gp.Database):
+    @gp.create_function
+    def label(num: int, type_or_type: str) -> str:
+        return ":".join([str(num), type_or_type])
+
+    # fmt: off
+    rows1 = [(1, "'a1'",), (2, "'a2'",), (3, "'a3'",)]
+    rows2 = [(1, "'b1'",), (2, "'b2'",), (3, "'b3'",)]
+    # fmt: on
+    t1 = gp.values(rows1, db=db).save_as("temp1", temp=True, column_names=["id1", "n1"])
+    t2 = gp.values(rows2, db=db).save_as("temp2", temp=True, column_names=["id2", "n2"])
+    ret = t1.inner_join(
+        t2,
+        t1["id1"] == t2["id2"],
+        targets=[t1["id1"], t2["n2"]],
+    )
+    result = ret.apply(label).to_table().fetch()
+    for row in list(result):
+        assert row["label"][1:3] == ":b"
+        assert row["label"][0] == row["label"][3]
