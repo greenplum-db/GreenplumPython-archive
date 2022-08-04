@@ -7,6 +7,7 @@ from uuid import uuid4
 
 from .db import Database
 from .expr import Expr
+from .group import TableRowGroup
 from .table import Table
 from .type import primitive_type_map, to_pg_const, to_pg_type
 
@@ -16,12 +17,12 @@ class FunctionExpr(Expr):
         self,
         func_name: str,
         args: Iterable[Expr] = [],
-        group_by: Optional[Iterable[Union[Expr, str]]] = None,
+        group_by: Optional[TableRowGroup] = None,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
         is_return_comp: bool = False,
     ) -> None:
-        table: Optional[Table] = None
+        table: Optional[Table] = group_by.table if group_by is not None else None
         for arg in args:
             if isinstance(arg, Expr) and arg.table is not None:
                 if table is None:
@@ -45,24 +46,20 @@ class FunctionExpr(Expr):
         return f"{self._func_name}({args_string})"
 
     def to_table(self) -> Table:
-        from_caluse = "FROM " + (f"{self.table.name}" if self.table is not None else str(self))
-        group_by_columns = (
-            ",".join([str(column) for column in self._group_by])
-            if self._group_by is not None
-            else ""
+        from_caluse = f"FROM {self.table.name}" if self.table is not None else ""
+        group_by_clause = (
+            self._group_by.make_group_by_clause() if self._group_by is not None else ""
         )
-        group_by_clause = f"GROUP BY {group_by_columns}" if self._group_by is not None else ""
         parents = [self.table] if self.table is not None else []
+        if self._is_return_comp and self._as_name is None:
+            self._as_name = "func_" + uuid4().hex
         orig_func_table = Table(
             " ".join(
                 [
-                    f"""
-                        SELECT {(str(self) if self.table is not None else '*') if (not self._is_return_comp or self.table is None) 
-                                else '('+str(self)+').*'
-                                
-                    }
-                    """,
-                    "," + group_by_columns if group_by_columns != "" else "",
+                    f"SELECT {str(self)}",
+                    ("," + ",".join(self._group_by.get_targets()))
+                    if self._group_by is not None
+                    else "",
                     from_caluse,
                     group_by_clause,
                 ]
@@ -70,7 +67,12 @@ class FunctionExpr(Expr):
             db=self._db,
             parents=parents,
         )
-        return orig_func_table
+        result = f"({self._as_name}).*" if self._is_return_comp else "*"
+        return Table(
+            f"SELECT {result} FROM {orig_func_table.name}",
+            parents=[orig_func_table],
+            db=self._db,
+        )
 
     @property
     def qualified_func_name(self) -> str:

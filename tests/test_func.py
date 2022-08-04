@@ -160,7 +160,7 @@ def test_agg_group_by(db: gp.Database):
     numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
     count = gp.aggregate("count", db=db)
 
-    results = list(count(numbers["val"], group_by=["is_even"]).to_table().fetch())
+    results = list(count(numbers["val"], group_by=numbers.group_by("is_even")).to_table().fetch())
     assert len(results) == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["count"] == 5)
@@ -172,7 +172,9 @@ def test_agg_group_by_multi_columns(db: gp.Database):
     count = gp.aggregate("count", db=db)
 
     results = list(
-        count(numbers["val"], group_by=["is_even", "is_multiple_of_3"]).to_table().fetch()
+        count(numbers["val"], group_by=numbers.group_by("is_even", "is_multiple_of_3"))
+        .to_table()
+        .fetch()
     )
     assert len(results) == 2 * 2
     for row in results:
@@ -267,7 +269,9 @@ def test_array_func_group_by(db: gp.Database):
     rows = [(1, i % 2 == 0) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
     results = list(
-        my_sum(numbers["val"], group_by=["is_even"], as_name="result").to_table().fetch()
+        my_sum(numbers["val"], group_by=numbers.group_by("is_even"), as_name="result")
+        .to_table()
+        .fetch()
     )
     assert len(results) == 2
     for row in results:

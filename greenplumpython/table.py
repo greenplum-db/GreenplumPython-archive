@@ -501,7 +501,7 @@ class Table:
           ^                                                    |
           |------------------------- to_table() ---------------|
         """
-        return TableRowGroup(self, group_by)
+        return TableRowGroup(self, [group_by])
 
 
 # table_name can be table/view name
