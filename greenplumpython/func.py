@@ -57,7 +57,7 @@ class FunctionExpr(Expr):
             " ".join(
                 [
                     f"SELECT {str(self)}",
-                    ("," + ",".join(self._group_by.get_targets()))
+                    ("," + ",".join([str(target) for target in self._group_by.get_targets()]))
                     if self._group_by is not None
                     else "",
                     from_caluse,
@@ -103,7 +103,7 @@ def function(name: str, db: Database) -> Callable[..., FunctionExpr]:
 def aggregate(name: str, db: Database) -> Callable[..., FunctionExpr]:
     def make_function_call(
         *args: Expr,
-        group_by: Optional[Iterable[Union[Expr, str]]] = None,
+        group_by: Optional[TableRowGroup] = None,
         as_name: Optional[str] = None,
     ) -> FunctionExpr:
         return FunctionExpr(name, args, group_by=group_by, as_name=as_name, db=db)
@@ -208,7 +208,7 @@ def create_aggregate(
     @functools.wraps(trans_func)
     def make_function_call(
         *args: Expr,
-        group_by: Optional[Iterable[Union[Expr, str]]] = None,
+        group_by: Optional[TableRowGroup] = None,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ) -> FunctionExpr:
@@ -265,7 +265,7 @@ def create_array_function(
     @functools.wraps(func)
     def make_function_call(
         *args: Expr,
-        group_by: Optional[Iterable[Union[Expr, str]]] = None,
+        group_by: Optional[TableRowGroup] = None,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ) -> ArrayFunctionExpr:

@@ -10,10 +10,6 @@ class TableRowGroup:
     def __init__(self, table: "Table", grouping_sets: List[List["Expr"]]) -> None:
         self._table = table
         self._grouping_sets = grouping_sets
-        self._agg_attributes = None
-
-    def __getitem__(self, key: List[str]):
-        self._agg_attributes = key
 
     # TODO: provide apply() instead of aggregate() for consistency. That is:
     # `t.group_by(["is_even"])[["val"]].apply(count)`.
