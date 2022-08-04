@@ -1,13 +1,5 @@
-import pytest
-
 import greenplumpython as gp
-
-
-@pytest.fixture
-def db():
-    db = gp.database(host="localhost", dbname="gpadmin")
-    yield db
-    db.close()
+from tests import db
 
 
 def test_group_agg(db: gp.Database):
