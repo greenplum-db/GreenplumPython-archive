@@ -24,7 +24,7 @@ def test_group_by_multi_columns(db: gp.Database):
         .to_table()
         .fetch()
     )
-    assert len(results) == 2 * 2
+    assert len(results) == 4  # 2 attributes * 2 possible values per attribute
     for row in results:
         assert (
             ("is_even" in row)
@@ -52,7 +52,7 @@ def test_group_union(db: gp.Database):
         .to_table()
         .fetch()
     )
-    assert len(results) == 2 * 2
+    assert len(results) == 4  # 2 attributes * 2 possible values per attribute
     for row in results:
         assert ("is_even" in row) and ("is_multiple_of_3" in row)
         assert (

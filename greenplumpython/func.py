@@ -67,6 +67,19 @@ class FunctionExpr(Expr):
             db=self._db,
             parents=parents,
         )
+        # We use 2 `Table`s here because on GPDB 6X and PostgreSQL <= 9.6, a
+        # function returning records that contains more than one attributes
+        # will be called multiple times if we do
+        # ```sql
+        # SELECT (func(a, b)).* FROM t;
+        # ```
+        # which might cause performance issue. To workaround we need to do
+        # ```sql
+        # WITH func_call AS (
+        #     SELECT func(a, b) AS result FROM t
+        # )
+        # SELECT (result).* FROM func_call;
+        # ```
         result = f"({self._as_name}).*" if self._is_return_comp else "*"
         return Table(
             f"SELECT {result} FROM {orig_func_table.name}",
