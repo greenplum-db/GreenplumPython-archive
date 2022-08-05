@@ -5,7 +5,7 @@ GreenplumPython is a Python library that enables the user to interact with Green
 GreenplumPython provides a pandas-like table API that
 1. looks familiar and intuitive to Python users
 2. is powerful to do complex analytics, such as statistical analysis, with UDFs and UDAs
-3. encapsulates common best practices and avoids common pitfalls in Greeenplum, compared to writing SQL directly
+3. encapsulates common best practices and avoids common pitfalls in Greenplum, compared to writing SQL directly
 
 # Selecting the Database of Your Data
 
@@ -19,7 +19,7 @@ import greenplumpython as gp
 db = gp.database(host="localhost", dbname="gpadmin")
 ```
 
-We will use the following utility function to display a table:
+We will use the following utility function to display a table in HTML:
 ```python
 from tabulate import tabulate
 
@@ -104,7 +104,7 @@ display(t_even)
 </tbody>
 </table>
 
-For a quick glance, we can `SELECT` the first N rows of a table, like this:
+For a quick glance, we can `SELECT` the first unordered N rows of a table, like this:
 
 ```python
 t_n = t_even[:3]
@@ -122,7 +122,7 @@ display(t_n)
 </tbody>
 </table>
 
-Finally when we am done, we can save the resulting table to the database, either temporarily or persistently:
+Finally when we are done, we can save the resulting table to the database, either temporarily or persistently:
 
 ```python
 t_n.save_as(table_name="t_n", temp=True)
@@ -171,7 +171,7 @@ display(t2)
 We can `JOIN` the two table like this:
 
 ```python
-t_join = t1.join(
+t_join = t1.inner_join(
     t2,
     cond=t1["val"] == t2["val"],
     targets=[
@@ -199,7 +199,7 @@ display(t_join)
 
 # Creating and Calling Functions
 
-Calling functions is essential for data analytics. GreeenplumPython supports creating Greenplum UDFs and UDAs from Python functions and calling them in Python.
+Calling functions is essential for data analytics. GreenplumPython supports creating Greenplum UDFs and UDAs from Python functions and calling them in Python.
 
 Suppose we have a table of numbers:
 
