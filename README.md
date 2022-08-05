@@ -171,7 +171,7 @@ display(t2)
 We can `JOIN` the two table like this:
 
 ```python
-t_join = t1.join(
+t_join = t1.inner_join(
     t2,
     cond=t1["val"] == t2["val"],
     targets=[
