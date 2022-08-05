@@ -1,207 +1,304 @@
-## GreenplumPython
-GreenplumPython is a Python 3 client that designed for Greenplum Database (> 6.0). With GreenplumPython installed in Python environment, users can interact with data in Greenplum Database for analytics purpose. GreenplumPython provides a rich interface to allow user access both tables and views with minimal data transfer via pandas library. Users can easily access database without any knowledge of SQL. Moreover, GreenplumPython can allow user to execute their own Python code combine with data in Greenplum Database directly via built-in APPLY functions. GreenplumPython can work with PL/Conatiner to provide a high preformance sandbox Python 3 runtime environment.
+# GreenplumPython
 
-## Build
-GreenplumPython can be built directly from source
-```python
-python setup.py bdist_wheel
-``` 
+GreenplumPython is a Python library that enables the user to interact with Greenplum in a Pythonic way.
 
-## Install
-GreenplumPython is a python 3 library, and requires the following libraries
-`numpy`, `PyGreSQL`, `SQLAlchemy` and `pandas`
-GreenplumPython can be installed via `pip install`
+GreenplumPython provides a pandas-like table API that
+1. looks familiar and intuitive to Python users
+2. is powerful to do complex analytics, such as statistical analysis, with UDFs and UDAs
+3. encapsulates common best practices and avoids common pitfalls in Greeenplum, compared to writing SQL directly
 
-## Get Started
-```python
-import GreenplumPython as gp
-import Pandas as pd
+# Selecting the Database of Your Data
 
-# init connection
-connection = gp.Connection()
+To begin with, we need to select the database that contains the data we want:
 
-# connect to GPDB
-conn = connection.connect(dbIP, dbPort, dbname, username, password, ...)
-
-# init GPDB Database instance
-GPDatabase_instance = gp.GPDatabase(conn)
-
-# a dataframe warpper for input table
-Dataframe_Wrapper_instance_input = gpdb_instance.get_table(schema, table_name)
-
-# set output table columns info 
-columns_output_types = list()
-column_type_tuple = ('a', 'int4')
-columns_output_types.append(column_type_tuple)
-
-# set output table info without need to store results in a new table
-Table_Metadata_output = gp.GPTableMeta(None, None, columns_output_types, None)
-
-# apply function
-def input_py_func(row_element, extra_args):
-    return row_element + extra_args
-
-# run gpapply and return result is a pandas dataframe
-dataframe = gp.gpapply(Dataframe_Wrapper_instance_input, input_py_func, GPDatabase_instance, Table_Metadata_output, clear_existing = True, runtime_id = 'plc_r', runtime_type = 'plcontainer', **input_py_func_extra_args)
-
-# group apply function
-def input_py_func_groupby(pd.dataframe, extra_args):
-    import Pandas as pd
-    for row in pd.dataframe
-        yield row['a'] + extra_args
-
-# set output table info and store results in a new table
-Table_Metadata_output = gp.GPTableMeta("new_table", "schema", columns_output_types, None)
-
-# run gpTapply
-gp.gpTapply(Dataframe_Wrapper_instance_input, input_py_func_groupby, group_by_index, GPDatabase_instance, Table_Metadata_output = None, clear_existing = True, runtime_id = 'plc_r', runtime_type = 'plcontainer', **input_py_func_extra_args)
-
-```
-## Main Funcions Usage
-
-### gpApply: 
- Apply a R function to every row of data of a data frame object.
-
-
-### Description
-
- gpapply allows you to run a R function with input data frame in GreenplumDB through PL/container or PL/Python language.
- The Python function will be parsed, then an UDF will be created in GreenplumDB schema for execution.
- The calculation will be done in parallel with computing resources of GPDB segment hosts.
-
-
-### Usage
 
 ```python
-gpApply(dataframe_wrapper, py_func, GPdatabase, output_meta,
-            clear_existing = True, runtime_id = "plc_python_shared", runtime_type = "plpythonu",  **kwargs)
+import greenplumpython as gp
+
+
+db = gp.database(host="localhost", dbname="gpadmin")
 ```
 
-
-### Arguments
-
-Argument      |Description
-------------- |----------------
-```dataframe_wrapper```     |  gp.GPTableMeta: The input dataframe wrapper (i.e. the input table), must be the head arguments of py_func
-```py_func```     |      The function to apply each row of the input table dataframe_wrapper
-```GPdatabase```     |   gp.GPDatabase: The GreenplumDB connection instance 
-```output_meta```     |    gp.GPTableMeta:  The output metadata (i.e. the details of output table). The output_meta.signature must be set. Please see below for the details of gp.GPTableMeta. If the output_meta.name is `None`, function will return a pd.dataframe as the results instead of store the results in a new table with name output_mate.name.
-```clear_existing```     |      Bool: Whether clear existing output table stored in GreenplumDB before executing the query 
-```runtime_id```     |      Used by "plcontainer" runtime type only. The runtime id is set by plcontainer to specify a runtime cnofiguration. See plcontainer for more information. The argument type is string, e.g. "plc_python_shared" 
-```runtime_type```     |      value should be "plcontainer" or "plpythonu" 
-```**kwargs```     |       if the function py_func contains extra arguments other than input table columns, you can append them after all of the required arguments list.
+We will use the following utility function to display a table:
+```python
+from tabulate import tabulate
 
 
-### Return Value
+def display(t: gp.Table):
+    return tabulate(t.fetch(), headers="keys", tablefmt="html")
+```
 
- A `pd.dataframe` that contains the result if the output_meta.name is set. Otherwise, it returns a `None`.
+# Accessing a Table in the Database
 
-
-## gpTapply: 
- The difference of gptapply comparing with gpapply is, in gptapply, data inside GreenplumDB is group by a selected index.
- A Python function is applied to every row of grouped data.
-
-
-### Description
-
- gptApply allows you to run a R function with input data frame in GreenplumDB through PL/container or PL/Python language.
- The Python function will be parsed, then an UDF will be created in GreenplumDB schema for execution.
- The calculation will be done in parallel with computing resources of GPDB segment hosts.
-
-
-### Usage
+After selecting the database, we can access a table in the database by specifying its name:
 
 ```python
-gpApply(dataframe_wrapper, index, py_func, GPdatabase, output_meta,
-            clear_existing = True, runtime_id = "plc_python_shared", runtime_type = "plpythonu",  **kwargs)
+t = gp.table("demo", db=db)
+display(t)
 ```
 
+<table>
+<thead>
+<tr><th style="text-align: right;">  i</th><th style="text-align: right;">  j</th><th style="text-align: right;">  k</th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align: right;">  3</td><td style="text-align: right;">  3</td><td style="text-align: right;">  3</td></tr>
+<tr><td style="text-align: right;"> 10</td><td style="text-align: right;"> 10</td><td style="text-align: right;"> 10</td></tr>
+<tr><td style="text-align: right;">  1</td><td style="text-align: right;">  1</td><td style="text-align: right;">  1</td></tr>
+<tr><td style="text-align: right;">  4</td><td style="text-align: right;">  4</td><td style="text-align: right;">  4</td></tr>
+<tr><td style="text-align: right;">  8</td><td style="text-align: right;">  8</td><td style="text-align: right;">  8</td></tr>
+<tr><td style="text-align: right;">  2</td><td style="text-align: right;">  2</td><td style="text-align: right;">  2</td></tr>
+<tr><td style="text-align: right;">  5</td><td style="text-align: right;">  5</td><td style="text-align: right;">  5</td></tr>
+<tr><td style="text-align: right;">  6</td><td style="text-align: right;">  6</td><td style="text-align: right;">  6</td></tr>
+<tr><td style="text-align: right;">  7</td><td style="text-align: right;">  7</td><td style="text-align: right;">  7</td></tr>
+<tr><td style="text-align: right;">  9</td><td style="text-align: right;">  9</td><td style="text-align: right;">  9</td></tr>
+</tbody>
+</table>
 
-### Arguments
+# Basic Data Manipulation
 
-Argument      |Description
-------------- |----------------
-```dataframe_wrapper```     |  gp.GPTableMeta: The input dataframe wrapper (i.e. the input table), must be the head arguments of py_func
-```index```     |      The indexed column name, gptApply function will use this column to do `group by` and convert to an array
-```py_func```     |      The function to apply each row of the input table dataframe_wrapper
-```GPdatabase```     |   gp.GPDatabase: The GreenplumDB connection instance 
-```output_meta```     |    gp.GPTableMeta:  The output metadata (i.e. the details of output table). The output_meta.signature must be set. Please see below for the details of gp.GPTableMeta. If the output_meta.name is `None`, function will return a pd.dataframe as the results instead of store the results in a new table with name output_mate.name.
-```clear_existing```     |      Bool: Whether clear existing output table stored in GreenplumDB before executing the query 
-```runtime_id```     |      Used by "plcontainer" runtime type only. The runtime id is set by plcontainer to specify a runtime cnofiguration. See plcontainer for more information. The argument type is string, e.g. "plc_python_shared" 
-```runtime_type```     |      value should be "plcontainer" or "plpythonu" 
-```**kwargs```     |       if the function py_func contains extra arguments other than input table columns, you can append them after all of the required arguments list.
+Now we have a table. We can do basic data manipulation on it, just like in SQL.
 
+For example, we can `SELECT` a subset of its columns:
 
-### Return Value
+```python
+t_ij = t[["i", "j"]]
+display(t_ij)
+```
 
- A `pd.dataframe` that contains the result if the output_meta.name is set. Otherwise, it returns a `None`.
+<table>
+<thead>
+<tr><th style="text-align: right;">  i</th><th style="text-align: right;">  j</th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align: right;">  3</td><td style="text-align: right;">  3</td></tr>
+<tr><td style="text-align: right;"> 10</td><td style="text-align: right;"> 10</td></tr>
+<tr><td style="text-align: right;">  1</td><td style="text-align: right;">  1</td></tr>
+<tr><td style="text-align: right;">  4</td><td style="text-align: right;">  4</td></tr>
+<tr><td style="text-align: right;">  8</td><td style="text-align: right;">  8</td></tr>
+<tr><td style="text-align: right;">  2</td><td style="text-align: right;">  2</td></tr>
+<tr><td style="text-align: right;">  5</td><td style="text-align: right;">  5</td></tr>
+<tr><td style="text-align: right;">  6</td><td style="text-align: right;">  6</td></tr>
+<tr><td style="text-align: right;">  7</td><td style="text-align: right;">  7</td></tr>
+<tr><td style="text-align: right;">  9</td><td style="text-align: right;">  9</td></tr>
+</tbody>
+</table>
 
+And we can also `SELECT` a subset of its rows. Say we want all the even numbers:
 
-## Utils Functions Usage
+```python
+t_even = t_ij[t_ij["i"] % 2 == 0]
+display(t_even)
+```
 
-```Python
-import GreenplumPython as gp
-import Pandas as pd
+<table>
+<thead>
+<tr><th style="text-align: right;">  i</th><th style="text-align: right;">  j</th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align: right;"> 10</td><td style="text-align: right;"> 10</td></tr>
+<tr><td style="text-align: right;">  4</td><td style="text-align: right;">  4</td></tr>
+<tr><td style="text-align: right;">  8</td><td style="text-align: right;">  8</td></tr>
+<tr><td style="text-align: right;">  2</td><td style="text-align: right;">  2</td></tr>
+<tr><td style="text-align: right;">  6</td><td style="text-align: right;">  6</td></tr>
+</tbody>
+</table>
 
-# init connection instance
-connection = gp.Connection()
+For a quick glance, we can `SELECT` the first N rows of a table, like this:
 
-# connect to GPDB
-conn = gp.connection.connect(dbIP, dbPort, dbname, username, password, ...)
+```python
+t_n = t_even[:3]
+display(t_n)
+```
 
-conn1 = gp.connection.connect(dbIP, dbPort, dbname, username, password, ...)
+<table>
+<thead>
+<tr><th style="text-align: right;">  i</th><th style="text-align: right;">  j</th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align: right;"> 10</td><td style="text-align: right;"> 10</td></tr>
+<tr><td style="text-align: right;">  2</td><td style="text-align: right;">  2</td></tr>
+<tr><td style="text-align: right;">  6</td><td style="text-align: right;">  6</td></tr>
+</tbody>
+</table>
 
-# list all connections
-# id - conn
-dict() = connection.get_all_connection()
+Finally when we am done, we can save the resulting table to the database, either temporarily or persistently:
 
-# Get connection by id, None for false
-conn2 = connection.get_connection(conn_id)
+```python
+t_n.save_as(table_name="t_n", temp=True)
+```
 
-# close all connecions
-connection.close_all()
+# `JOIN`-ing Two Tables
 
-# close one connection, -1 for false
-conn_id = connection.close_connection(conn_id)
+We can also `JOIN` two tables with GreenplumPython. For example, suppose we have two tables like this:
 
-# init GPDB Database instance
-GPDatabase_instance = gp.GPDatabase(conn)
+```python
+rows = [(1, "'a'",), (2, "'b'",), (3, "'c'",), (4, "'d'")]
+t1 = gp.values(rows, db=db, column_names=["id, val"])
+display(t1)
+```
 
-# run SQL query
-pd.dataframe = GPDatabase_instance.execute(SQL)
+<table>
+<thead>
+<tr><th style="text-align: right;">  id</th><th>val  </th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align: right;">   1</td><td>a    </td></tr>
+<tr><td style="text-align: right;">   2</td><td>b    </td></tr>
+<tr><td style="text-align: right;">   3</td><td>c    </td></tr>
+<tr><td style="text-align: right;">   4</td><td>d    </td></tr>
+</tbody>
+</table>
 
-# Get metadata from table
-gp.metadata = GPDatabase_instance.table_meta(table_name, schema)
+```python
+rows = [(1, "'a'",), (2, "'b'",), (3, "'a'",), (4, "'b'")]
+t2 = gp.values(rows, db=db, column_names=["id, val"])
+display(t2)
+```
 
-# Get GPDB dataframe wrapper
-gp.dataframe_warpper = GPDatabase_instance.table(table_name, schema)
+<table>
+<thead>
+<tr><th style="text-align: right;">  id</th><th>val  </th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align: right;">   1</td><td>a    </td></tr>
+<tr><td style="text-align: right;">   2</td><td>b    </td></tr>
+<tr><td style="text-align: right;">   3</td><td>a    </td></tr>
+<tr><td style="text-align: right;">   4</td><td>b    </td></tr>
+</tbody>
+</table>
 
-# Init a GPDB dataframe wrapper
-gp.dataframe_warpper1 = gp.Dataframe_Wrapper(pd.dataframe, gp.GPTableMeta)
+We can `JOIN` the two table like this:
 
-# Init a GPTableMeta
-table_output_name = 'tbl'
-table_output_schema = 'public'
-
-columns_output_types = list()
-column_type_tuple = ('a', 'int4')
-columns_output_types.append(column_type_tuple)
-column_type_tuple = ('b', 'text')
-columns_output_types.append(column_type_tuple)
-column_type_tuple = ('c', 'float4')
-columns_output_types.append(column_type_tuple)
-
-distributed_keys = ['a', 'b']
-
-meta = gp.GPTableMeta(table_output_name, table_output_schema, columns_output_types, distributed_keys)
-
-# Check if table existed
-GPDatabase_instance.check_table_if_exist(table_name, schema)
+```python
+t_join = t1.join(
+    t2,
+    cond=t1["val"] == t2["val"],
+    targets=[
+        t1["id"].rename("t1_id"),
+        t1["val"].rename("t1_val"),
+        t2["id"].rename("t2_id"),
+        t2["val"].rename("t2_val"),
+    ],
+)
+display(t_join)
 
 ```
-## PR
 
-- install dev requirements `pip install -r requirements-dev.txt`
-- `black` the code use `black .  --line-length 100`
-- `isort` the imports use `isort --profile black .`
+<table>
+<thead>
+<tr><th style="text-align: right;">  t1_id</th><th>t1_val  </th><th style="text-align: right;">  t2_id</th><th>t2_val  </th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align: right;">      1</td><td>a       </td><td style="text-align: right;">      3</td><td>a       </td></tr>
+<tr><td style="text-align: right;">      1</td><td>a       </td><td style="text-align: right;">      1</td><td>a       </td></tr>
+<tr><td style="text-align: right;">      2</td><td>b       </td><td style="text-align: right;">      4</td><td>b       </td></tr>
+<tr><td style="text-align: right;">      2</td><td>b       </td><td style="text-align: right;">      2</td><td>b       </td></tr>
+</tbody>
+</table>
 
+# Creating and Calling Functions
+
+Calling functions is essential for data analytics. GreeenplumPython supports creating Greenplum UDFs and UDAs from Python functions and calling them in Python.
+
+Suppose we have a table of numbers:
+
+```python
+rows = [(i,) for i in range(10)]
+numbers = gp.values(rows, db=db, column_names=["val"])
+display(numbers)
+```
+
+<table>
+<thead>
+<tr><th style="text-align: right;">  val</th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align: right;">    0</td></tr>
+<tr><td style="text-align: right;">    1</td></tr>
+<tr><td style="text-align: right;">    2</td></tr>
+<tr><td style="text-align: right;">    3</td></tr>
+<tr><td style="text-align: right;">    4</td></tr>
+<tr><td style="text-align: right;">    5</td></tr>
+<tr><td style="text-align: right;">    6</td></tr>
+<tr><td style="text-align: right;">    7</td></tr>
+<tr><td style="text-align: right;">    8</td></tr>
+<tr><td style="text-align: right;">    9</td></tr>
+</tbody>
+</table>
+
+If we want to get the square of each number, we can write a function to do that:
+
+```python
+@gp.create_function
+def square(a: int) -> int:
+    return a ** 2
+
+display(square(numbers["val"], as_name="result", db=db).to_table())
+```
+
+<table>
+<thead>
+<tr><th style="text-align: right;">  result</th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align: right;">       0</td></tr>
+<tr><td style="text-align: right;">       1</td></tr>
+<tr><td style="text-align: right;">       4</td></tr>
+<tr><td style="text-align: right;">       9</td></tr>
+<tr><td style="text-align: right;">      16</td></tr>
+<tr><td style="text-align: right;">      25</td></tr>
+<tr><td style="text-align: right;">      36</td></tr>
+<tr><td style="text-align: right;">      49</td></tr>
+<tr><td style="text-align: right;">      64</td></tr>
+<tr><td style="text-align: right;">      81</td></tr>
+</tbody>
+</table>
+
+Note that this function is called in exactly the same way as ordinary Python functions.
+
+If we also want to get the sum of these numbers, what we need is to write an aggregate function like this:
+
+```python
+@gp.create_aggregate
+def my_sum(result: int, val: int) -> int:
+    if result is None:
+        return val
+    return result + val
+
+display(my_sum(numbers["val"], as_name="result", db=db).to_table())
+
+```
+
+<table>
+<thead>
+<tr><th style="text-align: right;">  result</th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align: right;">      45</td></tr>
+</tbody>
+</table>
+
+```python
+rows = [(i, i % 2 == 0) for i in range(10)]
+numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
+display(numbers)
+```
+
+<table>
+<thead>
+<tr><th style="text-align: right;">  val</th><th>is_even  </th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align: right;">    0</td><td>True     </td></tr>
+<tr><td style="text-align: right;">    1</td><td>False    </td></tr>
+<tr><td style="text-align: right;">    2</td><td>True     </td></tr>
+<tr><td style="text-align: right;">    3</td><td>False    </td></tr>
+<tr><td style="text-align: right;">    4</td><td>True     </td></tr>
+<tr><td style="text-align: right;">    5</td><td>False    </td></tr>
+<tr><td style="text-align: right;">    6</td><td>True     </td></tr>
+<tr><td style="text-align: right;">    7</td><td>False    </td></tr>
+<tr><td style="text-align: right;">    8</td><td>True     </td></tr>
+<tr><td style="text-align: right;">    9</td><td>False    </td></tr>
+</tbody>
+</table>
