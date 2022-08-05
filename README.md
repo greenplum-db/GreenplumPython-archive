@@ -19,7 +19,7 @@ import greenplumpython as gp
 db = gp.database(host="localhost", dbname="gpadmin")
 ```
 
-We will use the following utility function to display a table:
+We will use the following utility function to display a table in HTML:
 ```python
 from tabulate import tabulate
 
