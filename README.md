@@ -104,7 +104,7 @@ display(t_even)
 </tbody>
 </table>
 
-For a quick glance, we can `SELECT` the first N rows of a table, like this:
+For a quick glance, we can `SELECT` the first unordered N rows of a table, like this:
 
 ```python
 t_n = t_even[:3]
