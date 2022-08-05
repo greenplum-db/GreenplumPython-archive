@@ -278,27 +278,3 @@ display(my_sum(numbers["val"], as_name="result", db=db).to_table())
 <tr><td style="text-align: right;">      45</td></tr>
 </tbody>
 </table>
-
-```python
-rows = [(i, i % 2 == 0) for i in range(10)]
-numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
-display(numbers)
-```
-
-<table>
-<thead>
-<tr><th style="text-align: right;">  val</th><th>is_even  </th></tr>
-</thead>
-<tbody>
-<tr><td style="text-align: right;">    0</td><td>True     </td></tr>
-<tr><td style="text-align: right;">    1</td><td>False    </td></tr>
-<tr><td style="text-align: right;">    2</td><td>True     </td></tr>
-<tr><td style="text-align: right;">    3</td><td>False    </td></tr>
-<tr><td style="text-align: right;">    4</td><td>True     </td></tr>
-<tr><td style="text-align: right;">    5</td><td>False    </td></tr>
-<tr><td style="text-align: right;">    6</td><td>True     </td></tr>
-<tr><td style="text-align: right;">    7</td><td>False    </td></tr>
-<tr><td style="text-align: right;">    8</td><td>True     </td></tr>
-<tr><td style="text-align: right;">    9</td><td>False    </td></tr>
-</tbody>
-</table>
