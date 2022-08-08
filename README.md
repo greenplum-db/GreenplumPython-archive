@@ -7,6 +7,18 @@ GreenplumPython provides a pandas-like table API that
 2. is powerful to do complex analytics, such as statistical analysis, with UDFs and UDAs
 3. encapsulates common best practices and avoids common pitfalls in Greenplum, compared to writing SQL directly
 
+# Installation
+
+To install the latest development version, do
+
+```bash
+pip3 install --user git+https://github.com/greenplum-db/GreenplumPython
+```
+
+NOTE: This version is considered UNSTABLE. DON'T use it in the production environment!
+
+Stable version will be released soon.
+
 # Selecting the Database of Your Data
 
 To begin with, we need to select the database that contains the data we want:
