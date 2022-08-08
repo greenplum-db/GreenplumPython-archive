@@ -21,7 +21,7 @@ Stable version will be released soon.
 
 ## Tutorial
 
-### Selecting the Database of Your Data
+### 1. Selecting the Database of Your Data
 
 To begin with, we need to select the database that contains the data we want:
 
@@ -42,7 +42,7 @@ def display(t: gp.Table):
     return tabulate(t.fetch(), headers="keys", tablefmt="html")
 ```
 
-### Accessing a Table in the Database
+### 2. Accessing a Table in the Database
 
 After selecting the database, we can access a table in the database by specifying its name:
 
@@ -69,7 +69,7 @@ display(t)
 </tbody>
 </table>
 
-### Basic Data Manipulation
+### 3. Basic Data Manipulation
 
 Now we have a table. We can do basic data manipulation on it, just like in SQL.
 
@@ -142,7 +142,7 @@ Finally when we are done, we can save the resulting table to the database, eithe
 t_n.save_as(table_name="t_n", temp=True)
 ```
 
-### `JOIN`-ing Two Tables
+### 4. `JOIN`-ing Two Tables
 
 We can also `JOIN` two tables with GreenplumPython. For example, suppose we have two tables like this:
 
@@ -211,7 +211,7 @@ display(t_join)
 </tbody>
 </table>
 
-### Creating and Calling Functions
+### 5. Creating and Calling Functions
 
 Calling functions is essential for data analytics. GreenplumPython supports creating Greenplum UDFs and UDAs from Python functions and calling them in Python.
 
