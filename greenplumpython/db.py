@@ -1,7 +1,7 @@
 """
 This  module can create a connection to a Greenplum database
 """
-from typing import Iterable, List, Optional
+from typing import Any, Iterable, Optional, Tuple
 
 import psycopg2
 import psycopg2.extras
@@ -13,13 +13,13 @@ class Database:
     Each Database object has an instance **conn**
     """
 
-    def __init__(self, params) -> None:
-        self._conn = psycopg2.connect(
+    def __init__(self, params: "dict[str, str]") -> None:
+        self._conn = psycopg2.connect(  # type: ignore
             " ".join([f"{k}={v}" for k, v in params.items()]),
             cursor_factory=psycopg2.extras.RealDictCursor,
         )
 
-    def execute(self, query: str, has_results: bool = True) -> Optional[Iterable]:
+    def execute(self, query: str, has_results: bool = True) -> Optional[Iterable[Tuple[Any]]]:
         """
         Return the result of SQL query executed in Database
 
@@ -47,7 +47,7 @@ class Database:
         self._conn.close()
 
     # FIXME: How to get other "global" variables, e.g. CURRENT_ROLE, CURRENT_TIMETAMP, etc.?
-    def set_config(self, key: str, value):
+    def set_config(self, key: str, value: Any):
         """
         Set Database parameters
 
@@ -61,14 +61,21 @@ class Database:
         assert isinstance(key, str)
         self.execute(f"SET {key} TO {value}", has_results=False)
 
+    def get_table(self, name: str):
+        """
+        Returns a Table object using table name and self
+        """
+        from .table import table
+
+        return table(name, self)
+
 
 def database(
-    host="localhost",
+    host: str = "localhost",
     dbname: Optional[str] = None,
     user: Optional[str] = None,
     password: Optional[str] = None,
     port: Optional[int] = None,
-    **conn_strings,
 ) -> Database:
 
     """
@@ -112,4 +119,4 @@ def database(
         params["user"] = user
     if password is not None:
         params["password"] = password
-    return Database({**params, **conn_strings})
+    return Database(params)

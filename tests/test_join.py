@@ -67,8 +67,9 @@ def test_join_all_empty_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
 def test_join_all_one_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
     ret = t1._join(
         t2, targets=[t2["*"], t1["id1"]], how="INNER JOIN", on_str="ON temp1.id1 = temp2.id2"
-    ).fetch()
-    assert list(list(ret)[0].keys()) == ["id2", "idd2", "n2", "id1"]
+    )
+    assert list(list(ret.fetch())[0].keys()) == ["id2", "idd2", "n2", "id1"]
+    assert ret.columns is None
 
 
 def test_join_both_mulp_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
@@ -93,8 +94,9 @@ def test_join_same_column_names_alias(db: gp.Database):
         targets=[t1["id"].rename("t1_id"), t2["id"].rename("t2_id")],
         how="INNER JOIN",
         on_str="ON temp1.id = temp2.id",
-    ).fetch()
-    assert list(list(ret)[0].keys()) == ["t1_id", "t2_id"]
+    )
+    assert list(list(ret.fetch())[0].keys()) == ["t1_id", "t2_id"]
+    assert ret.columns == ["t1_id", "t2_id"]
 
 
 def test_join_same_column_names(db: gp.Database):

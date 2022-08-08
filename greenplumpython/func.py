@@ -2,7 +2,7 @@ import functools
 import inspect
 import re
 import textwrap
-from typing import Callable, Iterable, Optional, Union
+from typing import Any, Callable, Iterable, Optional, Union
 from uuid import uuid4
 
 from .db import Database
@@ -13,10 +13,15 @@ from .type import primitive_type_map, to_pg_const, to_pg_type
 
 
 class FunctionExpr(Expr):
+    """
+    A Function object associated with a Greenplum function which can be called and applied to
+    Greenplum data.
+    """
+
     def __init__(
         self,
         func_name: str,
-        args: Iterable[Expr] = [],
+        args: Iterable[Any] = [],
         group_by: Optional[TableRowGroup] = None,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
@@ -46,6 +51,10 @@ class FunctionExpr(Expr):
         return f"{self._func_name}({args_string})"
 
     def to_table(self) -> Table:
+        """
+        Returns the result table of the self function applied on args, with potential Group By if
+        it is an Aggregation function.
+        """
         from_caluse = f"FROM {self.table.name}" if self.table is not None else ""
         group_by_clause = (
             self._group_by.make_group_by_clause() if self._group_by is not None else ""
@@ -89,16 +98,27 @@ class FunctionExpr(Expr):
 
     @property
     def qualified_func_name(self) -> str:
+        """
+        Returns qualified function name
+        """
         return self._func_name
 
     @property
     def is_return_comp(self) -> bool:
+        """
+        Returns a boolean telling if the return type is composite or not
+        """
         if self._is_return_comp is not None:
             return self._is_return_comp
         return False
 
 
 class ArrayFunctionExpr(FunctionExpr):
+    """
+    Inherited from FunctionCall. Specialized for an Array Function.
+    It will array aggregate all the columns given by the user.
+    """
+
     def _serialize(self) -> str:
         args_string = (
             ",".join([f"array_agg({str(arg)})" for arg in self._args]) if any(self._args) else ""
@@ -107,6 +127,10 @@ class ArrayFunctionExpr(FunctionExpr):
 
 
 def function(name: str, db: Database) -> Callable[..., FunctionExpr]:
+    """
+    A wrap in order to call function
+    """
+
     def make_function_call(*args: Expr, as_name: Optional[str] = None) -> FunctionExpr:
         return FunctionExpr(name, args, as_name=as_name, db=db)
 
@@ -114,6 +138,10 @@ def function(name: str, db: Database) -> Callable[..., FunctionExpr]:
 
 
 def aggregate(name: str, db: Database) -> Callable[..., FunctionExpr]:
+    """
+    A wrap in order to call an aggregate function
+    """
+
     def make_function_call(
         *args: Expr,
         group_by: Optional[TableRowGroup] = None,
@@ -126,7 +154,7 @@ def aggregate(name: str, db: Database) -> Callable[..., FunctionExpr]:
 
 # FIXME: Add test cases for optional parameters
 def create_function(
-    func: Optional[Callable] = None,
+    func: Optional[Callable] = None,  # type: ignore
     name: Optional[str] = None,
     schema: Optional[str] = None,
     temp: bool = True,
@@ -134,11 +162,29 @@ def create_function(
     language_handler: str = "plpython3u",
     return_type_as_name: Optional[str] = None,
     type_is_temp: bool = True,
-) -> Callable:
-    # If need extra parameters when creating function
+) -> Callable:  # type: ignore
+    """
+    Creates a User Defined Python Function (UDF) in Greenplum Database according to the Python
+    function code given.
+
+    Returns:
+        Callable : FunctionCall
+
+    Args:
+        func : python function
+        name : Optional[str] : name of the UDF
+        schema : Optional[str] : where the UDF will be stored
+        temp: bool : if the creation of the UDF is temporary exists only for current session
+        replace_if_exists : bool : if the creation replaces an existing UDF with same name and args
+        language_handler : str : language handler extension to create UDF in Greenplum, by default
+        plpython3u, but can also choose plcontainer.
+        return_type_as_name : Optional[str] : name of the return composite type
+        type_is_temp : bool : if the return composite type is temporary
+    """
+    # If user needs extra parameters when creating a function
     if not func:
         return functools.partial(
-            create_function,
+            create_function,  # type: ignore
             name=name,
             schema=schema,
             temp=temp,
@@ -148,30 +194,21 @@ def create_function(
             type_is_temp=type_is_temp,
         )
 
-    @functools.wraps(func)
+    @functools.wraps(func)  # type: ignore
     def make_function_call(
-        *args: Expr,
+        *args: Any,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ) -> FunctionExpr:
-        or_replace = "OR REPLACE" if replace_if_exists else ""
-        schema_name = "pg_temp" if temp else (schema if schema is not None else "")
-        func_name = func.__name__ if name is None else name
-        if len(func_name) > 63:  # i.e. NAMEDATALEN - 1 in PostgreSQL
-            raise Exception("Function name should be no longer than 63 bytes.")
-        qualified_func_name = ".".join([schema_name, func_name])
-        if not temp and name is None:
-            raise NotImplementedError("Name is required for a non-temp function")
-        func_sig = inspect.signature(func)
-        func_args_string = ",".join(
-            [
-                f"{param.name} {to_pg_type(param.annotation, db)}"
-                for param in func_sig.parameters.values()
-            ]
-        )
-        # FIXME: include things in func.__closure__
-        func_lines = textwrap.dedent(inspect.getsource(func)).split("\n")
-        func_body = "\n".join([line for line in func_lines if re.match(r"^\s", line)])
+        """
+        Function wrap
+
+        Args:
+            *args : Any : arguments of function, could be constant or columns
+            as_name : Optional[str] : name of the UDF
+            db : Optional[Database] : where the function will be created
+        """
+        # -- Prepare function creation env in Greenplum
         if db is None:
             for arg in args:
                 if isinstance(arg, Expr) and arg.db is not None:
@@ -179,9 +216,30 @@ def create_function(
                     break
         if db is None:
             raise Exception("Database is required to create function")
+        or_replace = "OR REPLACE" if replace_if_exists else ""
+        schema_name = "pg_temp" if temp else (schema if schema is not None else "")
+        # -- Loading Python Function information
+        func_name = func.__name__ if name is None else name
+        if len(func_name) > 63:  # i.e. NAMEDATALEN - 1 in PostgreSQL
+            raise Exception("Function name should be no longer than 63 bytes.")
+        qualified_func_name = ".".join([schema_name, func_name])
+        if not temp and name is None:
+            raise NotImplementedError("Name is required for a non-temp function")
+        func_sig = inspect.signature(func)  # type: ignore
+        func_args_string = ",".join(
+            [
+                f"{param.name} {to_pg_type(param.annotation, db)}"
+                for param in func_sig.parameters.values()
+            ]
+        )
+        # -- Loading Python code of Function
+        # FIXME: include things in func.__closure__
+        func_lines = textwrap.dedent(inspect.getsource(func)).split("\n")  # type: ignore
+        func_body = "\n".join([line for line in func_lines if re.match(r"^\s", line)])
         return_type = to_pg_type(
             func_sig.return_annotation, db, return_type_as_name, type_is_temp, True
         )
+        # -- Creation of UDF in Greenplum
         db.execute(
             (
                 f"CREATE {or_replace} FUNCTION {qualified_func_name} ({func_args_string}) "
@@ -192,6 +250,7 @@ def create_function(
             ),
             has_results=False,
         )
+        # -- Return FunctionCall object corresponding to UDF created
         is_return_comp = func_sig.return_annotation not in primitive_type_map
         return FunctionExpr(
             qualified_func_name, args=args, as_name=as_name, db=db, is_return_comp=is_return_comp
@@ -202,47 +261,74 @@ def create_function(
 
 # FIXME: Add test cases for optional parameters
 def create_aggregate(
-    trans_func: Optional[Callable] = None,
+    trans_func: Optional[Callable] = None,  # type: ignore
     name: Optional[str] = None,
     schema: Optional[str] = None,
     temp: bool = True,
     language_handler: str = "plpython3u",
-) -> Callable:
-    # If need extra parameters when creating function
+) -> Callable:  # type: ignore
+    """
+    Creates a User Defined Python Aggregation (UDA) in Greenplum Database according to the Python
+    function code given.
+
+    Returns:
+        Callable : FunctionCall
+
+    Args:
+        trans_func : python function
+        name : Optional[str] : name of the UDA
+        schema : Optional[str] : where the UDA will be stored
+        temp: bool : if the creation of the UDA is temporary exists only for current session
+        language_handler : str : language handler extension to create UDA in Greenplum, by default
+        plpython3u, but can also choose plcontainer.
+    """
+    # If user needs extra parameters when creating a function
     if not trans_func:
         return functools.partial(
-            create_aggregate,
+            create_aggregate,  # type: ignore
             name=name,
             schema=schema,
             temp=temp,
             language_handler=language_handler,
         )
 
-    @functools.wraps(trans_func)
+    @functools.wraps(trans_func)  # type: ignore
     def make_function_call(
         *args: Expr,
         group_by: Optional[TableRowGroup] = None,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ) -> FunctionExpr:
-        trans_func_call = create_function(
+        """
+        Function wrap
+
+        Args:
+            *args : Any : arguments of function, could be constant or columns
+            group_by : Optional[Iterable[Union[Expr, str]]] : aggregation group by index
+            as_name : Optional[str] : name of the UDA
+            db : Optional[Database] : where the function will be created
+        """
+        trans_func_call = create_function(  # type: ignore
             trans_func, "func_" + uuid4().hex, schema, temp, False, language_handler
         )(*args, as_name=as_name, db=db)
         schema_name = "pg_temp" if temp else schema if schema is not None else ""
+        # -- Loading Python Function information
         agg_name = trans_func.__name__ if name is None else name
         qualified_agg_name = ".".join([schema_name, agg_name])
         if not temp and name is None:
             raise NotImplementedError("Name is required for a non-temp function")
-        sig = inspect.signature(trans_func)
+        sig = inspect.signature(trans_func)  # type: ignore
         param_list = iter(sig.parameters.values())
         state_param = next(param_list)
         args_string = ",".join(
             [f"{param.name} {to_pg_type(param.annotation, db)}" for param in param_list]
         )
-        trans_func_call.db.execute(
+        trans_func_call_func_name: str = trans_func_call.qualified_func_name  # type: ignore
+        # -- Creation of UDA in Greenplum
+        trans_func_call.db.execute(  # type: ignore
             f"""
             CREATE AGGREGATE {qualified_agg_name} ({args_string}) (
-                SFUNC = {trans_func_call.qualified_func_name},
+                SFUNC = {trans_func_call_func_name},
                 STYPE = {to_pg_type(state_param.annotation, db)}
             )
             """,
@@ -257,17 +343,33 @@ def create_aggregate(
 
 # FIXME: Add test cases for optional parameters
 def create_array_function(
-    func: Optional[Callable] = None,
+    func: Optional[Callable] = None,  # type: ignore
     name: Optional[str] = None,
     schema: Optional[str] = None,
     temp: bool = True,
     replace_if_exists: bool = False,
     language_handler: str = "plpython3u",
-) -> Callable:
-    # If need extra parameters when creating function
+) -> Callable:  # type: ignore
+    """
+    Creates a User Defined Python Function (UDF) in Greenplum Database according to the Python
+    function code. But it will array aggregate all args then pass them to the UDF.
+
+    Returns:
+        Callable : FunctionCall
+
+    Args:
+        func : python function
+        name : Optional[str] : name of the UDF
+        schema : Optional[str] : where the UDF will be stored
+        temp: bool : if the creation of the UDF is temporary exists only for current session
+        replace_if_exists : bool : if the creation replaces an existing UDF with same name and args
+        language_handler : str : language handler extension to create UDF in Greenplum, by default
+        plpython3u, but can also choose plcontainer.
+    """
+    # If user needs extra parameters when creating a function
     if not func:
         return functools.partial(
-            create_array_function,
+            create_array_function,  # type: ignore
             name=name,
             schema=schema,
             temp=temp,
@@ -275,23 +377,32 @@ def create_array_function(
             language_handler=language_handler,
         )
 
-    @functools.wraps(func)
+    @functools.wraps(func)  # type: ignore
     def make_function_call(
         *args: Expr,
         group_by: Optional[TableRowGroup] = None,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ) -> ArrayFunctionExpr:
-        array_func_call = create_function(
+        """
+        Array Function wrap
+
+        Args:
+            *args : Any : arguments of function, could be constant or columns
+            group_by : Optional[Iterable[Union[Expr, str]]] : array_aggregate group by index
+            as_name : Optional[str] : name of the UDF
+            db : Optional[Database] : where the function will be created
+        """
+        array_func_call = create_function(  # type: ignore
             func, name, schema, temp, replace_if_exists, language_handler
         )(*args, as_name=as_name, db=db)
         return ArrayFunctionExpr(
-            array_func_call.qualified_func_name,
+            array_func_call.qualified_func_name,  # type: ignore
             args=args,
             group_by=group_by,
             as_name=as_name,
             db=db,
-            is_return_comp=array_func_call.is_return_comp,
+            is_return_comp=array_func_call.is_return_comp,  # type: ignore
         )
 
     return make_function_call
