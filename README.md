@@ -7,7 +7,7 @@ GreenplumPython provides a [pandas](https://pandas.pydata.org/)-like table API t
 2. is powerful to do complex analytics, such as statistical analysis, with UDFs and UDAs
 3. encapsulates common best practices and avoids common pitfalls in Greenplum, compared to writing SQL directly
 
-# Installation
+## Installation
 
 To install the latest development version, do
 
@@ -19,7 +19,9 @@ NOTE: This version is considered UNSTABLE. DON'T use it in the production enviro
 
 Stable version will be released soon.
 
-# Selecting the Database of Your Data
+## Tutorial
+
+### Selecting the Database of Your Data
 
 To begin with, we need to select the database that contains the data we want:
 
@@ -40,7 +42,7 @@ def display(t: gp.Table):
     return tabulate(t.fetch(), headers="keys", tablefmt="html")
 ```
 
-# Accessing a Table in the Database
+### Accessing a Table in the Database
 
 After selecting the database, we can access a table in the database by specifying its name:
 
@@ -67,7 +69,7 @@ display(t)
 </tbody>
 </table>
 
-# Basic Data Manipulation
+### Basic Data Manipulation
 
 Now we have a table. We can do basic data manipulation on it, just like in SQL.
 
@@ -140,7 +142,7 @@ Finally when we are done, we can save the resulting table to the database, eithe
 t_n.save_as(table_name="t_n", temp=True)
 ```
 
-# `JOIN`-ing Two Tables
+### `JOIN`-ing Two Tables
 
 We can also `JOIN` two tables with GreenplumPython. For example, suppose we have two tables like this:
 
@@ -209,7 +211,7 @@ display(t_join)
 </tbody>
 </table>
 
-# Creating and Calling Functions
+### Creating and Calling Functions
 
 Calling functions is essential for data analytics. GreenplumPython supports creating Greenplum UDFs and UDAs from Python functions and calling them in Python.
 
