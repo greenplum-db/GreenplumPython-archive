@@ -595,7 +595,7 @@ class Table:
 
     # FIXME : define func type
     # FIXME : Add more tests
-    def apply(self, func: Callable) -> "FunctionCall":  # type: ignore
+    def apply(self, func: Callable[..., "FunctionExpr"]) -> "FunctionCall":  # type: ignore
         """
         Apply function func on self by auto mapping columns to function's arguments.
         Raise errors if columns are unknown.

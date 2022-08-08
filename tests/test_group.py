@@ -7,7 +7,7 @@ def test_group_agg(db: gp.Database):
     numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
     count = gp.aggregate("count", db=db)
 
-    results = list(numbers.group_by("is_even").aggregate(count, numbers["val"]).to_table().fetch())
+    results = list(numbers.group_by("is_even").apply(count, numbers["val"]).to_table().fetch())
     assert len(results) == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["count"] == 5)
@@ -20,7 +20,7 @@ def test_group_by_multi_columns(db: gp.Database):
 
     results = list(
         numbers.group_by("is_even", "is_multiple_of_3")
-        .aggregate(count, numbers["val"])
+        .apply(count, numbers["val"])
         .to_table()
         .fetch()
     )
@@ -48,7 +48,7 @@ def test_group_union(db: gp.Database):
     results = list(
         numbers.group_by("is_even")
         .union(numbers.group_by("is_multiple_of_3"))
-        .aggregate(count, numbers["val"])
+        .apply(count, numbers["val"])
         .to_table()
         .fetch()
     )
