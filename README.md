@@ -2,7 +2,7 @@
 
 GreenplumPython is a Python library that enables the user to interact with Greenplum in a Pythonic way.
 
-GreenplumPython provides a pandas-like table API that
+GreenplumPython provides a [pandas](https://pandas.pydata.org/)-like table API that
 1. looks familiar and intuitive to Python users
 2. is powerful to do complex analytics, such as statistical analysis, with UDFs and UDAs
 3. encapsulates common best practices and avoids common pitfalls in Greenplum, compared to writing SQL directly
