@@ -31,6 +31,7 @@ if TYPE_CHECKING:
     from .func import FunctionCall
 
 from .expr import Column, Expr
+from .order import OrderedTable
 
 
 class Table:
@@ -175,6 +176,25 @@ class Table:
             """,
             parents=[self],
             columns=target_list,
+        )
+
+    def order_by(
+        self,
+        index: Expr,
+        ascending: Optional[bool] = None,
+        nulls_first: Optional[bool] = None,
+        operator: Optional[str] = None,
+    ):
+        """
+        State transition diagram:
+        Table --order_by()-> OrderedTable --head()-> Table
+        """
+        return OrderedTable(
+            self,
+            [index],
+            {str(index): ascending},
+            {str(index): nulls_first},
+            {str(index): operator},
         )
 
     @staticmethod
