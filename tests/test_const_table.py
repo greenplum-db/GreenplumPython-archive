@@ -1,13 +1,9 @@
+from os import environ
+
 import pytest
 
 import greenplumpython as gp
-
-
-@pytest.fixture
-def db() -> gp.Database:
-    db = gp.database(host="localhost", dbname="gpadmin")
-    yield db
-    db.close()
+from tests import db
 
 
 @pytest.fixture
@@ -39,6 +35,16 @@ def test_table_getitem_str(db: gp.Database):
     t = t.save_as("const_table", temp=True, column_names=["id"])
     c = t["id"]
     assert str(c) == (t.name + ".id")
+
+
+def test_table_getitem_sub_columns(db: gp.Database):
+    # fmt: off
+    rows = [(1, 2,), (1, 3,), (2, 2,), (3, 1,), (3, 4,)]
+    # fmt: on
+    t = gp.values(rows, db=db)
+    t = t.save_as("const_table", temp=True, column_names=["id", "num"])
+    t_sub = t[["id", "num"]]
+    assert t_sub.columns == ["id", "num"]
 
 
 def test_table_getitem_slice_limit(db: gp.Database, t: gp.Table):

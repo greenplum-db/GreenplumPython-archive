@@ -1,13 +1,9 @@
+from os import environ
+
 import pytest
 
 import greenplumpython as gp
-
-
-@pytest.fixture
-def db() -> gp.Database:
-    db = gp.database(host="localhost", dbname="gpadmin")
-    yield db
-    db.close()
+from tests import db
 
 
 @pytest.fixture
@@ -71,8 +67,9 @@ def test_join_all_empty_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
 def test_join_all_one_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
     ret = t1._join(
         t2, targets=[t2["*"], t1["id1"]], how="INNER JOIN", on_str="ON temp1.id1 = temp2.id2"
-    ).fetch()
-    assert list(list(ret)[0].keys()) == ["id2", "idd2", "n2", "id1"]
+    )
+    assert list(list(ret.fetch())[0].keys()) == ["id2", "idd2", "n2", "id1"]
+    assert ret.columns is None
 
 
 def test_join_both_mulp_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
@@ -97,8 +94,9 @@ def test_join_same_column_names_alias(db: gp.Database):
         targets=[t1["id"].rename("t1_id"), t2["id"].rename("t2_id")],
         how="INNER JOIN",
         on_str="ON temp1.id = temp2.id",
-    ).fetch()
-    assert list(list(ret)[0].keys()) == ["t1_id", "t2_id"]
+    )
+    assert list(list(ret.fetch())[0].keys()) == ["t1_id", "t2_id"]
+    assert ret.columns == ["t1_id", "t2_id"]
 
 
 def test_join_same_column_names(db: gp.Database):
@@ -291,3 +289,42 @@ def test_table_join_ine(db: gp.Database):
     assert len(list(ret)) == 6
     for row in list(ret):
         assert row["a"] < row["b"]
+
+
+def test_table_multiple_self_join(db: gp.Database, zoo_1: gp.Table):
+    zoo_2 = zoo_1.as_name("zoo2")
+    zoo_3 = zoo_2.as_name("zoo3")
+    t_join = zoo_1.inner_join(
+        zoo_2,
+        zoo_1["animal"] == zoo_2["animal"],
+        targets=[
+            zoo_1["id"].rename("zoo1_id"),
+            zoo_1["animal"].rename("zoo1_animal"),
+            zoo_2["id"].rename("zoo2_id"),
+            zoo_2["animal"].rename("zoo2_animal"),
+        ],
+    )
+    ret = t_join.inner_join(
+        zoo_3,
+        t_join["zoo1_animal"] == zoo_3["animal"],
+    ).fetch()
+    assert len(list(ret)) == 4
+    for row in list(ret):
+        assert row["zoo2_animal"] == row["animal"]
+
+
+def test_join_recursive_join(db: gp.Database):
+    rows = [(i,) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+    label = numbers[["*", (numbers["val"] % 2).rename("mod")]]
+    percentile = label[["percentile_disc(0.5) WITHIN GROUP (ORDER BY mod) AS mod"]]
+    ret_mod = list(
+        label.inner_join(
+            percentile,
+            (label["mod"] == percentile["mod"]),
+            targets=[label["val"], percentile["mod"]],
+        ).fetch()
+    )
+    assert len(ret_mod) == 5
+    for row in ret_mod:
+        assert row["mod"] == row["val"] % 2

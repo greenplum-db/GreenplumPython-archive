@@ -1,13 +1,9 @@
+from os import environ
+
 import pytest
 
 import greenplumpython as gp
-
-
-@pytest.fixture
-def db():
-    db = gp.database(host="localhost", dbname="gpadmin")
-    yield db
-    db.close()
+from tests import db
 
 
 def test_expr_bin_equal_int(db: gp.Database):
