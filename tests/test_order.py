@@ -59,3 +59,15 @@ def test_order_by_multiple_head(db: gp.Database):
     assert len(ret) == 5
     assert ret2[0]["id"] == 3 and ret2[0]["num"] == 4
     assert ret2[4]["id"] == 3 and ret2[4]["num"] == 1
+
+
+def test_order_by_nulls_last(db: gp.Database):
+    # fmt: off
+    rows = [(1, "'Mona Lisa'", "NULL"), (5, "'The Birth of Venus'", "NULL"),
+            (3, "'The Scream'", 1893, ), (2, "'The Starry Night'", 1889,),
+            (4, "'The Night Watch'", 1642,)]
+    # fmt: on
+    t = gp.values(rows, db=db).save_as("paintings", column_names=["id", "painting", "year"])
+    ret = list(t.order_by(t["year"], nulls_first=False).head(5).fetch())
+    assert ret[0]["year"] is not None and ret[1]["year"] is not None and ret[2]["year"] is not None
+    assert ret[3]["year"] is None and ret[4]["year"] is None
