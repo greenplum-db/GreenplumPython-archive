@@ -1,3 +1,5 @@
+from functools import partial
+
 import greenplumpython as gp
 from tests import db
 
@@ -7,10 +9,36 @@ def test_group_agg(db: gp.Database):
     numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
     count = gp.aggregate("count", db=db)
 
-    results = list(numbers.group_by("is_even").aggregate(count, numbers["val"]).to_table().fetch())
+    results = list(
+        numbers.group_by("is_even").apply(lambda row: count(row["*"])).to_table().fetch()
+    )
     assert len(results) == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["count"] == 5)
+
+
+def test_group_agg_multi_columns(db: gp.Database):
+    rows = [(i, i, i % 2 == 0) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val", "val_cp", "is_even"])
+
+    @gp.create_aggregate
+    def my_sum(result: int, val: int, val_cp: int) -> int:
+        if result is None:
+            return val + val_cp
+        return result + val + val_cp
+
+    results = list(
+        numbers.group_by("is_even")
+        .apply(lambda row: my_sum(row["val"], row["val_cp"]))
+        .to_table()
+        .fetch()
+    )
+    assert len(results) == 2
+    for row in results:
+        assert ("is_even" in row) and (row["is_even"] is not None)
+        assert (row["is_even"] and row["my_sum"] == 2 * sum(list(range(0, 10, 2)))) or (
+            (not row["is_even"]) and row["my_sum"] == 2 * sum(list(range(1, 10, 2)))
+        )
 
 
 def test_group_by_multi_columns(db: gp.Database):
@@ -20,7 +48,7 @@ def test_group_by_multi_columns(db: gp.Database):
 
     results = list(
         numbers.group_by("is_even", "is_multiple_of_3")
-        .aggregate(count, numbers["val"])
+        .apply(lambda row: count(row["val"]))
         .to_table()
         .fetch()
     )
@@ -48,7 +76,7 @@ def test_group_union(db: gp.Database):
     results = list(
         numbers.group_by("is_even")
         .union(numbers.group_by("is_multiple_of_3"))
-        .aggregate(count, numbers["val"])
+        .apply(lambda row: count(row["val"]))
         .to_table()
         .fetch()
     )
