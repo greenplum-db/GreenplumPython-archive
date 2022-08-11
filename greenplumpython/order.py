@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 if TYPE_CHECKING:
     from .expr import Expr
@@ -10,9 +10,9 @@ class OrderedTable:
         self,
         table: "Table",
         ordering_list: List["Expr"],
-        ascending_list: List[bool],
-        nulls_first_list: List[bool],
-        operator_list: List[str],
+        ascending_list: List[Optional[bool]],
+        nulls_first_list: List[Optional[bool]],
+        operator_list: List[Optional[str]],
     ) -> None:
         self._table = table
         self._ordering_list = ordering_list
