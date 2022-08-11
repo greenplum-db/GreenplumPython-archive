@@ -11,12 +11,8 @@ class TableRowGroup:
         self._table = table
         self._grouping_sets = grouping_sets
 
-    # TODO: provide apply() instead of aggregate() for consistency. That is:
-    # `t.group_by(["is_even"])[["val"]].apply(count)`.
-    # But how about `t.group_by(["is_even"])[[*]].apply(count)` ?
-    def apply(self, func: Callable[..., "FunctionExpr"]) -> "FunctionExpr":
-        f = func(self._table)
-        return f(group_by=self)  # type: ignore
+    def apply(self, func: Callable[["Table"], "FunctionExpr"]) -> "FunctionExpr":
+        return func(self._table)(group_by=self)
 
     def union(self, other: "TableRowGroup") -> "TableRowGroup":
         assert self._table == other._table

@@ -593,17 +593,12 @@ class Table:
         """
         return TableRowGroup(self, [list(group_by)])
 
-    # FIXME : define func type
     # FIXME : Add more tests
-    def apply(self, func: Callable[..., "FunctionExpr"]) -> "FunctionCall":  # type: ignore
+    def apply(self, func: Callable[["Table"], "FunctionExpr"]) -> "FunctionExpr":
         """
-        Apply function func on self by auto mapping columns to function's arguments.
-        Raise errors if columns are unknown.
+        Apply a function to the table
         """
-        if not self.columns:
-            raise NotImplementedError("Columns unknown for current table")
-        args = [self[column] for column in self.columns]
-        return func(*args)  # type: ignore
+        return func(self)
 
 
 # table_name can be table/view name
