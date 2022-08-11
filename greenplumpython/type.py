@@ -98,4 +98,8 @@ def to_pg_const(obj: object) -> str:
     Converts a const to UTF-8 encoded str
     """
     # In Python 3, all `str`s are encoded in UTF-8
+    from .expr import Expr
+
+    if isinstance(obj, Expr):
+        return str(obj)
     return adapt(obj).getquoted().decode("utf-8")  # type: ignore

@@ -32,6 +32,7 @@ if TYPE_CHECKING:
 
 from .expr import Column, Expr
 from .order import OrderedTable
+from .type import to_pg_const
 
 
 class Table:
@@ -180,7 +181,7 @@ class Table:
 
     def order_by(
         self,
-        index: Expr,
+        order_col: Expr,
         ascending: Optional[bool] = None,
         nulls_first: Optional[bool] = None,
         operator: Optional[str] = None,
@@ -191,10 +192,10 @@ class Table:
         """
         return OrderedTable(
             self,
-            [index],
-            {str(index): ascending},
-            {str(index): nulls_first},
-            {str(index): operator},
+            [order_col],
+            [ascending],
+            [nulls_first],
+            [operator],
         )
 
     @staticmethod
@@ -635,6 +636,8 @@ def values(rows: Iterable[Tuple[Any]], db: db.Database, column_names: Iterable[s
         t = t.save_as("const_table", column_names=["id"], temp=True)
 
     """
-    rows_string = ",".join(["(" + ",".join(str(datum) for datum in row) + ")" for row in rows])
+    rows_string = ",".join(
+        ["(" + ",".join(to_pg_const(datum) for datum in row) + ")" for row in rows]
+    )
     columns_string = f"({','.join(column_names)})" if any(column_names) else ""
     return Table(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", db=db)

@@ -9,30 +9,30 @@ class OrderedTable:
     def __init__(
         self,
         table: "Table",
-        ordering_sets: List["Expr"],
-        ascending_sets: Dict["Expr", bool],
-        nulls_first_sets: Dict["Expr", bool],
-        operator_sets: Dict["Expr", str],
+        ordering_list: List["Expr"],
+        ascending_list: List[bool],
+        nulls_first_list: List[bool],
+        operator_list: List[str],
     ) -> None:
         self._table = table
-        self._ordering_sets = ordering_sets
-        self._ascending_sets = ascending_sets
-        self._nulls_first_sets = nulls_first_sets
-        self._operator_sets = operator_sets
+        self._ordering_list = ordering_list
+        self._ascending_list = ascending_list
+        self._nulls_first_list = nulls_first_list
+        self._operator_list = operator_list
 
     def order_by(
         self,
-        index: "Expr",
+        order_col: "Expr",
         ascending: Optional[bool] = None,
         nulls_first: Optional[bool] = None,
         operator: Optional[str] = None,
     ) -> "OrderedTable":
         return OrderedTable(
             self._table,
-            self._ordering_sets + [index],
-            {**self._ascending_sets, **{str(index): ascending}},
-            {**self._nulls_first_sets, **{str(index): nulls_first}},
-            {**self._operator_sets, **{str(index): operator}},
+            self._ordering_list + [order_col],
+            self._ascending_list + [ascending],
+            self._nulls_first_list + [nulls_first],
+            self._operator_list + [operator],
         )
 
     # FIXME : Not sure about return type
@@ -61,12 +61,12 @@ class OrderedTable:
             [
                 (
                     f"""
-            {order_index} {"" if self._ascending_sets[str(order_index)] is None else "ASC" if self._ascending_sets[str(order_index)] else "DESC"}
-            {"" if self._operator_sets[str(order_index)] is None else ("USING " + self._operator_sets[str(order_index)])}
-            {"" if self._nulls_first_sets[str(order_index)] is None else "NULLs FIRST" if self._nulls_first_sets[str(order_index)] else "NULLs LAST"}
+            {self._ordering_list[i]} {"" if self._ascending_list[i] is None else "ASC" if self._ascending_list[i] else "DESC"}
+            {"" if self._operator_list[i] is None else ("USING " + self._operator_list[i])}
+            {"" if self._nulls_first_list[i] is None else "NULLs FIRST" if self._nulls_first_list[i] else "NULLs LAST"}
             """
                 )
-                for order_index in self._ordering_sets
+                for i in range(len(self._ordering_list))
             ]
         )
         return "ORDER BY " + order_by_str

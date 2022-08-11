@@ -9,7 +9,7 @@ from tests import db
 @pytest.fixture
 def t1(db: gp.Database):
     # fmt: off
-    rows1 = [(1, 0, "'a1'",), (2, 0, "'a2'",), (3, 0, "'a3'",)]
+    rows1 = [(1, 0, "a1",), (2, 0, "a2",), (3, 0, "a3",)]
     # fmt: on
     t = gp.values(rows1, db=db).save_as("temp1", temp=True, column_names=["id1", "idd1", "n1"])
     return t
@@ -18,7 +18,7 @@ def t1(db: gp.Database):
 @pytest.fixture
 def t2(db: gp.Database):
     # fmt: off
-    rows2 = [(1, 0, "'b1'",), (2, 0, "'b2'",), (3, 0, "'b3'",)]
+    rows2 = [(1, 0, "b1",), (2, 0, "b2",), (3, 0, "b3",)]
     # fmt: on
     t = gp.values(rows2, db=db).save_as("temp2", temp=True, column_names=["id2", "idd2", "n2"])
     return t
@@ -27,7 +27,7 @@ def t2(db: gp.Database):
 @pytest.fixture
 def zoo_1(db: gp.Database):
     # fmt: off
-    rows = [(1, "'Lion'",), (2, "'Tiger'",), (3, "'Wolf'",), (4, "'Fox'")]
+    rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
     t = gp.values(rows, db=db).save_as("zoo1", column_names=["id", "animal"])
     return gp.table("zoo1", db)
@@ -36,7 +36,7 @@ def zoo_1(db: gp.Database):
 @pytest.fixture
 def zoo_2(db: gp.Database):
     # fmt: off
-    rows = [(1, "'Tiger'",), (2, "'Lion'",), (3, "'Rhino'",), (4, "'Panther'")]
+    rows = [(1, "Tiger",), (2, "Lion",), (3, "Rhino",), (4, "Panther")]
     # fmt: on
     t = gp.values(rows, db=db).save_as("zoo2", column_names=["id", "animal"])
     return gp.table("zoo2", db)
@@ -195,9 +195,9 @@ def test_table_full_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
 
 def test_table_natural_join(db: gp.Database):
     # fmt: off
-    rows1 = [("'Smart Phone'", 1,), ("'Laptop'", 2,), ("'Tablet'", 3,)]
-    rows2 = [("'iPhone'", 1,), ("'Samsung Galaxy'", 1,), ("'HP Elite'", 2,),
-             ("'Lenovo Thinkpad'", 2,), ("'iPad'", 3,), ("'Kindle Fire'", 3)]
+    rows1 = [("Smart Phone", 1,), ("Laptop", 2,), ("Tablet", 3,)]
+    rows2 = [("iPhone", 1,), ("Samsung Galaxy", 1,), ("HP Elite", 2,),
+             ("Lenovo Thinkpad", 2,), ("iPad", 3,), ("Kindle Fire", 3)]
     # fmt: on
     categories = gp.values(rows1, db=db).save_as(
         "categories", temp=True, column_names=["category_name", "category_id"]
