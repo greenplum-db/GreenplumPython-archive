@@ -1,21 +1,12 @@
 from typing import List
 
-import pytest
-
 import greenplumpython as gp
-
-
-@pytest.fixture
-def db():
-    db = gp.database(host="localhost", dbname="gpadmin")
-    yield db
-    db.close()
+from tests import db
 
 
 def test_op_on_consts(db: gp.Database):
     regex_match = gp.operator("~", db)
-    # FIXME: Remove the single quotes after implementing the const wrapper
-    result = list(regex_match("'hello'", "h.*o").rename("is_matched").to_table().fetch())
+    result = list(regex_match("hello", "h.*o").rename("is_matched").to_table().fetch())
     assert len(result) == 1 and result[0]["is_matched"]
 
 
@@ -29,8 +20,8 @@ def test_op_index(db: gp.Database):
             self.courses = courses
 
     john = Student("john", 9, ["math", "english"])
-    # FIXME: Remove type casting after implementing the const wrapper
-    rows = [(f"'{json.dumps(john.__dict__)}'::jsonb",)]
+    jsonb = gp.get_type("jsonb", db)
+    rows = [(jsonb(json.dumps(john.__dict__)),)]
     student = gp.values(rows, db=db, column_names=["info"]).save_as("student", temp=True)
     db.execute("CREATE INDEX student_name ON student USING gin (info)", has_results=False)
 

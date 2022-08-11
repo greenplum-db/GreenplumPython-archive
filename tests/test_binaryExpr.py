@@ -1,13 +1,9 @@
+from os import environ
+
 import pytest
 
 import greenplumpython as gp
-
-
-@pytest.fixture
-def db():
-    db = gp.database(host="localhost", dbname="gpadmin")
-    yield db
-    db.close()
+from tests import db
 
 
 def test_expr_bin_equal_int(db: gp.Database):
@@ -15,27 +11,27 @@ def test_expr_bin_equal_int(db: gp.Database):
     t = gp.values(rows, db=db).save_as("temp1", temp=True, column_names=["id"])
     b1 = t["id"] == 2
     assert str(b1) == str(gp.expr.BinaryExpr("=", t["id"], 2))
-    assert str(b1) == "temp1.id = 2"
+    assert str(b1) == "(temp1.id = 2)"
     ret = t[b1].fetch()
     assert len(list(ret)) == 2
 
 
 def test_expr_bin_equal_str(db: gp.Database):
-    rows = [("'aaa'",), ("'bbb'",), ("'ccc'",)]
+    rows = [("aaa",), ("bbb",), ("ccc",)]
     t = gp.values(rows, db=db).save_as("temp2", temp=True, column_names=["id"])
     b2 = t["id"] == "aaa"
     assert str(b2) == str(gp.expr.BinaryExpr("=", t["id"], "aaa"))
-    assert str(b2) == "temp2.id = 'aaa'"
+    assert str(b2) == "(temp2.id = 'aaa')"
     ret = t[b2].fetch()
     assert len(list(ret)) == 1
 
 
 def test_expr_bin_equal_none(db: gp.Database):
-    rows = [("'aa'",), ("NULL",), ("'cc'",)]
+    rows = [("aa",), (None,), ("cc",)]
     t = gp.values(rows, db=db).save_as("temp3", temp=True, column_names=["id"])
     b3 = t["id"] == None
     assert str(b3) == str(gp.expr.BinaryExpr("is", t["id"], None))
-    assert str(b3) == "temp3.id is NULL"
+    assert str(b3) == "(temp3.id is NULL)"
     ret = t[b3].fetch()
     assert len(list(ret)) == 1
 
@@ -46,16 +42,16 @@ def test_expr_bin_equal_2expr(db: gp.Database):
     t2 = gp.values(rows, db=db).save_as("temp5", temp=True, column_names=["id"])
     b4 = t1["id"] == t2["id"]
     assert str(b4) == str(gp.expr.BinaryExpr("=", t1["id"], t2["id"]))
-    assert str(b4) == "temp4.id = temp5.id"
+    assert str(b4) == "(temp4.id = temp5.id)"
     ret = t1.inner_join(t2, t1["id"] == t2["id"]).fetch()
     assert len(list(ret)) == 3
 
 
 def test_expr_bin_equal_bool(db: gp.Database):
-    rows = [("True",), ("False",), ("False",), ("True",)]
+    rows = [(True,), (False,), (False,), (True,)]
     t = gp.values(rows, db=db).save_as("temp1", temp=True, column_names=["id"])
     b5 = t["id"] == True
-    assert str(b5) == "temp1.id = TRUE"
+    assert str(b5) == "(temp1.id = true)"
     ret = t[b5].fetch()
     assert len(list(ret)) == 2
 
@@ -116,15 +112,15 @@ def test_expr_bin_or(db: gp.Database):
 
 
 def test_table_like(db: gp.Database):
-    rows = [("'aaa'",), ("'bba'",), ("'acac'",)]
+    rows = [("aaa",), ("bba",), ("acac",)]
     t = gp.values(rows, db=db).save_as("temp1", column_names=["id"], temp=True)
-    result = t[t["id"].like("a%")].fetch()
+    result = t[t["id"].like(r"a%")].fetch()
     assert len(list(result)) == 2
-    result = t[t["id"].like("%a")].fetch()
+    result = t[t["id"].like(r"%a")].fetch()
     assert len(list(result)) == 2
-    result = t[t["id"].like("%a%")].fetch()
+    result = t[t["id"].like(r"%a%")].fetch()
     assert len(list(result)) == 3
-    result = t[t["id"].like("a%c")].fetch()
+    result = t[t["id"].like(r"a%c")].fetch()
     assert len(list(result)) == 1
-    result = t[t["id"].like("_a%")].fetch()
+    result = t[t["id"].like(r"_a%")].fetch()
     assert len(list(result)) == 1

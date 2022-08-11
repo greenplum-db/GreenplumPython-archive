@@ -1,22 +1,23 @@
 import inspect
+from os import environ
 from typing import List
 
 import pytest
 
 import greenplumpython as gp
+from tests import db
 
 
 @pytest.fixture
-def db():
-    db = gp.database(host="localhost", dbname="gpadmin")
-    yield db
-    db.close()
+def series(db: gp.Database):
+    rows = [(i, i) for i in range(10)]
+    return gp.values(rows, db=db, column_names=["a", "b"])
 
 
 def test_plain_func(db: gp.Database):
     version = gp.function("version", db)
     for row in version().to_table().fetch():
-        assert "Greenplum" in row["version"]
+        assert "Greenplum" in row["version"] or row["version"].startswith("PostgreSQL")
 
 
 def test_set_returning_func(db: gp.Database):
@@ -72,13 +73,11 @@ def test_func_on_one_column(db: gp.Database):
     assert sorted([row["abs"] for row in results]) == list(range(1, 11))
 
 
-def test_func_on_multi_columns(db: gp.Database):
+def test_func_on_multi_columns(db: gp.Database, series: gp.Table):
     @gp.create_function
     def multiply(a: int, b: int) -> int:
         return a * b
 
-    rows = [(i, i) for i in range(10)]
-    series = gp.values(rows, db=db, column_names=["a", "b"])
     results = multiply(series["a"], series["b"], as_name="result").to_table().fetch()
     assert sorted([row["result"] for row in results]) == [i * i for i in range(10)]
 
@@ -92,6 +91,54 @@ def test_func_on_more_than_one_table(db: gp.Database):
         div(t1["i"], t2["i"])
     # FIXME: Create more specific exception classes and remove this
     assert "Cannot pass arguments from more than one tables" == str(exc_info.value)
+
+
+def test_create_func_optional_params_replace(db: gp.Database, series: gp.Table):
+    @gp.create_function
+    def multiply(a: int, b: int) -> int:
+        return a * b
+
+    results = multiply(series["a"], series["b"], as_name="result").to_table().fetch()
+    assert sorted([row["result"] for row in results]) == [i * i for i in range(10)]
+
+    @gp.create_function(replace_if_exists=True)
+    def multiply(a: int, b: int) -> int:
+        return a * b * 2
+
+    results = multiply(series["a"], series["b"], as_name="result").to_table().fetch()
+    assert sorted([row["result"] for row in results]) == [i * i * 2 for i in range(10)]
+    assert sorted([row["result"] for row in results]) == [
+        inspect.unwrap(multiply)(i, i) for i in range(10)
+    ]
+
+    @gp.create_function(replace_if_exists=False)
+    def multiply(a: int, b: int) -> int:
+        return a * b * 2
+
+    with pytest.raises(Exception) as exc_info:
+        multiply(series["a"], series["b"], as_name="result").to_table().fetch()
+    assert 'function "multiply" already exists with same argument types\n' == str(exc_info.value)
+
+
+def test_create_func_optional_params_name(db: gp.Database, series: gp.Table):
+    @gp.create_function
+    def multiply(a: int, b: int) -> int:
+        return a * b
+
+    results = multiply(series["a"], series["b"], as_name="result").to_table().fetch()
+    assert sorted([row["result"] for row in results]) == [i * i for i in range(10)]
+
+    @gp.create_function(name="multiply", replace_if_exists=True)
+    def multiply2(a: int, b: int) -> int:
+        return a * b * 2
+
+    rows = [(i, i) for i in range(10)]
+    series = gp.values(rows, db=db, column_names=["a", "b"])
+    results = multiply2(series["a"], series["b"]).to_table().fetch()
+    assert sorted([row["multiply"] for row in results]) == [i * i * 2 for i in range(10)]
+    assert sorted([row["multiply"] for row in results]) == [
+        inspect.unwrap(multiply2)(i, i) for i in range(10)
+    ]
 
 
 def test_simple_agg(db: gp.Database):
@@ -166,6 +213,25 @@ def test_create_agg_multi_args(db: gp.Database):
     assert len(results) == 1 and results[0]["result"] == 10
 
 
+def test_create_agg_optional_params(db: gp.Database):
+    @gp.create_aggregate
+    def my_sum(result: int, val: int) -> int:
+        if result is None:
+            return val
+        return result + val
+
+    @gp.create_aggregate(name="mysum")
+    def my_sum(result: int, val: int) -> int:
+        if result is None:
+            return 5 + val
+        return result + val
+
+    rows = [(1,) for _ in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+    results = list(my_sum(numbers["val"]).to_table().fetch())
+    assert len(results) == 1 and results[0]["mysum"] == 15
+
+
 def test_func_long_name(db: gp.Database):
     @gp.create_function
     def loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong() -> None:
@@ -203,6 +269,25 @@ def test_array_func_group_by(db: gp.Database):
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["result"] == 5)
 
 
+def test_array_func_replace(db: gp.Database):
+    rows = [(1,) for _ in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+
+    @gp.create_array_function
+    def my_sum(val_list: List[int]) -> int:
+        return sum(val_list)
+
+    results = list(my_sum(numbers["val"], as_name="result").to_table().fetch())
+    assert len(results) == 1 and results[0]["result"] == 10
+
+    @gp.create_array_function(replace_if_exists=True)
+    def my_sum(val_list: List[int]) -> int:
+        return 5 + sum(val_list)
+
+    results = list(my_sum(numbers["val"], as_name="result").to_table().fetch())
+    assert len(results) == 1 and results[0]["result"] == 15
+
+
 def test_func_return_comp_type(db: gp.Database):
     class Person:
         _first_name: str
@@ -212,7 +297,7 @@ def test_func_return_comp_type(db: gp.Database):
     def create_person(first: str, last: str) -> Person:
         return {"_first_name": first, "_last_name": last}
 
-    for row in create_person("'Amy'", "'An'", db=db).to_table().fetch():
+    for row in create_person("Amy", "An", db=db).to_table().fetch():
         assert row["_first_name"] == "Amy" and row["_last_name"] == "An"
 
 
@@ -266,3 +351,60 @@ def test_array_func_comp_type(db: gp.Database):
     ret = list(my_stat(numbers["val"], db=db).to_table().fetch())
     for row in ret:
         assert row["sum"] == sum(list([i for i in range(10)])) and row["count"] == len(rows)
+
+
+def test_func_apply_unknown_columns(db: gp.Database):
+    rows = [(i,) for i in range(-10, 0)]
+    series = gp.values(rows, db=db, column_names=["id"])
+    abs = gp.function("abs", db=db)
+    with pytest.raises(Exception) as exc_info:
+        series.apply(abs).to_table().fetch()
+    assert "Columns unknown for current table" == str(exc_info.value)
+
+
+def test_func_apply_const_and_column(db: gp.Database):
+    @gp.create_function
+    def label(type_or_type: str, num: int) -> str:
+        return type_or_type + str(num)
+
+    rows = [(i,) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+    result = numbers[["val"]].apply(lambda c: label("label", c)).to_table().fetch()
+    assert len(result) == 10
+    for row in result:
+        assert row["label"].startswith("label")
+
+
+def test_func_apply_auto_column_mapping_select(db: gp.Database):
+    @gp.create_function
+    def my_sum(num1: int, num2: int) -> int:
+        return num1 + num2
+
+    # fmt: off
+    rows = [(i, i,) for i in range(0, 10)]
+    # fmt: on
+    gp.values(rows, db=db, column_names=["n1", "n2"]).save_as("series", temp=True)
+    results = db.get_table("series")[["n1", "n2"]].apply(my_sum).to_table().fetch()
+    assert sorted([row["my_sum"] for row in results]) == list(range(0, 20, 2))
+
+
+def test_func_apply_auto_column_mapping_join(db: gp.Database):
+    @gp.create_function
+    def label(num: int, type_or_type: str) -> str:
+        return ":".join([str(num), type_or_type])
+
+    # fmt: off
+    rows1 = [(1, "a1",), (2, "a2",), (3, "a3",)]
+    rows2 = [(1, "b1",), (2, "b2",), (3, "b3",)]
+    # fmt: on
+    t1 = gp.values(rows1, db=db).save_as("temp1", temp=True, column_names=["id1", "n1"])
+    t2 = gp.values(rows2, db=db).save_as("temp2", temp=True, column_names=["id2", "n2"])
+    ret = t1.inner_join(
+        t2,
+        t1["id1"] == t2["id2"],
+        targets=[t1["id1"], t2["n2"]],
+    )
+    result = ret.apply(label).to_table().fetch()
+    for row in list(result):
+        assert row["label"][1:3] == ":b"
+        assert row["label"][0] == row["label"][3]

@@ -21,23 +21,23 @@ resources:
 - name: greenplumpython_pr
   type: pull-request
   # We should rely on the webhook. See README if webhook doesn't work
-  webhook_token: ((extensions-webhook-token))
+  webhook_token: ((extension/extensions-webhook-token))
   check_every: 24h
   source:
     disable_forks: false
     repository: greenplum-db/GreenplumPython
-    access_token: ((github-access-token))
+    access_token: ((extension/github-access-token))
     base_branch: master
 # Commit trigger
 - name: greenplumpython_commit
   type: git
   # We should rely on the webhook. See README if webhook doesn't work
-  webhook_token: ((extensions-webhook-token))
+  webhook_token: ((extension/extensions-webhook-token))
   check_every: 1h
   source:
     branch: ((greenplumpython-branch))
     uri: https://github.com/greenplum-db/GreenplumPython
-    username: ((github-access-token))
+    username: ((extension/github-access-token))
     password: x-oauth-basic
 # Commit dev trigger. Not using webhook
 - name: greenplumpython_commit_dev
@@ -46,7 +46,7 @@ resources:
   source:
     branch: ((greenplumpython-branch))
     uri: https://github.com/greenplum-db/GreenplumPython
-    username: ((github-access-token))
+    username: ((extension/github-access-token))
     password: x-oauth-basic
 
 # Greenplum sources
@@ -70,40 +70,61 @@ resources:
     repository: gcr.io/data-gpdb-private-images/gpdb6-rhel8-test
     tag: latest
     username: _json_key
-    password: ((container-registry-readonly-service-account-key))
+    password: ((data-gpdb-private-images-container-registry-readonly-service-account-key))
+# ubuntu18
+- name: ubuntu18-gpdb6-image-test
+  type: registry-image
+  source:
+    repository: gcr.io/data-gpdb-public-images/gpdb6-ubuntu18.04-test
+    tag: latest
+    username: _json_key
+    password: ((data-gpdb-private-images-container-registry-readonly-service-account-key))
 
 # gpdb binary on gcs is located as different folder for different version
 # Latest build with assertion enabled:
 # --enable-cassert --enable-tap-tests --enable-debug-extensions
-- name: bin_gpdb6_centos7_debug
+- name: bin_gpdb6_centos7
   type: gcs
   source:
-    bucket: ((gcs-bucket))
+    bucket: pivotal-gpdb-concourse-resources-prod
     json_key: ((concourse-gcs-resources-service-account-key))
-    regexp: server/published/gpdb6/server-rc-(.*)-rhel7_x86_64.debug.tar.gz
-- name: bin_gpdb6_rhel8_debug
+    regexp: server/published/gpdb6/server-rc-(.*)-rhel7_x86_64.tar.gz
+- name: bin_gpdb6_rhel8
   type: gcs
   source:
-    bucket: ((gcs-bucket))
+    bucket: pivotal-gpdb-concourse-resources-prod
     json_key: ((concourse-gcs-resources-service-account-key))
-    regexp: server/published/gpdb6/server-rc-(.*)-rhel8_x86_64.debug.tar.gz
+    regexp: server/published/gpdb6/server-rc-(.*)-rhel8_x86_64.tar.gz
+
+- name: bin_gpdb6_ubuntu18
+  type: gcs
+  source:
+    bucket: pivotal-gpdb-concourse-resources-prod
+    json_key: ((concourse-gcs-resources-service-account-key))
+    regexp: server/published/gpdb6/server-rc-(.*)-ubuntu18.04_x86_64.tar.gz
 
 # plpython3 for gpdb6
 - name: bin_plpython3_gpdb6_rhel7
   type: gcs
   source:
     bucket: gpdb-extensions-concourse-resources
-    json_key: ((extensions-gcs-service-account-key))
+    json_key: ((extension/extensions-gcs-service-account-key))
     versioned_file: intermediates/plpython3/plpython3_rhel7_gpdb6.gppkg
 - name: bin_plpython3_gpdb6_rhel8
   type: gcs
   source:
     bucket: gpdb-extensions-concourse-resources
-    json_key: ((extensions-gcs-service-account-key))
+    json_key: ((extension/extensions-gcs-service-account-key))
     versioned_file: intermediates/plpython3/plpython3_rhel8_gpdb6.gppkg
+- name: bin_plpython3_gpdb6_ubuntu18
+  type: gcs
+  source:
+    bucket: gpdb-extensions-concourse-resources
+    json_key: ((extension/extensions-gcs-service-account-key))
+    versioned_file: intermediates/plpython3/plpython3_ubuntu18.04_gpdb6.gppkg
 
 # Other dependencies
 - name: slack_notify
   type: slack-alert
   source:
-    url: ((extensions-slack-webhook))
+    url: ((extension/extensions-slack-webhook))

@@ -4,14 +4,17 @@ from typing import List
 import pytest
 
 import greenplumpython as gp
-from greenplumpython import type
+from greenplumpython.type import create_type, drop_type
+from tests import db
 
 
-@pytest.fixture
-def db():
-    db = gp.database(host="localhost", dbname="gpadmin")
-    yield db
-    db.close()
+def test_type_cast(db: gp.Database):
+    rows = [(i,) for i in range(10)]
+    series = gp.values(rows, db, column_names=["val"]).save_as("series")
+    regclass = gp.get_type("regclass", db)
+    table_name = regclass(series["tableoid"]).rename("table_name")
+    for row in table_name.to_table().fetch():
+        assert row["table_name"] == "series"
 
 
 def test_type_create(db: gp.Database):
@@ -19,11 +22,11 @@ def test_type_create(db: gp.Database):
         _first_name: str
         _last_name: str
 
-    type_name = type.create_type(Person, db, as_name="Person", is_temp=False)
+    type_name = create_type(Person, db, as_name="Person", is_temp=False)
     assert isinstance(type_name, str)
     assert type_name == "Person"
     with pytest.raises(Exception) as exc_info:
-        type.create_type(Person, db, as_name="Person", is_temp=False)
+        create_type(Person, db, as_name="Person", is_temp=False)
     assert 'type "person" already exists\n' in str(exc_info.value)
 
 
@@ -32,7 +35,7 @@ def test_type_create_temp(db: gp.Database):
         _first_name: str
         _last_name: str
 
-    type.create_type(Person, db, as_name="Person")
+    create_type(Person, db, as_name="Person")
     query = f"""
                     SELECT n.nspname as "Schema",
                       pg_catalog.format_type(t.oid, NULL) AS "Name",
@@ -59,9 +62,9 @@ def test_type_drop(db: gp.Database):
         _first_name: str
         _last_name: str
 
-    type.create_type(Person, db, as_name="Person", is_temp=False)
-    type.drop_type("Person", db)
-    type.create_type(Person, db, as_name="Person", is_temp=False)
+    create_type(Person, db, as_name="Person", is_temp=False)
+    drop_type("Person", db)
+    create_type(Person, db, as_name="Person", is_temp=False)
 
 
 # FIXME : Add assert
@@ -70,7 +73,7 @@ def test_type_attribute_is_list(db: gp.Database):
         _first_name: List[str]
         _last_name: str
 
-    type.create_type(Person, db, as_name="Person", is_temp=False)
+    create_type(Person, db, as_name="Person", is_temp=False)
 
 
 def test_create_type_recursive(db: gp.Database):
@@ -88,7 +91,7 @@ def test_create_type_recursive(db: gp.Database):
     # FIXME : In this case, program will create twice Person type
     #         when creating Couple type with different type_name
     func_sig = inspect.signature(create_couple)
-    type.create_type(func_sig.return_annotation, db, as_name="Couple")
+    create_type(func_sig.return_annotation, db, as_name="Couple")
     with pytest.raises(Exception) as exc_info:
-        type.create_type(func_sig.return_annotation, db, as_name="Couple")
+        create_type(func_sig.return_annotation, db, as_name="Couple")
     assert 'type "couple" already exists\n' in str(exc_info.value)
