@@ -190,59 +190,16 @@ class Table:
         State transition diagram:
         Table --order_by()-> OrderedTable --head()-> Table
         """
+        if ascending is not None and operator is not None:
+            raise Exception(
+                "Could not use 'ascending' and 'operator' at the same time to order by one column"
+            )
         return OrderedTable(
             self,
             [order_col],
             [ascending],
             [nulls_first],
             [operator],
-        )
-
-    @staticmethod
-    def _order_by_str(order_by: Union[Iterable[str], Dict[str, str]]) -> str:
-        """
-        Private method returns ORDER BY statement according to the list of targets
-
-        Args:
-            order_by: Iterable : List of columns used for order by
-
-        Returns:
-            str : order by statement
-        """
-        order_by_clause = (
-            f"""
-                {','.join([' '.join([col, order_by[col]]) for col in order_by])}
-            """
-            if isinstance(order_by, dict)
-            else f"""
-                    {','.join([order_index for order_index in order_by])}
-                """
-        )
-        return order_by_clause
-
-    def top(
-        self, count: int, order_by: Union[Iterable[str], Dict[str, str]], skip: int = 0
-    ) -> "Table":
-        """
-        Returns top k rows of tables skipping n rows wth order
-
-        Args:
-            count: int : number of top consecutive rows will be selected
-            order_by: Iterable : list of columns used for order by
-            skip: int : number of top consecutive rows to be skipped to proceed select
-
-        Returns:
-             Table : table with top k consecutive rows by skipping n rows
-        """
-        order_by_clause = self._order_by_str(order_by)
-        return Table(
-            f"""
-                SELECT * FROM {self.name}
-                ORDER BY {order_by_clause}
-                LIMIT {count}
-                OFFSET {skip}
-            """,
-            parents=[self],
         )
 
     def union(

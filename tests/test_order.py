@@ -39,10 +39,11 @@ def test_order_by_head_operator(db: gp.Database, t: gp.Table):
 
 
 def test_order_by_head_asc_operator(db: gp.Database, t: gp.Table):
-    ret = list(t.order_by(t["id"], operator=">").head(3).fetch())
     with pytest.raises(Exception) as exc_info:
-        t.order_by(t["id"], ascending=True, operator="<").head(3).fetch()
-    assert str(exc_info.value).startswith('syntax error at or near "USING"')
+        t.order_by(t["id"], ascending=True, operator="<")
+    assert str(exc_info.value).startswith(
+        "Could not use 'ascending' and 'operator' at the same time to order by one column"
+    )
 
 
 def test_order_by_multiple_head(db: gp.Database):

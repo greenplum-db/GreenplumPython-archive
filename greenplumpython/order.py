@@ -27,6 +27,10 @@ class OrderedTable:
         nulls_first: Optional[bool] = None,
         operator: Optional[str] = None,
     ) -> "OrderedTable":
+        if ascending is not None and operator is not None:
+            raise Exception(
+                "Could not use 'ascending' and 'operator' at the same time to order by one column"
+            )
         return OrderedTable(
             self._table,
             self._ordering_list + [order_col],
