@@ -409,7 +409,7 @@ def test_func_apply_auto_column_mapping_join(db: gp.Database):
         t1["id1"] == t2["id2"],
         targets=[t1["id1"], t2["n2"]],
     )
-    result = ret.apply(lambda t: label(t["n1"], t["n2"])).to_table().fetch()
+    result = ret.apply(lambda t: label(t["id1"], t["n2"])).to_table().fetch()
     for row in list(result):
         assert row["label"][1:3] == ":b"
         assert row["label"][0] == row["label"][3]
