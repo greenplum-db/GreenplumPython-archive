@@ -7,7 +7,7 @@ from tests import db
 @pytest.fixture
 def top_rated_films(db: gp.Database):
     # fmt: off
-    rows = [("'The Shawshank Redemption'", 1994,), ("'The Godfather'", 1972,), ("'12 Angry Men'", 1957,)]
+    rows = [("The Shawshank Redemption", 1994,), ("The Godfather", 1972,), ("12 Angry Men", 1957,)]
     # fmt: on
     t = gp.values(rows, db=db).save_as(
         "top_rated_films", temp=True, column_names=["title", "release_year"]
@@ -18,7 +18,7 @@ def top_rated_films(db: gp.Database):
 @pytest.fixture
 def most_popular_films(db: gp.Database):
     # fmt: off
-    rows = [("'An American Pickle'", 2020,), ("'The Godfather'", 1972,), ("'Greyhound'", 2020,)]
+    rows = [("An American Pickle", 2020,), ("The Godfather", 1972,), ("Greyhound", 2020,)]
     # fmt: on
     t = gp.values(rows, db=db).save_as(
         "most_popular_films", temp=True, column_names=["title", "release_year"]
