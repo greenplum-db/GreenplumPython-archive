@@ -34,7 +34,7 @@ jobs:
     - name: Make doc
       run: |
          cd doc
-         sphinx-build -M html doc/source doc/build 
+         sphinx-build -M html source build 
          cd ..
          mkdir -p public
          cp -r doc/build/html/* public
