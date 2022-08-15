@@ -1,7 +1,7 @@
 from typing import Any, Callable
 
-from .db import Database
-from .expr import BinaryExpr
+from greenplumpython.db import Database
+from greenplumpython.expr import BinaryExpr
 
 
 def operator(name: str, db: Database) -> Callable[[Any, Any], BinaryExpr]:

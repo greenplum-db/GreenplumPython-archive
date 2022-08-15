@@ -3,7 +3,7 @@ from uuid import uuid4
 
 from psycopg2.extensions import adapt  # type: ignore
 
-from .db import Database
+from greenplumpython.db import Database
 
 # -- Map between Python and Greenplum primitive types
 primitive_type_map = {

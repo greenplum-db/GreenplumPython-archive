@@ -5,11 +5,11 @@ import copy
 from functools import singledispatchmethod
 from typing import TYPE_CHECKING, Any, Optional, Union, overload
 
-from .db import Database
-from .type import to_pg_const
+from greenplumpython.db import Database
+from greenplumpython.type import to_pg_const
 
 if TYPE_CHECKING:
-    from .table import Table
+    from greenplumpython.table import Table
 
 
 class Expr:
