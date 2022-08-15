@@ -46,5 +46,6 @@ jobs:
         keep_history: true
         # Build directory to deploy
         build_dir: public
+        jekyll: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
