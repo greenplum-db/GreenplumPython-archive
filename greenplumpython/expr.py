@@ -180,7 +180,7 @@ class Expr:
         """
         Returns a Table, method for Function object
         """
-        from .table import Table
+        from greenplumpython.table import Table
 
         from_clause = f"FROM {self.table.name}" if self.table is not None else ""
         parents = [self.table] if self.table is not None else []
