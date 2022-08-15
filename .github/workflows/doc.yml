@@ -12,17 +12,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    # Standard drop-in approach that should work for most people.
     - uses: ammaraskar/sphinx-action@master
       with:
+        build-command: "sphinx-build -b html . _build"
         docs-folder: "doc/source"
 
-    # Great extra actions to compose with:
-    # Create an artifact of the html output.
-    - uses: actions/upload-artifact@v1
-      with:
-        name: DocumentationHTML
-        path: doc/_build/html/
     # Publish built docs to gh-pages branch.
     # ===============================
     - name: Commit documentation changes
