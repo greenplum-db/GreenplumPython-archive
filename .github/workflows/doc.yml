@@ -35,7 +35,7 @@ jobs:
       run: |
          sphinx-build -M html doc/source doc/build 
          mkdir -p public
-         cp doc/build/html/* public
+         cp -r doc/build/html/* public
 
     - name: GitHub Pages
       uses: crazy-max/ghaction-github-pages@v2.2.0
