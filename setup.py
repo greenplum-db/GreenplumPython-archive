@@ -12,7 +12,7 @@ with open("requirements.txt") as f:
 
 setuptools.setup(
     name="greenplum-python",
-    version=versioneer.get_version(),
+    version="1.0.0-beta1",
     install_requires=requirements,
     author="Greenplum Python",
     author_email="greenplum-python@vmware.com",

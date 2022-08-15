@@ -3,3 +3,5 @@ isort==5.10.1
 pytest==7.0.1
 pglast==3.10
 pyright==1.1.250
+sphinx==5.1.1
+sphinx_rtd_theme==1.0.0
