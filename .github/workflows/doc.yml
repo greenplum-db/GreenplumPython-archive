@@ -9,7 +9,7 @@ on:
       - .github/workflows/doc.yml
   push:
     branches: # fix it to master branch when merge
-      - fix_path
+      - master
     paths:
       - doc/*
       - .github/workflows/doc.yml
@@ -57,7 +57,7 @@ jobs:
         build_dir: public
         jekyll: false
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PAGE_TOKEN }}
       # only run it for commit
       if: github.event_name != 'pull_request'
  
