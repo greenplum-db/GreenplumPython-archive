@@ -23,10 +23,10 @@ class TableRowGroup:
 
     def __or__(self, other: "TableRowGroup") -> "TableRowGroup":
         """
-        Returns the union of the two row groups. 
-        
+        Returns the union of the two row groups.
+
         This does not merge the two groups into one. Instead, it means applying
-        any operation to the union is equivalent to applying the operation to 
+        any operation to the union is equivalent to applying the operation to
         each group and union the result sets.
         """
         assert self._table == other._table
