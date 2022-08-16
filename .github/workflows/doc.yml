@@ -5,13 +5,13 @@ on:
   pull_request:
     branches: [ master ]
     paths:
-      - doc/*
+      - doc/source/*
       - .github/workflows/doc.yml
   push:
     branches: # fix it to master branch when merge
       - master
     paths:
-      - doc/*
+      - doc/source/*
       - .github/workflows/doc.yml
 
 jobs:
