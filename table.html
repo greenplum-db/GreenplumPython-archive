@@ -49,6 +49,8 @@
 <li class="toctree-l2"><a class="reference internal" href="func.html">Function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="op.html">Operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="type.html">Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group.html">Grouping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="order.html">Ordering</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
@@ -402,10 +404,20 @@ also rename column_name to resolve conflicts</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="table.Table.group_by">
+<span class="sig-name descname"><span class="pre">group_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">group_by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TableRowGroup</span></span></span><a class="headerlink" href="#table.Table.group_by" title="Permalink to this definition"></a></dt>
+<dd><p>State transition diagram:
+Table –group_by()-&gt; TableRowGroup –aggregate()-&gt; FunctionExpr</p>
+<blockquote>
+<div><p>^                                                    |
+<a href="#id1"><span class="problematic" id="id2">|------------------------- to_table() ---------------|</span></a></p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="table.Table.apply">
-<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="func.html#func.FunctionCall" title="func.FunctionCall"><span class="pre">FunctionCall</span></a></span></span><a class="headerlink" href="#table.Table.apply" title="Permalink to this definition"></a></dt>
-<dd><p>Apply function func on self by auto mapping columns to function’s arguments.
-Raise errors if columns are unknown.</p>
+<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="func.html#func.FunctionExpr" title="func.FunctionExpr"><span class="pre">FunctionExpr</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="func.html#func.FunctionExpr" title="func.FunctionExpr"><span class="pre">FunctionExpr</span></a></span></span><a class="headerlink" href="#table.Table.apply" title="Permalink to this definition"></a></dt>
+<dd><p>Apply a function to the table</p>
 </dd></dl>
 
 </dd></dl>
