@@ -35,17 +35,16 @@ jobs:
       with:
         path: ${{ steps.set_variables.outputs.PIP_CACHE }}
         key: ubuntu-pip-${{ steps.set_variables.outputs.PY }}
+    # pip install . --> for doc generate
     - name: Install dependencies
-      # pip install . --> for doc generate
       run:  |
         python -m pip install --upgrade pip
-        pip install -r requirements-doc.txt
-        pip install .
+        pip install tox==3.25.0
     - name: Make doc
       run: |
-         sphinx-build -M html doc/source build 
-         mkdir -p public
-         cp -r build/html/* public
+        tox -e docs
+        mkdir -p public
+        cp -r build/html/* public
     - name: GitHub Pages
       uses: crazy-max/ghaction-github-pages@v2.2.0
       with:
