@@ -25,8 +25,8 @@ class TableRowGroup:
         """
         Returns the union of the two row groups.
 
-        Any operation that is applied to the union is equivalent to applying
-        the operation to each row group and union the results.
+        Applying any operation to the union is equivalent to applying
+        the operation to each row group and union the result sets.
         """
         assert self._table == other._table
         return TableRowGroup(self._table, self._grouping_sets + other._grouping_sets)
