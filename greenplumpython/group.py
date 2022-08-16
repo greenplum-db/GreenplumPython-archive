@@ -31,7 +31,8 @@ class TableRowGroup:
         assert self._table == other._table
         return TableRowGroup(self._table, self._grouping_sets + other._grouping_sets)
 
-    def _get_targets(self) -> Iterable["Expr"]:
+    # FIXME: Make this function package-private
+    def get_targets(self) -> Iterable["Expr"]:
         item_set: MutableSet[Expr] = set()
         for grouping_set in self._grouping_sets:
             for group_by_item in grouping_set:
@@ -42,7 +43,8 @@ class TableRowGroup:
     def table(self) -> "Table":
         return self._table
 
-    def _make_group_by_clause(self) -> str:
+    # FIXME: Make this function package-private
+    def make_group_by_clause(self) -> str:
         grouping_sets_str = [
             f"({','.join([str(item) for item in grouping_set])})"
             for grouping_set in self._grouping_sets
