@@ -58,3 +58,6 @@ jobs:
         jekyll: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # only run it for commit
+      if: github.event_name != 'pull_request'
+ 
