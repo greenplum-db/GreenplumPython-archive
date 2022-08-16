@@ -14,7 +14,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     Iterable,
     List,
     Optional,
@@ -24,8 +23,6 @@ from typing import (
     overload,
 )
 from uuid import uuid4
-
-from tabulate import tabulate
 
 from . import db
 
@@ -141,6 +138,11 @@ class Table:
 
         """
         return self._getitem(*args, **kwargs)  # type: ignore
+
+    def __repr__(self):
+        """
+        Return a string representation for a table
+        """
 
     def as_name(self, name_as: str) -> "Table":
         """
@@ -534,9 +536,6 @@ class Table:
             has_results=False,
         )
         return table(table_name, self._db)
-
-    def display(self):
-        return tabulate(self.fetch(), headers="keys", tablefmt="html")
 
     # TODO: Uncomment or remove this.
     #
