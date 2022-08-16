@@ -1,0 +1,63 @@
+name: Doc 
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ master ]
+    paths:
+      - doc/source/*
+      - .github/workflows/doc.yml
+  push:
+    branches: # fix it to master branch when merge
+      - master
+    paths:
+      - doc/source/*
+      - .github/workflows/doc.yml
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install apt dependencies
+      run: sudo apt-get install -y libpq-dev
+    - name: Set up Python 3.9 
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - name: Set Variables
+      id: set_variables
+      run: |
+        echo "::set-output name=PY::$(python -c 'import hashlib, sys;print(hashlib.sha256(sys.version.encode()+sys.executable.encode()).hexdigest())')"
+        echo "::set-output name=PIP_CACHE::$(pip cache dir)"
+    - name: Cache PIP
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.set_variables.outputs.PIP_CACHE }}
+        key: ubuntu-pip-${{ steps.set_variables.outputs.PY }}
+    # pip install . --> for doc generate
+    - name: Install dependencies
+      run:  |
+        python -m pip install --upgrade pip
+        pip install tox==3.25.0
+    - name: Make doc
+      # html files generated in doc/build
+      run: |
+        tox -e docs
+        mkdir -p public
+        cp -r doc/build/html/* public
+    - name: GitHub Pages
+      uses: crazy-max/ghaction-github-pages@v2.2.0
+      with:
+        # Git branch where site will be deployed
+        target_branch: gh-pages
+        # Create incremental commit instead of doing push force
+        keep_history: true
+        # Build directory to deploy
+        build_dir: public
+        jekyll: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAGE_TOKEN }}
+      # only run it for commit
+      if: github.event_name != 'pull_request'
+ 

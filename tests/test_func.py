@@ -155,7 +155,7 @@ def test_agg_group_by(db: gp.Database):
     numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
     count = gp.aggregate("count", db=db)
 
-    results = list(count(numbers["val"], group_by=["is_even"]).to_table().fetch())
+    results = list(count(numbers["val"], group_by=numbers.group_by("is_even")).to_table().fetch())
     assert len(results) == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["count"] == 5)
@@ -167,9 +167,11 @@ def test_agg_group_by_multi_columns(db: gp.Database):
     count = gp.aggregate("count", db=db)
 
     results = list(
-        count(numbers["val"], group_by=["is_even", "is_multiple_of_3"]).to_table().fetch()
+        count(numbers["val"], group_by=numbers.group_by("is_even", "is_multiple_of_3"))
+        .to_table()
+        .fetch()
     )
-    assert len(results) == 2 * 2
+    assert len(results) == 4  # 2 attributes * 2 possible values per attribute
     for row in results:
         assert (
             ("is_even" in row)
@@ -262,7 +264,9 @@ def test_array_func_group_by(db: gp.Database):
     rows = [(1, i % 2 == 0) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
     results = list(
-        my_sum(numbers["val"], group_by=["is_even"], as_name="result").to_table().fetch()
+        my_sum(numbers["val"], group_by=numbers.group_by("is_even"), as_name="result")
+        .to_table()
+        .fetch()
     )
     assert len(results) == 2
     for row in results:
@@ -353,13 +357,14 @@ def test_array_func_comp_type(db: gp.Database):
         assert row["sum"] == sum(list([i for i in range(10)])) and row["count"] == len(rows)
 
 
-def test_func_apply_unknown_columns(db: gp.Database):
+def test_func_apply_single_column(db: gp.Database):
     rows = [(i,) for i in range(-10, 0)]
     series = gp.values(rows, db=db, column_names=["id"])
     abs = gp.function("abs", db=db)
-    with pytest.raises(Exception) as exc_info:
-        series.apply(abs).to_table().fetch()
-    assert "Columns unknown for current table" == str(exc_info.value)
+    result = series.apply(lambda t: abs(t["id"])).to_table().fetch()
+    assert len(list(result)) == 10
+    for row in result:
+        assert row["abs"] >= 0
 
 
 def test_func_apply_const_and_column(db: gp.Database):
@@ -369,8 +374,8 @@ def test_func_apply_const_and_column(db: gp.Database):
 
     rows = [(i,) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
-    result = numbers[["val"]].apply(lambda c: label("label", c)).to_table().fetch()
-    assert len(result) == 10
+    result = numbers.apply(lambda t: label("label", t["val"])).to_table().fetch()
+    assert len(list(result)) == 10
     for row in result:
         assert row["label"].startswith("label")
 
@@ -384,7 +389,7 @@ def test_func_apply_auto_column_mapping_select(db: gp.Database):
     rows = [(i, i,) for i in range(0, 10)]
     # fmt: on
     gp.values(rows, db=db, column_names=["n1", "n2"]).save_as("series", temp=True)
-    results = db.get_table("series")[["n1", "n2"]].apply(my_sum).to_table().fetch()
+    results = db.get_table("series").apply(lambda t: my_sum(t["n1"], t["n2"])).to_table().fetch()
     assert sorted([row["my_sum"] for row in results]) == list(range(0, 20, 2))
 
 
@@ -404,7 +409,7 @@ def test_func_apply_auto_column_mapping_join(db: gp.Database):
         t1["id1"] == t2["id2"],
         targets=[t1["id1"], t2["n2"]],
     )
-    result = ret.apply(label).to_table().fetch()
+    result = ret.apply(lambda t: label(t["id1"], t["n2"])).to_table().fetch()
     for row in list(result):
         assert row["label"][1:3] == ":b"
         assert row["label"][0] == row["label"][3]
