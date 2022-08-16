@@ -15,14 +15,14 @@ def series(db: gp.Database):
 
 
 def test_plain_func(db: gp.Database):
-    version = gp.function("version", db)
-    for row in version().to_table().fetch():
+    version = gp.function("version")
+    for row in version(db=db).to_table().fetch():
         assert "Greenplum" in row["version"] or row["version"].startswith("PostgreSQL")
 
 
 def test_set_returning_func(db: gp.Database):
-    generate_series = gp.function("generate_series", db)
-    results = generate_series(0, 9, as_name="id").to_table().fetch()
+    generate_series = gp.function("generate_series")
+    results = generate_series(0, 9, as_name="id", db=db).to_table().fetch()
     assert sorted([row["id"] for row in results]) == list(range(10))
 
 
@@ -68,8 +68,8 @@ def test_create_func_tab_indent(db: gp.Database):
 def test_func_on_one_column(db: gp.Database):
     rows = [(i,) for i in range(-10, 0)]
     series = gp.values(rows, db=db, column_names=["id"])
-    abs = gp.function("abs", db=db)
-    results = abs(series["id"]).to_table().fetch()
+    abs = gp.function("abs")
+    results = abs(series["id"], db=db).to_table().fetch()
     assert sorted([row["abs"] for row in results]) == list(range(1, 11))
 
 
@@ -83,12 +83,12 @@ def test_func_on_multi_columns(db: gp.Database, series: gp.Table):
 
 
 def test_func_on_more_than_one_table(db: gp.Database):
-    div = gp.function("div", db=db)
+    div = gp.function("div")
     rows = [(1,) for _ in range(10)]
     t1 = gp.values(rows, db=db, column_names=["i"])
     t2 = gp.values(rows, db=db, column_names=["i"])
     with pytest.raises(Exception) as exc_info:
-        div(t1["i"], t2["i"])
+        div(t1["i"], t2["i"], db=db)
     # FIXME: Create more specific exception classes and remove this
     assert "Cannot pass arguments from more than one tables" == str(exc_info.value)
 

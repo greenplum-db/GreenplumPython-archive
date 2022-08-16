@@ -91,18 +91,21 @@ class ArrayFunctionCall(FunctionCall):
         return f"{self._func_name}({args_string})"
 
 
-def function(name: str, db: Database) -> Callable[..., FunctionCall]:
-    def make_function_call(*args: Expr, as_name: Optional[str] = None) -> FunctionCall:
+def function(name: str) -> Callable[..., FunctionCall]:
+    def make_function_call(
+        *args: Expr, as_name: Optional[str] = None, db: Optional[Database] = None
+    ) -> FunctionCall:
         return FunctionCall(name, args, as_name=as_name, db=db)
 
     return make_function_call
 
 
-def aggregate(name: str, db: Database) -> Callable[..., FunctionCall]:
+def aggregate(name: str) -> Callable[..., FunctionCall]:
     def make_function_call(
         *args: Expr,
         group_by: Optional[Iterable[Union[Expr, str]]] = None,
         as_name: Optional[str] = None,
+        db: Optional[Database] = None,
     ) -> FunctionCall:
         return FunctionCall(name, args, group_by=group_by, as_name=as_name, db=db)
 
