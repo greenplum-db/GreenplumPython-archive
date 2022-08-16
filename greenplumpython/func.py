@@ -7,11 +7,12 @@ from uuid import uuid4
 
 from greenplumpython.db import Database
 from greenplumpython.expr import Expr
+from greenplumpython.group import TableRowGroup
 from greenplumpython.table import Table
 from greenplumpython.type import primitive_type_map, to_pg_const, to_pg_type
 
 
-class FunctionCall(Expr):
+class FunctionExpr(Expr):
     """
     A Function object associated with a Greenplum function which can be called and applied to
     Greenplum data.
@@ -21,12 +22,12 @@ class FunctionCall(Expr):
         self,
         func_name: str,
         args: Iterable[Any] = [],
-        group_by: Optional[Iterable[Union[Expr, str]]] = None,
+        group_by: Optional[TableRowGroup] = None,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
         is_return_comp: bool = False,
     ) -> None:
-        table: Optional[Table] = None
+        table: Optional[Table] = group_by.table if group_by is not None else None
         for arg in args:
             if isinstance(arg, Expr) and arg.table is not None:
                 if table is None:
@@ -38,6 +39,11 @@ class FunctionCall(Expr):
         self._args = args
         self._group_by = group_by
         self._is_return_comp = is_return_comp
+
+    def __call__(self, group_by: Optional[TableRowGroup] = None):
+        return FunctionExpr(
+            self._func_name, self._args, group_by=group_by, as_name=self._as_name, db=self._db
+        )
 
     def _serialize(self) -> str:
         args_string = (
@@ -54,37 +60,46 @@ class FunctionCall(Expr):
         Returns the result table of the self function applied on args, with potential Group By if
         it is an Aggregation function.
         """
-        # -- FROM clause
-        from_clause = "FROM " + (f"{self.table.name}" if self.table is not None else str(self))
-        # -- GROUP BY clause
-        group_by_columns = (
-            ",".join([str(column) for column in self._group_by])
-            if self._group_by is not None
-            else ""
+        from_caluse = f"FROM {self.table.name}" if self.table is not None else ""
+        group_by_clause = (
+            self._group_by.make_group_by_clause() if self._group_by is not None else ""
         )
-        group_by_clause = f"GROUP BY {group_by_columns}" if self._group_by is not None else ""
-        # -- Parents
         parents = [self.table] if self.table is not None else []
-        # -- Composition of final result table
+        if self._is_return_comp and self._as_name is None:
+            self._as_name = "func_" + uuid4().hex
         orig_func_table = Table(
             " ".join(
                 [
-                    f"""
-                        SELECT {(str(self) if self.table is not None else '*') 
-                                if (not self._is_return_comp or self.table is None) 
-                                else '('+str(self)+').*'
-                                
-                    }
-                    """,
-                    "," + group_by_columns if group_by_columns != "" else "",
-                    from_clause,
+                    f"SELECT {str(self)}",
+                    ("," + ",".join([str(target) for target in self._group_by.get_targets()]))
+                    if self._group_by is not None
+                    else "",
+                    from_caluse,
                     group_by_clause,
                 ]
             ),
             db=self._db,
             parents=parents,
         )
-        return orig_func_table
+        # We use 2 `Table`s here because on GPDB 6X and PostgreSQL <= 9.6, a
+        # function returning records that contains more than one attributes
+        # will be called multiple times if we do
+        # ```sql
+        # SELECT (func(a, b)).* FROM t;
+        # ```
+        # which might cause performance issue. To workaround we need to do
+        # ```sql
+        # WITH func_call AS (
+        #     SELECT func(a, b) AS result FROM t
+        # )
+        # SELECT (result).* FROM func_call;
+        # ```
+        result = f"({self._as_name}).*" if self._is_return_comp else "*"
+        return Table(
+            f"SELECT {result} FROM {orig_func_table.name}",
+            parents=[orig_func_table],
+            db=self._db,
+        )
 
     @property
     def qualified_func_name(self) -> str:
@@ -103,7 +118,7 @@ class FunctionCall(Expr):
         return False
 
 
-class ArrayFunctionCall(FunctionCall):
+class ArrayFunctionExpr(FunctionExpr):
     """
     Inherited from FunctionCall. Specialized for an Array Function.
     It will array aggregate all the columns given by the user.
@@ -116,28 +131,28 @@ class ArrayFunctionCall(FunctionCall):
         return f"{self._func_name}({args_string})"
 
 
-def function(name: str, db: Database) -> Callable[..., FunctionCall]:
+def function(name: str, db: Database) -> Callable[..., FunctionExpr]:
     """
     A wrap in order to call function
     """
 
-    def make_function_call(*args: Expr, as_name: Optional[str] = None) -> FunctionCall:
-        return FunctionCall(name, args, as_name=as_name, db=db)
+    def make_function_call(*args: Expr, as_name: Optional[str] = None) -> FunctionExpr:
+        return FunctionExpr(name, args, as_name=as_name, db=db)
 
     return make_function_call
 
 
-def aggregate(name: str, db: Database) -> Callable[..., FunctionCall]:
+def aggregate(name: str, db: Database) -> Callable[..., FunctionExpr]:
     """
     A wrap in order to call an aggregate function
     """
 
     def make_function_call(
         *args: Expr,
-        group_by: Optional[Iterable[Union[Expr, str]]] = None,
+        group_by: Optional[TableRowGroup] = None,
         as_name: Optional[str] = None,
-    ) -> FunctionCall:
-        return FunctionCall(name, args, group_by=group_by, as_name=as_name, db=db)
+    ) -> FunctionExpr:
+        return FunctionExpr(name, args, group_by=group_by, as_name=as_name, db=db)
 
     return make_function_call
 
@@ -189,7 +204,7 @@ def create_function(
         *args: Any,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
-    ) -> FunctionCall:
+    ) -> FunctionExpr:
         """
         Function wrap
 
@@ -242,7 +257,7 @@ def create_function(
         )
         # -- Return FunctionCall object corresponding to UDF created
         is_return_comp = func_sig.return_annotation not in primitive_type_map
-        return FunctionCall(
+        return FunctionExpr(
             qualified_func_name, args=args, as_name=as_name, db=db, is_return_comp=is_return_comp
         )
 
@@ -285,10 +300,10 @@ def create_aggregate(
     @functools.wraps(trans_func)  # type: ignore
     def make_function_call(
         *args: Expr,
-        group_by: Optional[Iterable[Union[Expr, str]]] = None,
+        group_by: Optional[TableRowGroup] = None,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
-    ) -> FunctionCall:
+    ) -> FunctionExpr:
         """
         Function wrap
 
@@ -324,7 +339,7 @@ def create_aggregate(
             """,
             has_results=False,
         )
-        return FunctionCall(
+        return FunctionExpr(
             qualified_agg_name, args=args, group_by=group_by, as_name=as_name, db=db
         )
 
@@ -370,10 +385,10 @@ def create_array_function(
     @functools.wraps(func)  # type: ignore
     def make_function_call(
         *args: Expr,
-        group_by: Optional[Iterable[Union[Expr, str]]] = None,
+        group_by: Optional[TableRowGroup] = None,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
-    ) -> ArrayFunctionCall:
+    ) -> ArrayFunctionExpr:
         """
         Array Function wrap
 
@@ -386,7 +401,7 @@ def create_array_function(
         array_func_call = create_function(  # type: ignore
             func, name, schema, temp, replace_if_exists, language_handler
         )(*args, as_name=as_name, db=db)
-        return ArrayFunctionCall(
+        return ArrayFunctionExpr(
             array_func_call.qualified_func_name,  # type: ignore
             args=args,
             group_by=group_by,

@@ -6,6 +6,10 @@ if TYPE_CHECKING:
 
 
 class OrderedTable:
+    """
+    Represents an ordered :Table.
+    """
+
     def __init__(
         self,
         table: "Table",
@@ -22,18 +26,21 @@ class OrderedTable:
 
     def order_by(
         self,
-        order_col: "Expr",
+        sort_expr: "Expr",
         ascending: Optional[bool] = None,
         nulls_first: Optional[bool] = None,
         operator: Optional[str] = None,
     ) -> "OrderedTable":
+        """
+        Refine the order by adding another ordering definition to break the tie.
+        """
         if ascending is not None and operator is not None:
             raise Exception(
                 "Could not use 'ascending' and 'operator' at the same time to order by one column"
             )
         return OrderedTable(
             self._table,
-            self._ordering_list + [order_col],
+            self._ordering_list + [sort_expr],
             self._ascending_list + [ascending],
             self._nulls_first_list + [nulls_first],
             self._operator_list + [operator],
@@ -42,14 +49,14 @@ class OrderedTable:
     # FIXME : Not sure about return type
     def head(self, num: int) -> "Table":
         """
-        Returns a Table
+        Returns a :Table that contains the first :num rows in order.
         """
         from greenplumpython.table import Table
 
         return Table(
             f"""
                 SELECT * FROM {self._table.name}
-                {self.make_order_by_clause()}
+                {self._make_order_by_clause()}
                 LIMIT {num}
             """,
             parents=[self._table],
@@ -59,7 +66,7 @@ class OrderedTable:
     def table(self) -> "Table":
         return self._table
 
-    def make_order_by_clause(self) -> str:
+    def _make_order_by_clause(self) -> str:
         # FIXME : If user define ascending and operator, will get syntax error
         order_by_str = ",".join(
             [

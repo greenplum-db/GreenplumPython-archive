@@ -26,9 +26,10 @@ from typing import (
 from uuid import uuid4
 
 from greenplumpython import db
+from greenplumpython.group import TableRowGroup
 
 if TYPE_CHECKING:
-    from greenplumpython.func import FunctionCall
+    from greenplumpython.func import FunctionExpr
 
 from greenplumpython.expr import Column, Expr
 from greenplumpython.order import OrderedTable
@@ -561,17 +562,21 @@ class Table:
         assert results is not None
         return results
 
-    # FIXME : define func type
+    def group_by(self, *group_by: "Expr") -> TableRowGroup:
+        """
+        State transition diagram:
+        Table --group_by()-> TableRowGroup --aggregate()-> FunctionExpr
+          ^                                                    |
+          |------------------------- to_table() ---------------|
+        """
+        return TableRowGroup(self, [list(group_by)])
+
     # FIXME : Add more tests
-    def apply(self, func: Callable) -> "FunctionCall":  # type: ignore
+    def apply(self, func: Callable[["Table"], "FunctionExpr"]) -> "FunctionExpr":
         """
-        Apply function func on self by auto mapping columns to function's arguments.
-        Raise errors if columns are unknown.
+        Apply a function to the table
         """
-        if not self.columns:
-            raise NotImplementedError("Columns unknown for current table")
-        args = [self[column] for column in self.columns]
-        return func(*args)  # type: ignore
+        return func(self)
 
 
 # table_name can be table/view name
