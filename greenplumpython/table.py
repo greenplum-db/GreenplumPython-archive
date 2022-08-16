@@ -25,14 +25,14 @@ from typing import (
 )
 from uuid import uuid4
 
-from . import db
+from greenplumpython import db
 
 if TYPE_CHECKING:
-    from .func import FunctionCall
+    from greenplumpython.func import FunctionCall
 
-from .expr import Column, Expr
-from .order import OrderedTable
-from .type import to_pg_const
+from greenplumpython.expr import Column, Expr
+from greenplumpython.order import OrderedTable
+from greenplumpython.type import to_pg_const
 
 
 class Table:

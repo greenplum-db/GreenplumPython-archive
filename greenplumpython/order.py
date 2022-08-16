@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING, List, Optional
 
 if TYPE_CHECKING:
-    from .expr import Expr
-    from .table import Table
+    from greenplumpython.expr import Expr
+    from greenplumpython.table import Table
 
 
 class OrderedTable:
@@ -44,7 +44,7 @@ class OrderedTable:
         """
         Returns a Table
         """
-        from .table import Table
+        from greenplumpython.table import Table
 
         return Table(
             f"""

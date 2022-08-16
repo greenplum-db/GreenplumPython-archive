@@ -65,7 +65,7 @@ class Database:
         """
         Returns a Table object using table name and self
         """
-        from .table import table
+        from greenplumpython.table import table
 
         return table(name, self)
 

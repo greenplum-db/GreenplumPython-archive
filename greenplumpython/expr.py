@@ -5,11 +5,11 @@ import copy
 from functools import singledispatchmethod
 from typing import TYPE_CHECKING, Any, Optional, Union, overload
 
-from .db import Database
-from .type import to_pg_const
+from greenplumpython.db import Database
+from greenplumpython.type import to_pg_const
 
 if TYPE_CHECKING:
-    from .table import Table
+    from greenplumpython.table import Table
 
 
 class Expr:
@@ -180,7 +180,7 @@ class Expr:
         """
         Returns a Table, method for Function object
         """
-        from .table import Table
+        from greenplumpython.table import Table
 
         from_clause = f"FROM {self.table.name}" if self.table is not None else ""
         parents = [self.table] if self.table is not None else []
