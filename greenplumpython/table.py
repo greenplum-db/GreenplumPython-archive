@@ -143,6 +143,15 @@ class Table:
         """
         Return a string representation for a table
         """
+        repr_string = ""
+        ret = list(self.fetch())
+        repr_string += (("| {:10} |" * len(ret[0])).format(*ret[0])) + "\n"
+        repr_string += ("=" * 14 * len(ret[0])) + "\n"
+        for row in ret:
+            content = [row[c] for c in row]
+            s = ("| {:10} |" * len(row)).format(*content)
+            repr_string += s + "\n"
+        return repr_string
 
     def as_name(self, name_as: str) -> "Table":
         """
