@@ -44,6 +44,7 @@ jobs:
       # html files generated in doc/build
       run: |
         tox -e docs
+        mkdir -p public
         cp -r doc/build/html/* public
     - name: GitHub Pages
       uses: crazy-max/ghaction-github-pages@v2.2.0
