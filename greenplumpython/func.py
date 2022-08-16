@@ -5,11 +5,11 @@ import textwrap
 from typing import Any, Callable, Iterable, Optional, Union
 from uuid import uuid4
 
-from .db import Database
-from .expr import Expr
-from .group import TableRowGroup
-from .table import Table
-from .type import primitive_type_map, to_pg_const, to_pg_type
+from greenplumpython.db import Database
+from greenplumpython.expr import Expr
+from greenplumpython.group import TableRowGroup
+from greenplumpython.table import Table
+from greenplumpython.type import primitive_type_map, to_pg_const, to_pg_type
 
 
 class FunctionExpr(Expr):
