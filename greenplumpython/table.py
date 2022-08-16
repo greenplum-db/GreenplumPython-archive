@@ -32,6 +32,7 @@ if TYPE_CHECKING:
 
 from greenplumpython.expr import Column, Expr
 from greenplumpython.order import OrderedTable
+from greenplumpython.repr_html import JupyterHTMLStr
 from greenplumpython.type import to_pg_const
 
 
@@ -153,6 +154,20 @@ class Table:
             s = ("| {:10} |" * len(row)).format(*content)
             repr_string += s + "\n"
         return repr_string
+
+    def _repr_html_(self):
+        ret = list(self.fetch())
+        repr_html_str = "<table>\n"
+        repr_html_str += "\t<tr>\n"
+        repr_html_str += ("\t\t<th>{:}</th>\n" * len(ret[0])).format(*ret[0])
+        repr_html_str += "\t</tr>\n"
+        for row in ret:
+            repr_html_str += "\t<tr>\n"
+            content = [row[c] for c in row]
+            repr_html_str += ("\t\t<td>{:}</td>\n" * len(row)).format(*content)
+            repr_html_str += "\t</tr>\n"
+        repr_html_str += "</table>"
+        return JupyterHTMLStr(repr_html_str)
 
     def as_name(self, name_as: str) -> "Table":
         """
