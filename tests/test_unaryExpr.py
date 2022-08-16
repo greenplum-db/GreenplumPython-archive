@@ -3,7 +3,7 @@ from tests import db
 
 
 def test_expr_unary_not(db: gp.Database):
-    rows = [("True",), ("False",), ("True",), ("True",)]
+    rows = [(True,), (False,), (True,), (True,)]
     t = gp.values(rows, db=db).save_as("temp1", column_names=["id"], temp=True)
     b1 = (~t["id"]).rename('"Not(temp1.id)"')
     assert str(b1) == 'NOT(temp1.id) AS "Not(temp1.id)"'

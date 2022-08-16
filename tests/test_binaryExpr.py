@@ -17,7 +17,7 @@ def test_expr_bin_equal_int(db: gp.Database):
 
 
 def test_expr_bin_equal_str(db: gp.Database):
-    rows = [("'aaa'",), ("'bbb'",), ("'ccc'",)]
+    rows = [("aaa",), ("bbb",), ("ccc",)]
     t = gp.values(rows, db=db).save_as("temp2", temp=True, column_names=["id"])
     b2 = t["id"] == "aaa"
     assert str(b2) == str(gp.expr.BinaryExpr("=", t["id"], "aaa"))
@@ -27,7 +27,7 @@ def test_expr_bin_equal_str(db: gp.Database):
 
 
 def test_expr_bin_equal_none(db: gp.Database):
-    rows = [("'aa'",), ("NULL",), ("'cc'",)]
+    rows = [("aa",), (None,), ("cc",)]
     t = gp.values(rows, db=db).save_as("temp3", temp=True, column_names=["id"])
     b3 = t["id"] == None
     assert str(b3) == str(gp.expr.BinaryExpr("is", t["id"], None))
@@ -48,7 +48,7 @@ def test_expr_bin_equal_2expr(db: gp.Database):
 
 
 def test_expr_bin_equal_bool(db: gp.Database):
-    rows = [("True",), ("False",), ("False",), ("True",)]
+    rows = [(True,), (False,), (False,), (True,)]
     t = gp.values(rows, db=db).save_as("temp1", temp=True, column_names=["id"])
     b5 = t["id"] == True
     assert str(b5) == "(temp1.id = true)"
@@ -112,7 +112,7 @@ def test_expr_bin_or(db: gp.Database):
 
 
 def test_table_like(db: gp.Database):
-    rows = [("'aaa'",), ("'bba'",), ("'acac'",)]
+    rows = [("aaa",), ("bba",), ("acac",)]
     t = gp.values(rows, db=db).save_as("temp1", column_names=["id"], temp=True)
     result = t[t["id"].like(r"a%")].fetch()
     assert len(list(result)) == 2

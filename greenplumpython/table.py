@@ -32,6 +32,8 @@ if TYPE_CHECKING:
     from .func import FunctionExpr
 
 from .expr import Column, Expr
+from .order import OrderedTable
+from .type import to_pg_const
 
 
 class Table:
@@ -178,51 +180,27 @@ class Table:
             columns=target_list,
         )
 
-    @staticmethod
-    def _order_by_str(order_by: Union[Iterable[str], Dict[str, str]]) -> str:
+    def order_by(
+        self,
+        order_col: Expr,
+        ascending: Optional[bool] = None,
+        nulls_first: Optional[bool] = None,
+        operator: Optional[str] = None,
+    ):
         """
-        Private method returns ORDER BY statement according to the list of targets
-
-        Args:
-            order_by: Iterable : List of columns used for order by
-
-        Returns:
-            str : order by statement
+        State transition diagram:
+        Table --order_by()-> OrderedTable --head()-> Table
         """
-        order_by_clause = (
-            f"""
-                {','.join([' '.join([col, order_by[col]]) for col in order_by])}
-            """
-            if isinstance(order_by, dict)
-            else f"""
-                    {','.join([order_index for order_index in order_by])}
-                """
-        )
-        return order_by_clause
-
-    def top(
-        self, count: int, order_by: Union[Iterable[str], Dict[str, str]], skip: int = 0
-    ) -> "Table":
-        """
-        Returns top k rows of tables skipping n rows wth order
-
-        Args:
-            count: int : number of top consecutive rows will be selected
-            order_by: Iterable : list of columns used for order by
-            skip: int : number of top consecutive rows to be skipped to proceed select
-
-        Returns:
-             Table : table with top k consecutive rows by skipping n rows
-        """
-        order_by_clause = self._order_by_str(order_by)
-        return Table(
-            f"""
-                SELECT * FROM {self.name}
-                ORDER BY {order_by_clause}
-                LIMIT {count}
-                OFFSET {skip}
-            """,
-            parents=[self],
+        if ascending is not None and operator is not None:
+            raise Exception(
+                "Could not use 'ascending' and 'operator' at the same time to order by one column"
+            )
+        return OrderedTable(
+            self,
+            [order_col],
+            [ascending],
+            [nulls_first],
+            [operator],
         )
 
     def union(
@@ -620,6 +598,8 @@ def values(rows: Iterable[Tuple[Any]], db: db.Database, column_names: Iterable[s
         t = t.save_as("const_table", column_names=["id"], temp=True)
 
     """
-    rows_string = ",".join(["(" + ",".join(str(datum) for datum in row) + ")" for row in rows])
+    rows_string = ",".join(
+        ["(" + ",".join(to_pg_const(datum) for datum in row) + ")" for row in rows]
+    )
     columns_string = f"({','.join(column_names)})" if any(column_names) else ""
     return Table(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", db=db)
