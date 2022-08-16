@@ -74,8 +74,7 @@ def test_group_union(db: gp.Database):
     count = gp.aggregate("count", db=db)
 
     results = list(
-        numbers.group_by("is_even")
-        .union(numbers.group_by("is_multiple_of_3"))
+        (numbers.group_by("is_even") | numbers.group_by("is_multiple_of_3"))
         .apply(lambda row: count(row["val"]))
         .to_table()
         .fetch()

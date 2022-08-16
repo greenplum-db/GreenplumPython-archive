@@ -62,7 +62,7 @@ class FunctionExpr(Expr):
         """
         from_caluse = f"FROM {self.table.name}" if self.table is not None else ""
         group_by_clause = (
-            self._group_by.make_group_by_clause() if self._group_by is not None else ""
+            self._group_by._make_group_by_clause() if self._group_by is not None else ""
         )
         parents = [self.table] if self.table is not None else []
         if self._is_return_comp and self._as_name is None:
@@ -71,7 +71,7 @@ class FunctionExpr(Expr):
             " ".join(
                 [
                     f"SELECT {str(self)}",
-                    ("," + ",".join([str(target) for target in self._group_by.get_targets()]))
+                    ("," + ",".join([str(target) for target in self._group_by._get_targets()]))
                     if self._group_by is not None
                     else "",
                     from_caluse,
