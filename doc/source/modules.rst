@@ -12,3 +12,5 @@ The **GreenplumPython** library contains 5 main modules:
    func
    op
    type
+   group
+   order

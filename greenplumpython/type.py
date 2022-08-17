@@ -3,7 +3,7 @@ from uuid import uuid4
 
 from psycopg2.extensions import adapt  # type: ignore
 
-from .db import Database
+from greenplumpython.db import Database
 
 # -- Map between Python and Greenplum primitive types
 primitive_type_map = {
@@ -98,7 +98,7 @@ def to_pg_const(obj: object) -> str:
     Converts a const to UTF-8 encoded str
     """
     # In Python 3, all `str`s are encoded in UTF-8
-    from .expr import Expr
+    from greenplumpython.expr import Expr
 
     if isinstance(obj, Expr):
         return str(obj)

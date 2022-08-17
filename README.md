@@ -21,6 +21,13 @@ NOTE: This version is considered UNSTABLE. DON'T use it in the production enviro
 
 Stable version will be released soon.
 
+### Build Doc Locally
+
+```bash
+pip3 install tox
+tox -e docs
+```
+
 ### Selecting the Database of Your Data
 
 To begin with, we need to select the database that contains the data we want:

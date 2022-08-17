@@ -48,7 +48,14 @@ exclude_patterns = []
 #
 html_theme = "sphinx_rtd_theme"
 
+html_context = {
+    "display_github": True,
+    "github_user": "greenplum-db",
+    "github_repo": "GreenplumPython",
+    "github_version": "master/doc/source/",
+}
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
+# html_static_path = ["_static"]
