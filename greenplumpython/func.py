@@ -5,7 +5,7 @@ import functools
 import inspect
 import re
 import textwrap
-from typing import Any, Callable, Iterable, Optional, Union
+from typing import Any, Callable, Iterable, Optional
 from uuid import uuid4
 
 from greenplumpython.db import Database

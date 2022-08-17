@@ -6,10 +6,10 @@ from functools import singledispatchmethod
 from typing import TYPE_CHECKING, Any, Optional, Union, overload
 
 from greenplumpython.db import Database
-from greenplumpython.type import to_pg_const
 
 if TYPE_CHECKING:
     from greenplumpython.table import Table
+    from greenplumpython.type import Type
 
 
 class Expr:
@@ -376,6 +376,8 @@ class BinaryExpr(Expr):
         self._init(operator, left, right, as_name, db)
 
     def _serialize(self) -> str:
+        from greenplumpython.type import to_pg_const
+
         left_str = str(self.left) if isinstance(self.left, Expr) else to_pg_const(self.left)
         right_str = str(self.right) if isinstance(self.right, Expr) else to_pg_const(self.right)
         return f"({left_str} {self.operator} {right_str})"
@@ -408,75 +410,6 @@ class UnaryExpr(Expr):
     def _serialize(self) -> str:
         right_str = str(self.right)
         return f"{self.operator}({right_str})"
-
-
-class TypeCast(Expr):
-    """
-    Inherited from Expr.
-
-    Representation of a Type Casting.
-
-    Example:
-            .. code-block::  Python
-
-                rows = [(i,) for i in range(10)]
-                series = gp.values(rows, db, column_names=["val"]).save_as("series")
-                regclass = gp.get_type("regclass", db)
-                table_name = regclass(series["tableoid"]).rename("table_name")
-    """
-
-    def __init__(
-        self,
-        obj: object,
-        type_name: str,
-        as_name: Optional[str] = None,
-        db: Optional[Database] = None,
-    ) -> None:
-        """
-
-        Args:
-            obj: object : which will be applied type casting
-            type_name : str : name of type which object will be cast
-        """
-        table = obj.table if isinstance(obj, Expr) else None
-        super().__init__(as_name, table, db)
-        self._obj = obj
-        self._type_name = type_name
-
-    def _serialize(self) -> str:
-        obj_str = self._obj._serialize() if isinstance(self._obj, Expr) else to_pg_const(self._obj)
-        return f"{obj_str}::{self._type_name}"
-
-
-class Type:
-    """
-    A Type object in Greenplum Database.
-    """
-
-    def __init__(self, name: str, db: Database) -> None:
-        self._name = name
-        self._db = db
-
-    def __call__(self, obj: object) -> TypeCast:
-        return TypeCast(obj, self._name, db=self._db)
-
-
-# FIXME: Rename gp.table(), gp.function(), etc. to get_table(), get_function(), etc.
-# FIXME: Make these functions methods of a Database,
-#  e.g. from gp.get_type("int", db) to db.get_type("int")
-def get_type(name: str, db: Database) -> Type:
-    """
-    Returns the type corresponding to the name in the database given.
-
-    Args:
-        name: str: name of type
-        db: Database: database where stored type
-
-    Returns:
-        Type: type object
-    """
-
-    return Type(name, db=db)
 
 
 class Column(Expr):
