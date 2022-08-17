@@ -1,3 +1,6 @@
+"""
+This module creates a Python object TableRowGroup for group by table.
+"""
 from typing import TYPE_CHECKING, Callable, Iterable, List, MutableSet
 
 if TYPE_CHECKING:
@@ -18,6 +21,17 @@ class TableRowGroup:
     def apply(self, func: Callable[["Table"], "FunctionExpr"]) -> "FunctionExpr":
         """
         Apply a function to the row group.
+
+        Args:
+            func: Callable[["Table"], "FunctionExpr"]: a lambda function of a FunctionExpr
+
+        Returns:
+            FunctionExpr: a callable
+
+        Example:
+            .. code-block::  python
+
+                numbers.group_by("is_even").apply(lambda row: count(row["*"]))
         """
         return func(self._table)(group_by=self)
 
@@ -42,6 +56,12 @@ class TableRowGroup:
 
     @property
     def table(self) -> "Table":
+        """
+        Returns table associated for GROUP BY
+
+        Returns:
+            Table
+        """
         return self._table
 
     # FIXME: Make this function package-private

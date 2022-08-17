@@ -203,6 +203,11 @@ class Table:
 
         Returns:
             OrderedTable : Table ordered by the given arguments
+
+        Example:
+            .. code-block::  Python
+
+                t.order_by(t["id"])
         """
         # State transition diagram:
         # Table --order_by()-> OrderedTable --head()-> Table
