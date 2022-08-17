@@ -2,7 +2,7 @@ from typing import Any, Iterable, Optional, Union
 
 from greenplumpython.db import Database
 from greenplumpython.expr import Expr
-from greenplumpython.func import FunctionCall, function
+from greenplumpython.func import FunctionExpr
 
 
 def count(
@@ -10,10 +10,10 @@ def count(
     group_by: Optional[Iterable[Union[Expr, str]]] = None,
     as_name: Optional[str] = None,
     db: Optional[Database] = None,
-) -> FunctionCall:
+) -> FunctionExpr:
     if arg is None:
-        return function("count")(group_by=group_by, as_name=as_name, db=db)
-    return function("count")(arg, group_by=group_by, as_name=as_name, db=db)
+        return FunctionExpr(count, [], group_by=group_by, as_name=as_name, db=db)
+    return FunctionExpr(count, [arg], group_by=group_by, as_name=as_name, db=db)
 
 
 def min(
@@ -21,8 +21,8 @@ def min(
     group_by: Optional[Iterable[Union[Expr, str]]] = None,
     as_name: Optional[str] = None,
     db: Optional[Database] = None,
-) -> FunctionCall:
-    return function("min")(arg, group_by=group_by, as_name=as_name, db=db)
+) -> FunctionExpr:
+    return FunctionExpr("min", [arg], group_by=group_by, as_name=as_name, db=db)
 
 
 def max(
@@ -30,8 +30,8 @@ def max(
     group_by: Optional[Iterable[Union[Expr, str]]] = None,
     as_name: Optional[str] = None,
     db: Optional[Database] = None,
-) -> FunctionCall:
-    return function("max")(arg, group_by=group_by, as_name=as_name, db=db)
+) -> FunctionExpr:
+    return FunctionExpr("max", [arg], group_by=group_by, as_name=as_name, db=db)
 
 
 def avg(
@@ -39,8 +39,8 @@ def avg(
     group_by: Optional[Iterable[Union[Expr, str]]] = None,
     as_name: Optional[str] = None,
     db: Optional[Database] = None,
-) -> FunctionCall:
-    return function("avg")(arg, group_by=group_by, as_name=as_name, db=db)
+) -> FunctionExpr:
+    return FunctionExpr("avg", [arg], group_by=group_by, as_name=as_name, db=db)
 
 
 def sum(
@@ -48,5 +48,5 @@ def sum(
     group_by: Optional[Iterable[Union[Expr, str]]] = None,
     as_name: Optional[str] = None,
     db: Optional[Database] = None,
-) -> FunctionCall:
-    return function("sum")(arg, group_by=group_by, as_name=as_name, db=db)
+) -> FunctionExpr:
+    return FunctionExpr("sum", [arg], group_by=group_by, as_name=as_name, db=db)
