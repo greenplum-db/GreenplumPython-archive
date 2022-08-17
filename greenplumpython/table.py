@@ -72,7 +72,6 @@ class Table:
 
     @_getitem.register
     def _(self, key: str):
-        print("Get column: ", key)
         return Column(key, self)
 
     @_getitem.register

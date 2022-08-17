@@ -6,7 +6,7 @@ from tests import db
 def test_builtin_func_call(db: gp.Database):
     rows = [(i,) for i in range(10)]
     t = gp.values(rows, db=db, column_names=["a"])
-    result = list(F.count(t["val"]).to_table().fetch())
+    result = list(F.count(t["a"]).to_table().fetch())
     assert len(result) == 1
     assert result[0]["count"] == 10
 

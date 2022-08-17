@@ -31,7 +31,6 @@ class Expr:
         self._as_name = as_name
         self._table = table
         self._db = table.db if table is not None else db
-        assert self._db is not None
 
     def __and__(self, other: "Expr") -> "Expr":
         """
@@ -361,7 +360,6 @@ class Column(Expr):
 
     def _serialize(self) -> str:
         assert self.table is not None
-        print("Column:", self.name)
         return self.table.name + "." + self.name
 
     @property

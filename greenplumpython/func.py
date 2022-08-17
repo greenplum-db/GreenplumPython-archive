@@ -42,9 +42,9 @@ class FunctionExpr(Expr):
         self._group_by = group_by
         self._is_return_comp = is_return_comp
 
-    def __call__(self, group_by: Optional[TableRowGroup] = None):
+    def __call__(self, group_by: Optional[TableRowGroup] = None, table: Optional[Table] = None):
         return FunctionExpr(
-            self._func_name, self._args, group_by=group_by, as_name=self._as_name, db=self._db
+            self._func_name, self._args, group_by=group_by, as_name=self._as_name, table=table, db=self._db
         )
 
     def _serialize(self) -> str:
