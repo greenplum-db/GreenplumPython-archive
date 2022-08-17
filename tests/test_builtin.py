@@ -18,7 +18,7 @@ def test_builtin_func_apply(db: gp.Database):
     assert result[0]["count"] == 10
 
 
-def test_builtin_func_no_arg(db: gp.Database):
+def test_builtin_func_zero_arg(db: gp.Database):
     rows = [(i,) for i in range(10)]
     result = list(
         gp.values(rows, db=db, column_names=["a"]).apply(lambda _: F.count()).to_table().fetch()

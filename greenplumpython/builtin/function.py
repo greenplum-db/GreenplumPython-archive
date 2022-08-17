@@ -12,7 +12,7 @@ def count(
     db: Optional[Database] = None,
 ) -> FunctionExpr:
     if arg is None:
-        return FunctionExpr(count, [], group_by=group_by, as_name=as_name, db=db)
+        return FunctionExpr(count, ["*"], group_by=group_by, as_name=as_name, db=db)
     return FunctionExpr(count, [arg], group_by=group_by, as_name=as_name, db=db)
 
 
