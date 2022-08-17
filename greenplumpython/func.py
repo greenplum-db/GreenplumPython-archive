@@ -24,10 +24,12 @@ class FunctionExpr(Expr):
         args: Iterable[Any] = [],
         group_by: Optional[TableRowGroup] = None,
         as_name: Optional[str] = None,
+        table: Optional[Table] = None,
         db: Optional[Database] = None,
         is_return_comp: bool = False,
     ) -> None:
-        table: Optional[Table] = group_by.table if group_by is not None else None
+        if table is None and group_by is not None:
+            table = group_by.table
         for arg in args:
             if isinstance(arg, Expr) and arg.table is not None:
                 if table is None:

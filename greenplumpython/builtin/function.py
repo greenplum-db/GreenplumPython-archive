@@ -3,22 +3,23 @@ from typing import Any, Iterable, Optional, Union
 from greenplumpython.db import Database
 from greenplumpython.expr import Expr
 from greenplumpython.func import FunctionExpr
+from greenplumpython.group import TableRowGroup
 
 
 def count(
     arg: Optional[Any] = None,
-    group_by: Optional[Iterable[Union[Expr, str]]] = None,
+    group_by: Optional[TableRowGroup] = None,
     as_name: Optional[str] = None,
     db: Optional[Database] = None,
 ) -> FunctionExpr:
     if arg is None:
-        return FunctionExpr(count, ["*"], group_by=group_by, as_name=as_name, db=db)
-    return FunctionExpr(count, [arg], group_by=group_by, as_name=as_name, db=db)
+        return FunctionExpr("count", ["*"], group_by=group_by, as_name=as_name, db=db)
+    return FunctionExpr("count", [arg], group_by=group_by, as_name=as_name, db=db)
 
 
 def min(
     arg: Any,
-    group_by: Optional[Iterable[Union[Expr, str]]] = None,
+    group_by: Optional[TableRowGroup] = None,
     as_name: Optional[str] = None,
     db: Optional[Database] = None,
 ) -> FunctionExpr:
@@ -27,7 +28,7 @@ def min(
 
 def max(
     arg: Any,
-    group_by: Optional[Iterable[Union[Expr, str]]] = None,
+    group_by: Optional[TableRowGroup] = None,
     as_name: Optional[str] = None,
     db: Optional[Database] = None,
 ) -> FunctionExpr:
@@ -36,7 +37,7 @@ def max(
 
 def avg(
     arg: Any,
-    group_by: Optional[Iterable[Union[Expr, str]]] = None,
+    group_by: Optional[TableRowGroup] = None,
     as_name: Optional[str] = None,
     db: Optional[Database] = None,
 ) -> FunctionExpr:
@@ -45,7 +46,7 @@ def avg(
 
 def sum(
     arg: Any,
-    group_by: Optional[Iterable[Union[Expr, str]]] = None,
+    group_by: Optional[TableRowGroup] = None,
     as_name: Optional[str] = None,
     db: Optional[Database] = None,
 ) -> FunctionExpr:

@@ -144,18 +144,18 @@ def test_create_func_optional_params_name(db: gp.Database, series: gp.Table):
 def test_simple_agg(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
-    count = gp.aggregate("count", db=db)
+    count = gp.aggregate("count")
 
-    results = list(count(numbers["val"]).to_table().fetch())
+    results = list(count(numbers["val"], db=db).to_table().fetch())
     assert len(results) == 1 and results[0]["count"] == 10
 
 
 def test_agg_group_by(db: gp.Database):
     rows = [(i, i % 2 == 0) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
-    count = gp.aggregate("count", db=db)
+    count = gp.aggregate("count")
 
-    results = list(count(numbers["val"], group_by=numbers.group_by("is_even")).to_table().fetch())
+    results = list(count(numbers["val"], group_by=numbers.group_by("is_even"), db=db).to_table().fetch())
     assert len(results) == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["count"] == 5)
@@ -164,10 +164,10 @@ def test_agg_group_by(db: gp.Database):
 def test_agg_group_by_multi_columns(db: gp.Database):
     rows = [(i, i % 2 == 0, i % 3 == 0) for i in range(6)]  # 0, 1, 2, 3, 4, 5
     numbers = gp.values(rows, db=db, column_names=["val", "is_even", "is_multiple_of_3"])
-    count = gp.aggregate("count", db=db)
+    count = gp.aggregate("count")
 
     results = list(
-        count(numbers["val"], group_by=numbers.group_by("is_even", "is_multiple_of_3"))
+        count(numbers["val"], group_by=numbers.group_by("is_even", "is_multiple_of_3"), db=db)
         .to_table()
         .fetch()
     )
@@ -360,7 +360,7 @@ def test_array_func_comp_type(db: gp.Database):
 def test_func_apply_single_column(db: gp.Database):
     rows = [(i,) for i in range(-10, 0)]
     series = gp.values(rows, db=db, column_names=["id"])
-    abs = gp.function("abs", db=db)
+    abs = gp.function("abs")
     result = series.apply(lambda t: abs(t["id"])).to_table().fetch()
     assert len(list(result)) == 10
     for row in result:

@@ -3,13 +3,14 @@ This module creates a Python object Expr.
 """
 import copy
 from functools import singledispatchmethod
-from typing import TYPE_CHECKING, Any, Optional, Union, overload
+from typing import TYPE_CHECKING, Any, Callable, Optional, Union, overload
 
 from greenplumpython.db import Database
 from greenplumpython.type import to_pg_const
 
 if TYPE_CHECKING:
     from greenplumpython.table import Table
+    from greenplumpython.func import FunctionExpr
 
 
 class Expr:
@@ -186,6 +187,9 @@ class Expr:
         parents = [self.table] if self.table is not None else []
         return Table(f"SELECT {str(self)} {from_clause}", parents=parents, db=self._db)
 
+    def apply(self, func: Callable[["Expr"], "FunctionExpr"]) -> "FunctionExpr":
+        return func(self)
+
 
 class BinaryExpr(Expr):
     """
@@ -357,6 +361,7 @@ class Column(Expr):
 
     def _serialize(self) -> str:
         assert self.table is not None
+        print("Column:", self.name)
         return self.table.name + "." + self.name
 
     @property

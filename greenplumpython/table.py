@@ -72,6 +72,7 @@ class Table:
 
     @_getitem.register
     def _(self, key: str):
+        print("Get column: ", key)
         return Column(key, self)
 
     @_getitem.register
@@ -576,7 +577,7 @@ class Table:
         """
         Apply a function to the table
         """
-        return func(self)
+        return func(self)(table=self)
 
 
 # table_name can be table/view name
