@@ -14,7 +14,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     Iterable,
     List,
     Optional,
@@ -143,7 +142,13 @@ class Table:
 
     def as_name(self, name_as: str) -> "Table":
         """
-        Returns the table with a new name.
+        Returns a copy of the table with a new name.
+
+        Args:
+            name_as: str : Table's new name
+
+        Returns:
+            Table: a new Object Table named **name_as** with same content
         """
         return Table(f"SELECT * FROM {self.name}", parents=[self], name=name_as, db=self._db)
 
@@ -156,7 +161,7 @@ class Table:
             expr: Expr : where condition statement
 
         Returns:
-            Table : Table filtered according expr passed in argument
+            Table : Table filtered according **expr** passed in argument
         """
         return Table(f"SELECT * FROM {self._name} WHERE {str(expr)}", parents=[self])
 
@@ -188,9 +193,19 @@ class Table:
         operator: Optional[str] = None,
     ):
         """
-        State transition diagram:
-        Table --order_by()-> OrderedTable --head()-> Table
+        Returns self order by the given arguments.
+
+        Args:
+            order_col: Expr : Column which used to order by the table
+            ascending: Optional[Bool]: Define ascending of order, True = ASC / False = DESC
+            nulls_first: Optional[bool]: Define if nulls will be ordered first or last, True = First / False = Last
+            operator: Optional[str]: Define order by using operator. **Can't combine with ascending.**
+
+        Returns:
+            OrderedTable : Table ordered by the given arguments
         """
+        # State transition diagram:
+        # Table --order_by()-> OrderedTable --head()-> Table
         if ascending is not None and operator is not None:
             raise Exception(
                 "Could not use 'ascending' and 'operator' at the same time to order by one column"
@@ -208,6 +223,16 @@ class Table:
         other: "Table",
         is_all: bool = False,
     ):
+        """
+        Returns self union other table.
+
+        Args:
+            other: Table: table to use to do the union
+            is_all: bool: Define if it is a UNION ALL
+
+        Returns:
+            Table: self union other
+        """
         return Table(
             f"""
                 SELECT *
@@ -266,7 +291,7 @@ class Table:
             cond: Expr : join on condition
             targets : List : list of targeted columns for joined table
 
-        Returns
+        Returns:
             Table : inner joined table
 
         The result table can select all columns of both tables, or a selection of columns. User can
@@ -301,7 +326,7 @@ class Table:
             cond: Expr : join on condition
             targets : List : list of targeted columns for joined table
 
-        Returns
+        Returns:
             Table : left joined table
 
         The result table can select all columns of both tables, or a selection of columns. User can
@@ -330,7 +355,7 @@ class Table:
             cond: Expr : join on condition
             targets : List : list of targeted columns for joined table
 
-        Returns
+        Returns:
             Table : right joined table
 
         The result table can select all columns of both tables, or a selection of columns. User can
@@ -359,7 +384,7 @@ class Table:
             cond: Expr : join on condition
             targets : List : list of targeted columns for joined table
 
-        Returns
+        Returns:
             Table : full outer joined table
 
         The result table can select all columns of both tables, or a selection of columns. User can
@@ -385,7 +410,7 @@ class Table:
             other: Table : table to use to do the join
             targets : List : list of targeted columns for joined table
 
-        Returns
+        Returns:
             Table : natural joined table
 
         The result table is an implicit join based on the same column names in the joined tables
@@ -410,7 +435,7 @@ class Table:
             other: Table : table to use to do the join
             targets : List : list of targeted columns for joined table
 
-        Returns
+        Returns:
             Table : natural joined table
 
         The result table can select all columns of both tables, or a selection of columns. User can
@@ -426,7 +451,10 @@ class Table:
 
     def column_names(self) -> "Table":
         """
-        Returns list of column names of self
+        Returns a table contained column names of self. Need to do a fetch afterwards to get results.
+
+        Returns:
+            Table: table contained list of columns name of self
         """
         if any(self._parents):
             raise NotImplementedError()
@@ -443,6 +471,9 @@ class Table:
     def name(self) -> str:
         """
         Returns name of Table
+
+        Returns:
+            str: Table name
         """
         return self._name
 
@@ -450,13 +481,19 @@ class Table:
     def db(self) -> Optional[db.Database]:
         """
         Returns database associated with Table
+
+        Returns:
+            Optional[Database]: database associated with table
         """
         return self._db
 
     @property
     def columns(self) -> Optional[Iterable[str]]:
         """
-        Returns columns of Table
+        Returns columns of Table, has results only for selected table and joined table with targets.
+
+        Returns:
+            Optional[Iterable[str]]: None or List of column names of table
         """
         return self._columns
 
@@ -499,6 +536,12 @@ class Table:
         Fetch rows of this table.
         - if is_all is True, fetch all rows at once
         - otherwise, open a CURSOR and FETCH one row at a time
+
+        Args:
+            is_all: bool: Define if fetch all rows at once
+
+        Returns:
+            Iterable[Tuple[ANy]]: results of query received from database
         """
         if not is_all:
             raise NotImplementedError()
@@ -556,6 +599,12 @@ class Table:
     def explain(self, format: str = "TEXT") -> Iterable[Tuple[str]]:
         """
         Explained the table's query
+
+        Args:
+            format: str: format of explain
+
+        Returns:
+            Iterable[Tuple[str]]: EXPLAIN query answer
         """
         assert self._db is not None
         results = self._db.execute(f"EXPLAIN (FORMAT {format}) {self._build_full_query()}")
@@ -564,17 +613,46 @@ class Table:
 
     def group_by(self, *group_by: "Expr") -> TableRowGroup:
         """
-        State transition diagram:
-        Table --group_by()-> TableRowGroup --aggregate()-> FunctionExpr
-          ^                                                    |
-          |------------------------- to_table() ---------------|
+        Returns self group by the given list.
+
+        Args:
+            *group_by: Expr : Set of columns which used to group by the table
+
+        Returns:
+            TableRowGroup : Table grouped by the given list of columns
         """
+        #  State transition diagram:
+        #  Table --group_by()-> TableRowGroup --aggregate()-> FunctionExpr
+        #    ^                                                    |
+        #    |------------------------- to_table() ---------------|
         return TableRowGroup(self, [list(group_by)])
 
     # FIXME : Add more tests
     def apply(self, func: Callable[["Table"], "FunctionExpr"]) -> "FunctionExpr":
         """
         Apply a function to the table
+
+        Args:
+            func: Callable[["Table"], "FunctionExpr"]: a lambda function of a FunctionExpr
+
+        Returns:
+            FunctionExpr: a callable
+
+        Example:
+            .. code-block::  python
+
+                rows = [(i,) for i in range(-10, 0)]
+                series = gp.values(rows, db=db, column_names=["id"])
+                abs = gp.function("abs", db=db)
+                result = series.apply(lambda t: abs(t["id"])).to_table().fetch()
+
+            If we want to give constant as attribute, it is also easy to use. Suppose *label* function
+            takes a str and a int:
+
+            .. code-block::  python
+
+                result = series.apply(lambda t: label("label", t["id"])).to_table().fetch()
+
         """
         return func(self)
 
@@ -583,6 +661,10 @@ class Table:
 def table(name: str, db: db.Database) -> Table:
     """
     Returns a Table object using table name and associated database
+
+    Args:
+        name: str: Table name
+        db: Database: database which contains the table
     """
     return Table(f"TABLE {name}", name=name, db=db)
 
@@ -591,11 +673,18 @@ def values(rows: Iterable[Tuple[Any]], db: db.Database, column_names: Iterable[s
     """
     Returns a Table using list of values given
 
+    Args:
+        rows: Iterable[Tuple[Any]]: List of values
+        db: Database: database which will be associated with table
+        column_names: Iterable[str]: List of given column names
+
+    Returns:
+        Table: table generated with given values
+
     .. code-block::  python
 
        rows = [(1,), (2,), (3,)]
         t = gp.values(rows, db=db)
-        t = t.save_as("const_table", column_names=["id"], temp=True)
 
     """
     rows_string = ",".join(

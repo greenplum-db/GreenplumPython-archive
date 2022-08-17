@@ -34,22 +34,41 @@ class Expr:
 
     def __and__(self, other: "Expr") -> "Expr":
         """
-        Operator &
+        Operator **&**
+
         Returns a Binary Expression AND between self and another Expr
+
+        Example:
+            .. code-block::  Python
+
+                t["type"] == "type_1" & t["val"] > 0
+
         """
         return BinaryExpr("AND", self, other)
 
     def __or__(self, other: "Expr") -> "Expr":
         """
-        Operator |
+        Operator **|**
+
         Returns a Binary Expression OR between self and another Expr
+
+        Example:
+            .. code-block::  Python
+
+                t["type"] == "type_1" | t["type"] == "type_2"
         """
         return BinaryExpr("OR", self, other)
 
     def __eq__(self, other: "Expr") -> "Expr":
         """
-        Operator ==
+        Operator **==**
+
         Returns a Binary Expression EQUAL between self and another Expr
+
+        Example:
+            .. code-block::  Python
+
+                t["type"] == "type_1"
         """
         if isinstance(other, type(None)):
             return BinaryExpr("is", self, other)
@@ -57,77 +76,151 @@ class Expr:
 
     def __lt__(self, other: "Expr") -> "Expr":
         """
-        Operator <
+        Operator **<**
+
         Returns a Binary Expression LESS THAN between self and another Expr
+
+        Example:
+            .. code-block::  Python
+
+                t["val"] < 0
         """
         return BinaryExpr("<", self, other)
 
     def __le__(self, other: "Expr") -> "Expr":
         """
-        Operator <=
+        Operator **<=**
+
         Returns a Binary Expression LESS EQUAL between self and another Expr
+
+        Example:
+            .. code-block::  Python
+
+                t["val"] <= 0
         """
         return BinaryExpr("<=", self, other)
 
     def __gt__(self, other: "Expr") -> "Expr":
         """
-        Operator >
+        Operator **>**
+
         Returns a Binary Expression GREATER THAN between self and another Expr
+
+        Example:
+            .. code-block::  Python
+
+                t["val"] > 0
         """
         return BinaryExpr(">", self, other)
 
     def __ge__(self, other: "Expr") -> "Expr":
         """
-        Operator >=
+        Operator **>=**
+
         Returns a Binary Expression GREATER EQUAL between self and another Expr
+
+        Example:
+            .. code-block::  Python
+
+                t["val"] >= 0
         """
         return BinaryExpr(">=", self, other)
 
     def __ne__(self, other: "Expr") -> "Expr":
         """
-        Operator !=
+        Operator **!=**
+
         Returns a Binary Expression NOT EQUAL between self and another Expr
+
+        Example:
+            .. code-block::  Python
+
+                t["val"] != 0
         """
         return BinaryExpr("!=", self, other)
 
     def __mod__(self, other: Union[int, "Expr"]) -> "Expr":
         """
-        Operator %
+        Operator **%**
+
         Returns a Binary Expression Modulo between an Expr and an integer or an Expr
+
+        Example:
+            .. code-block::  Python
+
+                t["val"] % 2
         """
         return BinaryExpr("%", self, other)
 
     def __pos__(self) -> "Expr":
         """
-        Operator +
+        Operator **+**
+
         Returns a Unary Expression POSITIVE of self
+
+        Example:
+            .. code-block::  Python
+
+                +t["val"]
         """
         return UnaryExpr("+", self)
 
     def __neg__(self) -> "Expr":
         """
-        Operator -
+        Operator **-**
+
         Returns a Unary Expression NEGATIVE of self
+
+        Example:
+            .. code-block::  Python
+
+                -t["val"]
         """
         return UnaryExpr("-", self)
 
     def __abs__(self) -> "Expr":
         """
-        Operator abs()
+        Operator **abs()**
+
         Returns a Unary Expression ABSOLUTE of self
+
+        Example:
+            .. code-block::  Python
+
+                abs(t["val"])
         """
         return UnaryExpr("ABS", self)
 
     def __invert__(self) -> "Expr":
         """
-        Operator ~
+        Operator **~**
+
         Returns a Unary Expression NOT of self
+
+        Example:
+            .. code-block::  Python
+
+                not(t["val"])
         """
         return UnaryExpr("NOT", self)
 
     def like(self, pattern: str) -> "Expr":
         """
         Returns BinaryExpr in order to apply LIKE statement on self with pattern
+
+        Args:
+            pattern: str: regex pattern
+
+        Returns:
+            Expr
+
+        Example:
+            Select rows where id begins with "a"
+
+            .. code-block::  Python
+
+                t[t["id"].like(r"a%")]
+
         """
         return BinaryExpr("LIKE", self, pattern)
 
@@ -140,6 +233,12 @@ class Expr:
     def rename(self, new_name: str) -> "Expr":
         """
         Return copy of Expr with a new name
+
+        Args:
+            new_name: str: Expr's new name
+
+        Returns:
+            Expr: a new Object Expr with given new name
         """
         new_expr = copy.copy(self)  # Shallow copy
         new_expr._as_name = new_name
@@ -151,14 +250,20 @@ class Expr:
     @property
     def name(self) -> str:
         """
-        Returns Expr name
+        Returns name of Expr
+
+        Returns:
+            str: Expr name
         """
         raise NotImplementedError()
 
     @property
     def as_name(self) -> str:
         """
-        Returns Expr Alias name
+        Returns alias name of Expr
+
+        Returns:
+            str: Expr alias name
         """
         return self._as_name
 
@@ -166,6 +271,9 @@ class Expr:
     def db(self) -> Optional[Database]:
         """
         Returns Expr associated database
+
+        Returns:
+            Optional[Database]: database associated with Expr
         """
         return self._db
 
@@ -173,12 +281,17 @@ class Expr:
     def table(self) -> Optional["Table"]:
         """
         Returns Expr associated table
+
+        Returns:
+        Optional[Table]: table associated with Expr
         """
         return self._table
 
     def to_table(self) -> "Table":
         """
-        Returns a Table, method for Function object
+        Returns a Table
+
+        Method for Function object
         """
         from greenplumpython.table import Table
 
@@ -189,7 +302,9 @@ class Expr:
 
 class BinaryExpr(Expr):
     """
-    Inherited from Expr. Representation of a Binary Expression
+    Inherited from Expr.
+
+    Representation of a Binary Expression
     """
 
     @singledispatchmethod
@@ -268,7 +383,9 @@ class BinaryExpr(Expr):
 
 class UnaryExpr(Expr):
     """
-    Inherited from Expr. Representation of a Unary Expression.
+    Inherited from Expr.
+
+    Representation of a Unary Expression.
     """
 
     def __init__(
@@ -295,7 +412,17 @@ class UnaryExpr(Expr):
 
 class TypeCast(Expr):
     """
-    Inherited from Expr. Representation of a Type Casting.
+    Inherited from Expr.
+
+    Representation of a Type Casting.
+
+    Example:
+            .. code-block::  Python
+
+                rows = [(i,) for i in range(10)]
+                series = gp.values(rows, db, column_names=["val"]).save_as("series")
+                regclass = gp.get_type("regclass", db)
+                table_name = regclass(series["tableoid"]).rename("table_name")
     """
 
     def __init__(
@@ -340,6 +467,13 @@ class Type:
 def get_type(name: str, db: Database) -> Type:
     """
     Returns the type corresponding to the name in the database given.
+
+    Args:
+        name: str: name of type
+        db: Database: database where stored type
+
+    Returns:
+        Type: type object
     """
 
     return Type(name, db=db)
@@ -347,7 +481,9 @@ def get_type(name: str, db: Database) -> Type:
 
 class Column(Expr):
     """
-    Inherited from Expr. Representation of a python object Column.
+    Inherited from Expr.
+
+    Representation of a python object Column.
     """
 
     def __init__(self, name: str, table: "Table", as_name: Optional[str] = None) -> None:
@@ -363,6 +499,9 @@ class Column(Expr):
     def name(self) -> str:
         """
         Returns column name
+
+        Returns:
+            str: column name
         """
         return self._name
 
@@ -370,5 +509,8 @@ class Column(Expr):
     def table(self) -> Optional["Table"]:
         """
         Returns column associated table
+
+        Returns:
+            Optional[Table]: table associated with column
         """
         return self._table
