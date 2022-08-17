@@ -95,14 +95,17 @@ def create_type(
     is_temp: bool = True,
 ) -> str:
     """
-    Returns:
-        Name of created composite type
+    Creates a new composite type in database and return its name
 
     Args:
         class_type : object : class which user want to reproduce in Greenplum
         db : Database : where the type will be created
         as_name : Optional[str] : name of the created type if different from class
         is_temp : bool : if type exists only for current session
+
+    Returns:
+        str: name of created composite type
+
     """
     type_name = "type_" + uuid4().hex if as_name is None else as_name
     temp_str = "pg_temp." if is_temp else ""
@@ -127,7 +130,11 @@ def create_type(
 
 def drop_type(type_name: str, db: Database):
     """
-    Drop type in Greenplum Database
+    Drop type in database
+
+    Args:
+        type_name: str: type name
+        db: Database: database where stored type
     """
     db.execute(
         f"DROP TYPE IF EXISTS {type_name} CASCADE",
@@ -145,6 +152,16 @@ def to_pg_type(
 ) -> Union[str, None]:
     """
     Conversion of Type from Python to Greenplum
+
+    Args:
+        annotation: Any: object annotation
+        db: Optional[Database]: None if primitive type or database associated with type
+        as_name: Optional[str]: None or its alias name
+        is_temp: bool: define if it is a temporary creation
+        is_return: bool: define if the object is use as a function's return type
+
+    Returns:
+        Union[str, None]: name of type or None if not exists
     """
     if hasattr(annotation, "__origin__"):
         # The `or` here is to make the function work on Python 3.6.
