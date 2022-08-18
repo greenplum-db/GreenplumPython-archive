@@ -9,8 +9,8 @@ from greenplumpython.db import Database
 from greenplumpython.type import to_pg_const
 
 if TYPE_CHECKING:
-    from greenplumpython.table import Table
     from greenplumpython.func import FunctionExpr
+    from greenplumpython.table import Table
 
 
 class Expr:
