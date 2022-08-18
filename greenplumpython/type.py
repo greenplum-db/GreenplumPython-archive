@@ -95,7 +95,7 @@ def create_type(
     is_temp: bool = True,
 ) -> str:
     """
-    Creates a new composite type in database and return its name
+    Creates a new composite type in database and returns its name
 
     Args:
         class_type : object : class which user want to reproduce in Greenplum
@@ -104,7 +104,7 @@ def create_type(
         is_temp : bool : if type exists only for current session
 
     Returns:
-        str: name of created composite type
+        str: name of the created composite type
 
     """
     type_name = "type_" + uuid4().hex if as_name is None else as_name

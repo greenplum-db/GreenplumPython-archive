@@ -101,6 +101,7 @@ class OrderedTable:
         return self._table
 
     def _make_order_by_clause(self) -> str:
+        """:meta private:"""
         # FIXME : If user define ascending and operator, will get syntax error
         order_by_str = ",".join(
             [

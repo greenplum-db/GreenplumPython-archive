@@ -42,12 +42,15 @@ class TableRowGroup:
         This does not merge the two groups into one. Instead, it means applying
         any operation to the union is equivalent to applying the operation to
         each group and union the result sets.
+
+        :meta public:
         """
         assert self._table == other._table
         return TableRowGroup(self._table, self._grouping_sets + other._grouping_sets)
 
     # FIXME: Make this function package-private
     def get_targets(self) -> Iterable["Expr"]:
+        """:meta private:"""
         item_set: MutableSet[Expr] = set()
         for grouping_set in self._grouping_sets:
             for group_by_item in grouping_set:
@@ -66,6 +69,7 @@ class TableRowGroup:
 
     # FIXME: Make this function package-private
     def make_group_by_clause(self) -> str:
+        """:meta private:"""
         grouping_sets_str = [
             f"({','.join([str(item) for item in grouping_set])})"
             for grouping_set in self._grouping_sets

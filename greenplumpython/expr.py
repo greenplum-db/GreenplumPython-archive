@@ -416,7 +416,7 @@ class Column(Expr):
     """
     Inherited from Expr.
 
-    Representation of a python object Column.
+    Representation of a Python object Column.
     """
 
     def __init__(self, name: str, table: "Table", as_name: Optional[str] = None) -> None:

@@ -546,7 +546,7 @@ class Table:
             is_all: bool: Define if fetch all rows at once
 
         Returns:
-            Iterable[Tuple[ANy]]: results of query received from database
+            Iterable[Tuple[Any]]: results of query received from database
         """
         if not is_all:
             raise NotImplementedError()
