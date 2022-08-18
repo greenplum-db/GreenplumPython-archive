@@ -19,7 +19,7 @@ primitive_type_map = {
 
 class TypeCast(Expr):
     """
-    Inherited from Expr.
+    Inherited from :class:`~expr.Expr`.
 
     Representation of a Type Casting.
 
@@ -57,7 +57,7 @@ class TypeCast(Expr):
 
 class Type:
     """
-    A Type object in Greenplum Database.
+    A Type object in Greenplum database.
     """
 
     def __init__(self, name: str, db: Database) -> None:
@@ -73,11 +73,11 @@ class Type:
 #  e.g. from gp.get_type("int", db) to db.get_type("int")
 def get_type(name: str, db: Database) -> Type:
     """
-    Returns the type corresponding to the name in the database given.
+    Returns the type corresponding to the name in the :class:`~db.Database` given.
 
     Args:
         name: str: name of type
-        db: Database: database where stored type
+        db: :class:`~db.Database`: database where stored type
 
     Returns:
         Type: type object
@@ -99,7 +99,7 @@ def create_type(
 
     Args:
         class_type : object : class which user want to reproduce in Greenplum
-        db : Database : where the type will be created
+        db : :class:`~db.Database` : where the type will be created
         as_name : Optional[str] : name of the created type if different from class
         is_temp : bool : if type exists only for current session
 
@@ -130,11 +130,11 @@ def create_type(
 
 def drop_type(type_name: str, db: Database):
     """
-    Drop type in database
+    Drop type in :class:`~db.Database`
 
     Args:
         type_name: str: type name
-        db: Database: database where stored type
+        db: :class:`~db.Database`: database where stored type
     """
     db.execute(
         f"DROP TYPE IF EXISTS {type_name} CASCADE",
@@ -155,7 +155,7 @@ def to_pg_type(
 
     Args:
         annotation: Any: object annotation
-        db: Optional[Database]: None if primitive type or database associated with type
+        db: Optional[:class:`~db.Database`]: None if primitive type or database associated with type
         as_name: Optional[str]: None or its alias name
         is_temp: bool: define if it is a temporary creation
         is_return: bool: define if the object is use as a function's return type

@@ -10,7 +10,7 @@ def operator(name: str, db: Database) -> Callable[[Any, Any], BinaryExpr]:
 
     Args:
         name: str: str of operator
-        db: Database: database where stored operator
+        db: :class:`~db.Database`: database where stored operator
 
     Returns:
         Callable

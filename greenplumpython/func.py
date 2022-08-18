@@ -17,6 +17,8 @@ from greenplumpython.type import primitive_type_map, to_pg_const, to_pg_type
 
 class FunctionExpr(Expr):
     """
+    Inherited from :class:`~expr.Expr`.
+
     A Function object associated with a Greenplum function which can be called and applied to
     Greenplum data.
     """
@@ -129,7 +131,9 @@ class FunctionExpr(Expr):
 
 class ArrayFunctionExpr(FunctionExpr):
     """
-    Inherited from FunctionCall. Specialized for an Array Function.
+    Inherited from :class:`FunctionExpr`.
+
+    Specialized for an Array Function.
     It will array aggregate all the columns given by the user.
     """
 
@@ -241,7 +245,7 @@ def create_function(
         Args:
             *args : Any : arguments of function, could be constant or columns
             as_name : Optional[str] : name of the UDF
-            db : Optional[Database] : where the function will be created
+            db : Optional[:class:`~db.Database`] : where the function will be created
         """
         # -- Prepare function creation env in Greenplum
         if db is None:
@@ -354,7 +358,7 @@ def create_aggregate(
             *args : Any : arguments of function, could be constant or columns
             group_by : Optional[Iterable[Union[Expr, str]]] : aggregation group by index
             as_name : Optional[str] : name of the UDA
-            db : Optional[Database] : where the function will be created
+            db : Optional[:class:`~db.Database`] : where the function will be created
         """
         trans_func_call = create_function(  # type: ignore
             trans_func, "func_" + uuid4().hex, schema, temp, False, language_handler
@@ -453,7 +457,7 @@ def create_array_function(
             *args : Any : arguments of function, could be constant or columns
             group_by : Optional[Iterable[Union[Expr, str]]] : array_aggregate group by index
             as_name : Optional[str] : name of the UDF
-            db : Optional[Database] : where the function will be created
+            db : Optional[:class:`~db.Database`] : where the function will be created
         """
         array_func_call = create_function(  # type: ignore
             func, name, schema, temp, replace_if_exists, language_handler

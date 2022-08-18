@@ -1,5 +1,5 @@
 """
-This module creates a Python object Table which keeps in memory all the user modifications
+This module creates a Python object :class:`Table` which keeps in memory all the user modifications
 on a table, in order to proceed with SQL query. It concatenates different pieces of queries
 together using CTEs.
 
@@ -111,13 +111,13 @@ class Table:
     def __getitem__(self, *args, **kwargs):  # type: ignore
         """
         Returns
-            - a Column of the current Table if key is string
+            - a :class:`~expr.Column` of the current Table if key is string
 
             .. code-block::  python
 
                id_col = tab["id"]
 
-            - a new Table from the current Table per the type of key:
+            - a new :class:`Table` from the current Table per the type of key:
 
                 - if key is a list, then SELECT a subset of columns, a.k.a. targets;
 
@@ -125,7 +125,7 @@ class Table:
 
                    id_table = tab[["id"]]
 
-                - if key is an Expr, then SELECT a subset of rows per the value of the Expr;
+                - if key is an :class:`~expr.Expr`, then SELECT a subset of rows per the value of the Expr;
 
                 .. code-block::  python
 
@@ -142,7 +142,7 @@ class Table:
 
     def as_name(self, name_as: str) -> "Table":
         """
-        Returns a copy of the table with a new name.
+        Returns a copy of the :class:`Table` with a new name.
 
         Args:
             name_as: str : Table's new name
@@ -155,10 +155,10 @@ class Table:
     # FIXME: Add test
     def filter(self, expr: "Expr") -> "Table":
         """
-        Returns the table filtered by Expression.
+        Returns the :class:`Table` filtered by Expression.
 
         Args:
-            expr: Expr : where condition statement
+            expr: :class:`~expr.Expr` : where condition statement
 
         Returns:
             Table : Table filtered according **expr** passed in argument
@@ -168,7 +168,7 @@ class Table:
     # FIXME: Add test
     def select(self, target_list: Iterable[Union[str, "Expr"]]) -> "Table":
         """
-        Returns table with targeted columns
+        Returns :class:`Table` with list of targeted :class:`~expr.Column`
 
         Args:
             target_list: Iterable : list of targeted columns
@@ -193,10 +193,10 @@ class Table:
         operator: Optional[str] = None,
     ):
         """
-        Returns self order by the given arguments.
+        Returns :class:`Table` order by the given arguments.
 
         Args:
-            order_col: Expr : Column which used to order by the table
+            order_col: :class:`~expr.Expr` : Column which used to order by the table
             ascending: Optional[Bool]: Define ascending of order, True = ASC / False = DESC
             nulls_first: Optional[bool]: Define if nulls will be ordered first or last, True = First / False = Last
             operator: Optional[str]: Define order by using operator. **Can't combine with ascending.**
@@ -232,7 +232,7 @@ class Table:
         Returns self union other table.
 
         Args:
-            other: Table: table to use to do the union
+            other: :class:`Table`: table to use to do the union
             is_all: bool: Define if it is a UNION ALL
 
         Returns:
@@ -257,7 +257,7 @@ class Table:
         on_str: str,
     ) -> "Table":
         """
-        Private function returns table results by joining two tables
+        Private function returns table results by joining two :class:`Table`
         """
         # FIXME : Raise Error if target columns don't exist
         # FIXME : Same column name in both table
@@ -288,12 +288,12 @@ class Table:
         targets: List["Column"] = [],
     ):
         """
-        Returns inner join of self and another Table using condition, and only select targeted
+        Returns inner join of self and another :class:`Table` using condition, and only select targeted
         columns
 
         Args:
-            other: Table : table to use to do the join
-            cond: Expr : join on condition
+            other: :class:`Table` : table to use to do the join
+            cond: :class:`~expr.Expr` : join on condition
             targets : List : list of targeted columns for joined table
 
         Returns:
@@ -323,12 +323,12 @@ class Table:
         targets: List["Column"] = [],
     ):
         """
-        Returns left join of self and another Table using condition, and only select targeted
+        Returns left join of self and another :class:`Table` using condition, and only select targeted
         columns
 
         Args:
-            other: Table : table to use to do the join
-            cond: Expr : join on condition
+            other: :class:`Table` : table to use to do the join
+            cond: :class:`~expr.Expr` : join on condition
             targets : List : list of targeted columns for joined table
 
         Returns:
@@ -352,12 +352,12 @@ class Table:
         targets: List["Column"] = [],
     ):
         """
-        Returns right join of self and another Table using condition, and only select targeted
+        Returns right join of self and another :class:`Table` using condition, and only select targeted
         columns
 
         Args:
-            other: Table : table to use to do the join
-            cond: Expr : join on condition
+            other: :class:`Table` : table to use to do the join
+            cond: :class:`~expr.Expr` : join on condition
             targets : List : list of targeted columns for joined table
 
         Returns:
@@ -381,12 +381,12 @@ class Table:
         targets: List["Column"] = [],
     ):
         """
-        Returns full outer join of self and another Table using condition, and only select targeted
+        Returns full outer join of self and another :class:`Table` using condition, and only select targeted
         columns
 
         Args:
-            other: Table : table to use to do the join
-            cond: Expr : join on condition
+            other: :class:`Table` : table to use to do the join
+            cond: :class:`~expr.Expr` : join on condition
             targets : List : list of targeted columns for joined table
 
         Returns:
@@ -409,10 +409,10 @@ class Table:
         targets: List["Column"] = [],
     ):
         """
-        Returns natural join of self and another Table, and only select targeted columns
+        Returns natural join of self and another :class:`Table`, and only select targeted columns
 
         Args:
-            other: Table : table to use to do the join
+            other: :class:`Table` : table to use to do the join
             targets : List : list of targeted columns for joined table
 
         Returns:
@@ -434,10 +434,10 @@ class Table:
         targets: List["Column"] = [],
     ):
         """
-        Returns cross join of self and another Table, and only select targeted columns
+        Returns cross join of self and another :class:`Table`, and only select targeted columns
 
         Args:
-            other: Table : table to use to do the join
+            other: :class:`Table` : table to use to do the join
             targets : List : list of targeted columns for joined table
 
         Returns:
@@ -456,7 +456,7 @@ class Table:
 
     def column_names(self) -> "Table":
         """
-        Returns a table contained column names of self. Need to do a fetch afterwards to get results.
+        Returns :class:`Table` contained column names of self. Need to do a fetch afterwards to get results.
 
         Returns:
             Table: table contained list of columns name of self
@@ -475,7 +475,7 @@ class Table:
     @property
     def name(self) -> str:
         """
-        Returns name of Table
+        Returns name of :class:`Table`
 
         Returns:
             str: Table name
@@ -485,7 +485,7 @@ class Table:
     @property
     def db(self) -> Optional[db.Database]:
         """
-        Returns database associated with Table
+        Returns :class:`~db.Database` associated with :class:`Table`
 
         Returns:
             Optional[Database]: database associated with table
@@ -495,10 +495,10 @@ class Table:
     @property
     def columns(self) -> Optional[Iterable[str]]:
         """
-        Returns columns of Table, has results only for selected table and joined table with targets.
+        Returns its :class:`~expr.Column` name of :class:`Table`, has results only for selected table and joined table with targets.
 
         Returns:
-            Optional[Iterable[str]]: None or List of column names of table
+            Optional[Iterable[str]]: None or List of its columns names of table
         """
         return self._columns
 
@@ -538,7 +538,7 @@ class Table:
 
     def fetch(self, is_all: bool = True) -> Iterable[Tuple[Any]]:
         """
-        Fetch rows of this table.
+        Fetch rows of this :class:`Table`.
         - if is_all is True, fetch all rows at once
         - otherwise, open a CURSOR and FETCH one row at a time
 
@@ -556,7 +556,7 @@ class Table:
 
     def save_as(self, table_name: str, temp: bool = False, column_names: List[str] = []) -> "Table":
         """
-        Save the Table to database as a real Greenplum Table
+        Save the table to database as a real Greenplum Table
 
         Args:
             table_name : str
@@ -621,10 +621,10 @@ class Table:
         Returns self group by the given list.
 
         Args:
-            *group_by: Expr : Set of columns which used to group by the table
+            *group_by: :class:`~expr.Expr` : Set of columns which used to group by the table
 
         Returns:
-            TableRowGroup : Table grouped by the given list of columns
+            TableRowGroup : :class:`Table` grouped by the given list of :class:`~expr.Column`
         """
         #  State transition diagram:
         #  Table --group_by()-> TableRowGroup --aggregate()-> FunctionExpr
@@ -635,10 +635,10 @@ class Table:
     # FIXME : Add more tests
     def apply(self, func: Callable[["Table"], "FunctionExpr"]) -> "FunctionExpr":
         """
-        Apply a function to the table
+        Apply a function to the :class:`Table`
 
         Args:
-            func: Callable[["Table"], "FunctionExpr"]: a lambda function of a FunctionExpr
+            func: Callable[[:class:`Table`], :class:`~func.FunctionExpr`]: a lambda function of a FunctionExpr
 
         Returns:
             FunctionExpr: a callable
@@ -665,22 +665,22 @@ class Table:
 # table_name can be table/view name
 def table(name: str, db: db.Database) -> Table:
     """
-    Returns a Table object using table name and associated database
+    Returns a :class:`Table` using table name and associated :class:`~db.Database`
 
     Args:
         name: str: Table name
-        db: Database: database which contains the table
+        db: :class:`~db.Database`: database which contains the table
     """
     return Table(f"TABLE {name}", name=name, db=db)
 
 
 def values(rows: Iterable[Tuple[Any]], db: db.Database, column_names: Iterable[str] = []) -> Table:
     """
-    Returns a Table using list of values given
+    Returns a :class:`Table` using list of values given
 
     Args:
         rows: Iterable[Tuple[Any]]: List of values
-        db: Database: database which will be associated with table
+        db: :class:`~db.Database`: database which will be associated with table
         column_names: Iterable[str]: List of given column names
 
     Returns:

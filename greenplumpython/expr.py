@@ -36,7 +36,7 @@ class Expr:
         """
         Operator **&**
 
-        Returns a Binary Expression AND between self and another Expr
+        Returns a Binary Expression AND between self and another :class:`Expr`
 
         Example:
             .. code-block::  Python
@@ -50,7 +50,7 @@ class Expr:
         """
         Operator **|**
 
-        Returns a Binary Expression OR between self and another Expr
+        Returns a Binary Expression OR between self and another :class:`Expr`
 
         Example:
             .. code-block::  Python
@@ -63,7 +63,7 @@ class Expr:
         """
         Operator **==**
 
-        Returns a Binary Expression EQUAL between self and another Expr
+        Returns a Binary Expression EQUAL between self and another :class:`Expr`
 
         Example:
             .. code-block::  Python
@@ -78,7 +78,7 @@ class Expr:
         """
         Operator **<**
 
-        Returns a Binary Expression LESS THAN between self and another Expr
+        Returns a Binary Expression LESS THAN between self and another :class:`Expr`
 
         Example:
             .. code-block::  Python
@@ -91,7 +91,7 @@ class Expr:
         """
         Operator **<=**
 
-        Returns a Binary Expression LESS EQUAL between self and another Expr
+        Returns a Binary Expression LESS EQUAL between self and another :class:`Expr`
 
         Example:
             .. code-block::  Python
@@ -104,7 +104,7 @@ class Expr:
         """
         Operator **>**
 
-        Returns a Binary Expression GREATER THAN between self and another Expr
+        Returns a Binary Expression GREATER THAN between self and another :class:`Expr`
 
         Example:
             .. code-block::  Python
@@ -117,7 +117,7 @@ class Expr:
         """
         Operator **>=**
 
-        Returns a Binary Expression GREATER EQUAL between self and another Expr
+        Returns a Binary Expression GREATER EQUAL between self and another :class:`Expr`
 
         Example:
             .. code-block::  Python
@@ -130,7 +130,7 @@ class Expr:
         """
         Operator **!=**
 
-        Returns a Binary Expression NOT EQUAL between self and another Expr
+        Returns a Binary Expression NOT EQUAL between self and another :class:`Expr`
 
         Example:
             .. code-block::  Python
@@ -143,7 +143,7 @@ class Expr:
         """
         Operator **%**
 
-        Returns a Binary Expression Modulo between an Expr and an integer or an Expr
+        Returns a Binary Expression Modulo between an :class:`Expr` and an integer or an :class:`Expr`
 
         Example:
             .. code-block::  Python
@@ -232,13 +232,13 @@ class Expr:
 
     def rename(self, new_name: str) -> "Expr":
         """
-        Return copy of Expr with a new name
+        Return copy of :class:`Expr` with a new name
 
         Args:
             new_name: str: Expr's new name
 
         Returns:
-            Expr: a new Object Expr with given new name
+            Expr: a new :class:`Expr` with given new name
         """
         new_expr = copy.copy(self)  # Shallow copy
         new_expr._as_name = new_name
@@ -250,46 +250,46 @@ class Expr:
     @property
     def name(self) -> str:
         """
-        Returns name of Expr
+        Returns name of :class:`Expr`
 
         Returns:
-            str: Expr name
+            str: :class:`Expr` name
         """
         raise NotImplementedError()
 
     @property
     def as_name(self) -> str:
         """
-        Returns alias name of Expr
+        Returns alias name of :class:`Expr`
 
         Returns:
-            str: Expr alias name
+            str: :class:`Expr` alias name
         """
         return self._as_name
 
     @property
     def db(self) -> Optional[Database]:
         """
-        Returns Expr associated database
+        Returns Expr associated :class:`~db.Database`
 
         Returns:
-            Optional[Database]: database associated with Expr
+            Optional[:class:`~db.Database`]: Database associated with :class:`Expr`
         """
         return self._db
 
     @property
     def table(self) -> Optional["Table"]:
         """
-        Returns Expr associated table
+        Returns Expr associated :class:`~table.Table`
 
         Returns:
-        Optional[Table]: table associated with Expr
+        Optional[:class:`~table.Table`]: Table associated with :class:`Expr`
         """
         return self._table
 
     def to_table(self) -> "Table":
         """
-        Returns a Table
+        Returns a :class:`~table.Table`
 
         Method for Function object
         """
@@ -302,7 +302,7 @@ class Expr:
 
 class BinaryExpr(Expr):
     """
-    Inherited from Expr.
+    Inherited from :class:`Expr`.
 
     Representation of a Binary Expression
     """
@@ -370,8 +370,8 @@ class BinaryExpr(Expr):
         """
 
         Args:
-            left: Any : could be an Expr object or object in primitive types (int, str, etc)
-            right: Any : could be an Expr object or object in primitive types (int, str, etc)
+            left: Any : could be an :class:`Expr` or object in primitive types (int, str, etc)
+            right: Any : could be an :class:`Expr` or object in primitive types (int, str, etc)
         """
         self._init(operator, left, right, as_name, db)
 
@@ -385,7 +385,7 @@ class BinaryExpr(Expr):
 
 class UnaryExpr(Expr):
     """
-    Inherited from Expr.
+    Inherited from :class:`Expr`.
 
     Representation of a Unary Expression.
     """
@@ -400,7 +400,7 @@ class UnaryExpr(Expr):
         """
 
         Args:
-            right: Expr
+            right: :class:`Expr`
         """
         table = right.table
         super().__init__(as_name=as_name, table=table, db=db)
@@ -414,9 +414,9 @@ class UnaryExpr(Expr):
 
 class Column(Expr):
     """
-    Inherited from Expr.
+    Inherited from :class:`Expr`.
 
-    Representation of a Python object Column.
+    Representation of a Python object :class:`.Column`.
     """
 
     def __init__(self, name: str, table: "Table", as_name: Optional[str] = None) -> None:
@@ -431,7 +431,7 @@ class Column(Expr):
     @property
     def name(self) -> str:
         """
-        Returns column name
+        Returns :class:`Column` name
 
         Returns:
             str: column name
@@ -441,9 +441,9 @@ class Column(Expr):
     @property
     def table(self) -> Optional["Table"]:
         """
-        Returns column associated table
+        Returns :class:`Column` associated :class:`~table.Table`
 
         Returns:
-            Optional[Table]: table associated with column
+            Optional[Table]: :class:`~table.Table` associated with :class:`Column`
         """
         return self._table
