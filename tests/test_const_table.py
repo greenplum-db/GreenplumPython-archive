@@ -78,6 +78,22 @@ def test_table_display_repr(db: gp.Database):
     assert str(t.order_by(t["id"]).head(4)) == expected
 
 
+def test_table_display_repr_long_content(db: gp.Database):
+    # fmt: off
+    rows = [(1, "Lion",), (2, "Tigerrrrrrrrrrrr",), (3, "Wolf",), (4, "Fox")]
+    # fmt: on
+    t = gp.values(rows, db=db).save_as("zoo1", column_names=["iddddddddddddddddddd", "animal"])
+    expected = (
+        "| iddddddddddddddddddd || animal     |\n"
+        "============================\n"
+        "|          1 || Lion       |\n"
+        "|          2 || Tigerrrrrrrrrrrr |\n"
+        "|          3 || Wolf       |\n"
+        "|          4 || Fox        |\n"
+    )
+    assert str(t.order_by(t["iddddddddddddddddddd"]).head(4)) == expected
+
+
 def test_table_display_repr_html(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]

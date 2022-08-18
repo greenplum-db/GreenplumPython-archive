@@ -144,6 +144,7 @@ class Table:
         """
         Return a string representation for a table
         """
+        # FIXME : adjust columns width depending on the number of characters
         repr_string = ""
         ret = list(self.fetch())
         repr_string += (("| {:10} |" * len(ret[0])).format(*ret[0])) + "\n"
