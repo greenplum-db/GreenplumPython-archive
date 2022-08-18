@@ -6,10 +6,10 @@ from functools import singledispatchmethod
 from typing import TYPE_CHECKING, Any, Optional, Union, overload
 
 from greenplumpython.db import Database
-from greenplumpython.type import to_pg_const
 
 if TYPE_CHECKING:
     from greenplumpython.table import Table
+    from greenplumpython.type import Type
 
 
 class Expr:
@@ -34,22 +34,41 @@ class Expr:
 
     def __and__(self, other: "Expr") -> "Expr":
         """
-        Operator &
-        Returns a Binary Expression AND between self and another Expr
+        Operator **&**
+
+        Returns a Binary Expression AND between self and another :class:`Expr`
+
+        Example:
+            .. code-block::  Python
+
+                t["type"] == "type_1" & t["val"] > 0
+
         """
         return BinaryExpr("AND", self, other)
 
     def __or__(self, other: "Expr") -> "Expr":
         """
-        Operator |
-        Returns a Binary Expression OR between self and another Expr
+        Operator **|**
+
+        Returns a Binary Expression OR between self and another :class:`Expr`
+
+        Example:
+            .. code-block::  Python
+
+                t["type"] == "type_1" | t["type"] == "type_2"
         """
         return BinaryExpr("OR", self, other)
 
     def __eq__(self, other: "Expr") -> "Expr":
         """
-        Operator ==
-        Returns a Binary Expression EQUAL between self and another Expr
+        Operator **==**
+
+        Returns a Binary Expression EQUAL between self and another :class:`Expr`
+
+        Example:
+            .. code-block::  Python
+
+                t["type"] == "type_1"
         """
         if isinstance(other, type(None)):
             return BinaryExpr("is", self, other)
@@ -57,77 +76,151 @@ class Expr:
 
     def __lt__(self, other: "Expr") -> "Expr":
         """
-        Operator <
-        Returns a Binary Expression LESS THAN between self and another Expr
+        Operator **<**
+
+        Returns a Binary Expression LESS THAN between self and another :class:`Expr`
+
+        Example:
+            .. code-block::  Python
+
+                t["val"] < 0
         """
         return BinaryExpr("<", self, other)
 
     def __le__(self, other: "Expr") -> "Expr":
         """
-        Operator <=
-        Returns a Binary Expression LESS EQUAL between self and another Expr
+        Operator **<=**
+
+        Returns a Binary Expression LESS EQUAL between self and another :class:`Expr`
+
+        Example:
+            .. code-block::  Python
+
+                t["val"] <= 0
         """
         return BinaryExpr("<=", self, other)
 
     def __gt__(self, other: "Expr") -> "Expr":
         """
-        Operator >
-        Returns a Binary Expression GREATER THAN between self and another Expr
+        Operator **>**
+
+        Returns a Binary Expression GREATER THAN between self and another :class:`Expr`
+
+        Example:
+            .. code-block::  Python
+
+                t["val"] > 0
         """
         return BinaryExpr(">", self, other)
 
     def __ge__(self, other: "Expr") -> "Expr":
         """
-        Operator >=
-        Returns a Binary Expression GREATER EQUAL between self and another Expr
+        Operator **>=**
+
+        Returns a Binary Expression GREATER EQUAL between self and another :class:`Expr`
+
+        Example:
+            .. code-block::  Python
+
+                t["val"] >= 0
         """
         return BinaryExpr(">=", self, other)
 
     def __ne__(self, other: "Expr") -> "Expr":
         """
-        Operator !=
-        Returns a Binary Expression NOT EQUAL between self and another Expr
+        Operator **!=**
+
+        Returns a Binary Expression NOT EQUAL between self and another :class:`Expr`
+
+        Example:
+            .. code-block::  Python
+
+                t["val"] != 0
         """
         return BinaryExpr("!=", self, other)
 
     def __mod__(self, other: Union[int, "Expr"]) -> "Expr":
         """
-        Operator %
-        Returns a Binary Expression Modulo between an Expr and an integer or an Expr
+        Operator **%**
+
+        Returns a Binary Expression Modulo between an :class:`Expr` and an integer or an :class:`Expr`
+
+        Example:
+            .. code-block::  Python
+
+                t["val"] % 2
         """
         return BinaryExpr("%", self, other)
 
     def __pos__(self) -> "Expr":
         """
-        Operator +
+        Operator **+**
+
         Returns a Unary Expression POSITIVE of self
+
+        Example:
+            .. code-block::  Python
+
+                +t["val"]
         """
         return UnaryExpr("+", self)
 
     def __neg__(self) -> "Expr":
         """
-        Operator -
+        Operator **-**
+
         Returns a Unary Expression NEGATIVE of self
+
+        Example:
+            .. code-block::  Python
+
+                -t["val"]
         """
         return UnaryExpr("-", self)
 
     def __abs__(self) -> "Expr":
         """
-        Operator abs()
+        Operator **abs()**
+
         Returns a Unary Expression ABSOLUTE of self
+
+        Example:
+            .. code-block::  Python
+
+                abs(t["val"])
         """
         return UnaryExpr("ABS", self)
 
     def __invert__(self) -> "Expr":
         """
-        Operator ~
+        Operator **~**
+
         Returns a Unary Expression NOT of self
+
+        Example:
+            .. code-block::  Python
+
+                not(t["val"])
         """
         return UnaryExpr("NOT", self)
 
     def like(self, pattern: str) -> "Expr":
         """
         Returns BinaryExpr in order to apply LIKE statement on self with pattern
+
+        Args:
+            pattern: str: regex pattern
+
+        Returns:
+            Expr
+
+        Example:
+            Select rows where id begins with "a"
+
+            .. code-block::  Python
+
+                t[t["id"].like(r"a%")]
+
         """
         return BinaryExpr("LIKE", self, pattern)
 
@@ -139,7 +232,13 @@ class Expr:
 
     def rename(self, new_name: str) -> "Expr":
         """
-        Return copy of Expr with a new name
+        Return copy of :class:`Expr` with a new name
+
+        Args:
+            new_name: str: Expr's new name
+
+        Returns:
+            Expr: a new :class:`Expr` with given new name
         """
         new_expr = copy.copy(self)  # Shallow copy
         new_expr._as_name = new_name
@@ -151,34 +250,48 @@ class Expr:
     @property
     def name(self) -> str:
         """
-        Returns Expr name
+        Returns name of :class:`Expr`
+
+        Returns:
+            str: :class:`Expr` name
         """
         raise NotImplementedError()
 
     @property
     def as_name(self) -> str:
         """
-        Returns Expr Alias name
+        Returns alias name of :class:`Expr`
+
+        Returns:
+            str: :class:`Expr` alias name
         """
         return self._as_name
 
     @property
     def db(self) -> Optional[Database]:
         """
-        Returns Expr associated database
+        Returns Expr associated :class:`~db.Database`
+
+        Returns:
+            Optional[:class:`~db.Database`]: Database associated with :class:`Expr`
         """
         return self._db
 
     @property
     def table(self) -> Optional["Table"]:
         """
-        Returns Expr associated table
+        Returns Expr associated :class:`~table.Table`
+
+        Returns:
+        Optional[:class:`~table.Table`]: Table associated with :class:`Expr`
         """
         return self._table
 
     def to_table(self) -> "Table":
         """
-        Returns a Table, method for Function object
+        Returns a :class:`~table.Table`
+
+        Method for Function object
         """
         from greenplumpython.table import Table
 
@@ -189,7 +302,9 @@ class Expr:
 
 class BinaryExpr(Expr):
     """
-    Inherited from Expr. Representation of a Binary Expression
+    Inherited from :class:`Expr`.
+
+    Representation of a Binary Expression
     """
 
     @singledispatchmethod
@@ -255,12 +370,14 @@ class BinaryExpr(Expr):
         """
 
         Args:
-            left: Any : could be an Expr object or object in primitive types (int, str, etc)
-            right: Any : could be an Expr object or object in primitive types (int, str, etc)
+            left: Any : could be an :class:`Expr` or object in primitive types (int, str, etc)
+            right: Any : could be an :class:`Expr` or object in primitive types (int, str, etc)
         """
         self._init(operator, left, right, as_name, db)
 
     def _serialize(self) -> str:
+        from greenplumpython.type import to_pg_const
+
         left_str = str(self.left) if isinstance(self.left, Expr) else to_pg_const(self.left)
         right_str = str(self.right) if isinstance(self.right, Expr) else to_pg_const(self.right)
         return f"({left_str} {self.operator} {right_str})"
@@ -268,7 +385,9 @@ class BinaryExpr(Expr):
 
 class UnaryExpr(Expr):
     """
-    Inherited from Expr. Representation of a Unary Expression.
+    Inherited from :class:`Expr`.
+
+    Representation of a Unary Expression.
     """
 
     def __init__(
@@ -281,7 +400,7 @@ class UnaryExpr(Expr):
         """
 
         Args:
-            right: Expr
+            right: :class:`Expr`
         """
         table = right.table
         super().__init__(as_name=as_name, table=table, db=db)
@@ -293,61 +412,11 @@ class UnaryExpr(Expr):
         return f"{self.operator}({right_str})"
 
 
-class TypeCast(Expr):
-    """
-    Inherited from Expr. Representation of a Type Casting.
-    """
-
-    def __init__(
-        self,
-        obj: object,
-        type_name: str,
-        as_name: Optional[str] = None,
-        db: Optional[Database] = None,
-    ) -> None:
-        """
-
-        Args:
-            obj: object : which will be applied type casting
-            type_name : str : name of type which object will be cast
-        """
-        table = obj.table if isinstance(obj, Expr) else None
-        super().__init__(as_name, table, db)
-        self._obj = obj
-        self._type_name = type_name
-
-    def _serialize(self) -> str:
-        obj_str = self._obj._serialize() if isinstance(self._obj, Expr) else to_pg_const(self._obj)
-        return f"{obj_str}::{self._type_name}"
-
-
-class Type:
-    """
-    A Type object in Greenplum Database.
-    """
-
-    def __init__(self, name: str, db: Database) -> None:
-        self._name = name
-        self._db = db
-
-    def __call__(self, obj: object) -> TypeCast:
-        return TypeCast(obj, self._name, db=self._db)
-
-
-# FIXME: Rename gp.table(), gp.function(), etc. to get_table(), get_function(), etc.
-# FIXME: Make these functions methods of a Database,
-#  e.g. from gp.get_type("int", db) to db.get_type("int")
-def get_type(name: str, db: Database) -> Type:
-    """
-    Returns the type corresponding to the name in the database given.
-    """
-
-    return Type(name, db=db)
-
-
 class Column(Expr):
     """
-    Inherited from Expr. Representation of a python object Column.
+    Inherited from :class:`Expr`.
+
+    Representation of a Python object :class:`.Column`.
     """
 
     def __init__(self, name: str, table: "Table", as_name: Optional[str] = None) -> None:
@@ -362,13 +431,19 @@ class Column(Expr):
     @property
     def name(self) -> str:
         """
-        Returns column name
+        Returns :class:`Column` name
+
+        Returns:
+            str: column name
         """
         return self._name
 
     @property
     def table(self) -> Optional["Table"]:
         """
-        Returns column associated table
+        Returns :class:`Column` associated :class:`~table.Table`
+
+        Returns:
+            Optional[Table]: :class:`~table.Table` associated with :class:`Column`
         """
         return self._table

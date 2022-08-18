@@ -10,7 +10,7 @@ import psycopg2.extras
 class Database:
     """
     Representation of Greenplum Database.
-    Each Database object has an instance **conn**
+    Each Database object has an instance **conn** which establishes a connection using psycopg2.
     """
 
     def __init__(self, params: "dict[str, str]") -> None:
@@ -21,7 +21,7 @@ class Database:
 
     def execute(self, query: str, has_results: bool = True) -> Optional[Iterable[Tuple[Any]]]:
         """
-        Return the result of SQL query executed in Database
+        Return the result of SQL query executed in :class:`Database`
 
         Args:
             query: str : SQL query
@@ -63,7 +63,13 @@ class Database:
 
     def get_table(self, name: str):
         """
-        Returns a Table object using table name and self
+        Returns a :class:`~table.Table` using table name and self
+
+        Args:
+            name: str : Table name
+
+        Returns:
+            Table: Table in database named **name**
         """
         from greenplumpython.table import table
 
@@ -79,7 +85,7 @@ def database(
 ) -> Database:
 
     """
-    Create a connection using psycopg2.
+    Create a connection using psycopg2 with given arguments.
 
     Args:
         host: str : default value = "localhost"

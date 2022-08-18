@@ -4,6 +4,7 @@ from uuid import uuid4
 from psycopg2.extensions import adapt  # type: ignore
 
 from greenplumpython.db import Database
+from greenplumpython.expr import Expr
 
 # -- Map between Python and Greenplum primitive types
 primitive_type_map = {
@@ -16,6 +17,75 @@ primitive_type_map = {
 }
 
 
+class TypeCast(Expr):
+    """
+    Inherited from :class:`~expr.Expr`.
+
+    Representation of a Type Casting.
+
+    Example:
+            .. code-block::  Python
+
+                rows = [(i,) for i in range(10)]
+                series = gp.values(rows, db, column_names=["val"]).save_as("series")
+                regclass = gp.get_type("regclass", db)
+                table_name = regclass(series["tableoid"]).rename("table_name")
+    """
+
+    def __init__(
+        self,
+        obj: object,
+        type_name: str,
+        as_name: Optional[str] = None,
+        db: Optional[Database] = None,
+    ) -> None:
+        """
+
+        Args:
+            obj: object : which will be applied type casting
+            type_name : str : name of type which object will be cast
+        """
+        table = obj.table if isinstance(obj, Expr) else None
+        super().__init__(as_name, table, db)
+        self._obj = obj
+        self._type_name = type_name
+
+    def _serialize(self) -> str:
+        obj_str = self._obj._serialize() if isinstance(self._obj, Expr) else to_pg_const(self._obj)
+        return f"{obj_str}::{self._type_name}"
+
+
+class Type:
+    """
+    A Type object in Greenplum database.
+    """
+
+    def __init__(self, name: str, db: Database) -> None:
+        self._name = name
+        self._db = db
+
+    def __call__(self, obj: object) -> TypeCast:
+        return TypeCast(obj, self._name, db=self._db)
+
+
+# FIXME: Rename gp.table(), gp.function(), etc. to get_table(), get_function(), etc.
+# FIXME: Make these functions methods of a Database,
+#  e.g. from gp.get_type("int", db) to db.get_type("int")
+def get_type(name: str, db: Database) -> Type:
+    """
+    Returns the type corresponding to the name in the :class:`~db.Database` given.
+
+    Args:
+        name: str: name of type
+        db: :class:`~db.Database`: database where stored type
+
+    Returns:
+        Type: type object
+    """
+
+    return Type(name, db=db)
+
+
 # -- Creation of a composite type in Greenplum corresponding to the class_type given
 # TODO : Add tests for all function
 def create_type(
@@ -25,14 +95,17 @@ def create_type(
     is_temp: bool = True,
 ) -> str:
     """
-    Returns:
-        Name of created composite type
+    Creates a new composite type in database and returns its name
 
     Args:
         class_type : object : class which user want to reproduce in Greenplum
-        db : Database : where the type will be created
+        db : :class:`~db.Database` : where the type will be created
         as_name : Optional[str] : name of the created type if different from class
         is_temp : bool : if type exists only for current session
+
+    Returns:
+        str: name of the created composite type
+
     """
     type_name = "type_" + uuid4().hex if as_name is None else as_name
     temp_str = "pg_temp." if is_temp else ""
@@ -57,7 +130,11 @@ def create_type(
 
 def drop_type(type_name: str, db: Database):
     """
-    Drop type in Greenplum Database
+    Drop type in :class:`~db.Database`
+
+    Args:
+        type_name: str: type name
+        db: :class:`~db.Database`: database where stored type
     """
     db.execute(
         f"DROP TYPE IF EXISTS {type_name} CASCADE",
@@ -75,6 +152,16 @@ def to_pg_type(
 ) -> Union[str, None]:
     """
     Conversion of Type from Python to Greenplum
+
+    Args:
+        annotation: Any: object annotation
+        db: Optional[:class:`~db.Database`]: None if primitive type or database associated with type
+        as_name: Optional[str]: None or its alias name
+        is_temp: bool: define if it is a temporary creation
+        is_return: bool: define if the object is use as a function's return type
+
+    Returns:
+        Union[str, None]: name of type or None if not exists
     """
     if hasattr(annotation, "__origin__"):
         # The `or` here is to make the function work on Python 3.6.

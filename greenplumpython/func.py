@@ -1,8 +1,11 @@
+"""
+This module creates a Python object Func which able creation and calling of Greenplum UDF and UDA.
+"""
 import functools
 import inspect
 import re
 import textwrap
-from typing import Any, Callable, Iterable, Optional, Union
+from typing import Any, Callable, Iterable, Optional
 from uuid import uuid4
 
 from greenplumpython.db import Database
@@ -14,6 +17,8 @@ from greenplumpython.type import primitive_type_map, to_pg_const, to_pg_type
 
 class FunctionExpr(Expr):
     """
+    Inherited from :class:`~expr.Expr`.
+
     A Function object associated with a Greenplum function which can be called and applied to
     Greenplum data.
     """
@@ -105,6 +110,9 @@ class FunctionExpr(Expr):
     def qualified_func_name(self) -> str:
         """
         Returns qualified function name
+
+        Returns:
+            str: function's qualified name
         """
         return self._func_name
 
@@ -112,6 +120,9 @@ class FunctionExpr(Expr):
     def is_return_comp(self) -> bool:
         """
         Returns a boolean telling if the return type is composite or not
+
+        Returns:
+            bool: Tell if the function returns a composite type
         """
         if self._is_return_comp is not None:
             return self._is_return_comp
@@ -120,7 +131,9 @@ class FunctionExpr(Expr):
 
 class ArrayFunctionExpr(FunctionExpr):
     """
-    Inherited from FunctionCall. Specialized for an Array Function.
+    Inherited from :class:`FunctionExpr`.
+
+    Specialized for an Array Function.
     It will array aggregate all the columns given by the user.
     """
 
@@ -134,6 +147,12 @@ class ArrayFunctionExpr(FunctionExpr):
 def function(name: str, db: Database) -> Callable[..., FunctionExpr]:
     """
     A wrap in order to call function
+
+    Example:
+            .. code-block::  Python
+
+                generate_series = gp.function("generate_series", db)
+
     """
 
     def make_function_call(*args: Expr, as_name: Optional[str] = None) -> FunctionExpr:
@@ -145,6 +164,12 @@ def function(name: str, db: Database) -> Callable[..., FunctionExpr]:
 def aggregate(name: str, db: Database) -> Callable[..., FunctionExpr]:
     """
     A wrap in order to call an aggregate function
+
+    Example:
+            .. code-block::  Python
+
+                count = gp.aggregate("count", db=db)
+
     """
 
     def make_function_call(
@@ -172,19 +197,28 @@ def create_function(
     Creates a User Defined Python Function (UDF) in Greenplum Database according to the Python
     function code given.
 
-    Returns:
-        Callable : FunctionCall
-
     Args:
         func : python function
         name : Optional[str] : name of the UDF
         schema : Optional[str] : where the UDF will be stored
         temp: bool : if the creation of the UDF is temporary exists only for current session
         replace_if_exists : bool : if the creation replaces an existing UDF with same name and args
-        language_handler : str : language handler extension to create UDF in Greenplum, by default
-        plpython3u, but can also choose plcontainer.
+        language_handler : str : language handler extension to create UDF in Greenplum, by default plpython3u, but can also choose plcontainer.
         return_type_as_name : Optional[str] : name of the return composite type
         type_is_temp : bool : if the return composite type is temporary
+
+    Returns:
+        Callable : FunctionCall
+
+    Example:
+            .. code-block::  Python
+
+                    @gp.create_function
+                    def multiply(a: int, b: int) -> int:
+                        return a * b
+
+                    results = multiply(series["a"], series["b"], as_name="result").to_table().fetch()
+
     """
     # If user needs extra parameters when creating a function
     if not func:
@@ -211,7 +245,7 @@ def create_function(
         Args:
             *args : Any : arguments of function, could be constant or columns
             as_name : Optional[str] : name of the UDF
-            db : Optional[Database] : where the function will be created
+            db : Optional[:class:`~db.Database`] : where the function will be created
         """
         # -- Prepare function creation env in Greenplum
         if db is None:
@@ -276,16 +310,29 @@ def create_aggregate(
     Creates a User Defined Python Aggregation (UDA) in Greenplum Database according to the Python
     function code given.
 
-    Returns:
-        Callable : FunctionCall
-
     Args:
         trans_func : python function
         name : Optional[str] : name of the UDA
         schema : Optional[str] : where the UDA will be stored
         temp: bool : if the creation of the UDA is temporary exists only for current session
-        language_handler : str : language handler extension to create UDA in Greenplum, by default
-        plpython3u, but can also choose plcontainer.
+        language_handler : str : language handler extension to create UDA in Greenplum, by default plpython3u, but can also choose plcontainer.
+
+    Returns:
+        Callable : FunctionCall
+
+    Example:
+            .. code-block::  Python
+
+                @gp.create_aggregate
+                def my_sum(result: int, val: int) -> int:
+                    if result is None:
+                        return val
+                    return result + val
+
+                rows = [(1,) for _ in range(10)]
+                numbers = gp.values(rows, db=db, column_names=["val"])
+                results = list(my_sum(numbers["val"], as_name="result").to_table().fetch())
+
     """
     # If user needs extra parameters when creating a function
     if not trans_func:
@@ -311,7 +358,7 @@ def create_aggregate(
             *args : Any : arguments of function, could be constant or columns
             group_by : Optional[Iterable[Union[Expr, str]]] : aggregation group by index
             as_name : Optional[str] : name of the UDA
-            db : Optional[Database] : where the function will be created
+            db : Optional[:class:`~db.Database`] : where the function will be created
         """
         trans_func_call = create_function(  # type: ignore
             trans_func, "func_" + uuid4().hex, schema, temp, False, language_handler
@@ -359,17 +406,31 @@ def create_array_function(
     Creates a User Defined Python Function (UDF) in Greenplum Database according to the Python
     function code. But it will array aggregate all args then pass them to the UDF.
 
-    Returns:
-        Callable : FunctionCall
-
     Args:
         func : python function
         name : Optional[str] : name of the UDF
         schema : Optional[str] : where the UDF will be stored
         temp: bool : if the creation of the UDF is temporary exists only for current session
         replace_if_exists : bool : if the creation replaces an existing UDF with same name and args
-        language_handler : str : language handler extension to create UDF in Greenplum, by default
-        plpython3u, but can also choose plcontainer.
+        language_handler : str : language handler extension to create UDF in Greenplum, by default plpython3u, but can also choose plcontainer.
+
+    Returns:
+        Callable : FunctionCall
+
+    Example:
+            .. code-block::  Python
+
+                @gp.create_array_function
+                def my_sum(val_list: List[int]) -> int:
+                    return sum(val_list)
+
+                rows = [(1, i % 2 == 0) for i in range(10)]
+                numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
+                results = list(
+                    my_sum(numbers["val"], group_by=numbers.group_by("is_even"), as_name="result")
+                    .to_table()
+                    .fetch()
+                )
     """
     # If user needs extra parameters when creating a function
     if not func:
@@ -396,7 +457,7 @@ def create_array_function(
             *args : Any : arguments of function, could be constant or columns
             group_by : Optional[Iterable[Union[Expr, str]]] : array_aggregate group by index
             as_name : Optional[str] : name of the UDF
-            db : Optional[Database] : where the function will be created
+            db : Optional[:class:`~db.Database`] : where the function will be created
         """
         array_func_call = create_function(  # type: ignore
             func, name, schema, temp, replace_if_exists, language_handler
