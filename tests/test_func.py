@@ -155,7 +155,9 @@ def test_agg_group_by(db: gp.Database):
     numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
     count = gp.aggregate("count")
 
-    results = list(count(numbers["val"], group_by=numbers.group_by("is_even"), db=db).to_table().fetch())
+    results = list(
+        count(numbers["val"], group_by=numbers.group_by("is_even"), db=db).to_table().fetch()
+    )
     assert len(results) == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["count"] == 5)

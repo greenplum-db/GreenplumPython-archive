@@ -44,7 +44,12 @@ class FunctionExpr(Expr):
 
     def __call__(self, group_by: Optional[TableRowGroup] = None, table: Optional[Table] = None):
         return FunctionExpr(
-            self._func_name, self._args, group_by=group_by, as_name=self._as_name, table=table, db=self._db
+            self._func_name,
+            self._args,
+            group_by=group_by,
+            as_name=self._as_name,
+            table=table,
+            db=self._db,
         )
 
     def _serialize(self) -> str:
@@ -138,7 +143,9 @@ def function(name: str) -> Callable[..., FunctionExpr]:
     A wrap in order to call function
     """
 
-    def make_function_call(*args: Expr, as_name: Optional[str] = None, db: Optional[Database] = None) -> FunctionExpr:
+    def make_function_call(
+        *args: Expr, as_name: Optional[str] = None, db: Optional[Database] = None
+    ) -> FunctionExpr:
         return FunctionExpr(name, args, as_name=as_name, db=db)
 
     return make_function_call
