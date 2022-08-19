@@ -60,3 +60,67 @@ def test_table_getitem_slice_offset(db: gp.Database, t: gp.Table):
 def test_table_getitem_slice_off_limit(db: gp.Database, t: gp.Table):
     ret = list(t[2:5].fetch())
     assert len(ret) == 3
+
+
+def test_table_display_repr(db: gp.Database):
+    # fmt: off
+    rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
+    # fmt: on
+    t = gp.values(rows, db=db).save_as("zoo1", column_names=["id", "animal"])
+    expected = (
+        "| id         || animal     |\n"
+        "============================\n"
+        "|          1 || Lion       |\n"
+        "|          2 || Tiger      |\n"
+        "|          3 || Wolf       |\n"
+        "|          4 || Fox        |\n"
+    )
+    assert str(t.order_by(t["id"]).head(4)) == expected
+
+
+def test_table_display_repr_long_content(db: gp.Database):
+    # fmt: off
+    rows = [(1, "Lion",), (2, "Tigerrrrrrrrrrrr",), (3, "Wolf",), (4, "Fox")]
+    # fmt: on
+    t = gp.values(rows, db=db).save_as("zoo1", column_names=["iddddddddddddddddddd", "animal"])
+    expected = (
+        "| iddddddddddddddddddd || animal     |\n"
+        "============================\n"
+        "|          1 || Lion       |\n"
+        "|          2 || Tigerrrrrrrrrrrr |\n"
+        "|          3 || Wolf       |\n"
+        "|          4 || Fox        |\n"
+    )
+    assert str(t.order_by(t["iddddddddddddddddddd"]).head(4)) == expected
+
+
+def test_table_display_repr_html(db: gp.Database):
+    # fmt: off
+    rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
+    # fmt: on
+    t = gp.values(rows, db=db).save_as("zoo1", column_names=["id", "animal"])
+    expected = (
+        "<table>\n"
+        "\t<tr>\n"
+        "\t\t<th>id</th>\n"
+        "\t\t<th>animal</th>\n"
+        "\t</tr>\n"
+        "\t<tr>\n"
+        "\t\t<td>1</td>\n"
+        "\t\t<td>Lion</td>\n"
+        "\t</tr>\n"
+        "\t<tr>\n"
+        "\t\t<td>2</td>\n"
+        "\t\t<td>Tiger</td>\n"
+        "\t</tr>\n"
+        "\t<tr>\n"
+        "\t\t<td>3</td>\n"
+        "\t\t<td>Wolf</td>\n"
+        "\t</tr>\n"
+        "\t<tr>\n"
+        "\t\t<td>4</td>\n"
+        "\t\t<td>Fox</td>\n"
+        "\t</tr>\n"
+        "</table>"
+    )
+    assert (t.order_by(t["id"]).head(4)._repr_html_()) == expected

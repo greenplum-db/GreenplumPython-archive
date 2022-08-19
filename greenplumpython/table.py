@@ -140,6 +140,35 @@ class Table:
         """
         return self._getitem(*args, **kwargs)  # type: ignore
 
+    def __repr__(self):
+        """
+        Return a string representation for a table
+        """
+        # FIXME : adjust columns width depending on the number of characters
+        repr_string = ""
+        ret = list(self.fetch())
+        repr_string += (("| {:10} |" * len(ret[0])).format(*ret[0])) + "\n"
+        repr_string += ("=" * 14 * len(ret[0])) + "\n"
+        for row in ret:
+            content = [row[c] for c in row]
+            s = ("| {:10} |" * len(row)).format(*content)
+            repr_string += s + "\n"
+        return repr_string
+
+    def _repr_html_(self):
+        ret = list(self.fetch())
+        repr_html_str = "<table>\n"
+        repr_html_str += "\t<tr>\n"
+        repr_html_str += ("\t\t<th>{:}</th>\n" * len(ret[0])).format(*ret[0])
+        repr_html_str += "\t</tr>\n"
+        for row in ret:
+            repr_html_str += "\t<tr>\n"
+            content = [row[c] for c in row]
+            repr_html_str += ("\t\t<td>{:}</td>\n" * len(row)).format(*content)
+            repr_html_str += "\t</tr>\n"
+        repr_html_str += "</table>"
+        return repr_html_str
+
     def as_name(self, name_as: str) -> "Table":
         """
         Returns a copy of the :class:`Table` with a new name.
