@@ -576,12 +576,12 @@ class Table:
         """
         Apply a function to the table
         """
-        # We need to support calling functions with constant args or even no 
-        # arg. For example: SELECT count(*) FROM t; In that case, the 
-        # arguments do not conain information on any table or any database. 
+        # We need to support calling functions with constant args or even no
+        # arg. For example: SELECT count(*) FROM t; In that case, the
+        # arguments do not conain information on any table or any database.
         # As a result, the generated SQL cannot be executed.
-        # 
-        # To fix this, we need to pass the table to the resulting FunctionExpr 
+        #
+        # To fix this, we need to pass the table to the resulting FunctionExpr
         # explicitly.
         return func(self)(table=self)
 
