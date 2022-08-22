@@ -581,7 +581,7 @@ class Table:
         # arguments do not conain information on any table or any database. 
         # As a result, the generated SQL cannot be executed.
         # 
-        # To fix this, we need to pass the table to the returned FunctionExpr 
+        # To fix this, we need to pass the table to the resulting FunctionExpr 
         # explicitly.
         return func(self)(table=self)
 
