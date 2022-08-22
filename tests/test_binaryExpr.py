@@ -58,8 +58,8 @@ def test_expr_bin_equal_bool(db: gp.Database):
 
 @pytest.fixture
 def table_num(db: gp.Database):
-    generate_series = gp.function("generate_series", db)
-    t = generate_series(0, 9, as_name="id").to_table()
+    generate_series = gp.function("generate_series")
+    t = generate_series(0, 9, as_name="id", db=db).to_table()
     return t
 
 

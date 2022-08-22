@@ -3,11 +3,12 @@ This module creates a Python object Expr.
 """
 import copy
 from functools import singledispatchmethod
-from typing import TYPE_CHECKING, Any, Optional, Union, overload
+from typing import TYPE_CHECKING, Any, Callable, Optional, Union, overload
 
 from greenplumpython.db import Database
 
 if TYPE_CHECKING:
+    from greenplumpython.func import FunctionExpr
     from greenplumpython.table import Table
     from greenplumpython.type import Type
 
@@ -30,7 +31,6 @@ class Expr:
         self._as_name = as_name
         self._table = table
         self._db = table.db if table is not None else db
-        assert self._db is not None
 
     def __and__(self, other: "Expr") -> "Expr":
         """
@@ -298,6 +298,9 @@ class Expr:
         from_clause = f"FROM {self.table.name}" if self.table is not None else ""
         parents = [self.table] if self.table is not None else []
         return Table(f"SELECT {str(self)} {from_clause}", parents=parents, db=self._db)
+
+    def apply(self, func: Callable[["Expr"], "FunctionExpr"]) -> "FunctionExpr":
+        return func(self)
 
 
 class BinaryExpr(Expr):

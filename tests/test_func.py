@@ -15,14 +15,14 @@ def series(db: gp.Database):
 
 
 def test_plain_func(db: gp.Database):
-    version = gp.function("version", db)
-    for row in version().to_table().fetch():
+    version = gp.function("version")
+    for row in version(db=db).to_table().fetch():
         assert "Greenplum" in row["version"] or row["version"].startswith("PostgreSQL")
 
 
 def test_set_returning_func(db: gp.Database):
-    generate_series = gp.function("generate_series", db)
-    results = generate_series(0, 9, as_name="id").to_table().fetch()
+    generate_series = gp.function("generate_series")
+    results = generate_series(0, 9, as_name="id", db=db).to_table().fetch()
     assert sorted([row["id"] for row in results]) == list(range(10))
 
 
@@ -68,8 +68,8 @@ def test_create_func_tab_indent(db: gp.Database):
 def test_func_on_one_column(db: gp.Database):
     rows = [(i,) for i in range(-10, 0)]
     series = gp.values(rows, db=db, column_names=["id"])
-    abs = gp.function("abs", db=db)
-    results = abs(series["id"]).to_table().fetch()
+    abs = gp.function("abs")
+    results = abs(series["id"], db=db).to_table().fetch()
     assert sorted([row["abs"] for row in results]) == list(range(1, 11))
 
 
@@ -83,12 +83,12 @@ def test_func_on_multi_columns(db: gp.Database, series: gp.Table):
 
 
 def test_func_on_more_than_one_table(db: gp.Database):
-    div = gp.function("div", db=db)
+    div = gp.function("div")
     rows = [(1,) for _ in range(10)]
     t1 = gp.values(rows, db=db, column_names=["i"])
     t2 = gp.values(rows, db=db, column_names=["i"])
     with pytest.raises(Exception) as exc_info:
-        div(t1["i"], t2["i"])
+        div(t1["i"], t2["i"], db=db)
     # FIXME: Create more specific exception classes and remove this
     assert "Cannot pass arguments from more than one tables" == str(exc_info.value)
 
@@ -144,18 +144,20 @@ def test_create_func_optional_params_name(db: gp.Database, series: gp.Table):
 def test_simple_agg(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
-    count = gp.aggregate("count", db=db)
+    count = gp.aggregate("count")
 
-    results = list(count(numbers["val"]).to_table().fetch())
+    results = list(count(numbers["val"], db=db).to_table().fetch())
     assert len(results) == 1 and results[0]["count"] == 10
 
 
 def test_agg_group_by(db: gp.Database):
     rows = [(i, i % 2 == 0) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
-    count = gp.aggregate("count", db=db)
+    count = gp.aggregate("count")
 
-    results = list(count(numbers["val"], group_by=numbers.group_by("is_even")).to_table().fetch())
+    results = list(
+        count(numbers["val"], group_by=numbers.group_by("is_even"), db=db).to_table().fetch()
+    )
     assert len(results) == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["count"] == 5)
@@ -164,10 +166,10 @@ def test_agg_group_by(db: gp.Database):
 def test_agg_group_by_multi_columns(db: gp.Database):
     rows = [(i, i % 2 == 0, i % 3 == 0) for i in range(6)]  # 0, 1, 2, 3, 4, 5
     numbers = gp.values(rows, db=db, column_names=["val", "is_even", "is_multiple_of_3"])
-    count = gp.aggregate("count", db=db)
+    count = gp.aggregate("count")
 
     results = list(
-        count(numbers["val"], group_by=numbers.group_by("is_even", "is_multiple_of_3"))
+        count(numbers["val"], group_by=numbers.group_by("is_even", "is_multiple_of_3"), db=db)
         .to_table()
         .fetch()
     )
@@ -360,7 +362,7 @@ def test_array_func_comp_type(db: gp.Database):
 def test_func_apply_single_column(db: gp.Database):
     rows = [(i,) for i in range(-10, 0)]
     series = gp.values(rows, db=db, column_names=["id"])
-    abs = gp.function("abs", db=db)
+    abs = gp.function("abs")
     result = series.apply(lambda t: abs(t["id"])).to_table().fetch()
     assert len(list(result)) == 10
     for row in result:

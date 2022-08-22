@@ -688,7 +688,14 @@ class Table:
                 result = series.apply(lambda t: label("label", t["id"])).to_table().fetch()
 
         """
-        return func(self)
+        # We need to support calling functions with constant args or even no
+        # arg. For example: SELECT count(*) FROM t; In that case, the
+        # arguments do not conain information on any table or any database.
+        # As a result, the generated SQL cannot be executed.
+        #
+        # To fix this, we need to pass the table to the resulting FunctionExpr
+        # explicitly.
+        return func(self)(table=self)
 
 
 # table_name can be table/view name
