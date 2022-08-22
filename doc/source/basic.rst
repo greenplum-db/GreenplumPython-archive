@@ -1,5 +1,5 @@
-Basic usage
-===========
+Getting Started
+===============
 
 .. toctree::
    :maxdepth: 2
