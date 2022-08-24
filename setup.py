@@ -1,8 +1,9 @@
 import setuptools
+import greenplumpython
 
 setuptools.setup(
-    name="greenplum-python-fork",
-    version="1.0.0-beta4",
+    name="greenplum-python",
+    version=greenplumpython.__version__,
     install_requires=["psycopg2==2.9.3"],
     author="Greenplum Python",
     author_email="greenplum-python@vmware.com",
