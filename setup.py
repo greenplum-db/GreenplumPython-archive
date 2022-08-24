@@ -1,4 +1,5 @@
 import setuptools
+
 import greenplumpython
 
 setuptools.setup(
