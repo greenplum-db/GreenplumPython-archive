@@ -108,9 +108,17 @@ class FunctionExpr(Expr):
         # ```
         result = f"({self._as_name}).*" if self._is_return_comp else "*"
         return Table(
-            f"SELECT {result} FROM {orig_func_table.name}",
-            parents=[orig_func_table],
+            " ".join(
+                [
+                    f"SELECT {str(result)}",
+                    ("," + ",".join([str(target) for target in self._group_by.get_targets()]))
+                    if self._group_by is not None
+                    else "",
+                    f"FROM {orig_func_table.name}",
+                ]
+            ),
             db=self._db,
+            parents=[orig_func_table],
         )
 
     @property
