@@ -7,7 +7,7 @@ from tests import db
 def test_group_agg(db: gp.Database):
     rows = [(i, i % 2 == 0) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
-    count = gp.aggregate("count", db=db)
+    count = gp.aggregate("count")
 
     results = list(
         numbers.group_by("is_even").apply(lambda row: count(row["*"])).to_table().fetch()
@@ -44,7 +44,7 @@ def test_group_agg_multi_columns(db: gp.Database):
 def test_group_by_multi_columns(db: gp.Database):
     rows = [(i, i % 2 == 0, i % 3 == 0) for i in range(6)]  # 0, 1, 2, 3, 4, 5
     numbers = gp.values(rows, db=db, column_names=["val", "is_even", "is_multiple_of_3"])
-    count = gp.aggregate("count", db=db)
+    count = gp.aggregate("count")
 
     results = list(
         numbers.group_by("is_even", "is_multiple_of_3")
@@ -71,7 +71,7 @@ def test_group_by_multi_columns(db: gp.Database):
 def test_group_union(db: gp.Database):
     rows = [(i, i % 2 == 0, i % 3 == 0) for i in range(6)]  # 0, 1, 2, 3, 4, 5
     numbers = gp.values(rows, db=db, column_names=["val", "is_even", "is_multiple_of_3"])
-    count = gp.aggregate("count", db=db)
+    count = gp.aggregate("count")
 
     results = list(
         (numbers.group_by("is_even") | numbers.group_by("is_multiple_of_3"))

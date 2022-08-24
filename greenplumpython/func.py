@@ -29,10 +29,12 @@ class FunctionExpr(Expr):
         args: Iterable[Any] = [],
         group_by: Optional[TableRowGroup] = None,
         as_name: Optional[str] = None,
+        table: Optional[Table] = None,
         db: Optional[Database] = None,
         is_return_comp: bool = False,
     ) -> None:
-        table: Optional[Table] = group_by.table if group_by is not None else None
+        if table is None and group_by is not None:
+            table = group_by.table
         for arg in args:
             if isinstance(arg, Expr) and arg.table is not None:
                 if table is None:
@@ -45,9 +47,14 @@ class FunctionExpr(Expr):
         self._group_by = group_by
         self._is_return_comp = is_return_comp
 
-    def __call__(self, group_by: Optional[TableRowGroup] = None):
+    def __call__(self, group_by: Optional[TableRowGroup] = None, table: Optional[Table] = None):
         return FunctionExpr(
-            self._func_name, self._args, group_by=group_by, as_name=self._as_name, db=self._db
+            self._func_name,
+            self._args,
+            group_by=group_by,
+            as_name=self._as_name,
+            table=table,
+            db=self._db,
         )
 
     def _serialize(self) -> str:
@@ -144,7 +151,7 @@ class ArrayFunctionExpr(FunctionExpr):
         return f"{self._func_name}({args_string})"
 
 
-def function(name: str, db: Database) -> Callable[..., FunctionExpr]:
+def function(name: str) -> Callable[..., FunctionExpr]:
     """
     A wrap in order to call function
 
@@ -155,13 +162,15 @@ def function(name: str, db: Database) -> Callable[..., FunctionExpr]:
 
     """
 
-    def make_function_call(*args: Expr, as_name: Optional[str] = None) -> FunctionExpr:
+    def make_function_call(
+        *args: Expr, as_name: Optional[str] = None, db: Optional[Database] = None
+    ) -> FunctionExpr:
         return FunctionExpr(name, args, as_name=as_name, db=db)
 
     return make_function_call
 
 
-def aggregate(name: str, db: Database) -> Callable[..., FunctionExpr]:
+def aggregate(name: str) -> Callable[..., FunctionExpr]:
     """
     A wrap in order to call an aggregate function
 
@@ -176,6 +185,7 @@ def aggregate(name: str, db: Database) -> Callable[..., FunctionExpr]:
         *args: Expr,
         group_by: Optional[TableRowGroup] = None,
         as_name: Optional[str] = None,
+        db: Optional[Database] = None,
     ) -> FunctionExpr:
         return FunctionExpr(name, args, group_by=group_by, as_name=as_name, db=db)
 
