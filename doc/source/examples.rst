@@ -1,4 +1,8 @@
-Examples
-========
+Data Science on Python with GreenplumPython
+===========================================
 
-This is the list of the different examples that shows how to use the **GreenplumPython** library.
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   notebooks/GreenplumPython-abalone
