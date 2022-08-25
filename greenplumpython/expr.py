@@ -450,3 +450,24 @@ class Column(Expr):
             Optional[Table]: :class:`~table.Table` associated with :class:`Column`
         """
         return self._table
+
+
+class Const(Expr):
+    """
+    Inherited from :class:`Expr`.
+
+    Representation of a constant object :class:`.Const`.
+    """
+
+    def __init__(self, val: str, as_name: Optional[str] = None) -> None:
+        super().__init__(as_name=as_name)
+        self._val = val
+
+    def _serialize(self) -> str:
+        from greenplumpython.type import to_pg_const
+
+        return to_pg_const(self._val)
+
+
+def rename(val: Any, name: str) -> Expr:
+    return Const(val=val, as_name=name)
