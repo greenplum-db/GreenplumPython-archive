@@ -285,7 +285,9 @@ def test_array_func_group_by_return_comp(db: gp.Database):
     def my_count_sum(val_list: List[int]) -> array_sum:
         return {"_sum": sum(val_list), "_count": len(val_list)}
 
+    # fmt: off
     rows = [(1, "a",), (1, "a",), (1, "b",), (1, "a",), (1, "b",), (1, "b",)]
+    # fmt: on
     numbers = gp.values(rows, db=db, column_names=["val", "lab"])
     ret = my_count_sum(numbers["val"], group_by=numbers.group_by("lab")).to_table().fetch()
     assert list(list(ret)[0].keys()) == ["_sum", "_count", "lab"]
