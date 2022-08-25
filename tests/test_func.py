@@ -436,3 +436,54 @@ def test_func_apply_auto_column_mapping_join(db: gp.Database):
     for row in list(result):
         assert row["label"][1:3] == ":b"
         assert row["label"][0] == row["label"][3]
+
+
+def test_func_comp_type_column_apply(db: gp.Database):
+    class Pair:
+        _num: int
+        _next: int
+
+    @gp.create_function
+    def create_pair(num: int) -> Pair:
+        return {"_num": num, "_next": num + 1}
+
+    rows = [(i,) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+    for row in numbers.apply(lambda tab: create_pair(tab["val"])).to_table().fetch():
+        assert row["_next"] == row["_num"] + 1
+
+
+def test_array_func_apply(db: gp.Database):
+    @gp.create_array_function
+    def my_sum(val_list: List[int]) -> int:
+        return sum(val_list)
+
+    rows = [(1,) for _ in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+
+    results = list(numbers["val"].apply(my_sum).to_table().fetch())
+    assert len(results) == 1 and results[0]["my_sum"] == 10
+
+
+def test_array_func_group_by_comp_apply(db: gp.Database):
+    class Stat:
+        sum: int
+        count: int
+
+    @gp.create_array_function
+    def my_stat(val_list: List[int]) -> Stat:
+        return {"sum": sum(val_list), "count": len(val_list)}
+
+    rows = [(1, i % 2 == 0) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
+    results = list(
+        numbers.group_by("is_even").apply(lambda tab: my_stat(tab["val"])).to_table().fetch()
+    )
+    assert list(list(results)[0].keys()) == ["sum", "count", "is_even"]
+    for row in results:
+        assert (
+            ("is_even" in row)
+            and (row["is_even"] is not None)
+            and (row["sum"] == 5)
+            and (row["count"] == 5)
+        )

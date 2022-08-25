@@ -55,6 +55,7 @@ class FunctionExpr(Expr):
             as_name=self._as_name,
             table=table,
             db=self._db,
+            is_return_comp=self.is_return_comp,  # type: ignore
         )
 
     def _serialize(self) -> str:
@@ -157,6 +158,17 @@ class ArrayFunctionExpr(FunctionExpr):
             ",".join([f"array_agg({str(arg)})" for arg in self._args]) if any(self._args) else ""
         )
         return f"{self._func_name}({args_string})"
+
+    def __call__(self, group_by: Optional[TableRowGroup] = None, table: Optional[Table] = None):
+        return ArrayFunctionExpr(
+            self._func_name,
+            self._args,
+            group_by=group_by,
+            as_name=self._as_name,
+            table=table,
+            db=self._db,
+            is_return_comp=self.is_return_comp,  # type: ignore
+        )
 
 
 def function(name: str) -> Callable[..., FunctionExpr]:
