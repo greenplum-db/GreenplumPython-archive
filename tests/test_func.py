@@ -271,8 +271,27 @@ def test_array_func_group_by(db: gp.Database):
         .fetch()
     )
     assert len(results) == 2
+    assert list(list(results)[0].keys()) == ["result", "is_even"]
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["result"] == 5)
+
+
+def test_array_func_group_by_return_comp(db: gp.Database):
+    class array_sum:
+        _sum: int
+        _count: int
+
+    @gp.create_array_function
+    def my_count_sum(val_list: List[int]) -> array_sum:
+        return {"_sum": sum(val_list), "_count": len(val_list)}
+
+    rows = [(1, "a",), (1, "a",), (1, "b",), (1, "a",), (1, "b",), (1, "b",)]
+    numbers = gp.values(rows, db=db, column_names=["val", "lab"])
+    ret = my_count_sum(numbers["val"], group_by=numbers.group_by("lab")).to_table().fetch()
+    assert list(list(ret)[0].keys()) == ["_sum", "_count", "lab"]
+    for row in list(ret):
+        assert row["_sum"] == 3
+        assert row["_count"] == 3
 
 
 def test_array_func_replace(db: gp.Database):
