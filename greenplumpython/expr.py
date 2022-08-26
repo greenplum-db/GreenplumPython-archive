@@ -470,4 +470,14 @@ class Const(Expr):
 
 
 def rename(val: Any, name: str) -> Expr:
+    """
+    Returns :class:`Const` which associated to a column named **name** with value **val**
+
+    Args:
+        val: Any: a constant
+        name: str: alias name of column filled of **val**
+
+    Returns:
+        Const: :class:`Const` transforms a value to a column named **name**
+    """
     return Const(val=val, as_name=name)
