@@ -15,6 +15,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -38,9 +39,9 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="basic.html">Basic usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">GreenplumPython</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Data Science on Python with GreenplumPython</a></li>
 </ul>
 
         </div>
@@ -138,9 +139,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="func.html#func.aggregate">aggregate() (in module func)</a>
 </li>
-      <li><a href="group.html#group.TableRowGroup.apply">apply() (group.TableRowGroup method)</a>
+      <li><a href="expr.html#expr.Expr.apply">apply() (expr.Expr method)</a>
 
       <ul>
+        <li><a href="group.html#group.TableRowGroup.apply">(group.TableRowGroup method)</a>
+</li>
         <li><a href="table.html#table.Table.apply">(table.Table method)</a>
 </li>
       </ul></li>
@@ -173,6 +176,8 @@
       <li><a href="table.html#table.Table.column_names">column_names() (table.Table method)</a>
 </li>
       <li><a href="table.html#table.Table.columns">columns (table.Table property)</a>
+</li>
+      <li><a href="expr.html#expr.Const">Const (class in expr)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -413,7 +418,11 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="expr.html#expr.Expr.rename">rename() (expr.Expr method)</a>
+
+      <ul>
+        <li><a href="expr.html#expr.rename">(in module expr)</a>
 </li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="table.html#table.Table.right_join">right_join() (table.Table method)</a>

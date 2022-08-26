@@ -16,6 +16,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -40,9 +41,9 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="basic.html">Basic usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">GreenplumPython</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Data Science on Python with GreenplumPython</a></li>
 </ul>
 
         </div>
@@ -69,7 +70,31 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="welcome-to-greenplumpython-s-documentation">
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="welcome-to-greenplumpython-s-documentation">
 <h1>Welcome to GreenplumPython’s documentation!<a class="headerlink" href="#welcome-to-greenplumpython-s-documentation" title="Permalink to this heading"></a></h1>
 </section>
 <section id="presentation">
@@ -83,7 +108,14 @@ environment without deep knowledge of SQL.</p>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="basic.html">Basic usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/basic.html">Selecting the Database of Your Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/basic.html#Accessing-a-Table-in-the-Database">Accessing a Table in the Database</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/basic.html#Basic-Data-Manipulation">Basic Data Manipulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/basic.html#JOIN-ing-Two-Tables"><code class="docutils literal notranslate"><span class="pre">JOIN</span></code>-ing Two Tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/basic.html#Creating-and-Calling-Functions">Creating and Calling Functions</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">GreenplumPython</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="db.html">Database</a></li>
 <li class="toctree-l2"><a class="reference internal" href="table.html">Table</a></li>
@@ -95,7 +127,14 @@ environment without deep knowledge of SQL.</p>
 <li class="toctree-l2"><a class="reference internal" href="order.html">Ordering</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Data Science on Python with GreenplumPython</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/GreenplumPython-abalone.html">Context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/GreenplumPython-abalone.html#Import-preparation">Import preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/GreenplumPython-abalone.html#Data-Exploration">Data Exploration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/GreenplumPython-abalone.html#Execute-the-OLS-Linear-Regression-Function-by-‘sex’">Execute the OLS Linear Regression Function by ‘sex’</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/GreenplumPython-abalone.html#Prediction">Prediction</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>
