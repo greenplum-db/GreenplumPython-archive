@@ -151,8 +151,12 @@ class Table:
         repr_string += ("=" * 14 * len(ret[0])) + "\n"
         for row in ret:
             content = [row[c] for c in row]
-            s = ("| {:10} |" * len(row)).format(*content)
-            repr_string += s + "\n"
+            for c in content:
+                if isinstance(c, list):
+                    repr_string += ("| {:10} |").format("{}".format(c))  # type: ignore
+                else:
+                    repr_string += ("| {:10} |").format(c)
+            repr_string += "\n"
         return repr_string
 
     def _repr_html_(self):
