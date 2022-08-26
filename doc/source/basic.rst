@@ -1,4 +1,8 @@
-Basic usage
-===========
+Getting Started
+===============
 
-With **GreenplumPython**, you can connect to a database and manipulate tables like pandas dataframe.
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   notebooks/basic
