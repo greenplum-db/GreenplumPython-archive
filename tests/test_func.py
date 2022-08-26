@@ -487,3 +487,15 @@ def test_array_func_group_by_comp_apply(db: gp.Database):
             and (row["sum"] == 5)
             and (row["count"] == 5)
         )
+
+
+def test_array_func_const_apply(db: gp.Database):
+    @gp.create_array_function
+    def my_sum(label: str, val_list: List[int], initial: int) -> str:
+        return label + " : " + str(sum(val_list) + initial)
+
+    rows = [(1,) for _ in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+
+    results = list(numbers.apply(lambda tab: my_sum("sum", tab["val"], 5)).to_table().fetch())
+    assert len(results) == 1 and results[0]["my_sum"] == "sum : 15"

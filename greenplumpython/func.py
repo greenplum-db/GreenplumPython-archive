@@ -5,7 +5,7 @@ import functools
 import inspect
 import re
 import textwrap
-from typing import Any, Callable, Iterable, Optional
+from typing import Any, Callable, Iterable, Optional, Union
 from uuid import uuid4
 
 from greenplumpython.db import Database
@@ -153,9 +153,42 @@ class ArrayFunctionExpr(FunctionExpr):
     It will array aggregate all the columns given by the user.
     """
 
+    def __init__(
+        self,
+        func_name: str,
+        args: Iterable[Any] = [],
+        extra_args: Iterable[bool] = [],
+        group_by: Optional[TableRowGroup] = None,
+        as_name: Optional[str] = None,
+        table: Optional[Table] = None,
+        db: Optional[Database] = None,
+        is_return_comp: bool = False,
+    ) -> None:
+        super().__init__(
+            func_name=func_name,
+            args=args,
+            group_by=group_by,
+            as_name=as_name,
+            table=table,
+            db=db,
+            is_return_comp=is_return_comp,
+        )
+        self._extra_args = extra_args
+
     def _serialize(self) -> str:
         args_string = (
-            ",".join([f"array_agg({str(arg)})" for arg in self._args]) if any(self._args) else ""
+            ",".join(
+                [
+                    (
+                        f"array_agg({str(self._args[i])})"  # type: ignore
+                        if not self._extra_args[i]
+                        else to_pg_const(self._args[i])  # type: ignore
+                    )
+                    for i in range(len(self._args))
+                ]
+            )
+            if any(self._args)
+            else ""
         )
         return f"{self._func_name}({args_string})"
 
@@ -163,6 +196,7 @@ class ArrayFunctionExpr(FunctionExpr):
         return ArrayFunctionExpr(
             self._func_name,
             self._args,
+            self._extra_args,
             group_by=group_by,
             as_name=self._as_name,
             table=table,
@@ -475,7 +509,7 @@ def create_array_function(
 
     @functools.wraps(func)  # type: ignore
     def make_function_call(
-        *args: Expr,
+        *args: Union[Expr, Any],
         group_by: Optional[TableRowGroup] = None,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
@@ -492,9 +526,11 @@ def create_array_function(
         array_func_call = create_function(  # type: ignore
             func, name, schema, temp, replace_if_exists, language_handler
         )(*args, as_name=as_name, db=db)
+        extra_args = [not isinstance(arg, Expr) for arg in args]
         return ArrayFunctionExpr(
             array_func_call.qualified_func_name,  # type: ignore
             args=args,
+            extra_args=extra_args,
             group_by=group_by,
             as_name=as_name,
             db=db,
