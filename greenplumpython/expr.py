@@ -228,7 +228,7 @@ class Expr:
         """
         Returns string statement of Expr, ie : name + AS (optional)
         """
-        return self._serialize() + (" AS " + self._as_name if self._as_name is not None else "")
+        return self.serialize() + (" AS " + self._as_name if self._as_name is not None else "")
 
     def rename(self, new_name: str) -> "Expr":
         """
@@ -244,7 +244,7 @@ class Expr:
         new_expr._as_name = new_name
         return new_expr
 
-    def _serialize(self) -> str:
+    def serialize(self) -> str:
         raise NotImplementedError()
 
     @property
@@ -378,7 +378,7 @@ class BinaryExpr(Expr):
         """
         self._init(operator, left, right, as_name, db)
 
-    def _serialize(self) -> str:
+    def serialize(self) -> str:
         from greenplumpython.type import to_pg_const
 
         left_str = str(self.left) if isinstance(self.left, Expr) else to_pg_const(self.left)
@@ -410,7 +410,7 @@ class UnaryExpr(Expr):
         self.operator = operator
         self.right = right
 
-    def _serialize(self) -> str:
+    def serialize(self) -> str:
         right_str = str(self.right)
         return f"{self.operator}({right_str})"
 
@@ -427,7 +427,7 @@ class Column(Expr):
         self._name = name
         self._type: Optional[Type] = None  # TODO: Add type inference
 
-    def _serialize(self) -> str:
+    def serialize(self) -> str:
         assert self.table is not None
         return self.table.name + "." + self.name
 

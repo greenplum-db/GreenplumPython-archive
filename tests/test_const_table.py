@@ -44,7 +44,8 @@ def test_table_getitem_sub_columns(db: gp.Database):
     t = gp.values(rows, db=db)
     t = t.save_as("const_table", temp=True, column_names=["id", "num"])
     t_sub = t[["id", "num"]]
-    assert t_sub.columns == ["id", "num"]
+    for row in t_sub.fetch():
+        assert "id" in row and "num" in row
 
 
 def test_table_getitem_slice_limit(db: gp.Database, t: gp.Table):
@@ -124,3 +125,39 @@ def test_table_display_repr_html(db: gp.Database):
         "</table>"
     )
     assert (t.order_by(t["id"]).head(4)._repr_html_()) == expected
+
+
+def test_table_include_const(db: gp.Database):
+    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    results = nums.include("x", "hello").fetch()
+    for row in results:
+        assert "num" in row and "x" in row and row["x"] == "hello"
+
+
+def test_table_include_func(db: gp.Database):
+    @gp.create_function
+    def add_one(num: int) -> int:
+        return num + 1
+
+    # FIXME: How to remove the intermdeiate variable `nums`?
+    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    results = nums.include("result", add_one(nums["num"])).fetch()
+    for row in results:
+        assert row["result"] == row["num"] + 1
+
+
+def test_table_include_list(db: gp.Database):
+    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    results = nums.include("x", "hello").include("y", "world").fetch()
+    for row in results:
+        assert "num" in row and row["x"] == "hello" and row["y"] == "world"
+
+
+def test_table_include_base(db: gp.Database):
+    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    nums2 = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    with pytest.raises(Exception) as exc_info:
+        nums.include("num2", nums2["num"])
+    assert "Current table and included expression must based on the same table" == str(
+        exc_info.value
+    )

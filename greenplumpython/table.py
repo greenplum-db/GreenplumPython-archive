@@ -46,7 +46,7 @@ class Table:
         parents: Iterable["Table"] = [],
         name: Optional[str] = None,
         db: Optional[db.Database] = None,
-        columns: Optional[Iterable[str]] = None,
+        columns: Optional[Iterable[Column]] = None,
     ) -> None:
         self._query = query
         self._parents = parents
@@ -63,11 +63,11 @@ class Table:
 
     @_getitem.register(Expr)
     def _(self, key: Expr):
-        return self.filter(key)
+        return self.where(key)
 
     @_getitem.register(list)
-    def _(self, key: List[Union[str, Expr]]) -> "Table":
-        return self.select(key)
+    def _(self, key: List[str]) -> "Table":
+        return self.select(*(self[col_name] for col_name in key))
 
     @_getitem.register
     def _(self, key: str):
@@ -93,7 +93,7 @@ class Table:
         ...
 
     @overload
-    def __getitem__(self, key: List[Union[str, Expr]]) -> "Table":
+    def __getitem__(self, key: List[str]) -> "Table":
         ...
 
     @overload
@@ -173,7 +173,7 @@ class Table:
         repr_html_str += "</table>"
         return repr_html_str
 
-    def as_name(self, name_as: str) -> "Table":
+    def rename(self, name_as: str) -> "Table":
         """
         Returns a copy of the :class:`Table` with a new name.
 
@@ -183,10 +183,10 @@ class Table:
         Returns:
             Table: a new Object Table named **name_as** with same content
         """
-        return Table(f"SELECT * FROM {self.name}", parents=[self], name=name_as, db=self._db)
+        return Table(f"SELECT * FROM {self.name}", parents=[self], name=name, db=self._db)
 
     # FIXME: Add test
-    def filter(self, expr: "Expr") -> "Table":
+    def where(self, expr: "Expr") -> "Table":
         """
         Returns the :class:`Table` filtered by Expression.
 
@@ -199,7 +199,7 @@ class Table:
         return Table(f"SELECT * FROM {self._name} WHERE {str(expr)}", parents=[self])
 
     # FIXME: Add test
-    def select(self, target_list: Iterable[Union[str, "Expr"]]) -> "Table":
+    def select(self, *targets: Iterable[Any]) -> "Table":
         """
         Returns :class:`Table` with list of targeted :class:`~expr.Column`
 
@@ -211,11 +211,18 @@ class Table:
         """
         return Table(
             f"""
-                SELECT {','.join([str(target) for target in target_list])} 
+                SELECT {','.join([str(target) if isinstance(target, Expr) else to_pg_const(target) for target in targets])} 
                 FROM {self._name}
             """,
             parents=[self],
-            columns=target_list,
+        )
+
+    def include(self, name: str, val: Any) -> "AugmentedTable":
+        if isinstance(val, Expr) and not (val.table is None or val.table == self):
+            raise Exception("Current table and included expression must based on the same table")
+        target = val.serialize() if isinstance(val, Expr) else to_pg_const(val)
+        return AugmentedTable(
+            f"SELECT *, {target} AS {name} FROM {self.name}", base_table=self, parents=[self]
         )
 
     def order_by(
@@ -224,7 +231,7 @@ class Table:
         ascending: Optional[bool] = None,
         nulls_first: Optional[bool] = None,
         operator: Optional[str] = None,
-    ):
+    ) -> OrderedTable:
         """
         Returns :class:`Table` order by the given arguments.
 
@@ -303,15 +310,6 @@ class Table:
                 {str(on_str)}  
             """,
             parents=[self, other],
-            columns=[
-                target.as_name if target.as_name is not None else target.name for target in targets
-            ]
-            if targets != []
-            and str(self["*"]) not in target_str_list
-            and str(other["*"]) not in target_str_list
-            # FIXME : Add analyze for other cases
-            # FIXME : For example when select * and both table has attribute "columns"
-            else None,
         )
 
     def inner_join(
@@ -737,3 +735,25 @@ def values(rows: Iterable[Tuple[Any]], db: db.Database, column_names: Iterable[s
     )
     columns_string = f"({','.join(column_names)})" if any(column_names) else ""
     return Table(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", db=db)
+
+
+class AugmentedTable(Table):
+    def __init__(
+        self,
+        query: str,
+        base_table: Table,
+        parents: Iterable["Table"] = [],
+        name: Optional[str] = None,
+        db: Optional[db.Database] = None,
+        columns: Optional[Iterable[Column]] = None,
+    ) -> None:
+        super().__init__(query, parents, name, db, columns)
+        self._base_table = base_table
+
+    def include(self, name: str, val: Any) -> "AugmentedTable":
+        if isinstance(val, Expr) and not (val.table is None or val.table == self._base_table):
+            raise Exception("Current table and included expression must based on the same table")
+        target = val.serialize() if isinstance(val, Expr) else to_pg_const(val)
+        return AugmentedTable(
+            f"SELECT *, {target} AS {name} FROM {self.name}", base_table=self, parents=[self]
+        )
