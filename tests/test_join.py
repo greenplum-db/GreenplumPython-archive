@@ -316,6 +316,6 @@ def test_table_multiple_self_join(db: gp.Database, zoo_1: gp.Table):
 def test_join_recursive_join(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
-    label = numbers.include("mod", numbers["val"] % 2)
+    label = numbers.extend("mod", numbers["val"] % 2)
     results = label.inner_join(numbers, numbers["val"] == label["val"], targets=[label["val"]])
     assert len(list(results.fetch())) == 10

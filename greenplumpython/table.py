@@ -173,7 +173,7 @@ class Table:
         repr_html_str += "</table>"
         return repr_html_str
 
-    def rename(self, name_as: str) -> "Table":
+    def rename(self, name: str) -> "Table":
         """
         Returns a copy of the :class:`Table` with a new name.
 
@@ -217,11 +217,11 @@ class Table:
             parents=[self],
         )
 
-    def include(self, name: str, val: Any) -> "AugmentedTable":
+    def extend(self, name: str, val: Any) -> "ExtendedTable":
         if isinstance(val, Expr) and not (val.table is None or val.table == self):
             raise Exception("Current table and included expression must be based on the same table")
         target = val.serialize() if isinstance(val, Expr) else to_pg_const(val)
-        return AugmentedTable(
+        return ExtendedTable(
             f"SELECT *, {target} AS {name} FROM {self.name}", base_table=self, parents=[self]
         )
 
@@ -737,7 +737,7 @@ def values(rows: Iterable[Tuple[Any]], db: db.Database, column_names: Iterable[s
     return Table(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", db=db)
 
 
-class AugmentedTable(Table):
+class ExtendedTable(Table):
     def __init__(
         self,
         query: str,
@@ -750,10 +750,10 @@ class AugmentedTable(Table):
         super().__init__(query, parents, name, db, columns)
         self._base_table = base_table
 
-    def include(self, name: str, val: Any) -> "AugmentedTable":
+    def extend(self, name: str, val: Any) -> "ExtendedTable":
         if isinstance(val, Expr) and not (val.table is None or val.table == self._base_table):
             raise Exception("Current table and included expression must be based on the same table")
         target = val.serialize() if isinstance(val, Expr) else to_pg_const(val)
-        return AugmentedTable(
+        return ExtendedTable(
             f"SELECT *, {target} AS {name} FROM {self.name}", base_table=self, parents=[self]
         )

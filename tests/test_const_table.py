@@ -129,7 +129,7 @@ def test_table_display_repr_html(db: gp.Database):
 
 def test_table_include_const(db: gp.Database):
     nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
-    results = nums.include("x", "hello").fetch()
+    results = nums.extend("x", "hello").fetch()
     for row in results:
         assert "num" in row and "x" in row and row["x"] == "hello"
 
@@ -141,14 +141,14 @@ def test_table_include_func(db: gp.Database):
 
     # FIXME: How to remove the intermdeiate variable `nums`?
     nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
-    results = nums.include("result", add_one(nums["num"])).fetch()
+    results = nums.extend("result", add_one(nums["num"])).fetch()
     for row in results:
         assert row["result"] == row["num"] + 1
 
 
 def test_table_include_multiple(db: gp.Database):
     nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
-    results = nums.include("x", "hello").include("y", "world").fetch()
+    results = nums[["num"]].extend("x", "hello").extend("y", "world").fetch()
     for row in results:
         assert "num" in row and row["x"] == "hello" and row["y"] == "world"
 
@@ -157,7 +157,7 @@ def test_table_include_same_base(db: gp.Database):
     nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
     nums2 = gp.values([(i,) for i in range(10)], db, column_names=["num"])
     with pytest.raises(Exception) as exc_info:
-        nums.include("num2", nums2["num"])
+        nums.extend("num2", nums2["num"])
     assert (
         str(exc_info.value)
         == "Current table and included expression must be based on the same table"
