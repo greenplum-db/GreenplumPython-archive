@@ -146,18 +146,19 @@ def test_table_include_func(db: gp.Database):
         assert row["result"] == row["num"] + 1
 
 
-def test_table_include_list(db: gp.Database):
+def test_table_include_multiple(db: gp.Database):
     nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
     results = nums.include("x", "hello").include("y", "world").fetch()
     for row in results:
         assert "num" in row and row["x"] == "hello" and row["y"] == "world"
 
 
-def test_table_include_base(db: gp.Database):
+def test_table_include_same_base(db: gp.Database):
     nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
     nums2 = gp.values([(i,) for i in range(10)], db, column_names=["num"])
     with pytest.raises(Exception) as exc_info:
         nums.include("num2", nums2["num"])
-    assert "Current table and included expression must based on the same table" == str(
-        exc_info.value
+    assert (
+        str(exc_info.value)
+        == "Current table and included expression must be based on the same table"
     )

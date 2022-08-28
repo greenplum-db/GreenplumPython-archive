@@ -219,7 +219,7 @@ class Table:
 
     def include(self, name: str, val: Any) -> "AugmentedTable":
         if isinstance(val, Expr) and not (val.table is None or val.table == self):
-            raise Exception("Current table and included expression must based on the same table")
+            raise Exception("Current table and included expression must be based on the same table")
         target = val.serialize() if isinstance(val, Expr) else to_pg_const(val)
         return AugmentedTable(
             f"SELECT *, {target} AS {name} FROM {self.name}", base_table=self, parents=[self]
@@ -752,7 +752,7 @@ class AugmentedTable(Table):
 
     def include(self, name: str, val: Any) -> "AugmentedTable":
         if isinstance(val, Expr) and not (val.table is None or val.table == self._base_table):
-            raise Exception("Current table and included expression must based on the same table")
+            raise Exception("Current table and included expression must be based on the same table")
         target = val.serialize() if isinstance(val, Expr) else to_pg_const(val)
         return AugmentedTable(
             f"SELECT *, {target} AS {name} FROM {self.name}", base_table=self, parents=[self]
