@@ -209,9 +209,12 @@ class Table:
         Returns:
             Table : Table selected only with targeted columns
         """
+        targets_str = [
+            str(target) if isinstance(target, Expr) else to_pg_const(target) for target in targets
+        ]
         return Table(
             f"""
-                SELECT {','.join([str(target) if isinstance(target, Expr) else to_pg_const(target) for target in targets])} 
+                SELECT {','.join(targets_str)} 
                 FROM {self._name}
             """,
             parents=[self],
