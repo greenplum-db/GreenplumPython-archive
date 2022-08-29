@@ -141,6 +141,7 @@ def test_table_extend_expr(db: gp.Database):
 
     nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
     # FIXME: How to remove the intermdeiate variable `nums`?
+    # FIXME: How to support functions returning more than one column?
     results = nums.extend("result", add_one(nums["num"])).fetch()
     for row in results:
         assert row["result"] == row["num"] + 1

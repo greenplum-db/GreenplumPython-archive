@@ -217,10 +217,36 @@ class Table:
             parents=[self],
         )
 
-    def extend(self, name: str, val: Any) -> "Table":
-        if isinstance(val, Expr) and not (val.table is None or val.table == self):
+    def extend(self, name: str, value: Any) -> "Table":
+        """
+        Extends the current :class:`Table` by including an extra value as a
+        new :class:`Column`.
+
+        Args:
+            name: Name of the new column in the resulting :class:`Table`.
+            value: Value of the new column, can be either an :class:`Expr, 
+                or any other type that can be adapted to a SQL type.
+        
+        Returns:
+            Table: Table after extension
+
+        Warning:
+            Currently, value of type :class:`Expr` whose result has more than 
+            one column is **not** supported even though **no** exception will
+            be thrown in that case. Please **don't** rely on this behavior as
+            this will be fixed soon.
+
+            Examples of this case include functions returning composite type
+            objects, etc.
+            
+            This is because GreenplumPython have no knowledge on what columns
+            are in a :class:`Table` or the result of an :class:`Expr`. This
+            issue will be fixed as soon as we implement column inference for
+            GreenplumPython.
+        """
+        if isinstance(value, Expr) and not (value.table is None or value.table == self):
             raise Exception("Current table and included expression must be based on the same table")
-        target = val.serialize() if isinstance(val, Expr) else to_pg_const(val)
+        target = value.serialize() if isinstance(value, Expr) else to_pg_const(value)
         return Table(f"SELECT *, {target} AS {name} FROM {self.name}", parents=[self])
 
     def order_by(
