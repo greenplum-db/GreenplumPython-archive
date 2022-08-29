@@ -463,7 +463,7 @@ class ConstExpr(Expr):
         super().__init__(as_name=as_name)
         self._val = val
 
-    def _serialize(self) -> str:
+    def serialize(self) -> str:
         from greenplumpython.type import to_pg_const
 
         return to_pg_const(self._val)
