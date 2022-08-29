@@ -224,21 +224,21 @@ class Table:
 
         Args:
             name: Name of the new column in the resulting :class:`Table`.
-            value: Value of the new column, can be either an :class:`Expr`, 
+            value: Value of the new column, can be either an :class:`Expr`,
                 or any other type that can be adapted to a SQL type.
-        
+
         Returns:
             Table: Table after extension
 
         Warning:
-            Currently, value of type :class:`Expr` whose result has more than 
+            Currently, value of type :class:`Expr` whose result has more than
             one column is **not** supported even though **no** exception will
             be thrown in that case. Please **don't** rely on this behavior as
             this will be fixed soon.
 
             Examples of this case include functions returning composite type
             objects, etc.
-            
+
             This is because GreenplumPython have no knowledge on what columns
             are in a :class:`Table` or the result of an :class:`Expr`. This
             issue will be fixed as soon as we implement column inference for
