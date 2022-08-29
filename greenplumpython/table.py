@@ -217,12 +217,12 @@ class Table:
             parents=[self],
         )
 
-    def extend(self, name: str, val: Any) -> "ExtendedTable":
+    def extend(self, name: str, val: Any) -> "Table":
         if isinstance(val, Expr) and not (val.table is None or val.table == self):
             raise Exception("Current table and included expression must be based on the same table")
         target = val.serialize() if isinstance(val, Expr) else to_pg_const(val)
-        return ExtendedTable(
-            f"SELECT *, {target} AS {name} FROM {self.name}", base_table=self, parents=[self]
+        return Table(
+            f"SELECT *, {target} AS {name} FROM {self.name}", parents=[self]
         )
 
     def order_by(
@@ -735,25 +735,3 @@ def values(rows: Iterable[Tuple[Any]], db: db.Database, column_names: Iterable[s
     )
     columns_string = f"({','.join(column_names)})" if any(column_names) else ""
     return Table(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", db=db)
-
-
-class ExtendedTable(Table):
-    def __init__(
-        self,
-        query: str,
-        base_table: Table,
-        parents: Iterable["Table"] = [],
-        name: Optional[str] = None,
-        db: Optional[db.Database] = None,
-        columns: Optional[Iterable[Column]] = None,
-    ) -> None:
-        super().__init__(query, parents, name, db, columns)
-        self._base_table = base_table
-
-    def extend(self, name: str, val: Any) -> "ExtendedTable":
-        if isinstance(val, Expr) and not (val.table is None or val.table == self._base_table):
-            raise Exception("Current table and included expression must be based on the same table")
-        target = val.serialize() if isinstance(val, Expr) else to_pg_const(val)
-        return ExtendedTable(
-            f"SELECT *, {target} AS {name} FROM {self.name}", base_table=self, parents=[self]
-        )
