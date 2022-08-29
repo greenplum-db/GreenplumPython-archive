@@ -499,3 +499,21 @@ def test_array_func_const_apply(db: gp.Database):
 
     results = list(numbers.apply(lambda tab: my_sum("sum", tab["val"], 5)).to_table().fetch())
     assert len(results) == 1 and results[0]["my_sum"] == "sum : 15"
+
+
+def test_array_func_group_by_attribute(db: gp.Database):
+    @gp.create_array_function
+    def my_sum(label: str, val_list: List[int], initial: int) -> str:
+        return label + " : " + str(sum(val_list) + initial)
+
+    # fmt: off
+    rows = [("a", i, 5,) for i in range(10)]
+    # fmt: on
+    numbers = gp.values(rows, db=db, column_names=["label", "val", "initial"])
+    results = list(
+        numbers.group_by("label", "initial")
+        .apply(lambda tab: my_sum(tab["label"], tab["val"], tab["initial"]))
+        .to_table()
+        .fetch()
+    )
+    assert len(results) == 1 and results[0]["my_sum"] == "a : 50"

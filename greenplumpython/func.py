@@ -180,7 +180,17 @@ class ArrayFunctionExpr(FunctionExpr):
             ",".join(
                 [
                     (
-                        f"array_agg({str(self._args[i])})"  # type: ignore
+                        (
+                            f"array_agg({str(self._args[i])})"  # type: ignore
+                            if (
+                                (self._group_by is None)
+                                or (
+                                    self._group_by is not None
+                                    and (self._args[i].name not in self._group_by.get_targets())
+                                )
+                            )
+                            else str(self._args[i])  # type: ignore
+                        )
                         if not self._extra_args[i]
                         else to_pg_const(self._args[i])  # type: ignore
                     )
