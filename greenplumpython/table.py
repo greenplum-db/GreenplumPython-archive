@@ -224,7 +224,7 @@ class Table:
 
         Args:
             name: Name of the new column in the resulting :class:`Table`.
-            value: Value of the new column, can be either an :class:`Expr, 
+            value: Value of the new column, can be either an :class:`Expr`, 
                 or any other type that can be adapted to a SQL type.
         
         Returns:
