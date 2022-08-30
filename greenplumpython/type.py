@@ -50,8 +50,8 @@ class TypeCast(Expr):
         self._obj = obj
         self._type_name = type_name
 
-    def _serialize(self) -> str:
-        obj_str = self._obj._serialize() if isinstance(self._obj, Expr) else to_pg_const(self._obj)
+    def serialize(self) -> str:
+        obj_str = self._obj.serialize() if isinstance(self._obj, Expr) else to_pg_const(self._obj)
         return f"{obj_str}::{self._type_name}"
 
 

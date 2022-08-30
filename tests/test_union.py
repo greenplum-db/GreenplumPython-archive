@@ -42,9 +42,9 @@ def test_union_all(db: gp.Database, top_rated_films: gp.Table, most_popular_film
 
 
 def test_union_select(db: gp.Database, top_rated_films: gp.Table, most_popular_films: gp.Table):
-    top_rated_films = top_rated_films[
-        [top_rated_films["title"].rename("titltle"), top_rated_films["release_year"]]
-    ]
+    top_rated_films = top_rated_films.select(
+        top_rated_films["title"].rename("titltle"), top_rated_films["release_year"]
+    )
     ret = list(top_rated_films.union(most_popular_films).fetch())
     assert len(ret) == 5
     assert list(ret[0].keys()) == ["titltle", "release_year"]

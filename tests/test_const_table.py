@@ -44,7 +44,8 @@ def test_table_getitem_sub_columns(db: gp.Database):
     t = gp.values(rows, db=db)
     t = t.save_as("const_table", temp=True, column_names=["id", "num"])
     t_sub = t[["id", "num"]]
-    assert t_sub.columns == ["id", "num"]
+    for row in t_sub.fetch():
+        assert "id" in row and "num" in row
 
 
 def test_table_getitem_slice_limit(db: gp.Database, t: gp.Table):
@@ -124,3 +125,46 @@ def test_table_display_repr_html(db: gp.Database):
         "</table>"
     )
     assert (t.order_by(t["id"]).head(4)._repr_html_()) == expected
+
+
+def test_table_extend_const(db: gp.Database):
+    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    results = nums.extend("x", "hello").fetch()
+    for row in results:
+        assert "num" in row and "x" in row and row["x"] == "hello"
+
+
+def test_table_extend_expr(db: gp.Database):
+    @gp.create_function
+    def add_one(num: int) -> int:
+        return num + 1
+
+    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    # FIXME: How to remove the intermdeiate variable `nums`?
+    # FIXME: How to support functions returning more than one column?
+    results = nums.extend("result", add_one(nums["num"])).fetch()
+    for row in results:
+        assert row["result"] == row["num"] + 1
+
+
+def test_table_extend_same_base(db: gp.Database):
+    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    nums2 = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    with pytest.raises(Exception) as exc_info:
+        nums.extend("num2", nums2["num"])
+    assert (
+        str(exc_info.value)
+        == "Current table and included expression must be based on the same table"
+    )
+
+
+def test_table_extend_multiple_col(db: gp.Database):
+    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    results = nums.extend("a", nums["num"])
+
+    # NOTE: `nums.extend("a", nums["num"]).extend("b", nums["num"])` is not
+    # supported because in this case `extend()` is supposed to modify `nums`
+    # implicitly and thus is NOT pure.
+    results = results.extend("b", results["num"])
+    for row in results.fetch():
+        assert row["num"] == row["a"] == row["b"]
