@@ -162,12 +162,17 @@ setup_gpadmin_bashrc
 # gpadmin. bashrc won't be read by 'su', it needs to be sourced explicitly.
 case "$1" in
     test)
-
         # To make fly debug easier
         su gpadmin -c \
             "source /home/gpadmin/.bashrc &&\
             /home/gpadmin/greenplumpython_src/concourse/scripts/test.sh"
         ;;
+    test_and_build)
+        # To make fly debug easier
+        su gpadmin -c \
+            "source /home/gpadmin/.bashrc &&\
+            /home/gpadmin/greenplumpython_src/concourse/scripts/test_and_build.sh"
+        ;;   
     *)
         echo "Unknown target task $1"
         exit 1
