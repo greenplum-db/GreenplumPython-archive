@@ -4,15 +4,9 @@ on:
   workflow_dispatch:
   pull_request:
     branches: [ master ]
-    paths:
-      - doc/source/*
-      - .github/workflows/doc.yml
   push:
-    branches: # fix it to master branch when merge
+    branches:
       - master
-    paths:
-      - doc/source/*
-      - .github/workflows/doc.yml
 
 jobs:
   build:
