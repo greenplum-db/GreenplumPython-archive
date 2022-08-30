@@ -92,6 +92,7 @@
  | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
  | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
  
 </div>
 <h2 id="_">_</h2>
@@ -153,8 +154,6 @@
 </li>
       <li><a href="expr.html#expr.Expr.as_name">as_name (expr.Expr property)</a>
 </li>
-      <li><a href="table.html#table.Table.as_name">as_name() (table.Table method)</a>
-</li>
   </ul></td>
 </tr></table>
 
@@ -177,7 +176,7 @@
 </li>
       <li><a href="table.html#table.Table.columns">columns (table.Table property)</a>
 </li>
-      <li><a href="expr.html#expr.Const">Const (class in expr)</a>
+      <li><a href="expr.html#expr.ConstExpr">ConstExpr (class in expr)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -228,8 +227,6 @@
 </li>
       <li><a href="table.html#table.Table.explain">explain() (table.Table method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     expr
 
@@ -237,7 +234,11 @@
         <li><a href="expr.html#module-expr">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="expr.html#expr.Expr">Expr (class in expr)</a>
+</li>
+      <li><a href="table.html#table.Table.extend">extend() (table.Table method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -247,12 +248,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="table.html#table.Table.fetch">fetch() (table.Table method)</a>
 </li>
-      <li><a href="table.html#table.Table.filter">filter() (table.Table method)</a>
-</li>
       <li><a href="table.html#table.Table.full_outer_join">full_outer_join() (table.Table method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     func
 
@@ -260,6 +257,8 @@
         <li><a href="func.html#module-func">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="func.html#func.function">function() (in module func)</a>
 </li>
       <li><a href="func.html#func.FunctionExpr">FunctionExpr (class in func)</a>
@@ -420,7 +419,7 @@
       <li><a href="expr.html#expr.Expr.rename">rename() (expr.Expr method)</a>
 
       <ul>
-        <li><a href="expr.html#expr.rename">(in module expr)</a>
+        <li><a href="table.html#table.Table.rename">(table.Table method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -435,10 +434,28 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="table.html#table.Table.save_as">save_as() (table.Table method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="table.html#table.Table.select">select() (table.Table method)</a>
 </li>
+      <li><a href="expr.html#expr.BinaryExpr.serialize">serialize() (expr.BinaryExpr method)</a>
+
+      <ul>
+        <li><a href="expr.html#expr.Column.serialize">(expr.Column method)</a>
+</li>
+        <li><a href="expr.html#expr.ConstExpr.serialize">(expr.ConstExpr method)</a>
+</li>
+        <li><a href="expr.html#expr.Expr.serialize">(expr.Expr method)</a>
+</li>
+        <li><a href="expr.html#expr.UnaryExpr.serialize">(expr.UnaryExpr method)</a>
+</li>
+        <li><a href="func.html#func.ArrayFunctionExpr.serialize">(func.ArrayFunctionExpr method)</a>
+</li>
+        <li><a href="func.html#func.FunctionExpr.serialize">(func.FunctionExpr method)</a>
+</li>
+        <li><a href="type.html#type.TypeCast.serialize">(type.TypeCast method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="db.html#db.Database.set_config">set_config() (db.Database method)</a>
 </li>
   </ul></td>
@@ -512,6 +529,14 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="table.html#table.values">values() (in module table)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="table.html#table.Table.where">where() (table.Table method)</a>
 </li>
   </ul></td>
 </tr></table>
