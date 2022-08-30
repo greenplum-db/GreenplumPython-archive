@@ -124,3 +124,27 @@ def test_table_like(db: gp.Database):
     assert len(list(result)) == 1
     result = t[t["id"].like(r"_a%")].fetch()
     assert len(list(result)) == 1
+
+
+def test_table_add(db: gp.Database):
+    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    results = nums.extend("add", nums["num"] + 1)
+
+    for row in results.fetch():
+        assert row["num"] + 1 == row["add"]
+
+
+def test_table_sub(db: gp.Database):
+    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    results = nums.extend("sub", nums["num"] - 1)
+
+    for row in results.fetch():
+        assert row["num"] - 1 == row["sub"]
+
+
+def test_table_mul(db: gp.Database):
+    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    results = nums.extend("mul", nums["num"] * nums["num"])
+
+    for row in results.fetch():
+        assert row["num"] ** 2 == row["mul"]
