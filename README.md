@@ -1,4 +1,4 @@
-# GreenplumPython
+<img src="./doc/images/gppython_logo_text.svg">
 
 GreenplumPython is a Python library that enables the user to interact with Greenplum in a Pythonic way.
 
