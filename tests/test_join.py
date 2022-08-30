@@ -95,8 +95,8 @@ def test_join_same_column_names_alias(db: gp.Database):
         how="INNER JOIN",
         on_str="ON temp1.id = temp2.id",
     )
-    assert list(list(ret.fetch())[0].keys()) == ["t1_id", "t2_id"]
-    assert ret.columns == ["t1_id", "t2_id"]
+    for row in ret.fetch():
+        assert "t1_id" in row and "t2_id" in row
 
 
 def test_join_same_column_names(db: gp.Database):
@@ -243,7 +243,7 @@ def test_table_cross_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
 
 
 def test_table_self_join(db: gp.Database, zoo_1: gp.Table):
-    zoo_2 = zoo_1.as_name("zoo2")
+    zoo_2 = zoo_1.rename("zoo2")
     ret = zoo_1.inner_join(
         zoo_2,
         zoo_1["animal"] == zoo_2["animal"],
@@ -260,7 +260,7 @@ def test_table_self_join(db: gp.Database, zoo_1: gp.Table):
 
 
 def test_table_join_save(db: gp.Database, zoo_1: gp.Table):
-    zoo_2 = zoo_1.as_name("zoo2")
+    zoo_2 = zoo_1.rename("zoo2")
     t_join = zoo_1.inner_join(
         zoo_2,
         zoo_1["animal"] == zoo_2["animal"],
@@ -292,8 +292,8 @@ def test_table_join_ine(db: gp.Database):
 
 
 def test_table_multiple_self_join(db: gp.Database, zoo_1: gp.Table):
-    zoo_2 = zoo_1.as_name("zoo2")
-    zoo_3 = zoo_2.as_name("zoo3")
+    zoo_2 = zoo_1.rename("zoo2")
+    zoo_3 = zoo_2.rename("zoo3")
     t_join = zoo_1.inner_join(
         zoo_2,
         zoo_1["animal"] == zoo_2["animal"],
@@ -313,18 +313,15 @@ def test_table_multiple_self_join(db: gp.Database, zoo_1: gp.Table):
         assert row["zoo2_animal"] == row["animal"]
 
 
-def test_join_recursive_join(db: gp.Database):
+# This test case is to guarantee that the CTEs are generated in the reversed
+# topological order (i.e. the DFS order) in the lineage graph.
+#
+# For that, we must ensure there are at least 4 nodes in the graph and the 2
+# direct parents of the final node must not be adjacent.
+def test_lineage_dfs_order(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
-    label = numbers[["*", (numbers["val"] % 2).rename("mod")]]
-    percentile = label[["percentile_disc(0.5) WITHIN GROUP (ORDER BY mod) AS mod"]]
-    ret_mod = list(
-        label.inner_join(
-            percentile,
-            (label["mod"] == percentile["mod"]),
-            targets=[label["val"], percentile["mod"]],
-        ).fetch()
-    )
-    assert len(ret_mod) == 5
-    for row in ret_mod:
-        assert row["mod"] == row["val"] % 2
+    mod = numbers.extend("mod", numbers["val"] % 2)
+    mod3 = mod.extend("mod3", mod["val"] % 3)
+    results = mod3.inner_join(numbers, numbers["val"] == mod3["val"], targets=[mod3["val"]])
+    assert len(list(results.fetch())) == 10

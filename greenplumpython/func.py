@@ -57,7 +57,7 @@ class FunctionExpr(Expr):
             db=self._db,
         )
 
-    def _serialize(self) -> str:
+    def serialize(self) -> str:
         args_string = (
             ",".join(
                 [str(arg) if isinstance(arg, Expr) else to_pg_const(arg) for arg in self._args]
@@ -144,7 +144,7 @@ class ArrayFunctionExpr(FunctionExpr):
     It will array aggregate all the columns given by the user.
     """
 
-    def _serialize(self) -> str:
+    def serialize(self) -> str:
         args_string = (
             ",".join([f"array_agg({str(arg)})" for arg in self._args]) if any(self._args) else ""
         )

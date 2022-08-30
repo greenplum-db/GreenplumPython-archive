@@ -1,5 +1,4 @@
 from greenplumpython.db import Database, database
-from greenplumpython.expr import rename
 from greenplumpython.func import create_aggregate  # type: ignore
 from greenplumpython.func import create_array_function  # type: ignore
 from greenplumpython.func import create_function  # type: ignore
