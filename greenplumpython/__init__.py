@@ -7,3 +7,5 @@ from greenplumpython.func import aggregate, function
 from greenplumpython.op import operator
 from greenplumpython.table import Table, table, values
 from greenplumpython.type import get_type
+
+__version__ = "1.0.0-beta4"

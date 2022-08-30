@@ -63,3 +63,12 @@ The `tox` is based on VirtualEnv. If you need to enter a special VirtualEnv, jus
 ```
 source .tox/test/bin/activate
 ```
+
+#### Upload to PyPI
+
+```shell
+# change the version in setup.py
+pip3 install twine
+python3 setup.py sdist
+twine upload dist/*
+```
