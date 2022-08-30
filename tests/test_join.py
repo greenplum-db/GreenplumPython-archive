@@ -313,9 +313,15 @@ def test_table_multiple_self_join(db: gp.Database, zoo_1: gp.Table):
         assert row["zoo2_animal"] == row["animal"]
 
 
-def test_join_recursive_join(db: gp.Database):
+# This test case is to guarantee that the CTEs are generated in the reversed
+# topological order (i.e. the DFS order) in the lineage graph.
+#
+# For that, we must ensure there are at least 4 nodes in the graph and the 2
+# direct parents of the final node must not be adjacent.
+def test_lineage_dfs_order(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
-    label = numbers.extend("mod", numbers["val"] % 2)
-    results = label.inner_join(numbers, numbers["val"] == label["val"], targets=[label["val"]])
+    mod = numbers.extend("mod", numbers["val"] % 2)
+    mod3 = mod.extend("mod3", mod["val"] % 3)
+    results = mod3.inner_join(numbers, numbers["val"] == mod3["val"], targets=[mod3["val"]])
     assert len(list(results.fetch())) == 10

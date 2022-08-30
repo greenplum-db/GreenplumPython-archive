@@ -235,8 +235,8 @@ class Table:
 
         Warning:
             Currently, value of type :class:`Expr` whose result has more than
-            one column is **not** supported even though **no** exception will
-            be thrown in that case. Please **don't** rely on this behavior as
+            one column is **not supported** even though no exception will
+            be thrown in that case. Please **don't rely on this behavior** as
             this will be fixed soon.
 
             Examples of this case include functions returning composite type
