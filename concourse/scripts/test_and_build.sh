@@ -13,7 +13,6 @@ function _main() {
     unset PYTHONHOME
     tox -e test_py39
     # build wheel
-    pip3 install .
     pip3 wheel .
     mkdir ../greenplumpython_artifacts
     cp ./*.whl ../greenplumpython_artifacts
