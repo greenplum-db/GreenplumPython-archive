@@ -83,7 +83,9 @@ def test_table_display_repr_long_content(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tigerrrrrrrrrrrr",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
-    t = gp.values(rows, db=db).save_as("zoo1", temp=True, column_names=["iddddddddddddddddddd", "animal"])
+    t = gp.values(rows, db=db).save_as(
+        "zoo1", temp=True, column_names=["iddddddddddddddddddd", "animal"]
+    )
     expected = (
         "| iddddddddddddddddddd || animal     |\n"
         "============================\n"
