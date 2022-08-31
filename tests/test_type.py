@@ -22,12 +22,12 @@ def test_type_create(db: gp.Database):
         _first_name: str
         _last_name: str
 
-    type_name = create_type(Person, db, as_name="Person", is_temp=True)
+    type_name = create_type(Person, db, as_name="Person_m", is_temp=False)
     assert isinstance(type_name, str)
-    assert type_name == "Person"
+    assert type_name == "Person_m"
     with pytest.raises(Exception) as exc_info:
-        create_type(Person, db, as_name="Person", is_temp=False)
-    assert 'type "person" already exists\n' in str(exc_info.value)
+        create_type(Person, db, as_name="Person_m", is_temp=False)
+    assert 'type "person_m" already exists\n' in str(exc_info.value)
 
 
 def test_type_create_temp(db: gp.Database):
