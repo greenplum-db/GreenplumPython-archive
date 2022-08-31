@@ -46,7 +46,7 @@ class Table:
         parents: Iterable["Table"] = [],
         name: Optional[str] = None,
         db: Optional[db.Database] = None,
-        columns: Optional[Iterable[str]] = None,
+        columns: Optional[Iterable[Column]] = None,
     ) -> None:
         self._query = query
         self._parents = parents
@@ -63,11 +63,11 @@ class Table:
 
     @_getitem.register(Expr)
     def _(self, key: Expr):
-        return self.filter(key)
+        return self.where(key)
 
     @_getitem.register(list)
-    def _(self, key: List[Union[str, Expr]]) -> "Table":
-        return self.select(key)
+    def _(self, key: List[str]) -> "Table":
+        return self.select(*(self[col_name] for col_name in key))
 
     @_getitem.register
     def _(self, key: str):
@@ -93,7 +93,7 @@ class Table:
         ...
 
     @overload
-    def __getitem__(self, key: List[Union[str, Expr]]) -> "Table":
+    def __getitem__(self, key: List[str]) -> "Table":
         ...
 
     @overload
@@ -173,7 +173,7 @@ class Table:
         repr_html_str += "</table>"
         return repr_html_str
 
-    def as_name(self, name_as: str) -> "Table":
+    def rename(self, name: str) -> "Table":
         """
         Returns a copy of the :class:`Table` with a new name.
 
@@ -183,10 +183,10 @@ class Table:
         Returns:
             Table: a new Object Table named **name_as** with same content
         """
-        return Table(f"SELECT * FROM {self.name}", parents=[self], name=name_as, db=self._db)
+        return Table(f"SELECT * FROM {self.name}", parents=[self], name=name, db=self._db)
 
     # FIXME: Add test
-    def filter(self, expr: "Expr") -> "Table":
+    def where(self, expr: "Expr") -> "Table":
         """
         Returns the :class:`Table` filtered by Expression.
 
@@ -199,7 +199,7 @@ class Table:
         return Table(f"SELECT * FROM {self._name} WHERE {str(expr)}", parents=[self])
 
     # FIXME: Add test
-    def select(self, target_list: Iterable[Union[str, "Expr"]]) -> "Table":
+    def select(self, *targets: Iterable[Any]) -> "Table":
         """
         Returns :class:`Table` with list of targeted :class:`~expr.Column`
 
@@ -209,14 +209,48 @@ class Table:
         Returns:
             Table : Table selected only with targeted columns
         """
+        targets_str = [
+            str(target) if isinstance(target, Expr) else to_pg_const(target) for target in targets
+        ]
         return Table(
             f"""
-                SELECT {','.join([str(target) for target in target_list])} 
+                SELECT {','.join(targets_str)} 
                 FROM {self._name}
             """,
             parents=[self],
-            columns=target_list,
         )
+
+    def extend(self, name: str, value: Any) -> "Table":
+        """
+        Extends the current :class:`Table` by including an extra value as a
+        new :class:`Column`.
+
+        Args:
+            name: Name of the new column in the resulting :class:`Table`.
+            value: Value of the new column, can be either an :class:`Expr`,
+                or any other type that can be adapted to a SQL type.
+
+        Returns:
+            Table: Table after extension
+
+        Warning:
+            Currently, value of type :class:`Expr` whose result has more than
+            one column is **not supported** even though no exception will
+            be thrown in that case. Please **don't rely on this behavior** as
+            this will be fixed soon.
+
+            Examples of this case include functions returning composite type
+            objects, etc.
+
+            This is because GreenplumPython have no knowledge on what columns
+            are in a :class:`Table` or the result of an :class:`Expr`. This
+            issue will be fixed as soon as we implement column inference for
+            GreenplumPython.
+        """
+        if isinstance(value, Expr) and not (value.table is None or value.table == self):
+            raise Exception("Current table and included expression must be based on the same table")
+        target = value.serialize() if isinstance(value, Expr) else to_pg_const(value)
+        return Table(f"SELECT *, {target} AS {name} FROM {self.name}", parents=[self])
 
     def order_by(
         self,
@@ -224,7 +258,7 @@ class Table:
         ascending: Optional[bool] = None,
         nulls_first: Optional[bool] = None,
         operator: Optional[str] = None,
-    ):
+    ) -> OrderedTable:
         """
         Returns :class:`Table` order by the given arguments.
 
@@ -303,15 +337,6 @@ class Table:
                 {str(on_str)}  
             """,
             parents=[self, other],
-            columns=[
-                target.as_name if target.as_name is not None else target.name for target in targets
-            ]
-            if targets != []
-            and str(self["*"]) not in target_str_list
-            and str(other["*"]) not in target_str_list
-            # FIXME : Add analyze for other cases
-            # FIXME : For example when select * and both table has attribute "columns"
-            else None,
         )
 
     def inner_join(

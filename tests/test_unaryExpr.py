@@ -3,42 +3,32 @@ from tests import db
 
 
 def test_expr_unary_not(db: gp.Database):
-    rows = [(True,), (False,), (True,), (True,)]
-    t = gp.values(rows, db=db).save_as("temp1", column_names=["id"], temp=True)
-    b1 = (~t["id"]).rename('"Not(temp1.id)"')
-    assert str(b1) == 'NOT(temp1.id) AS "Not(temp1.id)"'
-    ret = list(t[["id", str(b1)]].fetch())
+    rows = [(True,), (True,), (True,), (True,)]
+    t = gp.values(rows, db=db, column_names=["id"])
+    ret = (~t["id"]).rename("result").to_table().fetch()
     for row in ret:
-        bool_id = row["id"]
-        bool_id_not = row["Not(temp1.id)"]
-        assert bool_id ^ bool_id_not
+        assert not row["result"]
 
 
 def test_expr_unary_pos(db: gp.Database):
     rows = [(-1,), (-2,), (-3,), (-2,)]
-    t = gp.values(rows, db=db).save_as("temp2", column_names=["id"], temp=True)
-    b2 = (+t["id"]).rename('"+temp2.id"')
-    assert str(b2) == '+(temp2.id) AS "+temp2.id"'
-    ret = list(t[["id", str(b2)]].fetch())
+    t = gp.values(rows, db=db, column_names=["id"])
+    ret = (+t["id"]).rename("result").to_table().fetch()
     for row in ret:
-        assert row["+temp2.id"] == +(row["id"])
+        assert row["result"] < 0
 
 
 def test_expr_unary_neg(db: gp.Database):
     rows = [(1,), (2,), (3,), (2,)]
-    t = gp.values(rows, db=db).save_as("temp3", column_names=["id"], temp=True)
-    b3 = (-t["id"]).rename('"-temp3.id"')
-    assert str(b3) == '-(temp3.id) AS "-temp3.id"'
-    ret = list(t[["id", str(b3)]].fetch())
+    t = gp.values(rows, db=db, column_names=["id"])
+    ret = (-t["id"]).rename("result").to_table().fetch()
     for row in ret:
-        assert row["-temp3.id"] == -(row["id"])
+        assert row["result"] < 0
 
 
 def test_expr_unary_abs(db: gp.Database):
     rows = [(1,), (-2,), (-3,), (2,)]
-    t = gp.values(rows, db=db).save_as("temp4", column_names=["id"], temp=True)
-    b4 = abs(t["id"]).rename('"Abs(temp4.id)"')
-    assert str(b4) == 'ABS(temp4.id) AS "Abs(temp4.id)"'
-    ret = list(t[["id", str(b4)]].fetch())
+    t = gp.values(rows, db=db, column_names=["id"])
+    ret = abs(t["id"]).rename("result").to_table().fetch()
     for row in ret:
-        assert row["Abs(temp4.id)"] == abs(row["id"])
+        assert row["result"] > 0
