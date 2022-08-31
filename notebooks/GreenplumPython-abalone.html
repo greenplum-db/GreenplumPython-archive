@@ -49,8 +49,12 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Context</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Import-preparation">Import preparation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Data-Exploration">Data Exploration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Execute-the-OLS-Linear-Regression-Function-by-‘sex’">Execute the OLS Linear Regression Function by ‘sex’</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Prediction">Prediction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Execute-the-OLS-Linear-Regression-Function-by-‘sex’">Execute the OLS Linear Regression Function by ‘sex’</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Training-Process">Training Process</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Prediction">Prediction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Evaluation-of-model">Evaluation of model</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -647,6 +651,7 @@ Done.
 <span class="c1"># ORDER BY gp_segment_id;</span>
 
 <span class="kn">import</span> <span class="nn">greenplumpython.builtin.function</span> <span class="k">as</span> <span class="nn">F</span>
+
 <span class="n">count</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span> <span class="c1"># -- Get access to existing aggregate in Greenplum</span>
 <span class="n">abalone</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;gp_segment_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="n">F</span><span class="o">.</span><span class="n">count</span><span class="p">())</span><span class="o">.</span><span class="n">to_table</span><span class="p">()</span>
 </pre></div>
@@ -685,6 +690,8 @@ Done.
 </section>
 <section id="Execute-the-OLS-Linear-Regression-Function-by-‘sex’">
 <h1>Execute the OLS Linear Regression Function by ‘sex’<a class="headerlink" href="#Execute-the-OLS-Linear-Regression-Function-by-‘sex’" title="Permalink to this heading"></a></h1>
+<section id="Training-Process">
+<h2>Training Process<a class="headerlink" href="#Training-Process" title="Permalink to this heading"></a></h2>
 <p><strong>Creation of training function</strong></p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
@@ -742,7 +749,7 @@ Done.
 </pre></div>
 </div>
 </div>
-<p><strong>Apply “plc_linreg_fitted” function to our train set</strong></p>
+<p><strong>Apply “linreg_fitted” function to our train set</strong></p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
@@ -768,12 +775,15 @@ Done.
 <span class="c1">#    ) a</span>
 <span class="c1">#) DISTRIBUTED BY (sex);</span>
 
-<span class="n">linreg_fitted</span> <span class="o">=</span> <span class="n">linreg_func</span><span class="p">(</span>
-                        <span class="n">abalone_train</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
-                        <span class="n">abalone_train</span><span class="p">[</span><span class="s2">&quot;shucked_weight&quot;</span><span class="p">],</span>
-                        <span class="n">abalone_train</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">],</span>
-                        <span class="n">group_by</span><span class="o">=</span><span class="n">abalone_train</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">)</span>
-<span class="p">)</span><span class="o">.</span><span class="n">to_table</span><span class="p">()</span>
+<span class="n">linreg_fitted</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">abalone_train</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">linreg_func</span><span class="p">(</span>
+            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;shucked_weight&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">to_table</span><span class="p">()</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -802,23 +812,23 @@ Done.
     <tr>
             <td>F</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[26.103285484660393, -8.650311780058429]</td>
-            <td>-0.1056850260741733</td>
-            <td>2022-08-26 12:13:24.146337</td>
+            <td>[27.4393377633426, -9.373967747387242]</td>
+            <td>-0.5723170412720151</td>
+            <td>2022-08-26 17:48:47.259735</td>
     </tr>
     <tr>
             <td>M</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[22.465978175137444, -5.971928280366459]</td>
-            <td>0.6691247495198169</td>
-            <td>2022-08-26 12:13:24.146388</td>
+            <td>[23.33623748111674, -6.706739168509235]</td>
+            <td>0.5266359666269427</td>
+            <td>2022-08-26 17:48:47.259736</td>
     </tr>
     <tr>
             <td>I</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[14.733392806769164, 0.8132131701998402]</td>
-            <td>1.4182342331452462</td>
-            <td>2022-08-26 12:13:24.147834</td>
+            <td>[15.496948845158183, 0.5516610286149676]</td>
+            <td>1.1598270820783938</td>
+            <td>2022-08-26 17:48:47.260886</td>
     </tr>
 </table></div>
 </div>
@@ -863,89 +873,300 @@ Done.
             <th>coef</th>
     </tr>
     <tr>
-            <td>F</td>
-            <td>length</td>
-            <td>26.103285484660393</td>
-    </tr>
-    <tr>
-            <td>F</td>
-            <td>shucked_weight</td>
-            <td>-8.650311780058429</td>
-    </tr>
-    <tr>
-            <td>M</td>
-            <td>length</td>
-            <td>22.465978175137437</td>
-    </tr>
-    <tr>
-            <td>I</td>
-            <td>length</td>
-            <td>14.733392806769169</td>
-    </tr>
-    <tr>
-            <td>M</td>
-            <td>shucked_weight</td>
-            <td>-5.971928280366453</td>
-    </tr>
-    <tr>
-            <td>I</td>
-            <td>shucked_weight</td>
-            <td>0.8132131701998396</td>
-    </tr>
-    <tr>
-            <td>M</td>
-            <td>intercept</td>
-            <td>0.6691247495198205</td>
-    </tr>
-    <tr>
             <td>I</td>
             <td>intercept</td>
-            <td>1.4182342331452427</td>
+            <td>1.1598270820783956</td>
     </tr>
     <tr>
             <td>F</td>
             <td>intercept</td>
-            <td>-0.1056850260741733</td>
+            <td>-0.5723170412720151</td>
+    </tr>
+    <tr>
+            <td>F</td>
+            <td>length</td>
+            <td>27.4393377633426</td>
+    </tr>
+    <tr>
+            <td>M</td>
+            <td>length</td>
+            <td>23.336237481116758</td>
+    </tr>
+    <tr>
+            <td>M</td>
+            <td>intercept</td>
+            <td>0.5266359666269338</td>
+    </tr>
+    <tr>
+            <td>I</td>
+            <td>shucked_weight</td>
+            <td>0.5516610286149655</td>
+    </tr>
+    <tr>
+            <td>I</td>
+            <td>length</td>
+            <td>15.496948845158178</td>
+    </tr>
+    <tr>
+            <td>F</td>
+            <td>shucked_weight</td>
+            <td>-9.373967747387242</td>
+    </tr>
+    <tr>
+            <td>M</td>
+            <td>shucked_weight</td>
+            <td>-6.706739168509239</td>
     </tr>
 </table></div>
 </div>
 </section>
 <section id="Prediction">
-<h1>Prediction<a class="headerlink" href="#Prediction" title="Permalink to this heading"></a></h1>
-<p><strong>Currently can’t support, because function can take care only one table at the time</strong></p>
+<h2>Prediction<a class="headerlink" href="#Prediction" title="Permalink to this heading"></a></h2>
+<p><strong>Creation of prediction function</strong></p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_array_function</span>
-<span class="k">def</span> <span class="nf">linreg_pred_func</span><span class="p">(</span><span class="n">serialized_model</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">features</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_function</span>
+<span class="k">def</span> <span class="nf">linreg_pred_func</span><span class="p">(</span><span class="n">serialized_model</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">shucked_weight</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="c1"># Deserialize the serialized model</span>
         <span class="kn">import</span> <span class="nn">six</span>
         <span class="n">pickle</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">moves</span><span class="o">.</span><span class="n">cPickle</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">serialized_model</span><span class="p">)</span>
 
+        <span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="n">length</span><span class="p">,</span> <span class="n">shucked_weight</span><span class="p">]</span>
+
         <span class="c1"># Predict the target variable</span>
         <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="n">features</span><span class="p">])</span>
 
-        <span class="k">return</span> <span class="n">y_pred</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">y_pred</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
+<p><strong>Join model table and test set table</strong></p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">linreg_pred</span> <span class="o">=</span> <span class="n">linreg_pred_func</span><span class="p">(</span>
-                                <span class="n">linreg_fitted</span><span class="p">[</span><span class="s2">&quot;serialized_linreg_model&quot;</span><span class="p">],</span>
-                                <span class="n">abalone_test</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
-                                <span class="n">abalone_test</span><span class="p">[</span><span class="s2">&quot;shucked_weight&quot;</span><span class="p">],</span>
-                                <span class="n">group_by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">]</span>
-<span class="p">)</span><span class="o">.</span><span class="n">to_table</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">linreg_test_fit</span> <span class="o">=</span> <span class="n">linreg_fitted</span><span class="o">.</span><span class="n">inner_join</span><span class="p">(</span>
+    <span class="n">abalone_test</span><span class="p">,</span>
+    <span class="n">cond</span><span class="o">=</span><span class="n">linreg_fitted</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">abalone_test</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">],</span>
+    <span class="n">targets</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">linreg_fitted</span><span class="p">[</span><span class="s2">&quot;col_nm&quot;</span><span class="p">],</span>
+        <span class="n">linreg_fitted</span><span class="p">[</span><span class="s2">&quot;coef&quot;</span><span class="p">],</span>
+        <span class="n">linreg_fitted</span><span class="p">[</span><span class="s2">&quot;intercept&quot;</span><span class="p">],</span>
+        <span class="n">linreg_fitted</span><span class="p">[</span><span class="s2">&quot;serialized_linreg_model&quot;</span><span class="p">],</span>
+        <span class="n">linreg_fitted</span><span class="p">[</span><span class="s2">&quot;created_dt&quot;</span><span class="p">],</span>
+        <span class="n">abalone_test</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p><strong>Predict test set</strong></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># CREATE TABLE plc_linreg_pred_dot AS (</span>
+<span class="c1">#    SELECT</span>
+<span class="c1">#        test.id</span>
+<span class="c1">#        , test.sex</span>
+<span class="c1">#        , test.rings</span>
+<span class="c1">#        , plc_linreg_pred_dot_func(</span>
+<span class="c1">#            model.coef</span>
+<span class="c1">#            , model.intercept</span>
+<span class="c1">#            , ARRAY[length, shucked_weight]</span>
+<span class="c1">#        ) AS y_pred</span>
+<span class="c1">#    FROM</span>
+<span class="c1">#        (SELECT * FROM abalone_split WHERE split=0) AS test</span>
+<span class="c1">#        , plc_linreg_fitted AS model</span>
+<span class="c1">#    WHERE test.sex = model.sex</span>
+<span class="c1"># ) DISTRIBUTED BY (sex);</span>
 
-<span class="c1">## Error expected: Cannot pass arguments from more than one tables</span>
+
+<span class="n">linreg_pred</span> <span class="o">=</span> <span class="n">linreg_test_fit</span><span class="p">[[</span>
+                    <span class="n">linreg_test_fit</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span>
+                    <span class="n">linreg_test_fit</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">],</span>
+                    <span class="n">linreg_test_fit</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">],</span>
+                    <span class="n">linreg_pred_func</span><span class="p">(</span>
+                            <span class="n">linreg_test_fit</span><span class="p">[</span><span class="s2">&quot;serialized_linreg_model&quot;</span><span class="p">],</span>
+                            <span class="n">linreg_test_fit</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
+                            <span class="n">linreg_test_fit</span><span class="p">[</span><span class="s2">&quot;shucked_weight&quot;</span><span class="p">],</span>
+                            <span class="n">as_name</span> <span class="o">=</span> <span class="s2">&quot;rings__pred&quot;</span>
+                    <span class="p">)</span>
+                <span class="p">]]</span>
 </pre></div>
 </div>
 </div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># SELECT * FROM plc_linreg_pred WHERE sex=&#39;I&#39; ORDER BY id LIMIT 5;</span>
+
+<span class="n">linreg_pred</span><span class="p">[</span><span class="n">linreg_pred</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;I&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>id</th>
+            <th>sex</th>
+            <th>rings</th>
+            <th>rings__pred</th>
+    </tr>
+    <tr>
+            <td>22</td>
+            <td>I</td>
+            <td>10</td>
+            <td>7.092800525527701</td>
+    </tr>
+    <tr>
+            <td>45</td>
+            <td>I</td>
+            <td>4</td>
+            <td>4.423840407562377</td>
+    </tr>
+    <tr>
+            <td>46</td>
+            <td>I</td>
+            <td>7</td>
+            <td>7.251907471693895</td>
+    </tr>
+    <tr>
+            <td>125</td>
+            <td>I</td>
+            <td>6</td>
+            <td>6.783413209653152</td>
+    </tr>
+    <tr>
+            <td>135</td>
+            <td>I</td>
+            <td>7</td>
+            <td>5.288584967189913</td>
+    </tr>
+</table></div>
+</div>
+</section>
+<section id="Evaluation-of-model">
+<h2>Evaluation of model<a class="headerlink" href="#Evaluation-of-model" title="Permalink to this heading"></a></h2>
+<p><strong>Creation of evaluation return type</strong></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># CREATE TYPE plc_linreg_eval_type AS (</span>
+<span class="c1">#    mae float8</span>
+<span class="c1">#    , mape float8</span>
+<span class="c1">#    , mse float8</span>
+<span class="c1">#    , r2_score float8</span>
+<span class="c1"># );</span>
+
+<span class="k">class</span> <span class="nc">linreg_eval_type</span><span class="p">:</span>
+    <span class="n">mae</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">mape</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">mse</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">r2_score</span><span class="p">:</span> <span class="nb">float</span>
+</pre></div>
+</div>
+</div>
+<p><strong>Creation of evaluation function</strong></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_array_function</span>
+<span class="k">def</span> <span class="nf">linreg_eval</span><span class="p">(</span><span class="n">y_actual</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">y_pred</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">linreg_eval_type</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span><span class="p">,</span> <span class="n">mean_squared_error</span><span class="p">,</span> <span class="n">r2_score</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+    <span class="n">mae</span> <span class="o">=</span> <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_actual</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+    <span class="n">mse</span> <span class="o">=</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_actual</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+    <span class="n">r2_score</span> <span class="o">=</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">y_actual</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+
+    <span class="n">y_pred_f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">mape</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">y_actual</span> <span class="o">-</span> <span class="n">y_pred_f</span><span class="p">)</span><span class="o">/</span><span class="n">y_actual</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_actual</span><span class="p">)</span>
+
+    <span class="c1">#eval_score = [mae, mape, mse, r2_score]</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;mae&#39;</span><span class="p">:</span> <span class="n">mae</span><span class="p">,</span>
+        <span class="s1">&#39;mape&#39;</span><span class="p">:</span> <span class="n">mape</span><span class="p">,</span>
+        <span class="s1">&#39;mse&#39;</span><span class="p">:</span> <span class="n">mse</span><span class="p">,</span>
+        <span class="s1">&#39;r2_score&#39;</span><span class="p">:</span> <span class="n">r2_score</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Evaluate our model</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># SELECT</span>
+<span class="c1">#    sex</span>
+<span class="c1">#    , (linreg_eval(rings_agg, y_pred_agg)).*</span>
+<span class="c1"># FROM (</span>
+<span class="c1">#    SELECT</span>
+<span class="c1">#        sex</span>
+<span class="c1">#        , ARRAY_AGG(rings) AS rings_agg</span>
+<span class="c1">#        , ARRAY_AGG(y_pred) AS y_pred_agg</span>
+<span class="c1">#    FROM plc_linreg_pred</span>
+<span class="c1">#    GROUP BY sex</span>
+<span class="c1"># ) a</span>
+
+
+<span class="n">linreg_pred</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">linreg_eval</span><span class="p">(</span>
+        <span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings__pred&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+<span class="p">)</span><span class="o">.</span><span class="n">to_table</span><span class="p">()</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>mae</th>
+            <th>mape</th>
+            <th>mse</th>
+            <th>r2_score</th>
+            <th>sex</th>
+    </tr>
+    <tr>
+            <td>2.2194278521105932</td>
+            <td>19.562351310295135</td>
+            <td>9.075299871965063</td>
+            <td>0.1215651905716355</td>
+            <td>F</td>
+    </tr>
+    <tr>
+            <td>2.2496658469612845</td>
+            <td>20.200608966571846</td>
+            <td>8.751973670487112</td>
+            <td>0.14212576302175817</td>
+            <td>M</td>
+    </tr>
+    <tr>
+            <td>1.236741114822162</td>
+            <td>15.285667978748029</td>
+            <td>3.5434016124072256</td>
+            <td>0.46275581745010197</td>
+            <td>I</td>
+    </tr>
+</table></div>
+</div>
+</section>
 </section>
 
 
