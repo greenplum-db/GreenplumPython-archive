@@ -1,0 +1,30 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  release-pypi:
+    name: release-pypi
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v3
+        with:
+          python-version: 3.9
+
+      - name: Install build tool
+        run: |
+          pip install -U build
+      - name: Build artifacts
+        run: |
+          python -m build --sdist --wheel .
+      - name: Upload to Pypi
+        run: |
+          pip install twine
+          twine upload --username __token__ --password ${{ secrets.PYPI }} dist/*
+  
