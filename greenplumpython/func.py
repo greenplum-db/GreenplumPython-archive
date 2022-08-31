@@ -5,7 +5,7 @@ import functools
 import inspect
 import re
 import textwrap
-from typing import Any, Callable, Iterable, Optional
+from typing import Any, Callable, Iterable, Optional, Union
 from uuid import uuid4
 
 from greenplumpython.db import Database
@@ -55,6 +55,7 @@ class FunctionExpr(Expr):
             as_name=self._as_name,
             table=table,
             db=self._db,
+            is_return_comp=self.is_return_comp,  # type: ignore
         )
 
     def serialize(self) -> str:
@@ -108,9 +109,17 @@ class FunctionExpr(Expr):
         # ```
         result = f"({self._as_name}).*" if self._is_return_comp else "*"
         return Table(
-            f"SELECT {result} FROM {orig_func_table.name}",
-            parents=[orig_func_table],
+            " ".join(
+                [
+                    f"SELECT {str(result)}",
+                    ("," + ",".join([str(target) for target in self._group_by.get_targets()]))
+                    if self._group_by is not None
+                    else "",
+                    f"FROM {orig_func_table.name}",
+                ]
+            ),
             db=self._db,
+            parents=[orig_func_table],
         )
 
     @property
@@ -145,10 +154,34 @@ class ArrayFunctionExpr(FunctionExpr):
     """
 
     def serialize(self) -> str:
-        args_string = (
-            ",".join([f"array_agg({str(arg)})" for arg in self._args]) if any(self._args) else ""
-        )
+        args_string_list = []
+        args_string = ""
+        if any(self._args):
+            for i in range(len(self._args)):
+                if isinstance(self._args[i], Expr):
+                    if (self._group_by is None) or (
+                        self._group_by is not None
+                        and (self._args[i].name not in self._group_by.get_targets())
+                    ):
+                        s = f"array_agg({str(self._args[i])})"  # type: ignore
+                    else:
+                        s = str(self._args[i])  # type: ignore
+                else:
+                    s = to_pg_const(self._args[i])  # type: ignore
+                args_string_list.append(s)
+            args_string = ",".join(args_string_list)
         return f"{self._func_name}({args_string})"
+
+    def __call__(self, group_by: Optional[TableRowGroup] = None, table: Optional[Table] = None):
+        return ArrayFunctionExpr(
+            self._func_name,
+            self._args,
+            group_by=group_by,
+            as_name=self._as_name,
+            table=table,
+            db=self._db,
+            is_return_comp=self.is_return_comp,  # type: ignore
+        )
 
 
 def function(name: str) -> Callable[..., FunctionExpr]:
@@ -455,7 +488,7 @@ def create_array_function(
 
     @functools.wraps(func)  # type: ignore
     def make_function_call(
-        *args: Expr,
+        *args: Union[Expr, Any],
         group_by: Optional[TableRowGroup] = None,
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
