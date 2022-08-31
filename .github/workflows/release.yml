@@ -26,5 +26,5 @@ jobs:
       - name: Upload to Pypi
         run: |
           pip install twine
-          twine upload --username __token__ --password ${{ secrets.PYPI }} dist/*
+          twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
   
