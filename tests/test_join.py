@@ -271,7 +271,7 @@ def test_table_join_save(db: gp.Database, zoo_1: gp.Table):
             zoo_2["animal"].rename("zoo2_animal"),
         ],
     )
-    t_join.save_as("table_join")
+    t_join.save_as("table_join", temp=True)
     t_join_reload = gp.table("table_join", db=db)
     ret = t_join_reload.fetch()
     assert len(list(list(ret)[0].keys())) == 4
