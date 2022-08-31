@@ -481,11 +481,8 @@ def test_array_func_group_by_comp_apply(db: gp.Database):
     )
     assert list(list(results)[0].keys()) == ["sum", "count", "is_even"]
     for row in results:
-        assert (
-            ("is_even" in row)
-            and (row["is_even"] is not None)
-            and (row["sum"] == 5)
-            and (row["count"] == 5)
+        assert all(
+            ["is_even" in row, row["is_even"] is not None, row["sum"] == 5, row["count"] == 5]
         )
 
 

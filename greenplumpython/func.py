@@ -154,30 +154,22 @@ class ArrayFunctionExpr(FunctionExpr):
     """
 
     def serialize(self) -> str:
-        args_string = (
-            ",".join(
-                [
-                    (
-                        (
-                            f"array_agg({str(self._args[i])})"  # type: ignore
-                            if (
-                                (self._group_by is None)
-                                or (
-                                    self._group_by is not None
-                                    and (self._args[i].name not in self._group_by.get_targets())
-                                )
-                            )
-                            else str(self._args[i])  # type: ignore
-                        )
-                        if isinstance(self._args[i], Expr)
-                        else to_pg_const(self._args[i])  # type: ignore
-                    )
-                    for i in range(len(self._args))
-                ]
-            )
-            if any(self._args)
-            else ""
-        )
+        args_string_list = []
+        args_string = ""
+        if any(self._args):
+            for i in range(len(self._args)):
+                if isinstance(self._args[i], Expr):
+                    if (self._group_by is None) or (
+                        self._group_by is not None
+                        and (self._args[i].name not in self._group_by.get_targets())
+                    ):
+                        s = f"array_agg({str(self._args[i])})"  # type: ignore
+                    else:
+                        s = str(self._args[i])  # type: ignore
+                else:
+                    s = to_pg_const(self._args[i])  # type: ignore
+                args_string_list.append(s)
+            args_string = ",".join(args_string_list)
         return f"{self._func_name}({args_string})"
 
     def __call__(self, group_by: Optional[TableRowGroup] = None, table: Optional[Table] = None):
