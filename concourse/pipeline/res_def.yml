@@ -128,6 +128,27 @@ resources:
     json_key: ((extension/extensions-gcs-service-account-key))
     versioned_file: intermediates/greenplumpython/greenplumpython_ubuntu18_gpdb6.tar.gz
 
+# Release
+- name: bin_greenplumpython_rhel7_intermediates_rel
+  type: gcs
+  source:
+    bucket: gpdb-extensions-concourse-resources
+    json_key: ((extension/extensions-gcs-service-account-key))
+    versioned_file: intermediates_release/greenplumpython/greenplumpython_rhel7_gpdb6.tar.gz
+- name: bin_greenplumpython_rhel8_intermediates_rel
+  type: gcs
+  source:
+    bucket: gpdb-extensions-concourse-resources
+    json_key: ((extension/extensions-gcs-service-account-key))
+    versioned_file: intermediates_release/greenplumpython/greenplumpython_rhel8_gpdb6.tar.gz
+- name: bin_greenplumpython_ubuntu18_intermediates_rel
+  type: gcs
+  source:
+    bucket: gpdb-extensions-concourse-resources
+    json_key: ((extension/extensions-gcs-service-account-key))
+    versioned_file: intermediates_release/greenplumpython/greenplumpython_ubuntu18.04_gpdb6.tar.gz
+
+
 # For uploading to the release bucket
 - name: bin_greenplumpython_rhel7_release
   type: gcs
@@ -149,19 +170,19 @@ resources:
     regexp: greenplumpython/released/greenplumpython-(.*).tar.gz
 
 # plpython3 for gpdb6
-- name: bin_greenplumpython_rhel7
+- name: bin_plpython3_gpdb6_rhel7
   type: gcs
   source:
     bucket: gpdb-extensions-concourse-resources
     json_key: ((extension/extensions-gcs-service-account-key))
     versioned_file: intermediates/plpython3/plpython3_rhel7_gpdb6.gppkg
-- name: bin_greenplumpython_rhel8
+- name: bin_plpython3_gpdb6_rhel8
   type: gcs
   source:
     bucket: gpdb-extensions-concourse-resources
     json_key: ((extension/extensions-gcs-service-account-key))
     versioned_file: intermediates/plpython3/plpython3_rhel8_gpdb6.gppkg
-- name: bin_greenplumpython_ubuntu18
+- name: bin_plpython3_gpdb6_ubuntu18
   type: gcs
   source:
     bucket: gpdb-extensions-concourse-resources
