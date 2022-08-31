@@ -15,6 +15,8 @@ function _main() {
     # build wheel
     pip3 wheel . -w ../greenplumpython_artifacts
     popd
+    name=$(find greenplumpython_artifacts -maxdepth 1 -regex "psycopg.*whl" | sed 's/....$//' |awk '{split($0, a, "-"); print a[3]"-"a[4]"-"a[5]}')
+    tar -czf greenplumpython_artifacts/greenplumpython_"${name}".tar.gz greenplumpython_artifacts/*.whl
 }
 
 _main

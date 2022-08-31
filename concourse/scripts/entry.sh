@@ -161,12 +161,6 @@ setup_gpadmin_bashrc
 # Do the special setup with root permission for the each task, then run the real task script with
 # gpadmin. bashrc won't be read by 'su', it needs to be sourced explicitly.
 case "$1" in
-    test)
-        # To make fly debug easier
-        su gpadmin -c \
-            "source /home/gpadmin/.bashrc &&\
-            /home/gpadmin/greenplumpython_src/concourse/scripts/test.sh"
-        ;;
     test_and_build)
         # To make fly debug easier
         su gpadmin -c \
