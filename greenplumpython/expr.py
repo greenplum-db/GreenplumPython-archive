@@ -191,6 +191,20 @@ class Expr:
         """
         return BinaryExpr("*", self, other)
 
+    def __truediv__(self, other: Any) -> "Expr":
+        """
+        Operator **/**
+
+        Returns a Binary Expression Division between an :class:`Expr` and another :class:`Expr` or constant.
+        It results integer division between two integers, and true division if one of the arguments is a float.
+
+        Example:
+            .. code-block::  Python
+
+                t["val"] / 2
+        """
+        return BinaryExpr("/", self, other)
+
     def __pos__(self) -> "Expr":
         """
         Operator **+**
