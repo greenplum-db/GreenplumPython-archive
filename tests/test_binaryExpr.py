@@ -178,6 +178,6 @@ def test_table_true_div_integer_float(db: gp.Database):
 def test_table_true_div_zero(db: gp.Database):
     nums = gp.values([(i,) for i in range(5)], db, column_names=["num"])
     with pytest.raises(Exception) as exc_info:
-        nums.extend("div", nums["num"] / nums["num"])
+        nums.extend("div", nums["num"] / nums["num"]).fetch()
 
-    assert "division by zero" == str(exc_info.value)
+    assert "division by zero\n" == str(exc_info.value)
