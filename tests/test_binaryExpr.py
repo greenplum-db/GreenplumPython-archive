@@ -167,12 +167,12 @@ def test_table_true_div_integers(db: gp.Database):
 
 
 def test_table_true_div_integer_float(db: gp.Database):
-    nums = gp.values([(i,) for i in range(4, 5)], db, column_names=["num"])
+    nums = gp.values([(i,) for i in range(5, 8, 2)], db, column_names=["num"])
     float_type = gp.get_type("float", db)
     results = nums.extend("div", float_type(nums["num"]) / 2)
 
     for row in results.fetch():
-        assert row["div"] == 2 or row["div"] == 2.5
+        assert row["div"] == 2.5 or row["div"] == 3.5
 
 
 def test_table_true_div_zero(db: gp.Database):
