@@ -9,10 +9,7 @@ from tests import db
 @pytest.fixture
 def t(db: gp.Database):
     generate_series = gp.function("generate_series")
-    t = (
-        generate_series(0, 9, as_name="id", db=db)
-        .to_table()
-    )
+    t = generate_series(0, 9, as_name="id", db=db).to_table()
     return t
 
 
