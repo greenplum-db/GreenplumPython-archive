@@ -425,8 +425,8 @@ def test_func_apply_auto_column_mapping_join(db: gp.Database):
     rows1 = [(1, "a1",), (2, "a2",), (3, "a3",)]
     rows2 = [(1, "b1",), (2, "b2",), (3, "b3",)]
     # fmt: on
-    t1 = gp.values(rows1, db=db).save_as("temp1", temp=True, column_names=["id1", "n1"])
-    t2 = gp.values(rows2, db=db).save_as("temp2", temp=True, column_names=["id2", "n2"])
+    t1 = gp.values(rows1, db=db, column_names=["id1", "n1"])
+    t2 = gp.values(rows2, db=db, column_names=["id2", "n2"])
     ret = t1.inner_join(
         t2,
         t1["id1"] == t2["id2"],

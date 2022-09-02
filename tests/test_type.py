@@ -10,7 +10,7 @@ from tests import db
 
 def test_type_cast(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    series = gp.values(rows, db, column_names=["val"]).save_as("series")
+    series = gp.values(rows, db, column_names=["val"]).save_as("series", temp=True)
     regclass = gp.get_type("regclass", db)
     table_name = regclass(series["tableoid"]).rename("table_name")
     for row in table_name.to_table().fetch():
@@ -22,12 +22,12 @@ def test_type_create(db: gp.Database):
         _first_name: str
         _last_name: str
 
-    type_name = create_type(Person, db, as_name="Person", is_temp=False)
+    type_name = create_type(Person, db, as_name="Person_m", is_temp=False)
     assert isinstance(type_name, str)
-    assert type_name == "Person"
+    assert type_name == "Person_m"
     with pytest.raises(Exception) as exc_info:
-        create_type(Person, db, as_name="Person", is_temp=False)
-    assert 'type "person" already exists\n' in str(exc_info.value)
+        create_type(Person, db, as_name="Person_m", is_temp=False)
+    assert 'type "person_m" already exists\n' in str(exc_info.value)
 
 
 def test_type_create_temp(db: gp.Database):
@@ -35,7 +35,7 @@ def test_type_create_temp(db: gp.Database):
         _first_name: str
         _last_name: str
 
-    create_type(Person, db, as_name="Person")
+    create_type(Person, db, as_name="Person", is_temp=True)
     query = f"""
                     SELECT n.nspname as "Schema",
                       pg_catalog.format_type(t.oid, NULL) AS "Name",
@@ -62,9 +62,9 @@ def test_type_drop(db: gp.Database):
         _first_name: str
         _last_name: str
 
-    create_type(Person, db, as_name="Person", is_temp=False)
+    create_type(Person, db, as_name="Person", is_temp=True)
     drop_type("Person", db)
-    create_type(Person, db, as_name="Person", is_temp=False)
+    create_type(Person, db, as_name="Person", is_temp=True)
 
 
 # FIXME : Add assert
@@ -73,7 +73,7 @@ def test_type_attribute_is_list(db: gp.Database):
         _first_name: List[str]
         _last_name: str
 
-    create_type(Person, db, as_name="Person", is_temp=False)
+    create_type(Person, db, as_name="Person", is_temp=True)
 
 
 def test_create_type_recursive(db: gp.Database):
