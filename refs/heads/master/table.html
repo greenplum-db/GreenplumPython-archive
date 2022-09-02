@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Table &mdash; GreenplumPython Beta 2.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Expression" href="expr.html" />
+    <link rel="prev" title="Database" href="db.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> GreenplumPython
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">GreenplumPython</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="db.html">Database</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="expr.html">Expression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func.html">Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="op.html">Operator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="type.html">Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group.html">Grouping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="order.html">Ordering</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Data Science on Python with GreenplumPython</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">GreenplumPython</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">GreenplumPython</a> &raquo;</li>
+      <li>Table</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/greenplum-db/GreenplumPython/blob/master/doc/source/table.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-table">
+<span id="table"></span><h1>Table<a class="headerlink" href="#module-table" title="Permalink to this heading"></a></h1>
+<p>This module creates a Python object <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> which keeps in memory all the user modifications
+on a table, in order to proceed with SQL query. It concatenates different pieces of queries
+together using CTEs.</p>
+<p>Table sends the aggregated SQL query to the database and returns the final result only when
+user calling <cite>fetch()</cite> function.</p>
+<p>All modifications made by users are only saved to the database when calling the <cite>save_as()</cite>
+function.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="table.Table">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">table.</span></span><span class="sig-name descname"><span class="pre">Table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Database</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Column</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#table.Table" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Representation of Table object.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="table.Table.__getitem__">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></span><a class="headerlink" href="#table.Table.__getitem__" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">slice</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a><span class="p"><span class="pre">]</span></span></span></span></dt>
+<dd><dl>
+<dt>Returns</dt><dd><ul class="simple">
+<li><p>a <a class="reference internal" href="expr.html#expr.Column" title="expr.Column"><code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code></a> of the current Table if key is string</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">id_col</span> <span class="o">=</span> <span class="n">tab</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<ul>
+<li><p>a new <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> from the current Table per the type of key:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>if key is a list, then SELECT a subset of columns, a.k.a. targets;</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">id_table</span> <span class="o">=</span> <span class="n">tab</span><span class="p">[[</span><span class="s2">&quot;id&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>if key is an <a class="reference internal" href="expr.html#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a>, then SELECT a subset of rows per the value of the Expr;</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">id_cond_table</span> <span class="o">=</span> <span class="n">tab</span><span class="p">[</span><span class="n">tab</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>if key is a slice, then SELECT a portion of consecutive rows</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">slice_table</span> <span class="o">=</span> <span class="n">tab</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="table.Table.rename">
+<span class="sig-name descname"><span class="pre">rename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></span><a class="headerlink" href="#table.Table.rename" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a copy of the <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> with a new name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name_as</strong> – str : Table’s new name</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a new Object Table named <strong>name_as</strong> with same content</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="table.Table.where">
+<span class="sig-name descname"><span class="pre">where</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></span><a class="headerlink" href="#table.Table.where" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> filtered by Expression.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>expr</strong> – <a class="reference internal" href="expr.html#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> : where condition statement</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Table filtered according <strong>expr</strong> passed in argument</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="table.Table.select">
+<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></span><a class="headerlink" href="#table.Table.select" title="Permalink to this definition"></a></dt>
+<dd><p>Returns <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> with list of targeted <a class="reference internal" href="expr.html#expr.Column" title="expr.Column"><code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>target_list</strong> – Iterable : list of targeted columns</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Table selected only with targeted columns</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="table.Table.extend">
+<span class="sig-name descname"><span class="pre">extend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></span><a class="headerlink" href="#table.Table.extend" title="Permalink to this definition"></a></dt>
+<dd><p>Extends the current <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> by including an extra value as a
+new <code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Name of the new column in the resulting <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a>.</p></li>
+<li><p><strong>value</strong> – Value of the new column, can be either an <code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code>,
+or any other type that can be adapted to a SQL type.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Table after extension</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Currently, value of type <code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code> whose result has more than
+one column is <strong>not supported</strong> even though no exception will
+be thrown in that case. Please <strong>don’t rely on this behavior</strong> as
+this will be fixed soon.</p>
+<p>Examples of this case include functions returning composite type
+objects, etc.</p>
+<p>This is because GreenplumPython have no knowledge on what columns
+are in a <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> or the result of an <code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code>. This
+issue will be fixed as soon as we implement column inference for
+GreenplumPython.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="table.Table.order_by">
+<span class="sig-name descname"><span class="pre">order_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ascending</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nulls_first</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">OrderedTable</span></span></span><a class="headerlink" href="#table.Table.order_by" title="Permalink to this definition"></a></dt>
+<dd><p>Returns <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> order by the given arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>order_col</strong> – <a class="reference internal" href="expr.html#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> : Column which used to order by the table</p></li>
+<li><p><strong>ascending</strong> – Optional[Bool]: Define ascending of order, True = ASC / False = DESC</p></li>
+<li><p><strong>nulls_first</strong> – Optional[bool]: Define if nulls will be ordered first or last, True = First / False = Last</p></li>
+<li><p><strong>operator</strong> – Optional[str]: Define order by using operator. <strong>Can’t combine with ascending.</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Table ordered by the given arguments</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="order.html#order.OrderedTable" title="order.OrderedTable">OrderedTable</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">t</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="table.Table.union">
+<span class="sig-name descname"><span class="pre">union</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_all</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#table.Table.union" title="Permalink to this definition"></a></dt>
+<dd><p>Returns self union other table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> – <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a>: table to use to do the union</p></li>
+<li><p><strong>is_all</strong> – bool: Define if it is a UNION ALL</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self union other</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="table.Table.inner_join">
+<span class="sig-name descname"><span class="pre">inner_join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Column</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#table.Table.inner_join" title="Permalink to this definition"></a></dt>
+<dd><p>Returns inner join of self and another <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> using condition, and only select targeted
+columns</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> – <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> : table to use to do the join</p></li>
+<li><p><strong>cond</strong> – <a class="reference internal" href="expr.html#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> : join on condition</p></li>
+<li><p><strong>targets</strong> – List : list of targeted columns for joined table</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>inner joined table</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
+</dd>
+</dl>
+<p>The result table can select all columns of both tables, or a selection of columns. User can
+also rename column_name to resolve conflicts</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ret</span> <span class="o">=</span> <span class="n">zoo_1</span><span class="o">.</span><span class="n">inner_join</span><span class="p">(</span><span class="n">zoo_2</span><span class="p">,</span>
+                       <span class="n">zoo_1</span><span class="p">[</span><span class="s2">&quot;animal1&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">zoo_2</span><span class="p">[</span><span class="s2">&quot;animal2&quot;</span><span class="p">],</span>
+                       <span class="n">targets</span><span class="o">=</span><span class="p">[</span>
+                         <span class="n">zoo_1</span><span class="p">[</span><span class="s2">&quot;animal1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;zoo1_animal&quot;</span><span class="p">),</span>
+                         <span class="n">zoo_2</span><span class="p">[</span><span class="s2">&quot;animal2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;zoo2_animal&quot;</span><span class="p">),</span>
+                       <span class="p">],</span>
+ <span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="table.Table.left_join">
+<span class="sig-name descname"><span class="pre">left_join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Column</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#table.Table.left_join" title="Permalink to this definition"></a></dt>
+<dd><p>Returns left join of self and another <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> using condition, and only select targeted
+columns</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> – <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> : table to use to do the join</p></li>
+<li><p><strong>cond</strong> – <a class="reference internal" href="expr.html#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> : join on condition</p></li>
+<li><p><strong>targets</strong> – List : list of targeted columns for joined table</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>left joined table</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
+</dd>
+</dl>
+<p>The result table can select all columns of both tables, or a selection of columns. User can
+also rename column_name to resolve conflicts</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ret</span> <span class="o">=</span> <span class="n">zoo_1</span><span class="o">.</span><span class="n">left_join</span><span class="p">(</span><span class="n">zoo_2</span><span class="p">,</span> <span class="n">zoo_1</span><span class="p">[</span><span class="s2">&quot;animal1&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">zoo_2</span><span class="p">[</span><span class="s2">&quot;animal2&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="table.Table.right_join">
+<span class="sig-name descname"><span class="pre">right_join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Column</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#table.Table.right_join" title="Permalink to this definition"></a></dt>
+<dd><p>Returns right join of self and another <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> using condition, and only select targeted
+columns</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> – <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> : table to use to do the join</p></li>
+<li><p><strong>cond</strong> – <a class="reference internal" href="expr.html#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> : join on condition</p></li>
+<li><p><strong>targets</strong> – List : list of targeted columns for joined table</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>right joined table</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
+</dd>
+</dl>
+<p>The result table can select all columns of both tables, or a selection of columns. User can
+also rename column_name to resolve conflicts</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ret</span> <span class="o">=</span> <span class="n">zoo_1</span><span class="o">.</span><span class="n">right_join</span><span class="p">(</span><span class="n">zoo_2</span><span class="p">,</span> <span class="n">zoo_1</span><span class="p">[</span><span class="s2">&quot;animal1&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">zoo_2</span><span class="p">[</span><span class="s2">&quot;animal2&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="table.Table.full_outer_join">
+<span class="sig-name descname"><span class="pre">full_outer_join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Column</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#table.Table.full_outer_join" title="Permalink to this definition"></a></dt>
+<dd><p>Returns full outer join of self and another <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> using condition, and only select targeted
+columns</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> – <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> : table to use to do the join</p></li>
+<li><p><strong>cond</strong> – <a class="reference internal" href="expr.html#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> : join on condition</p></li>
+<li><p><strong>targets</strong> – List : list of targeted columns for joined table</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>full outer joined table</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
+</dd>
+</dl>
+<p>The result table can select all columns of both tables, or a selection of columns. User can
+also rename column_name to resolve conflicts</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ret</span> <span class="o">=</span> <span class="n">zoo_1</span><span class="o">.</span><span class="n">full_join</span><span class="p">(</span><span class="n">zoo_2</span><span class="p">,</span> <span class="n">zoo_1</span><span class="p">[</span><span class="s2">&quot;animal1&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">zoo_2</span><span class="p">[</span><span class="s2">&quot;animal2&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="table.Table.natural_join">
+<span class="sig-name descname"><span class="pre">natural_join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Column</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#table.Table.natural_join" title="Permalink to this definition"></a></dt>
+<dd><p>Returns natural join of self and another <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a>, and only select targeted columns</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> – <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> : table to use to do the join</p></li>
+<li><p><strong>targets</strong> – List : list of targeted columns for joined table</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>natural joined table</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
+</dd>
+</dl>
+<p>The result table is an implicit join based on the same column names in the joined tables</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ret</span> <span class="o">=</span> <span class="n">categories</span><span class="o">.</span><span class="n">natural_join</span><span class="p">(</span><span class="n">products</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="table.Table.cross_join">
+<span class="sig-name descname"><span class="pre">cross_join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Column</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#table.Table.cross_join" title="Permalink to this definition"></a></dt>
+<dd><p>Returns cross join of self and another <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a>, and only select targeted columns</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> – <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> : table to use to do the join</p></li>
+<li><p><strong>targets</strong> – List : list of targeted columns for joined table</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>natural joined table</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
+</dd>
+</dl>
+<p>The result table can select all columns of both tables, or a selection of columns. User can
+also rename column_name to resolve conflicts</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ret</span> <span class="o">=</span> <span class="n">zoo_1</span><span class="o">.</span><span class="n">cross_join</span><span class="p">(</span><span class="n">zoo_2</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="table.Table.column_names">
+<span class="sig-name descname"><span class="pre">column_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></span><a class="headerlink" href="#table.Table.column_names" title="Permalink to this definition"></a></dt>
+<dd><p>Returns <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> contained column names of self. Need to do a fetch afterwards to get results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>table contained list of columns name of self</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="table.Table.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#table.Table.name" title="Permalink to this definition"></a></dt>
+<dd><p>Returns name of <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Table name</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="table.Table.db">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">db</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Database</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#table.Table.db" title="Permalink to this definition"></a></dt>
+<dd><p>Returns <a class="reference internal" href="db.html#db.Database" title="db.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a> associated with <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>database associated with table</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Optional[<a class="reference internal" href="db.html#db.Database" title="db.Database">Database</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="table.Table.columns">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">columns</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#table.Table.columns" title="Permalink to this definition"></a></dt>
+<dd><p>Returns its <a class="reference internal" href="expr.html#expr.Column" title="expr.Column"><code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code></a> name of <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a>, has results only for selected table and joined table with targets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None or List of its columns names of table</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Optional[Iterable[str]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="table.Table.fetch">
+<span class="sig-name descname"><span class="pre">fetch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_all</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#table.Table.fetch" title="Permalink to this definition"></a></dt>
+<dd><p>Fetch rows of this <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a>.
+- if is_all is True, fetch all rows at once
+- otherwise, open a CURSOR and FETCH one row at a time</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>is_all</strong> – bool: Define if fetch all rows at once</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>results of query received from database</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Iterable[Tuple[Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="table.Table.save_as">
+<span class="sig-name descname"><span class="pre">save_as</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></span><a class="headerlink" href="#table.Table.save_as" title="Permalink to this definition"></a></dt>
+<dd><p>Save the table to database as a real Greenplum Table</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table_name</strong> – str</p></li>
+<li><p><strong>temp</strong> – bool : if table is temporary</p></li>
+<li><p><strong>column_names</strong> – List : list of column names</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>table saved in database</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="table.Table.explain">
+<span class="sig-name descname"><span class="pre">explain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'TEXT'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#table.Table.explain" title="Permalink to this definition"></a></dt>
+<dd><p>Explained the table’s query</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>format</strong> – str: format of explain</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>EXPLAIN query answer</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Iterable[Tuple[str]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="table.Table.group_by">
+<span class="sig-name descname"><span class="pre">group_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">group_by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TableRowGroup</span></span></span><a class="headerlink" href="#table.Table.group_by" title="Permalink to this definition"></a></dt>
+<dd><p>Returns self group by the given list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>*group_by</strong> – <a class="reference internal" href="expr.html#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> : Set of columns which used to group by the table</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> grouped by the given list of <a class="reference internal" href="expr.html#expr.Column" title="expr.Column"><code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code></a></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="group.html#group.TableRowGroup" title="group.TableRowGroup">TableRowGroup</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="table.Table.apply">
+<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="func.html#func.FunctionExpr" title="func.FunctionExpr"><span class="pre">FunctionExpr</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="func.html#func.FunctionExpr" title="func.FunctionExpr"><span class="pre">FunctionExpr</span></a></span></span><a class="headerlink" href="#table.Table.apply" title="Permalink to this definition"></a></dt>
+<dd><p>Apply a function to the <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>func</strong> – Callable[[<a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a>], <a class="reference internal" href="func.html#func.FunctionExpr" title="func.FunctionExpr"><code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionExpr</span></code></a>]: a lambda function of a FunctionExpr</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a callable</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="func.html#func.FunctionExpr" title="func.FunctionExpr">FunctionExpr</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
+<span class="n">series</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="nb">abs</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;abs&quot;</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]))</span><span class="o">.</span><span class="n">to_table</span><span class="p">()</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If we want to give constant as attribute, it is also easy to use. Suppose <em>label</em> function
+takes a str and a int:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">label</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]))</span><span class="o">.</span><span class="n">to_table</span><span class="p">()</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="table.table">
+<span class="sig-prename descclassname"><span class="pre">table.</span></span><span class="sig-name descname"><span class="pre">table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Database</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></span><a class="headerlink" href="#table.table" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> using table name and associated <a class="reference internal" href="db.html#db.Database" title="db.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – str: Table name</p></li>
+<li><p><strong>db</strong> – <a class="reference internal" href="db.html#db.Database" title="db.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a>: database which contains the table</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="table.values">
+<span class="sig-prename descclassname"><span class="pre">table.</span></span><span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Database</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></span><a class="headerlink" href="#table.values" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> using list of values given</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rows</strong> – Iterable[Tuple[Any]]: List of values</p></li>
+<li><p><strong>db</strong> – <a class="reference internal" href="db.html#db.Database" title="db.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a>: database which will be associated with table</p></li>
+<li><p><strong>column_names</strong> – Iterable[str]: List of given column names</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>table generated with given values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
+</dd>
+</dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)]</span>
+ <span class="n">t</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="db.html" class="btn btn-neutral float-left" title="Database" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="expr.html" class="btn btn-neutral float-right" title="Expression" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, VMware.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
