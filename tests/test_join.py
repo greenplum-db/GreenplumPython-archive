@@ -190,12 +190,7 @@ def test_join_natural(db: gp.Database):
     categories = gp.values(rows1, db=db, column_names=["category_name", "category_id"])
     products = gp.values(rows2, db=db, column_names=["product_name", "category_id"])
 
-    ret = categories.join(
-        products,
-        using=["category_id"],
-        self_columns={"category_name", "category_id"},
-        other_columns={"product_name"},
-    ).fetch()
+    ret = categories.natural_join(products).fetch()
     assert len(list(ret)) == 6
     row = next(iter(ret))
     for col in ["category_id", "category_name", "product_name"]:
@@ -251,7 +246,7 @@ def test_table_join_save(db: gp.Database, zoo_1: gp.Table):
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
         other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
     )
-    t_join.save_as("table_join")
+    t_join.save_as("table_join", temp=True)
     t_join_reload = gp.table("table_join", db=db)
     ret = t_join_reload.fetch()
     row = next(iter(ret))
@@ -264,8 +259,8 @@ def test_table_join_save(db: gp.Database, zoo_1: gp.Table):
 def test_table_join_ine(db: gp.Database):
     rows1 = [(1,), (2,), (3,)]
     rows2 = [(2,), (3,), (4,)]
-    t1 = gp.values(rows1, db=db).save_as("temp1", temp=True, column_names=["a"])
-    t2 = gp.values(rows2, db=db).save_as("temp2", temp=True, column_names=["b"])
+    t1 = gp.values(rows1, db=db, column_names=["a"])
+    t2 = gp.values(rows2, db=db, column_names=["b"])
     ret = t1.join(t2, cond=t1["a"] < t2["b"], self_columns={"a"}, other_columns={"b"}).fetch()
     assert len(list(ret)) == 6
     for row in list(ret):

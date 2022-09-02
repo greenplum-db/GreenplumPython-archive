@@ -103,7 +103,7 @@ def test_expr_bin_and(db: gp.Database, table_num: gp.Table):
 
 def test_expr_bin_or(db: gp.Database):
     rows = [(1,), (2,), (3,), (-2,)]
-    t = gp.values(rows, db=db).save_as("temp4", column_names=["id"], temp=True)
+    t = gp.values(rows, db=db, column_names=["id"])
     b = (t["id"] >= 3) | (t["id"] < 0)
     ret = t[b].fetch()
     assert len(list(ret)) == 2
@@ -113,7 +113,7 @@ def test_expr_bin_or(db: gp.Database):
 
 def test_table_like(db: gp.Database):
     rows = [("aaa",), ("bba",), ("acac",)]
-    t = gp.values(rows, db=db).save_as("temp1", column_names=["id"], temp=True)
+    t = gp.values(rows, db=db, column_names=["id"])
     result = t[t["id"].like(r"a%")].fetch()
     assert len(list(result)) == 2
     result = t[t["id"].like(r"%a")].fetch()
@@ -124,3 +124,60 @@ def test_table_like(db: gp.Database):
     assert len(list(result)) == 1
     result = t[t["id"].like(r"_a%")].fetch()
     assert len(list(result)) == 1
+
+
+def test_table_add(db: gp.Database):
+    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    results = nums.extend("add", nums["num"] + 1)
+
+    for row in results.fetch():
+        assert row["num"] + 1 == row["add"]
+
+
+def test_table_sub(db: gp.Database):
+    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    results = nums.extend("sub", nums["num"] - 1)
+
+    for row in results.fetch():
+        assert row["num"] - 1 == row["sub"]
+
+
+def test_table_mul(db: gp.Database):
+    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    results = nums.extend("mul", nums["num"] * nums["num"])
+
+    for row in results.fetch():
+        assert row["num"] ** 2 == row["mul"]
+
+
+def test_table_true_div(db: gp.Database):
+    nums = gp.values([(i,) for i in range(1, 10)], db, column_names=["num"])
+    results = nums.extend("div", nums["num"] / nums["num"])
+
+    for row in results.fetch():
+        assert row["div"] == 1
+
+
+def test_table_true_div_integers(db: gp.Database):
+    nums = gp.values([(i,) for i in range(4, 5)], db, column_names=["num"])
+    results = nums.extend("div", nums["num"] / 2)
+
+    for row in results.fetch():
+        assert row["div"] == 2
+
+
+def test_table_true_div_integer_float(db: gp.Database):
+    nums = gp.values([(i,) for i in range(5, 8, 2)], db, column_names=["num"])
+    float_type = gp.get_type("float", db)
+    results = nums.extend("div", float_type(nums["num"]) / 2)
+
+    for row in results.fetch():
+        assert row["div"] == 2.5 or row["div"] == 3.5
+
+
+def test_table_true_div_zero(db: gp.Database):
+    nums = gp.values([(i,) for i in range(5)], db, column_names=["num"])
+    with pytest.raises(Exception) as exc_info:
+        nums.extend("div", nums["num"] / nums["num"]).fetch()
+
+    assert "division by zero\n" == str(exc_info.value)

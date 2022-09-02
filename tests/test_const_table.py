@@ -9,17 +9,13 @@ from tests import db
 @pytest.fixture
 def t(db: gp.Database):
     generate_series = gp.function("generate_series")
-    t = (
-        generate_series(0, 9, as_name="id", db=db)
-        .to_table()
-        .save_as("temp_table", temp=True, column_names=["id"])
-    )
+    t = generate_series(0, 9, as_name="id", db=db).to_table()
     return t
 
 
 def test_const_table(db: gp.Database):
     rows = [(1,), (2,), (3,)]
-    t = gp.values(rows, db=db)
+    t = gp.values(rows, db=db, column_names=["id"])
     t = t.save_as("const_table", column_names=["id"], temp=True)
     assert sorted([tuple(row.values()) for row in t.fetch()]) == sorted(rows)
 
@@ -31,8 +27,7 @@ def test_const_table(db: gp.Database):
 
 def test_table_getitem_str(db: gp.Database):
     rows = [(1,), (2,), (3,)]
-    t = gp.values(rows, db=db)
-    t = t.save_as("const_table", temp=True, column_names=["id"])
+    t = gp.values(rows, db=db, column_names=["id"])
     c = t["id"]
     assert str(c) == (t.name + ".id")
 
@@ -41,8 +36,7 @@ def test_table_getitem_sub_columns(db: gp.Database):
     # fmt: off
     rows = [(1, 2,), (1, 3,), (2, 2,), (3, 1,), (3, 4,)]
     # fmt: on
-    t = gp.values(rows, db=db)
-    t = t.save_as("const_table", temp=True, column_names=["id", "num"])
+    t = gp.values(rows, db=db, column_names=["id", "num"])
     t_sub = t[["id", "num"]]
     for row in t_sub.fetch():
         assert "id" in row and "num" in row
@@ -67,7 +61,7 @@ def test_table_display_repr(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
-    t = gp.values(rows, db=db).save_as("zoo1", column_names=["id", "animal"])
+    t = gp.values(rows, db=db, column_names=["id", "animal"])
     expected = (
         "| id         || animal     |\n"
         "============================\n"
@@ -83,7 +77,7 @@ def test_table_display_repr_long_content(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tigerrrrrrrrrrrr",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
-    t = gp.values(rows, db=db).save_as("zoo1", column_names=["iddddddddddddddddddd", "animal"])
+    t = gp.values(rows, db=db, column_names=["iddddddddddddddddddd", "animal"])
     expected = (
         "| iddddddddddddddddddd || animal     |\n"
         "============================\n"
@@ -99,7 +93,7 @@ def test_table_display_repr_html(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
-    t = gp.values(rows, db=db).save_as("zoo1", column_names=["id", "animal"])
+    t = gp.values(rows, db=db, column_names=["id", "animal"])
     expected = (
         "<table>\n"
         "\t<tr>\n"

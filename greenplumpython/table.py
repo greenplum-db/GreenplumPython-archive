@@ -291,32 +291,6 @@ class Table:
             [operator],
         )
 
-    def union(
-        self,
-        other: "Table",
-        is_all: bool = False,
-    ):
-        """
-        Unions the current :class:`Table` with another :class:`Table`
-
-        Args:
-            other: :class:`Table`: table to use to do the union
-            is_all: bool: Define if it is a UNION ALL
-
-        Returns:
-            Table: a new :class:`Table` containing all the rows of the both :class:`Table`s
-        """
-        return Table(
-            f"""
-                SELECT *
-                FROM {self.name} 
-                UNION {"ALL" if is_all else ""}
-                SELECT *
-                FROM {other.name}
-            """,
-            parents=[self, other],
-        )
-
     def join(
         self,
         other: "Table",
