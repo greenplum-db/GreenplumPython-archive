@@ -43,7 +43,7 @@ def test_expr_bin_equal_2expr(db: gp.Database):
     b4 = t1["id"] == t2["id"]
     assert str(b4) == str(gp.expr.BinaryExpr("=", t1["id"], t2["id"]))
     assert str(b4) == "(temp4.id = temp5.id)"
-    ret = t1.inner_join(t2, t1["id"] == t2["id"]).fetch()
+    ret = t1.join(t2, using=["id"]).fetch()
     assert len(list(ret)) == 3
 
 

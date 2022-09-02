@@ -87,7 +87,7 @@ class Expr:
         """
         return BinaryExpr("<", self, other)
 
-    def __le__(self, other: "Expr") -> "Expr":
+    def __le__(self, other: Any) -> "Expr":
         """
         Operator **<=**
 

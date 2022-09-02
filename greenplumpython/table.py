@@ -9,11 +9,12 @@ user calling `fetch()` function.
 All modifications made by users are only saved to the database when calling the `save_as()`
 function.
 """
-from functools import singledispatchmethod
+from functools import partialmethod, singledispatchmethod
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Dict,
     Iterable,
     List,
     Optional,
@@ -296,14 +297,14 @@ class Table:
         is_all: bool = False,
     ):
         """
-        Returns self union other table.
+        Unions the current :class:`Table` with another :class:`Table`
 
         Args:
             other: :class:`Table`: table to use to do the union
             is_all: bool: Define if it is a UNION ALL
 
         Returns:
-            Table: self union other
+            Table: a new :class:`Table` containing all the rows of the both :class:`Table`s
         """
         return Table(
             f"""
@@ -316,219 +317,112 @@ class Table:
             parents=[self, other],
         )
 
-    def _join(
+    def join(
         self,
         other: "Table",
-        targets: List["Column"],
-        how: str,
-        on_str: str,
+        how: str = "",
+        cond: Optional[Expr] = None,
+        using: Optional[Iterable[str]] = None,
+        self_columns: Union[Dict[str, Optional[str]], Set[str]] = {},
+        other_columns: Union[Dict[str, Optional[str]], Set[str]] = {},
     ) -> "Table":
         """
-        Private function returns table results by joining two :class:`Table`
+        Joins the current :class:`Table` with another :class:`Table`.
+
+        Args:
+            other: :class:`Table` to join with
+            how: How the two tables are joined. The value can be one of
+                - `"INNER"`: inner join,
+                - `"LEFT"`: left outer join,
+                - `"LEFT"`: right outer join,
+                - `"FULL"`: full outer join, or
+                - `"CROSS"`: cross join, i.e. the Cartesian product
+                The default value `""` is equivalent to "INNER".
+
+            cond: :class:`Expr` as the join condition
+            using: a list of column names that exist in both tables to join on.
+                `cond` and `using` cannot be used together.
+            self_columns: A :class:`dict` whose keys are the column names of
+                the current table to be included in the resulting
+                table. The value, if not `None`, is used for renaming
+                the corresponding key to avoid name conflicts. Asterisk `"*"`
+                can be used as a key to indicate all columns.
+            other_columns: Same as `self_columns`, but for the `other`
+                table.
+
+        Note:
+            When using `"*"` as key in `self_columns` or `other_columns`,
+            please ensure that there will not be more than one column with the
+            same name by applying proper renaming. Otherwise there will be an
+            error.
         """
         # FIXME : Raise Error if target columns don't exist
-        # FIXME : Same column name in both table
-        target_str_list = [str(target) for target in targets]
-        select_str = ",".join(target_str_list) if targets != [] else "*"
+        assert how.upper() in [
+            "",
+            "INNER",
+            "LEFT",
+            "RIGHT",
+            "FULL",
+            "CROSS",
+        ], "Unsupported join type"
+        assert cond is None or using is None, 'Cannot specify "cond" and "using" together'
+
+        def to_target_list(
+            t: Table, columns: Union[Dict[str, Optional[str]], Set[str]]
+        ) -> List[str]:
+            target_list: List[str] = []
+            for k in columns:
+                col: Column = t[k]
+                v = columns[k] if isinstance(columns, dict) else None
+                target_list.append(col.serialize() + (f" AS {v}" if v is not None else ""))
+            return target_list
+
+        target_list = to_target_list(self, self_columns) + to_target_list(other, other_columns)
+        on_clause = f"ON {cond.serialize()}" if cond is not None else ""
+        using_clause = f"USING ({','.join(using)})" if using is not None else ""
         return Table(
             f"""
-                SELECT {select_str} 
-                FROM {self.name} {how} {other.name}
-                {str(on_str)}  
+                SELECT {",".join(target_list)}
+                FROM {self.name} {how} JOIN {other.name} {on_clause} {using_clause}
             """,
             parents=[self, other],
         )
 
-    def inner_join(
-        self,
-        other: "Table",
-        cond: "Expr",
-        targets: List["Column"] = [],
-    ):
-        """
-        Returns inner join of self and another :class:`Table` using condition, and only select targeted
-        columns
+    inner_join = partialmethod(join, how="INNER")
+    """
+    Inner joins the current :class:`Table` with another :class:`Table`.
 
-        Args:
-            other: :class:`Table` : table to use to do the join
-            cond: :class:`~expr.Expr` : join on condition
-            targets : List : list of targeted columns for joined table
+    Equivalent to calling :meth:`Table.join` with `how="INNER"`.
+    """
 
-        Returns:
-            Table : inner joined table
+    left_join = partialmethod(join, how="LEFT")
+    """
+    Left-outer joins the current :class:`Table` with another :class:`Table`.
 
-        The result table can select all columns of both tables, or a selection of columns. User can
-        also rename column_name to resolve conflicts
+    Equivalent to calling :meth:`Table.join` with `how="LEFT"`.
+    """
 
-        .. code-block::  python
+    right_join = partialmethod(join, how="RIGHT")
+    """
+    Right-outer joins the current :class:`Table` with another :class:`Table`.
 
-           ret = zoo_1.inner_join(zoo_2,
-                                  zoo_1["animal1"] == zoo_2["animal2"],
-                                  targets=[
-                                    zoo_1["animal1"].rename("zoo1_animal"),
-                                    zoo_2["animal2"].rename("zoo2_animal"),
-                                  ],
-            )
+    Equivalent to calling :meth:`Table.join` with `how="RIGHT"`.
+    """
 
-        """
-        on_str = " ".join(["ON", str(cond)])
-        return self._join(other, targets, "INNER JOIN", on_str)
+    full_join = partialmethod(join, how="FULL")
+    """
+    Full-outer joins the current :class:`Table` with another :class:`Table`.
 
-    def left_join(
-        self,
-        other: "Table",
-        cond: "Expr",
-        targets: List["Column"] = [],
-    ):
-        """
-        Returns left join of self and another :class:`Table` using condition, and only select targeted
-        columns
+    Equivalent to calling :meth:`Table.join` with argutment `how="FULL"`.
+    """
 
-        Args:
-            other: :class:`Table` : table to use to do the join
-            cond: :class:`~expr.Expr` : join on condition
-            targets : List : list of targeted columns for joined table
+    cross_join = partialmethod(join, how="CROSS", cond=None, using=None)
+    """
+    Cross joins the current :class:`Table` with another :class:`Table`,
+    i.e. the Cartesian product.
 
-        Returns:
-            Table : left joined table
-
-        The result table can select all columns of both tables, or a selection of columns. User can
-        also rename column_name to resolve conflicts
-
-        .. code-block::  python
-
-           ret = zoo_1.left_join(zoo_2, zoo_1["animal1"] == zoo_2["animal2"])
-
-        """
-        on_str = " ".join(["ON", str(cond)])
-        return self._join(other, targets, "LEFT JOIN", on_str)
-
-    def right_join(
-        self,
-        other: "Table",
-        cond: "Expr",
-        targets: List["Column"] = [],
-    ):
-        """
-        Returns right join of self and another :class:`Table` using condition, and only select targeted
-        columns
-
-        Args:
-            other: :class:`Table` : table to use to do the join
-            cond: :class:`~expr.Expr` : join on condition
-            targets : List : list of targeted columns for joined table
-
-        Returns:
-            Table : right joined table
-
-        The result table can select all columns of both tables, or a selection of columns. User can
-        also rename column_name to resolve conflicts
-
-        .. code-block::  python
-
-           ret = zoo_1.right_join(zoo_2, zoo_1["animal1"] == zoo_2["animal2"])
-
-        """
-        on_str = " ".join(["ON", str(cond)])
-        return self._join(other, targets, "RIGHT JOIN", on_str)
-
-    def full_outer_join(
-        self,
-        other: "Table",
-        cond: "Expr",
-        targets: List["Column"] = [],
-    ):
-        """
-        Returns full outer join of self and another :class:`Table` using condition, and only select targeted
-        columns
-
-        Args:
-            other: :class:`Table` : table to use to do the join
-            cond: :class:`~expr.Expr` : join on condition
-            targets : List : list of targeted columns for joined table
-
-        Returns:
-            Table : full outer joined table
-
-        The result table can select all columns of both tables, or a selection of columns. User can
-        also rename column_name to resolve conflicts
-
-        .. code-block::  python
-
-           ret = zoo_1.full_join(zoo_2, zoo_1["animal1"] == zoo_2["animal2"])
-
-        """
-        on_str = " ".join(["ON", str(cond)])
-        return self._join(other, targets, "FULL JOIN", on_str)
-
-    def natural_join(
-        self,
-        other: "Table",
-        targets: List["Column"] = [],
-    ):
-        """
-        Returns natural join of self and another :class:`Table`, and only select targeted columns
-
-        Args:
-            other: :class:`Table` : table to use to do the join
-            targets : List : list of targeted columns for joined table
-
-        Returns:
-            Table : natural joined table
-
-        The result table is an implicit join based on the same column names in the joined tables
-
-        .. code-block::  python
-
-           ret = categories.natural_join(products)
-
-        """
-        on_str = ""
-        return self._join(other, targets, "NATURAL JOIN", on_str)
-
-    def cross_join(
-        self,
-        other: "Table",
-        targets: List["Column"] = [],
-    ):
-        """
-        Returns cross join of self and another :class:`Table`, and only select targeted columns
-
-        Args:
-            other: :class:`Table` : table to use to do the join
-            targets : List : list of targeted columns for joined table
-
-        Returns:
-            Table : natural joined table
-
-        The result table can select all columns of both tables, or a selection of columns. User can
-        also rename column_name to resolve conflicts
-
-        .. code-block::  python
-
-           ret = zoo_1.cross_join(zoo_2)
-
-        """
-        on_str = ""
-        return self._join(other, targets, "CROSS JOIN", on_str)
-
-    def column_names(self) -> "Table":
-        """
-        Returns :class:`Table` contained column names of self. Need to do a fetch afterwards to get results.
-
-        Returns:
-            Table: table contained list of columns name of self
-        """
-        if any(self._parents):
-            raise NotImplementedError()
-        return Table(
-            f"""
-                SELECT column_name
-                FROM information_schema.columns 
-                WHERE table_name = quote_ident('{self._name}')
-            """,
-            db=self._db,
-        )
+    Equivalent to calling :meth:`Table.join` with `how="CROSS"`.
+    """
 
     @property
     def name(self) -> str:
@@ -550,8 +444,26 @@ class Table:
         """
         return self._db
 
+    def column_names(self) -> "Table":
+        """
+        Returns :class:`Table` contained column names of self. Need to do a fetch afterwards to get results.
+
+        Returns:
+            Table: table contained list of columns name of self
+        """
+        if any(self._parents):
+            raise NotImplementedError()
+        return Table(
+            f"""
+                SELECT column_name
+                FROM information_schema.columns 
+                WHERE table_name = quote_ident('{self._name}')
+            """,
+            db=self._db,
+        )
+
     @property
-    def columns(self) -> Optional[Iterable[str]]:
+    def columns(self) -> Optional[Iterable[Column]]:
         """
         Returns its :class:`~expr.Column` name of :class:`Table`, has results only for selected table and joined table with targets.
 
