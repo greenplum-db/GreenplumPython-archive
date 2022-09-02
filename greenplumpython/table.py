@@ -148,30 +148,33 @@ class Table:
         # FIXME : adjust columns width depending on the number of characters
         repr_string = ""
         ret = list(self.fetch())
-        repr_string += (("| {:10} |" * len(ret[0])).format(*ret[0])) + "\n"
-        repr_string += ("=" * 14 * len(ret[0])) + "\n"
-        for row in ret:
-            content = [row[c] for c in row]
-            for c in content:
-                if isinstance(c, list):
-                    repr_string += ("| {:10} |").format("{}".format(c))  # type: ignore
-                else:
-                    repr_string += ("| {:10} |").format(c)
-            repr_string += "\n"
+        if len(ret) != 0:
+            repr_string += (("| {:10} |" * len(ret[0])).format(*ret[0])) + "\n"
+            repr_string += ("=" * 14 * len(ret[0])) + "\n"
+            for row in ret:
+                content = [row[c] for c in row]
+                for c in content:
+                    if isinstance(c, list):
+                        repr_string += ("| {:10} |").format("{}".format(c))  # type: ignore
+                    else:
+                        repr_string += ("| {:10} |").format(c)
+                repr_string += "\n"
         return repr_string
 
     def _repr_html_(self):
         ret = list(self.fetch())
-        repr_html_str = "<table>\n"
-        repr_html_str += "\t<tr>\n"
-        repr_html_str += ("\t\t<th>{:}</th>\n" * len(ret[0])).format(*ret[0])
-        repr_html_str += "\t</tr>\n"
-        for row in ret:
+        repr_html_str = ""
+        if len(ret) != 0:
+            repr_html_str = "<table>\n"
             repr_html_str += "\t<tr>\n"
-            content = [row[c] for c in row]
-            repr_html_str += ("\t\t<td>{:}</td>\n" * len(row)).format(*content)
+            repr_html_str += ("\t\t<th>{:}</th>\n" * len(ret[0])).format(*ret[0])
             repr_html_str += "\t</tr>\n"
-        repr_html_str += "</table>"
+            for row in ret:
+                repr_html_str += "\t<tr>\n"
+                content = [row[c] for c in row]
+                repr_html_str += ("\t\t<td>{:}</td>\n" * len(row)).format(*content)
+                repr_html_str += "\t</tr>\n"
+            repr_html_str += "</table>"
         return repr_html_str
 
     def rename(self, name: str) -> "Table":

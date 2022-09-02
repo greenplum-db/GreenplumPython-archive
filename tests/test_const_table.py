@@ -121,6 +121,15 @@ def test_table_display_repr_html(db: gp.Database):
     assert (t.order_by(t["id"]).head(4)._repr_html_()) == expected
 
 
+def test_table_display_repr_empty_result(db: gp.Database):
+    # fmt: off
+    rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
+    # fmt: on
+    t = gp.values(rows, db=db, column_names=["id", "animal"])
+    assert str(t[t["id"] == 0]) == ""
+    assert (t[t["id"] == 0]._repr_html_()) == ""
+
+
 def test_table_extend_const(db: gp.Database):
     nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
     results = nums.extend("x", "hello").fetch()
