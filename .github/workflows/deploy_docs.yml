@@ -67,4 +67,5 @@ jobs:
             echo "No changes to deploy"
             exit 0
           fi
-
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAGE_TOKEN }}
