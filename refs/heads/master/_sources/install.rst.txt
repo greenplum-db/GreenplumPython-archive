@@ -5,7 +5,7 @@ You can install latest release of the **GreenplumPython** library with pip3:
 
 .. code-block:: bash
 
-    pip3 install greenplumpython
+    pip3 install greenplum-python
 
 To install the latest development version, do
 
