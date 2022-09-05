@@ -29,8 +29,8 @@ def zoo_1(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
-    t = gp.values(rows, db=db).save_as("zoo1", column_names=["id", "animal"])
-    return gp.table("zoo1", db)
+    t = gp.values(rows, db=db, column_names=["id", "animal"])
+    return t
 
 
 @pytest.fixture
@@ -38,8 +38,8 @@ def zoo_2(db: gp.Database):
     # fmt: off
     rows = [(1, "Tiger",), (2, "Lion",), (3, "Rhino",), (4, "Panther")]
     # fmt: on
-    t = gp.values(rows, db=db).save_as("zoo2", column_names=["id", "animal"])
-    return gp.table("zoo2", db)
+    t = gp.values(rows, db=db, column_names=["id", "animal"])
+    return t
 
 
 def test_join_both_all_targets(db: gp.Database, t1: gp.Table, t2: gp.Table):
@@ -199,12 +199,8 @@ def test_table_natural_join(db: gp.Database):
     rows2 = [("iPhone", 1,), ("Samsung Galaxy", 1,), ("HP Elite", 2,),
              ("Lenovo Thinkpad", 2,), ("iPad", 3,), ("Kindle Fire", 3)]
     # fmt: on
-    categories = gp.values(rows1, db=db).save_as(
-        "categories", temp=True, column_names=["category_name", "category_id"]
-    )
-    products = gp.values(rows2, db=db).save_as(
-        "products", temp=True, column_names=["product_name", "category_id"]
-    )
+    categories = gp.values(rows1, db=db, column_names=["category_name", "category_id"])
+    products = gp.values(rows2, db=db, column_names=["product_name", "category_id"])
 
     ret = categories.natural_join(products).fetch()
     assert len(list(ret)) == 6
@@ -271,7 +267,7 @@ def test_table_join_save(db: gp.Database, zoo_1: gp.Table):
             zoo_2["animal"].rename("zoo2_animal"),
         ],
     )
-    t_join.save_as("table_join")
+    t_join.save_as("table_join", temp=True)
     t_join_reload = gp.table("table_join", db=db)
     ret = t_join_reload.fetch()
     assert len(list(list(ret)[0].keys())) == 4
@@ -283,8 +279,8 @@ def test_table_join_save(db: gp.Database, zoo_1: gp.Table):
 def test_table_join_ine(db: gp.Database):
     rows1 = [(1,), (2,), (3,)]
     rows2 = [(2,), (3,), (4,)]
-    t1 = gp.values(rows1, db=db).save_as("temp1", temp=True, column_names=["a"])
-    t2 = gp.values(rows2, db=db).save_as("temp2", temp=True, column_names=["b"])
+    t1 = gp.values(rows1, db=db, column_names=["a"])
+    t2 = gp.values(rows2, db=db, column_names=["b"])
     ret = t1.inner_join(t2, t1["a"] < t2["b"]).fetch()
     assert len(list(ret)) == 6
     for row in list(ret):

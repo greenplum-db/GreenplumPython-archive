@@ -14,6 +14,8 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath("../../greenplumpython"))
+with open("../../greenplumpython/VERSION") as f:
+    release_version = list(f.readlines())[0]
 
 # -- Project information -----------------------------------------------------
 
@@ -21,8 +23,9 @@ project = "GreenplumPython"
 copyright = "2022, VMware"
 author = "VMware"
 
+
 # The full version, including alpha/beta/rc tags
-release = "Beta 2.0"
+release = release_version
 
 
 # -- General configuration ---------------------------------------------------

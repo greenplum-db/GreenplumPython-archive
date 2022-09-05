@@ -18,6 +18,7 @@ class Database:
             " ".join([f"{k}={v}" for k, v in params.items()]),
             cursor_factory=psycopg2.extras.RealDictCursor,
         )
+        self._conn.set_session(autocommit=True)
 
     def execute(self, query: str, has_results: bool = True) -> Optional[Iterable[Tuple[Any]]]:
         """

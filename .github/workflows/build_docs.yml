@@ -1,0 +1,44 @@
+name: Build Docs
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ master ]
+  push:
+    branches:
+      - master
+    tags:
+        - "*"
+
+jobs:
+  build:
+    name: Build Docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+  
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y libpq-dev pandoc
+
+      - name: Install python dependencies
+        run:  |
+          python -m pip install --upgrade pip
+          pip install tox==3.25.0
+  
+      - name: Build the docs
+        run: |
+          export TAG_REF=${{ github.ref }}
+          tox -e docs
+      - name: Save ref
+        run: echo "${{ github.ref }}" >> doc/build/ref.txt
+
+      - name: Save docs artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: doc
+          path: doc/build/*

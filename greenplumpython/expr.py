@@ -32,11 +32,11 @@ class Expr:
         self._table = table
         self._db = table.db if table is not None else db
 
-    def __and__(self, other: "Expr") -> "Expr":
+    def __and__(self, other: Any) -> "Expr":
         """
         Operator **&**
 
-        Returns a Binary Expression AND between self and another :class:`Expr`
+        Returns a Binary Expression AND between self and another :class:`Expr` or constant
 
         Example:
             .. code-block::  Python
@@ -46,11 +46,11 @@ class Expr:
         """
         return BinaryExpr("AND", self, other)
 
-    def __or__(self, other: "Expr") -> "Expr":
+    def __or__(self, other: Any) -> "Expr":
         """
         Operator **|**
 
-        Returns a Binary Expression OR between self and another :class:`Expr`
+        Returns a Binary Expression OR between self and another :class:`Expr` or constant
 
         Example:
             .. code-block::  Python
@@ -59,11 +59,11 @@ class Expr:
         """
         return BinaryExpr("OR", self, other)
 
-    def __eq__(self, other: "Expr") -> "Expr":
+    def __eq__(self, other: Any) -> "Expr":
         """
         Operator **==**
 
-        Returns a Binary Expression EQUAL between self and another :class:`Expr`
+        Returns a Binary Expression EQUAL between self and another :class:`Expr` or constant
 
         Example:
             .. code-block::  Python
@@ -74,11 +74,11 @@ class Expr:
             return BinaryExpr("is", self, other)
         return BinaryExpr("=", self, other)
 
-    def __lt__(self, other: "Expr") -> "Expr":
+    def __lt__(self, other: Any) -> "Expr":
         """
         Operator **<**
 
-        Returns a Binary Expression LESS THAN between self and another :class:`Expr`
+        Returns a Binary Expression LESS THAN between self and another :class:`Expr` or constant
 
         Example:
             .. code-block::  Python
@@ -87,11 +87,11 @@ class Expr:
         """
         return BinaryExpr("<", self, other)
 
-    def __le__(self, other: "Expr") -> "Expr":
+    def __le__(self, other: Any) -> "Expr":
         """
         Operator **<=**
 
-        Returns a Binary Expression LESS EQUAL between self and another :class:`Expr`
+        Returns a Binary Expression LESS EQUAL between self and another :class:`Expr` or constant
 
         Example:
             .. code-block::  Python
@@ -100,11 +100,11 @@ class Expr:
         """
         return BinaryExpr("<=", self, other)
 
-    def __gt__(self, other: "Expr") -> "Expr":
+    def __gt__(self, other: Any) -> "Expr":
         """
         Operator **>**
 
-        Returns a Binary Expression GREATER THAN between self and another :class:`Expr`
+        Returns a Binary Expression GREATER THAN between self and another :class:`Expr` or constant
 
         Example:
             .. code-block::  Python
@@ -113,11 +113,11 @@ class Expr:
         """
         return BinaryExpr(">", self, other)
 
-    def __ge__(self, other: "Expr") -> "Expr":
+    def __ge__(self, other: Any) -> "Expr":
         """
         Operator **>=**
 
-        Returns a Binary Expression GREATER EQUAL between self and another :class:`Expr`
+        Returns a Binary Expression GREATER EQUAL between self and another :class:`Expr` or constant
 
         Example:
             .. code-block::  Python
@@ -126,11 +126,11 @@ class Expr:
         """
         return BinaryExpr(">=", self, other)
 
-    def __ne__(self, other: "Expr") -> "Expr":
+    def __ne__(self, other: Any) -> "Expr":
         """
         Operator **!=**
 
-        Returns a Binary Expression NOT EQUAL between self and another :class:`Expr`
+        Returns a Binary Expression NOT EQUAL between self and another :class:`Expr` or constant
 
         Example:
             .. code-block::  Python
@@ -139,11 +139,11 @@ class Expr:
         """
         return BinaryExpr("!=", self, other)
 
-    def __mod__(self, other: Union[int, "Expr"]) -> "Expr":
+    def __mod__(self, other: Any) -> "Expr":
         """
         Operator **%**
 
-        Returns a Binary Expression Modulo between an :class:`Expr` and an integer or an :class:`Expr`
+        Returns a Binary Expression Modulo between an :class:`Expr` and another :class:`Expr` or constant
 
         Example:
             .. code-block::  Python
@@ -151,6 +151,59 @@ class Expr:
                 t["val"] % 2
         """
         return BinaryExpr("%", self, other)
+
+    def __add__(self, other: Any) -> "Expr":
+        """
+        Operator **+**
+
+        Returns a Binary Expression Addition between an :class:`Expr` and another :class:`Expr` or constant
+
+        Example:
+            .. code-block::  Python
+
+                t["val"] + 2
+        """
+        return BinaryExpr("+", self, other)
+
+    def __sub__(self, other: Any) -> "Expr":
+        """
+        Operator **-**
+
+        Returns a Binary Expression Subtraction between an :class:`Expr` and another :class:`Expr` or constant
+
+        Example:
+            .. code-block::  Python
+
+                t["val"] - 2
+        """
+        return BinaryExpr("-", self, other)
+
+    def __mul__(self, other: Any) -> "Expr":
+        """
+        Operator *****
+
+        Returns a Binary Expression Multiplication between an :class:`Expr` and another :class:`Expr` or constant
+
+        Example:
+            .. code-block::  Python
+
+                t["val"] * 2
+        """
+        return BinaryExpr("*", self, other)
+
+    def __truediv__(self, other: Any) -> "Expr":
+        """
+        Operator **/**
+
+        Returns a Binary Expression Division between an :class:`Expr` and another :class:`Expr` or constant.
+        It results integer division between two integers, and true division if one of the arguments is a float.
+
+        Example:
+            .. code-block::  Python
+
+                t["val"] / 2
+        """
+        return BinaryExpr("/", self, other)
 
     def __pos__(self) -> "Expr":
         """

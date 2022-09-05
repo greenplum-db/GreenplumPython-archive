@@ -271,8 +271,29 @@ def test_array_func_group_by(db: gp.Database):
         .fetch()
     )
     assert len(results) == 2
+    assert list(list(results)[0].keys()) == ["result", "is_even"]
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["result"] == 5)
+
+
+def test_array_func_group_by_return_comp(db: gp.Database):
+    class array_sum:
+        _sum: int
+        _count: int
+
+    @gp.create_array_function
+    def my_count_sum(val_list: List[int]) -> array_sum:
+        return {"_sum": sum(val_list), "_count": len(val_list)}
+
+    # fmt: off
+    rows = [(1, "a",), (1, "a",), (1, "b",), (1, "a",), (1, "b",), (1, "b",)]
+    # fmt: on
+    numbers = gp.values(rows, db=db, column_names=["val", "lab"])
+    ret = my_count_sum(numbers["val"], group_by=numbers.group_by("lab")).to_table().fetch()
+    assert list(list(ret)[0].keys()) == ["_sum", "_count", "lab"]
+    for row in list(ret):
+        assert row["_sum"] == 3
+        assert row["_count"] == 3
 
 
 def test_array_func_replace(db: gp.Database):
@@ -404,8 +425,8 @@ def test_func_apply_auto_column_mapping_join(db: gp.Database):
     rows1 = [(1, "a1",), (2, "a2",), (3, "a3",)]
     rows2 = [(1, "b1",), (2, "b2",), (3, "b3",)]
     # fmt: on
-    t1 = gp.values(rows1, db=db).save_as("temp1", temp=True, column_names=["id1", "n1"])
-    t2 = gp.values(rows2, db=db).save_as("temp2", temp=True, column_names=["id2", "n2"])
+    t1 = gp.values(rows1, db=db, column_names=["id1", "n1"])
+    t2 = gp.values(rows2, db=db, column_names=["id2", "n2"])
     ret = t1.inner_join(
         t2,
         t1["id1"] == t2["id2"],
@@ -415,3 +436,81 @@ def test_func_apply_auto_column_mapping_join(db: gp.Database):
     for row in list(result):
         assert row["label"][1:3] == ":b"
         assert row["label"][0] == row["label"][3]
+
+
+def test_func_comp_type_column_apply(db: gp.Database):
+    class Pair:
+        _num: int
+        _next: int
+
+    @gp.create_function
+    def create_pair(num: int) -> Pair:
+        return {"_num": num, "_next": num + 1}
+
+    rows = [(i,) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+    for row in numbers.apply(lambda tab: create_pair(tab["val"])).to_table().fetch():
+        assert row["_next"] == row["_num"] + 1
+
+
+def test_array_func_apply(db: gp.Database):
+    @gp.create_array_function
+    def my_sum(val_list: List[int]) -> int:
+        return sum(val_list)
+
+    rows = [(1,) for _ in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+
+    results = list(numbers["val"].apply(my_sum).to_table().fetch())
+    assert len(results) == 1 and results[0]["my_sum"] == 10
+
+
+def test_array_func_group_by_comp_apply(db: gp.Database):
+    class Stat:
+        sum: int
+        count: int
+
+    @gp.create_array_function
+    def my_stat(val_list: List[int]) -> Stat:
+        return {"sum": sum(val_list), "count": len(val_list)}
+
+    rows = [(1, i % 2 == 0) for i in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
+    results = list(
+        numbers.group_by("is_even").apply(lambda tab: my_stat(tab["val"])).to_table().fetch()
+    )
+    assert list(list(results)[0].keys()) == ["sum", "count", "is_even"]
+    for row in results:
+        assert all(
+            ["is_even" in row, row["is_even"] is not None, row["sum"] == 5, row["count"] == 5]
+        )
+
+
+def test_array_func_const_apply(db: gp.Database):
+    @gp.create_array_function
+    def my_sum(label: str, val_list: List[int], initial: int) -> str:
+        return label + " : " + str(sum(val_list) + initial)
+
+    rows = [(1,) for _ in range(10)]
+    numbers = gp.values(rows, db=db, column_names=["val"])
+
+    results = list(numbers.apply(lambda tab: my_sum("sum", tab["val"], 5)).to_table().fetch())
+    assert len(results) == 1 and results[0]["my_sum"] == "sum : 15"
+
+
+def test_array_func_group_by_attribute(db: gp.Database):
+    @gp.create_array_function
+    def my_sum(label: str, val_list: List[int], initial: int) -> str:
+        return label + " : " + str(sum(val_list) + initial)
+
+    # fmt: off
+    rows = [("a", i, 5,) for i in range(10)]
+    # fmt: on
+    numbers = gp.values(rows, db=db, column_names=["label", "val", "initial"])
+    results = list(
+        numbers.group_by("label", "initial")
+        .apply(lambda tab: my_sum(tab["label"], tab["val"], tab["initial"]))
+        .to_table()
+        .fetch()
+    )
+    assert len(results) == 1 and results[0]["my_sum"] == "a : 50"
