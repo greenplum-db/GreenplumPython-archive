@@ -190,7 +190,12 @@ def test_join_natural(db: gp.Database):
     categories = gp.values(rows1, db=db, column_names=["category_name", "category_id"])
     products = gp.values(rows2, db=db, column_names=["product_name", "category_id"])
 
-    ret = categories.natural_join(products).fetch()
+    ret = categories.join(
+        products,
+        using=["category_id"],
+        self_columns={"category_name", "category_id"},
+        other_columns={"product_name"},
+    ).fetch()
     assert len(list(ret)) == 6
     row = next(iter(ret))
     for col in ["category_id", "category_name", "product_name"]:
