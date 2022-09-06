@@ -28,6 +28,7 @@ def test_type_create(db: gp.Database):
     with pytest.raises(Exception) as exc_info:
         create_type(Person, db, as_name="Person_m", is_temp=False)
     assert 'type "person_m" already exists\n' in str(exc_info.value)
+    drop_type("Person_m", db)
 
 
 def test_type_create_temp(db: gp.Database):
