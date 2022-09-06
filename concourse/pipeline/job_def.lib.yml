@@ -186,7 +186,7 @@ plan:
             unpack: true
         - put: #@ conf["release_bin"]
           params:
-            file: #@ conf["res_intermediates_bin"] + "/greenplumpython.*.tar.gz"
+            file: #@ conf["res_intermediates_bin"] + "/greenplumpython_*_*.tar.gz"
 #@   end
 #@   for to_put in trigger["to_put_post"]:
 - #@ to_put
