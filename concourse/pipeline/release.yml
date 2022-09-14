@@ -2,7 +2,6 @@
 #@   "entrance_job",
 #@   "build_test_job",
 #@   "exit_release_job",
-#@   "centos6_gpdb6_conf",
 #@   "centos7_gpdb6_conf",
 #@   "rhel8_gpdb6_conf",
 #@   "ubuntu18_gpdb6_conf")
@@ -15,7 +14,6 @@
 #@ res_type_map = {}
 #@ trigger = release_trigger(res_map)
 #@ confs = [
-#@   centos6_gpdb6_conf(release_build=True),
 #@   centos7_gpdb6_conf(release_build=True),
 #@   rhel8_gpdb6_conf(release_build=True),
 #@   ubuntu18_gpdb6_conf(release_build=True)

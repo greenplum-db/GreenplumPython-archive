@@ -12,7 +12,10 @@ function _main() {
     unset PYTHONPATH
     unset PYTHONHOME
     tox -e test_py39
+    # build wheel
+    pip3 wheel . -w ../greenplumpython_artifacts
     popd
+    tar -czf greenplumpython_artifacts/greenplumpython.tar.gz greenplumpython_artifacts/*.whl
 }
 
 _main

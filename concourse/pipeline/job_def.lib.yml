@@ -1,6 +1,15 @@
 #@ load("base.lib.yml", "add_res_by_conf", "add_res_by_name")
 #@ load("@ytt:template", "template")
 
+
+#@ def inter_bin_name(base_name, release_build):
+#@   if release_build:
+#@     return base_name + "_rel"
+#@   end
+#@
+#@   return base_name
+#@ end
+
 #! Use bin_gpdb_postfix="" to use a release version of gpdb binary
 #! Job config for centos7
 #@ def centos7_gpdb6_conf(release_build=False):
@@ -8,7 +17,10 @@ res_test_image: centos7-gpdb6-image-test
 res_gpdb_bin: bin_gpdb6_centos7
 res_gpdb_src: gpdb6_src
 res_plpython3_bin: bin_plpython3_gpdb6_rhel7
+res_intermediates_bin: #@ inter_bin_name("bin_greenplumpython_rhel7_intermediates", release_build)
 os: rhel7
+release_build: #@ release_build
+release_bin: bin_greenplumpython_rhel7_release
 #@ end
 
 #! Job config for rhel8
@@ -17,7 +29,10 @@ res_test_image: rhel8-gpdb6-image-test
 res_gpdb_bin: bin_gpdb6_rhel8
 res_gpdb_src: gpdb6_src
 res_plpython3_bin: bin_plpython3_gpdb6_rhel8
+res_intermediates_bin: #@ inter_bin_name("bin_greenplumpython_rhel8_intermediates", release_build)
 os: rhel8
+release_build: #@ release_build
+release_bin: bin_greenplumpython_rhel8_release
 #@ end
 
 #! Job config for ubuntu18
@@ -26,7 +41,10 @@ res_test_image: ubuntu18-gpdb6-image-test
 res_gpdb_bin: bin_gpdb6_ubuntu18
 res_gpdb_src: gpdb6_src
 res_plpython3_bin: bin_plpython3_gpdb6_ubuntu18
+res_intermediates_bin: #@ inter_bin_name("bin_greenplumpython_ubuntu18_intermediates", release_build)
 os: ubuntu1804
+release_build: #@ release_build
+release_bin: bin_greenplumpython_ubuntu18_release
 #@ end
 
 #! The entry point of a pipeline. The job name must be 'entrance'.
@@ -83,20 +101,22 @@ plan:
 #@   end
 #@ end
 
-#@ def _test_task(conf):
-task: #@ "test_" + conf["os"]
+#@ def _test_and_build_task(conf):
+task: #@ "test_and_build" + conf["os"]
 timeout: 2h
 config:
   platform: linux
   run:
     path: greenplumpython_src/concourse/scripts/entry.sh
     args:
-      - test
+      - test_and_build
   inputs:
     - name: bin_gpdb
     - name: gpdb_src
     - name: greenplumpython_src
     - name: bin_plpython3
+  outputs:
+    - name: greenplumpython_artifacts
 image: image_test
 params:
 #@ end
@@ -128,5 +148,47 @@ plan:
     resource: #@ conf["res_gpdb_src"]
   - get: bin_plpython3
     resource: #@ conf["res_plpython3_bin"]
-- #@ _test_task(conf)
+- #@ _test_and_build_task(conf)
+- put: #@ conf["res_intermediates_bin"]
+  params:
+    file: greenplumpython_artifacts/greenplumpython.tar.gz
+#@ end
+
+#! The final release job
+#! 1. Push the artifacts to the release bucket
+#! 2. Push the git tag
+#@ def exit_release_job(param):
+#@   trigger = param["trigger"]
+#@   confs = param["confs"]
+#@   passed_jobs = []
+#@   res_map = param["res_map"]
+#@   for conf in confs:
+#@     passed_jobs.append(build_test_job_name(conf))
+#@     add_res_by_name(res_map, conf["release_bin"])
+#@   end
+name: exit_release
+on_failure: #@ trigger["on_failure"]
+on_error: #@ trigger["on_error"]
+on_success: #@ trigger["on_success"]
+plan:
+#@   for to_get in trigger["to_get"]:
+- passed: #@ passed_jobs
+  _: #@ template.replace(to_get)
+#@   end
+- in_parallel:
+    steps:
+#@   for i, conf in enumerate(confs):
+      - do:
+        - get: #@ conf["res_intermediates_bin"]
+          passed:
+            - #@ passed_jobs[i]
+          params:
+            unpack: true
+        - put: #@ conf["release_bin"]
+          params:
+            file: #@ conf["res_intermediates_bin"] + "/greenplumpython_*_*.tar.gz"
+#@   end
+#@   for to_put in trigger["to_put_post"]:
+- #@ to_put
+#@   end
 #@ end
