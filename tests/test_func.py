@@ -427,11 +427,7 @@ def test_func_apply_auto_column_mapping_join(db: gp.Database):
     # fmt: on
     t1 = gp.values(rows1, db=db, column_names=["id1", "n1"])
     t2 = gp.values(rows2, db=db, column_names=["id2", "n2"])
-    ret = t1.inner_join(
-        t2,
-        t1["id1"] == t2["id2"],
-        targets=[t1["id1"], t2["n2"]],
-    )
+    ret = t1.join(t2, cond=t1["id1"] == t2["id2"], self_columns={"id1"}, other_columns={"n2"})
     result = ret.apply(lambda t: label(t["id1"], t["n2"])).to_table().fetch()
     for row in list(result):
         assert row["label"][1:3] == ":b"
