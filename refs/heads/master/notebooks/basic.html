@@ -808,15 +808,17 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_join</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">inner_join</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_join</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
     <span class="n">t2</span><span class="p">,</span>
     <span class="n">cond</span><span class="o">=</span><span class="n">t1</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">t2</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">],</span>
-    <span class="n">targets</span><span class="o">=</span><span class="p">[</span>
-        <span class="n">t1</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;t1_id&quot;</span><span class="p">),</span>
-        <span class="n">t1</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;t1_val&quot;</span><span class="p">),</span>
-        <span class="n">t2</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;t2_id&quot;</span><span class="p">),</span>
-        <span class="n">t2</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;t2_val&quot;</span><span class="p">),</span>
-    <span class="p">],</span>
+    <span class="n">self_columns</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;t1_id&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="s2">&quot;t1_val&quot;</span>
+    <span class="p">},</span>
+    <span class="n">other_columns</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;t2_id&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="s2">&quot;t2_val&quot;</span>
+    <span class="p">}</span>
 <span class="p">)</span>
 <span class="n">t_join</span>
 </pre></div>
