@@ -145,19 +145,30 @@ class Table:
         """
         Return a string representation for a table
         """
-        # FIXME : adjust columns width depending on the number of characters
         repr_string = ""
         ret = list(self.fetch())
         if len(ret) != 0:
-            repr_string += (("| {:10} |" * len(ret[0])).format(*ret[0])) + "\n"
-            repr_string += ("=" * 14 * len(ret[0])) + "\n"
+            # Iterate over the given table to calculate the column width for its ASCII representation.
+            width = [0] * len(ret[0])
+            for row in ret:
+                for col_idx, col in enumerate(row):
+                    width[col_idx] = max(width[col_idx], len(col), len(str(row[col])))
+
+            # Table header.
+            repr_string += (
+                "".join(["| {:{}} |".format(col, width[idx]) for idx, col in enumerate(ret[0])])
+                + "\n"
+            )
+            # Dividing line below table header.
+            repr_string += ("=" * (sum(width) + 4 * len(width))) + "\n"
+            # Table contents.
             for row in ret:
                 content = [row[c] for c in row]
-                for c in content:
+                for idx, c in enumerate(content):
                     if isinstance(c, list):
-                        repr_string += ("| {:10} |").format("{}".format(c))  # type: ignore
+                        repr_string += ("| {:{}} |").format("{}".format(c), width[idx])  # type: ignore
                     else:
-                        repr_string += ("| {:10} |").format(c)
+                        repr_string += ("| {:{}} |").format(c, width[idx])
                 repr_string += "\n"
         return repr_string
 

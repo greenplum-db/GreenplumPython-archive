@@ -63,12 +63,12 @@ def test_table_display_repr(db: gp.Database):
     # fmt: on
     t = gp.values(rows, db=db, column_names=["id", "animal"])
     expected = (
-        "| id         || animal     |\n"
-        "============================\n"
-        "|          1 || Lion       |\n"
-        "|          2 || Tiger      |\n"
-        "|          3 || Wolf       |\n"
-        "|          4 || Fox        |\n"
+        "| id || animal |\n"
+        "================\n"
+        "|  1 || Lion   |\n"
+        "|  2 || Tiger  |\n"
+        "|  3 || Wolf   |\n"
+        "|  4 || Fox    |\n"
     )
     assert str(t.order_by(t["id"]).head(4)) == expected
 
@@ -79,12 +79,12 @@ def test_table_display_repr_long_content(db: gp.Database):
     # fmt: on
     t = gp.values(rows, db=db, column_names=["iddddddddddddddddddd", "animal"])
     expected = (
-        "| iddddddddddddddddddd || animal     |\n"
-        "============================\n"
-        "|          1 || Lion       |\n"
-        "|          2 || Tigerrrrrrrrrrrr |\n"
-        "|          3 || Wolf       |\n"
-        "|          4 || Fox        |\n"
+        "| iddddddddddddddddddd || animal           |\n"
+        "============================================\n"
+        "|                    1 || Lion             |\n"
+        "|                    2 || Tigerrrrrrrrrrrr |\n"
+        "|                    3 || Wolf             |\n"
+        "|                    4 || Fox              |\n"
     )
     assert str(t.order_by(t["iddddddddddddddddddd"]).head(4)) == expected
 
