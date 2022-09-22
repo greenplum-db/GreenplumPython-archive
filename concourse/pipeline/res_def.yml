@@ -107,21 +107,21 @@ resources:
 - name: bin_plpython3_gpdb6_rhel7
   type: gcs
   source:
-    bucket: gpdb-extensions-concourse-resources
-    json_key: ((extension/extensions-gcs-service-account-key))
-    versioned_file: intermediates/plpython3/plpython3_rhel7_gpdb6.gppkg
+    bucket: gp-extensions-ci
+    json_key: ((extension/extensions-gcs-service-account-key-dev2))
+    versioned_file: intermediates_release/plpython3/plpython3_rhel7_gpdb6.tar.gz
 - name: bin_plpython3_gpdb6_rhel8
   type: gcs
   source:
-    bucket: gpdb-extensions-concourse-resources
-    json_key: ((extension/extensions-gcs-service-account-key))
-    versioned_file: intermediates/plpython3/plpython3_rhel8_gpdb6.gppkg
+    bucket: gp-extensions-ci
+    json_key: ((extension/extensions-gcs-service-account-key-dev2))
+    versioned_file: intermediates_release/plpython3/plpython3_rhel8_gpdb6.tar.gz
 - name: bin_plpython3_gpdb6_ubuntu18
   type: gcs
   source:
-    bucket: gpdb-extensions-concourse-resources
-    json_key: ((extension/extensions-gcs-service-account-key))
-    versioned_file: intermediates/plpython3/plpython3_ubuntu18.04_gpdb6.gppkg
+    bucket: gp-extensions-ci
+    json_key: ((extension/extensions-gcs-service-account-key-dev2))
+    versioned_file: intermediates_release/plpython3/plpython3_ubuntu18.04_gpdb6.tar.gz
 
 # Other dependencies
 - name: slack_notify

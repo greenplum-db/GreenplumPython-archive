@@ -128,5 +128,7 @@ plan:
     resource: #@ conf["res_gpdb_src"]
   - get: bin_plpython3
     resource: #@ conf["res_plpython3_bin"]
+    params:
+      unpack: true
 - #@ _test_task(conf)
 #@ end
