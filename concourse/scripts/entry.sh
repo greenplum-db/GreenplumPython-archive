@@ -74,11 +74,10 @@ install_extra_build_dependencies() {
 install_dependencies() {
     unset PYTHONPATH
     unset PYTHONHOME
-    # for rhel7 and ubuntu18 python3.9 has no pip
-    if [ "$OS_NAME" != rhel8 ]; then
-        python3.9 get-pip.py
-    fi
-    pip3 install tox
+
+    local python_bin="${GPHOME}/ext/python3.9/bin/python3.9"
+    ${python_bin} -m ensurepip
+    ${python_bin} -m pip install tox
 }
 
 # Create gpadmin user and chown all files in the PWD. All files will be linked to /home/gpadmin.
@@ -142,11 +141,18 @@ function setup_gpadmin_bashrc() {
         echo "source /usr/local/greenplum-db-devel/greenplum_path.sh"
         echo "source /home/gpadmin/gpdb_src/gpAux/gpdemo/gpdemo-env.sh"
         echo "export OS_NAME=${OS_NAME}"
+        echo "export PATH=\$PATH:${GPHOME}/ext/python3.9/bin"
     } >> /home/gpadmin/.bashrc
 }
 
 function install_plpython3() {
-    PGUSER=gpadmin gppkg -i bin_plpython3/*.gppkg
+    mkdir -p bin_plpython3/install_tmp
+    pushd bin_plpython3/install_tmp
+    find .. -maxdepth 1 -regex ".*-[0-9\.]*-.*\.tar\.gz" -exec tar xfv {} \;
+    ./install_gpdb_component
+    popd
+    # To update the LD_LIBRARAY_PATH
+    source ${GPHOME}/greenplum_path.sh
 }
 
 
