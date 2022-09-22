@@ -125,10 +125,20 @@ setup_gpadmin() {
     ln -s "${CONCOURSE_WORK_DIR}"/* /home/gpadmin
 }
 
+function install_plpython3() {
+    mkdir -p bin_plpython3/install_tmp
+    pushd bin_plpython3/install_tmp
+    find .. -maxdepth 1 -regex ".*-[0-9\.]*-.*\.tar\.gz" -exec tar xfv {} \;
+    ./install_gpdb_component
+    popd
+}
+
 # Extract gpdb binary
 function install_gpdb() {
     [ ! -d /usr/local/greenplum-db-devel ] && mkdir -p /usr/local/greenplum-db-devel
     tar -xzf "${CONCOURSE_WORK_DIR}"/bin_gpdb/*.tar.gz -C /usr/local/greenplum-db-devel
+    GPHOME=/usr/local/greenplum-db-devel install_plpython3
+
     chown -R gpadmin:gpadmin /usr/local/greenplum-db-devel
     # Start cluster
     source "/home/gpadmin/gpdb_src/concourse/scripts/common.bash"
@@ -145,22 +155,11 @@ function setup_gpadmin_bashrc() {
     } >> /home/gpadmin/.bashrc
 }
 
-function install_plpython3() {
-    mkdir -p bin_plpython3/install_tmp
-    pushd bin_plpython3/install_tmp
-    find .. -maxdepth 1 -regex ".*-[0-9\.]*-.*\.tar\.gz" -exec tar xfv {} \;
-    ./install_gpdb_component
-    popd
-    # To update the LD_LIBRARAY_PATH
-    source ${GPHOME}/greenplum_path.sh
-}
-
 
 # Setup common environment 
 install_extra_build_dependencies
 setup_gpadmin
 install_gpdb
-install_plpython3
 install_dependencies
 setup_gpadmin_bashrc
 
