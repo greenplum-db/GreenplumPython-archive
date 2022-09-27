@@ -3,6 +3,7 @@ from os import environ
 import pytest
 
 import greenplumpython as gp
+from greenplumpython.builtin.function import generate_series
 from tests import db
 
 
@@ -58,8 +59,7 @@ def test_expr_bin_equal_bool(db: gp.Database):
 
 @pytest.fixture
 def table_num(db: gp.Database):
-    generate_series = gp.function("generate_series")
-    t = generate_series(0, 9, as_name="id", db=db).to_table()
+    t = db.call(generate_series, 0, 9).rename("id").to_table()
     return t
 
 

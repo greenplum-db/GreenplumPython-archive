@@ -22,14 +22,15 @@ def test_group_agg_multi_columns(db: gp.Database):
     numbers = gp.values(rows, db=db, column_names=["val", "val_cp", "is_even"])
 
     @gp.create_aggregate
-    def my_sum(result: int, val: int, val_cp: int) -> int:
+    def my_sum_copy(result: int, val: int, val_cp: int) -> int:
         if result is None:
             return val + val_cp
         return result + val + val_cp
 
     results = list(
         numbers.group_by("is_even")
-        .apply(lambda row: my_sum(row["val"], row["val_cp"]))
+        .apply(lambda row: my_sum_copy(row["val"], row["val_cp"]))
+        .rename("my_sum")
         .to_table()
         .fetch()
     )

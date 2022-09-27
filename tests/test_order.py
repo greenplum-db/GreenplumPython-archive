@@ -3,13 +3,13 @@ from functools import partial
 import pytest
 
 import greenplumpython as gp
+from greenplumpython.builtin.function import generate_series
 from tests import db
 
 
 @pytest.fixture
 def t(db: gp.Database):
-    generate_series = gp.function("generate_series")
-    t = generate_series(0, 9, as_name="id", db=db).to_table()
+    t = db.call(generate_series, 0, 9).rename("id").to_table()
     return t
 
 
