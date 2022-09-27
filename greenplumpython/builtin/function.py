@@ -1,7 +1,7 @@
 from typing import Any, Optional
 
 from greenplumpython.db import Database
-from greenplumpython.func import aggregate, function, FunctionExpr
+from greenplumpython.func import FunctionExpr, aggregate, function
 from greenplumpython.group import TableRowGroup
 
 

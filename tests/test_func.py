@@ -1,6 +1,6 @@
 import inspect
-from os import environ
 import string
+from os import environ
 from typing import List
 
 import pytest

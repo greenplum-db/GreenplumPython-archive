@@ -1,7 +1,7 @@
 """
 This  module can create a connection to a Greenplum database
 """
-from typing import TYPE_CHECKING, Any, Iterable, Optional, Tuple, Dict, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Tuple, Union
 
 if TYPE_CHECKING:
     from greenplumpython.func import NormalFunction, AggregateFunction, FunctionExpr
