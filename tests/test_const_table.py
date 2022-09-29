@@ -63,12 +63,12 @@ def test_table_display_repr(db: gp.Database):
     # fmt: on
     t = gp.values(rows, db=db, column_names=["id", "animal"])
     expected = (
-        "| id         || animal     |\n"
-        "============================\n"
-        "|          1 || Lion       |\n"
-        "|          2 || Tiger      |\n"
-        "|          3 || Wolf       |\n"
-        "|          4 || Fox        |\n"
+        "| id || animal |\n"
+        "================\n"
+        "|  1 || Lion   |\n"
+        "|  2 || Tiger  |\n"
+        "|  3 || Wolf   |\n"
+        "|  4 || Fox    |\n"
     )
     assert str(t.order_by(t["id"]).head(4)) == expected
 
@@ -79,12 +79,12 @@ def test_table_display_repr_long_content(db: gp.Database):
     # fmt: on
     t = gp.values(rows, db=db, column_names=["iddddddddddddddddddd", "animal"])
     expected = (
-        "| iddddddddddddddddddd || animal     |\n"
-        "============================\n"
-        "|          1 || Lion       |\n"
-        "|          2 || Tigerrrrrrrrrrrr |\n"
-        "|          3 || Wolf       |\n"
-        "|          4 || Fox        |\n"
+        "| iddddddddddddddddddd || animal           |\n"
+        "============================================\n"
+        "|                    1 || Lion             |\n"
+        "|                    2 || Tigerrrrrrrrrrrr |\n"
+        "|                    3 || Wolf             |\n"
+        "|                    4 || Fox              |\n"
     )
     assert str(t.order_by(t["iddddddddddddddddddd"]).head(4)) == expected
 
@@ -119,6 +119,15 @@ def test_table_display_repr_html(db: gp.Database):
         "</table>"
     )
     assert (t.order_by(t["id"]).head(4)._repr_html_()) == expected
+
+
+def test_table_display_repr_empty_result(db: gp.Database):
+    # fmt: off
+    rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
+    # fmt: on
+    t = gp.values(rows, db=db, column_names=["id", "animal"])
+    assert str(t[t["id"] == 0]) == ""
+    assert (t[t["id"] == 0]._repr_html_()) == ""
 
 
 def test_table_extend_const(db: gp.Database):
