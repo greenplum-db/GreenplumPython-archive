@@ -1,7 +1,7 @@
 from typing import Any, Optional
 
 from greenplumpython.db import Database
-from greenplumpython.func import FunctionExpr, aggregate, function
+from greenplumpython.func import FunctionExpr, aggregate_function, function
 from greenplumpython.group import TableRowGroup
 
 
@@ -11,8 +11,8 @@ def count(
     db: Optional[Database] = None,
 ) -> FunctionExpr:
     if arg is None:
-        return FunctionExpr(aggregate("count"), ("*",), group_by=group_by, db=db)
-    return FunctionExpr(aggregate("count"), (arg,), group_by=group_by, db=db)
+        return FunctionExpr(aggregate_function(name="count"), ("*",), group_by=group_by, db=db)
+    return FunctionExpr(aggregate_function(name="count"), (arg,), group_by=group_by, db=db)
 
 
 def min(
@@ -20,7 +20,7 @@ def min(
     group_by: Optional[TableRowGroup] = None,
     db: Optional[Database] = None,
 ) -> FunctionExpr:
-    return FunctionExpr(aggregate("min"), (arg,), group_by=group_by, db=db)
+    return FunctionExpr(aggregate_function(name="min"), (arg,), group_by=group_by, db=db)
 
 
 def max(
@@ -28,7 +28,7 @@ def max(
     group_by: Optional[TableRowGroup] = None,
     db: Optional[Database] = None,
 ) -> FunctionExpr:
-    return FunctionExpr(aggregate(name="max"), (arg,), group_by=group_by, db=db)
+    return FunctionExpr(aggregate_function(name="max"), (arg,), group_by=group_by, db=db)
 
 
 def avg(
@@ -36,7 +36,7 @@ def avg(
     group_by: Optional[TableRowGroup] = None,
     db: Optional[Database] = None,
 ) -> FunctionExpr:
-    return FunctionExpr(aggregate(name="avg"), (arg,), group_by=group_by, db=db)
+    return FunctionExpr(aggregate_function(name="avg"), (arg,), group_by=group_by, db=db)
 
 
 def sum(
@@ -44,7 +44,7 @@ def sum(
     group_by: Optional[TableRowGroup] = None,
     db: Optional[Database] = None,
 ) -> FunctionExpr:
-    return FunctionExpr(aggregate(name="sum"), (arg,), group_by=group_by, db=db)
+    return FunctionExpr(aggregate_function(name="sum"), (arg,), group_by=group_by, db=db)
 
 
 def generate_series(

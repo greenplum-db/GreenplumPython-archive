@@ -98,7 +98,7 @@ def test_func_on_more_than_one_table(db: gp.Database):
 def test_simple_agg(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
-    count = gp.aggregate("count")
+    count = gp.aggregate_function("count")
 
     results = list(count(numbers["val"], db=db).to_table().fetch())
     assert len(results) == 1 and results[0]["count"] == 10
@@ -107,7 +107,7 @@ def test_simple_agg(db: gp.Database):
 def test_agg_group_by(db: gp.Database):
     rows = [(i, i % 2 == 0) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
-    count = gp.aggregate("count")
+    count = gp.aggregate_function("count")
 
     results = list(
         count(numbers["val"], group_by=numbers.group_by("is_even"), db=db).to_table().fetch()
@@ -120,7 +120,7 @@ def test_agg_group_by(db: gp.Database):
 def test_agg_group_by_multi_columns(db: gp.Database):
     rows = [(i, i % 2 == 0, i % 3 == 0) for i in range(6)]  # 0, 1, 2, 3, 4, 5
     numbers = gp.values(rows, db=db, column_names=["val", "is_even", "is_multiple_of_3"])
-    count = gp.aggregate("count")
+    count = gp.aggregate_function("count")
 
     results = list(
         count(numbers["val"], group_by=numbers.group_by("is_even", "is_multiple_of_3"), db=db)
@@ -181,7 +181,7 @@ def test_func_long_name(db: gp.Database):
             loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong
         )
     # FIXME: Create more specific exception classes and remove this
-    assert "Function name should be no longer than 63 bytes." == str(exc_info.value)
+    assert "Function name should be shorter than 64 bytes." == str(exc_info.value)
 
 
 def test_create_func_with_optional_param(db: gp.Database):

@@ -180,13 +180,12 @@ class _AbstractFunction:
         name: Optional[str],
         schema: Optional[str],
     ) -> None:
+        NAMEDATALEN = 64  # See definition in PostgreSQL
         if not (
-            (name is not None and len(name) <= 63)
-            or (wrapped_func is not None and len(wrapped_func.__name__) <= 63)
+            (name is not None and len(name) < NAMEDATALEN)
+            or (wrapped_func is not None and len(wrapped_func.__name__) < NAMEDATALEN)
         ):
-            raise Exception(
-                "Function name should be no longer than 63 bytes."
-            )  # i.e. NAMEDATALEN - 1 in PostgreSQL
+            raise Exception(f"Function name should be shorter than {NAMEDATALEN} bytes.")
         qualified_name = (
             (name if schema is None else f"{schema}.{name}")
             if name is not None
@@ -223,7 +222,7 @@ class NormalFunction(_AbstractFunction):
         wrapped_func: Optional[Callable[..., Any]] = None,
         name: Optional[str] = None,
         schema: Optional[str] = None,
-        returning_composite: Optional[bool] = False,
+        returning_composite: bool = False,
         language_handler: str = "plpython3u",
     ) -> None:
         super().__init__(wrapped_func, name, schema)
@@ -276,9 +275,6 @@ class NormalFunction(_AbstractFunction):
             _db = self._infer_db(args, db)
             assert _db is not None, "Database is required to create function"
             self._create_in_db(_db)
-        assert (
-            self._returning_composite is not None
-        ), f'Unknown if the return type of function "{self.qualified_name}" is composite.'
         return FunctionExpr(self, args, db=db, returning_composite=self._returning_composite)
 
 
@@ -306,7 +302,7 @@ class AggregateFunction(_AbstractFunction):
         transition_func: Optional[NormalFunction] = None,
         name: Optional[str] = None,
         schema: Optional[str] = None,
-        returning_composite: Optional[bool] = None,
+        returning_composite: bool = False,
     ) -> None:
         super().__init__(
             transition_func.unwrap() if transition_func is not None else None,
@@ -356,15 +352,12 @@ class AggregateFunction(_AbstractFunction):
             assert _db is not None, "Database is required to create aggregate function"
             self._transition_func(*args, db=_db)
             self._create_in_db(_db)
-        assert (
-            self._returning_composite is not None
-        ), f'Unknown if the return type of aggregate function "{self.qualified_name}" is composite.'
         return FunctionExpr(
             self, args, db=db, group_by=group_by, returning_composite=self._returning_composite
         )
 
 
-def aggregate(
+def aggregate_function(
     name: str, schema: Optional[str] = None, returning_composite: bool = False
 ) -> AggregateFunction:
     """
@@ -372,7 +365,7 @@ def aggregate(
 
     Example:
         .. code-block::  Python
-            count = gp.aggregate("count", db=db)
+            count = gp.aggregate_function("count", db=db)
     """
     if name not in _global_scope:
         return AggregateFunction(name=name, schema=schema, returning_composite=returning_composite)
@@ -391,8 +384,8 @@ def create_function(
 
     Args:
         wrapped_func : the Python function to be wrapped into a database function
-        language_handler language handler to run the UDF, by default plpython3u,
-            but can also choose plcontainer.
+        language_handler language handler to run the UDF, defaults to plpython3u,
+            will also support plcontainer later.
 
     Returns:
         a database function
@@ -423,8 +416,8 @@ def create_aggregate(
 
     Args:
         transition_func : python function
-        language_handler : str : language handler to run the aggregate function in database,
-            by default plpython3u, but can also choose plcontainer.
+        language_handler : language handler to run the aggregate function in database,
+            defaults to plpython3u, will also support plcontainer later.
 
     Returns:
         A database aggregate function.
@@ -482,8 +475,8 @@ def create_array_function(
 
     Args:
         wrapped_func: python function
-        language_handler language handler to run the UDF, by default plpython3u,
-            but can also choose plcontainer.
+        language_handler: language handler to run the UDF, defaults to plpython3u,
+            will also support plcontainer later.
 
     Returns:
         Callable : FunctionCall

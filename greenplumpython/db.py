@@ -40,7 +40,6 @@ class Database:
                 result = db.execute("SELECT version()")
 
         """
-        print(query)
         with self._conn.cursor() as cursor:
             cursor.execute(query)
             return cursor.fetchall() if has_results else None
