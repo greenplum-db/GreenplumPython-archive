@@ -204,7 +204,7 @@ class _AbstractFunction:
     def qualified_name(self) -> str:
         return self._qualified_name
 
-    def _infer_db(self, args: Tuple[Any, ...], db: Optional[Database]) -> Optional[Database]:
+    def _try_get_db(self, args: Tuple[Any, ...], db: Optional[Database]) -> Optional[Database]:
         if db is None:
             for arg in args:
                 if isinstance(arg, Expr) and arg.db is not None:
@@ -272,7 +272,7 @@ class NormalFunction(_AbstractFunction):
 
     def __call__(self, *args: Any, db: Optional[Database] = None) -> FunctionExpr:
         if self._wrapped_func is not None:
-            _db = self._infer_db(args, db)
+            _db = self._try_get_db(args, db)
             assert _db is not None, "Database is required to create function"
             self._create_in_db(_db)
         return FunctionExpr(self, args, db=db, returning_composite=self._returning_composite)
@@ -348,7 +348,7 @@ class AggregateFunction(_AbstractFunction):
         self, *args: Any, group_by: Optional[TableRowGroup] = None, db: Optional[Database] = None
     ) -> FunctionExpr:
         if self._transition_func is not None:
-            _db = self._infer_db(args, db)
+            _db = self._try_get_db(args, db)
             assert _db is not None, "Database is required to create aggregate function"
             self._transition_func(*args, db=_db)
             self._create_in_db(_db)
@@ -454,7 +454,7 @@ class ArrayFunction(NormalFunction):
         self, *args: Any, group_by: Optional[TableRowGroup] = None, db: Optional[Database] = None
     ) -> ArrayFunctionExpr:
         if self._wrapped_func is not None:
-            _db = self._infer_db(args, db)
+            _db = self._try_get_db(args, db)
             assert _db is not None, "Database is required to create array function"
             self._create_in_db(_db)
         assert (
