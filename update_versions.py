@@ -13,7 +13,7 @@ import os
 from packaging.version import parse
 
 base = "refs"
-branch_names = {"master": "latest"}  # rename branches here
+branch_names = {"main": "latest"}  # rename branches here
 permalink = ["latest", "stable"]  # create permalinks at root level
 stable = None
 
