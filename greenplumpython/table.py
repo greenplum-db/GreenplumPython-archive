@@ -9,6 +9,7 @@ user calling `fetch()` function.
 All modifications made by users are only saved to the database when calling the `save_as()`
 function.
 """
+from collections import abc
 from functools import partialmethod, singledispatchmethod
 from typing import (
     TYPE_CHECKING,
@@ -26,7 +27,7 @@ from typing import (
 from uuid import uuid4
 
 from greenplumpython import db
-from greenplumpython.group import TableRowGroup
+from greenplumpython.group import TableGroupingSets
 
 if TYPE_CHECKING:
     from greenplumpython.func import FunctionExpr
@@ -59,30 +60,30 @@ class Table:
             self._db = db
 
     @singledispatchmethod
-    def _getitem(self, key):  # type: ignore
+    def _getitem(self, _) -> "Table":
         raise NotImplementedError()
 
-    @_getitem.register(Expr)
-    def _(self, key: Expr):
-        return self.where(key)
+    @_getitem.register(abc.Callable)  # type: ignore reportMissingTypeArgument
+    def _(self, predicate: Callable[["Table"], Expr]):
+        return self.where(predicate)
 
     @_getitem.register(list)
-    def _(self, key: List[str]) -> "Table":
-        return self.select(*(self[col_name] for col_name in key))
+    def _(self, column_names: List[str]) -> "Table":
+        return self.select(lambda t: [t[col_name] for col_name in column_names])
 
-    @_getitem.register
-    def _(self, key: str):
-        return Column(key, self)
+    @_getitem.register(str)
+    def _(self, column_name: str) -> "Table":
+        return Column(column_name, self)
 
-    @_getitem.register
-    def _(self, key: slice):
-        if key.step is not None:
+    @_getitem.register(slice)
+    def _(self, rows: slice) -> "Table":
+        if rows.step is not None:
             raise NotImplementedError()
-        offset_clause = "" if key.start is None else f"OFFSET {key.start}"
+        offset_clause = "" if rows.start is None else f"OFFSET {rows.start}"
         limit_clause = (
             ""
-            if key.stop is None
-            else f"LIMIT {key.stop if key.start is None else key.stop - key.start}"
+            if rows.stop is None
+            else f"LIMIT {rows.stop if rows.start is None else rows.stop - rows.start}"
         )
         return Table(
             f"SELECT * FROM {self.name} {limit_clause} {offset_clause}",
@@ -90,26 +91,26 @@ class Table:
         )
 
     @overload
-    def __getitem__(self, key) -> "Table":  # type: ignore
+    def __getitem__(self, _) -> "Table":
         ...
 
     @overload
-    def __getitem__(self, key: List[str]) -> "Table":
+    def __getitem__(self, column_names: List[str]) -> "Table":
         ...
 
     @overload
-    def __getitem__(self, key: Expr) -> "Table":
+    def __getitem__(self, predicate: Callable[["Table"], Expr]) -> "Table":
         ...
 
     @overload
-    def __getitem__(self, key: str) -> Expr:
+    def __getitem__(self, column_name: str) -> Expr:
         ...
 
     @overload
-    def __getitem__(self, key: slice) -> Optional["Table"]:
+    def __getitem__(self, rows: slice) -> "Table":
         ...
 
-    def __getitem__(self, *args, **kwargs):  # type: ignore
+    def __getitem__(self, _):
         """
         Returns
             - a :class:`~expr.Column` of the current Table if key is string
@@ -139,7 +140,7 @@ class Table:
                    slice_table = tab[2:5]
 
         """
-        return self._getitem(*args, **kwargs)  # type: ignore
+        return self._getitem(_)
 
     def __repr__(self):
         """
@@ -187,20 +188,20 @@ class Table:
         return Table(f"SELECT * FROM {self.name}", parents=[self], name=name, db=self._db)
 
     # FIXME: Add test
-    def where(self, expr: "Expr") -> "Table":
+    def where(self, predicate: Callable[["Table"], "Expr"]) -> "Table":
         """
         Returns the :class:`Table` filtered by Expression.
 
         Args:
-            expr: :class:`~expr.Expr` : where condition statement
+            predicate: :class:`~expr.Expr` : where condition statement
 
         Returns:
             Table : Table filtered according **expr** passed in argument
         """
-        return Table(f"SELECT * FROM {self._name} WHERE {str(expr)}", parents=[self])
+        return Table(f"SELECT * FROM {self._name} WHERE {str(predicate(self))}", parents=[self])
 
     # FIXME: Add test
-    def select(self, *targets: Iterable[Any]) -> "Table":
+    def select(self, targets: Callable[["Table"], Union[Any, Iterable[Any]]]) -> "Table":
         """
         Returns :class:`Table` with list of targeted :class:`~expr.Column`
 
@@ -211,7 +212,8 @@ class Table:
             Table : Table selected only with targeted columns
         """
         targets_str = [
-            str(target) if isinstance(target, Expr) else to_pg_const(target) for target in targets
+            str(target) if isinstance(target, Expr) else to_pg_const(target)
+            for target in targets(self)
         ]
         return Table(
             f"""
@@ -221,7 +223,7 @@ class Table:
             parents=[self],
         )
 
-    def extend(self, name: str, value: Any) -> "Table":
+    def extend(self, name: str, value: Callable[["Table"], Any]) -> "Table":
         """
         Extends the current :class:`Table` by including an extra value as a
         new :class:`Column`.
@@ -248,14 +250,15 @@ class Table:
             issue will be fixed as soon as we implement column inference for
             GreenplumPython.
         """
-        if isinstance(value, Expr) and not (value.table is None or value.table == self):
+        _value = value(self)
+        if isinstance(_value, Expr) and not (_value.table is None or _value.table == self):
             raise Exception("Current table and included expression must be based on the same table")
-        target = value.serialize() if isinstance(value, Expr) else to_pg_const(value)
+        target = _value.serialize() if isinstance(_value, Expr) else to_pg_const(_value)
         return Table(f"SELECT *, {target} AS {name} FROM {self.name}", parents=[self])
 
     def order_by(
         self,
-        order_col: Expr,
+        sort_expr: Callable[["Table"], Expr],
         ascending: Optional[bool] = None,
         nulls_first: Optional[bool] = None,
         operator: Optional[str] = None,
@@ -275,7 +278,7 @@ class Table:
         Example:
             .. code-block::  Python
 
-                t.order_by(t["id"])
+                t.order_by(lambda t: t["id"])
         """
         # State transition diagram:
         # Table --order_by()-> OrderedTable --head()-> Table
@@ -285,7 +288,7 @@ class Table:
             )
         return OrderedTable(
             self,
-            [order_col],
+            [sort_expr(self)],
             [ascending],
             [nulls_first],
             [operator],
@@ -295,7 +298,7 @@ class Table:
         self,
         other: "Table",
         how: str = "",
-        cond: Optional[Expr] = None,
+        cond: Optional[Callable[["Table", "Table"], Expr]] = None,
         using: Optional[Iterable[str]] = None,
         self_columns: Union[Dict[str, Optional[str]], Set[str]] = {},
         other_columns: Union[Dict[str, Optional[str]], Set[str]] = {},
@@ -341,9 +344,7 @@ class Table:
         ], "Unsupported join type"
         assert cond is None or using is None, 'Cannot specify "cond" and "using" together'
 
-        def to_target_list(
-            t: Table, columns: Union[Dict[str, Optional[str]], Set[str]]
-        ) -> List[str]:
+        def qualify(t: Table, columns: Union[Dict[str, Optional[str]], Set[str]]) -> List[str]:
             target_list: List[str] = []
             for k in columns:
                 col: Column = t[k]
@@ -351,8 +352,8 @@ class Table:
                 target_list.append(col.serialize() + (f" AS {v}" if v is not None else ""))
             return target_list
 
-        target_list = to_target_list(self, self_columns) + to_target_list(other, other_columns)
-        on_clause = f"ON {cond.serialize()}" if cond is not None else ""
+        target_list = qualify(self, self_columns) + qualify(other, other_columns)
+        on_clause = f"ON {cond(self, other).serialize()}" if cond is not None else ""
         using_clause = f"USING ({','.join(using)})" if using is not None else ""
         return Table(
             f"""
@@ -560,12 +561,14 @@ class Table:
         assert results is not None
         return results
 
-    def group_by(self, *group_by: "Expr") -> TableRowGroup:
+    def group_by(
+        self, grouping_items: Callable[["Table"], Union["Expr", Iterable["Expr"]]]
+    ) -> TableGroupingSets:
         """
         Returns self group by the given list.
 
         Args:
-            *group_by: :class:`~expr.Expr` : Set of columns which used to group by the table
+            grouping_items: one or more :class:`~expr.Expr`s used to group rows of the table
 
         Returns:
             TableRowGroup : :class:`Table` grouped by the given list of :class:`~expr.Column`
@@ -574,7 +577,11 @@ class Table:
         #  Table --group_by()-> TableRowGroup --aggregate()-> FunctionExpr
         #    ^                                                    |
         #    |------------------------- to_table() ---------------|
-        return TableRowGroup(self, [list(group_by)])
+        _grouping_items = grouping_items(self)
+        return TableGroupingSets(
+            self,
+            [_grouping_items if isinstance(_grouping_items, abc.Iterable) else [_grouping_items]],
+        )
 
     # FIXME : Add more tests
     def apply(self, func: Callable[["Table"], "FunctionExpr"]) -> "FunctionExpr":
@@ -610,7 +617,7 @@ class Table:
         #
         # To fix this, we need to pass the table to the resulting FunctionExpr
         # explicitly.
-        return func(self)(table=self)
+        return func(self).bind(table=self)
 
 
 # table_name can be table/view name

@@ -32,6 +32,9 @@ class Expr:
         self._table = table
         self._db = table.db if table is not None else db
 
+    def __hash__(self) -> int:
+        return hash(self.serialize())
+
     def __and__(self, other: Any) -> "Expr":
         """
         Operator **&**
@@ -70,8 +73,8 @@ class Expr:
 
                 t["type"] == "type_1"
         """
-        if isinstance(other, type(None)):
-            return BinaryExpr("is", self, other)
+        if other is None:
+            return BinaryExpr("IS", self, other)
         return BinaryExpr("=", self, other)
 
     def __lt__(self, other: Any) -> "Expr":
@@ -85,6 +88,8 @@ class Expr:
 
                 t["val"] < 0
         """
+        if other is None:
+            return BinaryExpr("IS NOT", self, other)
         return BinaryExpr("<", self, other)
 
     def __le__(self, other: Any) -> "Expr":
@@ -298,16 +303,6 @@ class Expr:
         return new_expr
 
     def serialize(self) -> str:
-        raise NotImplementedError()
-
-    @property
-    def name(self) -> str:
-        """
-        Returns name of :class:`Expr`
-
-        Returns:
-            str: :class:`Expr` name
-        """
         raise NotImplementedError()
 
     @property

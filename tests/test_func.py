@@ -34,7 +34,7 @@ def test_create_func(db: gp.Database):
     def add(a: int, b: int) -> int:
         return a + b
 
-    for row in db.call(add, 1, 2).rename("result").to_table().fetch():
+    for row in db.apply(lambda: add(1, 2)).rename("result").to_table().fetch():
         assert row["result"] == 1 + 2
         assert row["result"] == add.unwrap()(1, 2)
 
@@ -47,7 +47,7 @@ def test_create_func_multiline(db: gp.Database):
         else:
             return b
 
-    for row in db.call(my_max, 1, 2).rename("result").to_table().fetch():
+    for row in db.apply(lambda: my_max(1, 2)).rename("result").to_table().fetch():
         assert row["result"] == max(1, 2)
         assert row["result"] == my_max.unwrap()(1, 2)
 
@@ -61,7 +61,7 @@ def test_create_func_tab_indent(db: gp.Database):
 		else:
 			return b
 
-	for row in db.call(my_min, 1, 2).rename("result").to_table().fetch():
+	for row in db.apply(lambda: my_min(1, 2)).rename("result").to_table().fetch():
 		assert row["result"] == min(1, 2)
 		assert row["result"] == my_min.unwrap()(1, 2)
 # fmt: on
@@ -109,8 +109,16 @@ def test_agg_group_by(db: gp.Database):
     numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
     count = gp.aggregate_function("count")
 
+    # FIXME: Remove extraneous rename() in group_by() after spearating Expr
+    # with NamedExpr.
     results = list(
-        count(numbers["val"], group_by=numbers.group_by("is_even"), db=db).to_table().fetch()
+        count(
+            numbers["val"],
+            group_by=numbers.group_by(lambda t: t["is_even"].rename("is_even")),
+            db=db,
+        )
+        .to_table()
+        .fetch()
     )
     assert len(results) == 2
     for row in results:
@@ -123,7 +131,16 @@ def test_agg_group_by_multi_columns(db: gp.Database):
     count = gp.aggregate_function("count")
 
     results = list(
-        count(numbers["val"], group_by=numbers.group_by("is_even", "is_multiple_of_3"), db=db)
+        count(
+            numbers["val"],
+            group_by=numbers.group_by(
+                lambda t: [
+                    t["is_even"].rename("is_even"),
+                    t["is_multiple_of_3"].rename("is_multiple_of_3"),
+                ]
+            ),
+            db=db,
+        )
         .to_table()
         .fetch()
     )
@@ -216,7 +233,9 @@ def test_array_func_group_by(db: gp.Database):
     rows = [(1, i % 2 == 0) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
     results = list(
-        my_sum_array(numbers["val"], group_by=numbers.group_by("is_even"))
+        my_sum_array(
+            numbers["val"], group_by=numbers.group_by(lambda t: t["is_even"].rename("is_even"))
+        )
         .rename("result")
         .to_table()
         .fetch()
@@ -240,8 +259,12 @@ def test_array_func_group_by_return_composite(db: gp.Database):
     rows = [(1, "a",), (1, "a",), (1, "b",), (1, "a",), (1, "b",), (1, "b",)]
     # fmt: on
     numbers = gp.values(rows, db=db, column_names=["val", "lab"])
-    ret = my_count_sum(numbers["val"], group_by=numbers.group_by("lab")).to_table().fetch()
-    assert list(list(ret)[0].keys()) == ["_sum", "_count", "lab"]
+    ret = (
+        my_count_sum(numbers["val"], group_by=numbers.group_by(lambda t: t["lab"].rename("lab")))
+        .to_table()
+        .fetch()
+    )
+    assert sorted(list(ret)[0].keys()) == sorted(["_sum", "_count", "lab"])
     for row in list(ret):
         assert row["_sum"] == 3
         assert row["_count"] == 3
@@ -257,7 +280,6 @@ def test_func_return_composite_type(db: gp.Database):
         return {"_first_name": first, "_last_name": last}
 
     for row in create_person("Amy", "An", db=db).to_table().fetch():
-        print("composite type: ", row)
         assert row["_first_name"] == "Amy" and row["_last_name"] == "An"
 
 
@@ -348,7 +370,9 @@ def test_func_apply_join(db: gp.Database):
     # fmt: on
     t1 = gp.values(rows1, db=db, column_names=["id1", "n1"])
     t2 = gp.values(rows2, db=db, column_names=["id2", "n2"])
-    ret = t1.join(t2, cond=t1["id1"] == t2["id2"], self_columns={"id1"}, other_columns={"n2"})
+    ret = t1.join(
+        t2, cond=lambda t1, t2: t1["id1"] == t2["id2"], self_columns={"id1"}, other_columns={"n2"}
+    )
     result = ret.apply(lambda t: label(t["n2"], t["id1"])).to_table().fetch()
     for row in list(result):
         assert row["label"][1] == row["label"][2]
@@ -373,9 +397,12 @@ def test_array_func_group_by_composite_apply(db: gp.Database):
     rows = [(1, i % 2 == 0) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
     results = list(
-        numbers.group_by("is_even").apply(lambda tab: my_stat(tab["val"])).to_table().fetch()
+        numbers.group_by(lambda t: t["is_even"].rename("is_even"))
+        .apply(lambda tab: my_stat(tab["val"]))
+        .to_table()
+        .fetch()
     )
-    assert list(list(results)[0].keys()) == ["sum", "count", "is_even"]
+    assert sorted(list(results)[0].keys()) == sorted(["sum", "count", "is_even"])
     for row in results:
         assert all(
             ["is_even" in row, row["is_even"] is not None, row["sum"] == 5, row["count"] == 5]
@@ -406,7 +433,7 @@ def test_array_func_group_by_attribute(db: gp.Database):
     # fmt: on
     numbers = gp.values(rows, db=db, column_names=["label", "val", "initial"])
     results = list(
-        numbers.group_by("label", "initial")
+        numbers.group_by(lambda t: [t["label"].rename("label"), t["initial"].rename("initial")])
         .apply(lambda tab: my_sum_const(tab["label"], tab["val"], tab["initial"]))
         .rename("my_sum")
         .to_table()
@@ -424,6 +451,6 @@ def test_func_return_list_composite(db: gp.Database):
     def add_to_cart(customer: str, items: List[str]) -> ShoppingCart:
         return {"customer": customer, "items": items}
 
-    results = db.call(add_to_cart, "alice", ["apple"]).to_table().fetch()
+    results = db.apply(lambda: add_to_cart("alice", ["apple"])).to_table().fetch()
     for row in results:
         assert row["customer"] == "alice" and row["items"] == ["apple"]

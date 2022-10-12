@@ -10,7 +10,10 @@ def test_group_agg(db: gp.Database):
     count = gp.aggregate_function("count")
 
     results = list(
-        numbers.group_by("is_even").apply(lambda row: count(row["*"])).to_table().fetch()
+        numbers.group_by(lambda t: t["is_even"].rename("is_even"))
+        .apply(lambda row: count(row["*"]))
+        .to_table()
+        .fetch()
     )
     assert len(results) == 2
     for row in results:
@@ -28,7 +31,7 @@ def test_group_agg_multi_columns(db: gp.Database):
         return result + val + val_cp
 
     results = list(
-        numbers.group_by("is_even")
+        numbers.group_by(lambda t: t["is_even"].rename("is_even"))
         .apply(lambda row: my_sum_copy(row["val"], row["val_cp"]))
         .rename("my_sum")
         .to_table()
@@ -43,13 +46,18 @@ def test_group_agg_multi_columns(db: gp.Database):
 
 
 def test_group_by_multi_columns(db: gp.Database):
-    rows = [(i, i % 2 == 0, i % 3 == 0) for i in range(6)]  # 0, 1, 2, 3, 4, 5
-    numbers = gp.values(rows, db=db, column_names=["val", "is_even", "is_multiple_of_3"])
+    rows = [(i,) for i in range(6)]  # 0, 1, 2, 3, 4, 5
+    numbers = gp.values(rows, db=db, column_names=["val"])
     count = gp.aggregate_function("count")
 
     results = list(
-        numbers.group_by("is_even", "is_multiple_of_3")
-        .apply(lambda row: count(row["val"]))
+        numbers.group_by(
+            lambda t: [
+                (t["val"] % 2 == 0).rename("is_even"),
+                (t["val"] % 3 == 0).rename("is_multiple_of_3"),
+            ]
+        )
+        .apply(lambda t: count(t["val"]))
         .to_table()
         .fetch()
     )
@@ -69,14 +77,15 @@ def test_group_by_multi_columns(db: gp.Database):
         )
 
 
-def test_group_union(db: gp.Database):
-    rows = [(i, i % 2 == 0, i % 3 == 0) for i in range(6)]  # 0, 1, 2, 3, 4, 5
-    numbers = gp.values(rows, db=db, column_names=["val", "is_even", "is_multiple_of_3"])
+def test_group_append(db: gp.Database):
+    rows = [(i,) for i in range(6)]  # 0, 1, 2, 3, 4, 5
+    numbers = gp.values(rows, db=db, column_names=["val"])
     count = gp.aggregate_function("count")
 
     results = list(
-        (numbers.group_by("is_even") | numbers.group_by("is_multiple_of_3"))
-        .apply(lambda row: count(row["val"]))
+        numbers.group_by(lambda t: (t["val"] % 2 == 0).rename("is_even"))
+        .add(lambda t: (t["val"] % 3 == 0).rename("is_multiple_of_3"))
+        .apply(lambda t: count(t["val"]))
         .to_table()
         .fetch()
     )

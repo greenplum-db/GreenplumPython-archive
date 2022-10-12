@@ -42,7 +42,10 @@ def test_join_all_and_all_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
     row = next(
         iter(
             t1.join(
-                t2, cond=t1["id1"] == t2["id2"], self_columns={"*"}, other_columns={"*"}
+                t2,
+                cond=lambda t1, t2: t1["id1"] == t2["id2"],
+                self_columns={"*"},
+                other_columns={"*"},
             ).fetch()
         )
     )
@@ -51,12 +54,14 @@ def test_join_all_and_all_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
 
 
 def test_join_no_and_no_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
-    ret = next(iter(t1.join(t2, cond=t1["id1"] == t2["id2"]).fetch()))
+    ret = next(iter(t1.join(t2, cond=lambda t1, t2: t1["id1"] == t2["id2"]).fetch()))
     assert "id1" not in ret and "id2" not in ret  # NOTE: The row is not empty with psycopg2
 
 
 def test_join_all_and_no_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
-    ret = next(iter(t1.join(t2, cond=t1["id1"] == t2["id2"], other_columns={"*"}).fetch()))
+    ret = next(
+        iter(t1.join(t2, cond=lambda t1, t2: t1["id1"] == t2["id2"], other_columns={"*"}).fetch())
+    )
     for col in ["id2", "idd2", "n2"]:
         assert col in ret
 
@@ -65,7 +70,10 @@ def test_join_all_and_one_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
     ret = next(
         iter(
             t1.join(
-                t2, cond=t1["id1"] == t2["id2"], self_columns={"id1"}, other_columns={"*"}
+                t2,
+                cond=lambda t1, t2: t1["id1"] == t2["id2"],
+                self_columns={"id1"},
+                other_columns={"*"},
             ).fetch()
         )
     )
@@ -78,7 +86,7 @@ def test_join_columns_from_list(db: gp.Database, t1: gp.Table, t2: gp.Table):
         iter(
             t1.join(
                 t2,
-                cond=t1["id1"] == t2["id2"],
+                cond=lambda t1, t2: t1["id1"] == t2["id2"],
                 self_columns=dict.fromkeys(["id1", "n1"]),
                 other_columns={"idd2"},
             ).fetch()
@@ -266,7 +274,9 @@ def test_table_join_ine(db: gp.Database):
     rows2 = [(2,), (3,), (4,)]
     t1 = gp.values(rows1, db=db, column_names=["a"])
     t2 = gp.values(rows2, db=db, column_names=["b"])
-    ret = t1.join(t2, cond=t1["a"] < t2["b"], self_columns={"a"}, other_columns={"b"}).fetch()
+    ret = t1.join(
+        t2, cond=lambda t1, t2: t1["a"] < t2["b"], self_columns={"a"}, other_columns={"b"}
+    ).fetch()
     assert len(list(ret)) == 6
     for row in list(ret):
         assert row["a"] < row["b"]
@@ -283,7 +293,7 @@ def test_table_multiple_self_join(db: gp.Database, zoo_1: gp.Table):
     )
     ret = t_join.join(
         zoo_3,
-        cond=t_join["zoo1_animal"] == zoo_3["animal"],
+        cond=lambda s, o: s["zoo1_animal"] == o["animal"],
         self_columns={"*"},
         other_columns={"*"},
     ).fetch()
@@ -300,7 +310,7 @@ def test_table_multiple_self_join(db: gp.Database, zoo_1: gp.Table):
 def test_lineage_dfs_order(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
-    mod = numbers.extend("mod", numbers["val"] % 2)
-    mod3 = mod.extend("mod3", mod["val"] % 3)
+    mod = numbers.extend("mod", lambda t: t["val"] % 2)
+    mod3 = mod.extend("mod3", lambda t: t["val"] % 3)
     results: gp.Table = mod3.join(numbers, using=["val"], self_columns={"val"})
     assert len(list(results.fetch())) == 10

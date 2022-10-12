@@ -1,7 +1,7 @@
 """
 This module creates a Python object OrderedTable for order by table.
 """
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Callable, List, Optional
 
 if TYPE_CHECKING:
     from greenplumpython.expr import Expr
@@ -29,7 +29,7 @@ class OrderedTable:
 
     def order_by(
         self,
-        sort_expr: "Expr",
+        sort_expr: Callable[["Table"], "Expr"],
         ascending: Optional[bool] = None,
         nulls_first: Optional[bool] = None,
         operator: Optional[str] = None,
@@ -49,7 +49,7 @@ class OrderedTable:
         Example:
             .. code-block::  Python
 
-                t.order_by(t["id"]).order_by(t["num"], ascending=False)
+                t.order_by(lambda t: t["id"]).order_by(lambda t: t["num"], ascending=False)
         """
         if ascending is not None and operator is not None:
             raise Exception(
@@ -57,7 +57,7 @@ class OrderedTable:
             )
         return OrderedTable(
             self._table,
-            self._ordering_list + [sort_expr],
+            self._ordering_list + [sort_expr(self.table)],
             self._ascending_list + [ascending],
             self._nulls_first_list + [nulls_first],
             self._operator_list + [operator],
@@ -77,7 +77,7 @@ class OrderedTable:
         Example:
             .. code-block::  Python
 
-                t.order_by(t["id"]).head(5)
+                t.order_by(lambda t: t["id"]).head(5)
         """
         from greenplumpython.table import Table
 

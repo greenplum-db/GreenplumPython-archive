@@ -9,7 +9,7 @@ from tests import db
 
 @pytest.fixture
 def t(db: gp.Database):
-    t = db.call(generate_series, 0, 9).rename("id").to_table()
+    t = db.apply(lambda: generate_series(0, 9)).rename("id").to_table()
     return t
 
 
@@ -70,7 +70,7 @@ def test_table_display_repr(db: gp.Database):
         "|          3 || Wolf       |\n"
         "|          4 || Fox        |\n"
     )
-    assert str(t.order_by(t["id"]).head(4)) == expected
+    assert str(t.order_by(lambda t: t["id"]).head(4)) == expected
 
 
 def test_table_display_repr_long_content(db: gp.Database):
@@ -86,7 +86,7 @@ def test_table_display_repr_long_content(db: gp.Database):
         "|          3 || Wolf       |\n"
         "|          4 || Fox        |\n"
     )
-    assert str(t.order_by(t["iddddddddddddddddddd"]).head(4)) == expected
+    assert str(t.order_by(lambda t: t["iddddddddddddddddddd"]).head(4)) == expected
 
 
 def test_table_display_repr_html(db: gp.Database):
@@ -118,12 +118,12 @@ def test_table_display_repr_html(db: gp.Database):
         "\t</tr>\n"
         "</table>"
     )
-    assert (t.order_by(t["id"]).head(4)._repr_html_()) == expected
+    assert (t.order_by(lambda t: t["id"]).head(4)._repr_html_()) == expected
 
 
 def test_table_extend_const(db: gp.Database):
     nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
-    results = nums.extend("x", "hello").fetch()
+    results = nums.extend("x", lambda _: "hello").fetch()
     for row in results:
         assert "num" in row and "x" in row and row["x"] == "hello"
 
@@ -136,7 +136,7 @@ def test_table_extend_expr(db: gp.Database):
     nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
     # FIXME: How to remove the intermdeiate variable `nums`?
     # FIXME: How to support functions returning more than one column?
-    results = nums.extend("result", add_one(nums["num"])).fetch()
+    results = nums.extend("result", lambda nums: add_one(nums["num"])).fetch()
     for row in results:
         assert row["result"] == row["num"] + 1
 
@@ -145,7 +145,7 @@ def test_table_extend_same_base(db: gp.Database):
     nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
     nums2 = gp.values([(i,) for i in range(10)], db, column_names=["num"])
     with pytest.raises(Exception) as exc_info:
-        nums.extend("num2", nums2["num"])
+        nums.extend("num2", lambda _: nums2["num"])
     assert (
         str(exc_info.value)
         == "Current table and included expression must be based on the same table"
@@ -154,11 +154,6 @@ def test_table_extend_same_base(db: gp.Database):
 
 def test_table_extend_multiple_col(db: gp.Database):
     nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
-    results = nums.extend("a", nums["num"])
-
-    # NOTE: `nums.extend("a", nums["num"]).extend("b", nums["num"])` is not
-    # supported because in this case `extend()` is supposed to modify `nums`
-    # implicitly and thus is NOT pure.
-    results = results.extend("b", results["num"])
+    results = nums.extend("a", lambda t: t["num"]).extend("b", lambda t: t["num"])
     for row in results.fetch():
         assert row["num"] == row["a"] == row["b"]

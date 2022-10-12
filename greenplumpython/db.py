@@ -1,7 +1,7 @@
 """
 This  module can create a connection to a Greenplum database
 """
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Tuple
 
 if TYPE_CHECKING:
     from greenplumpython.func import NormalFunction, AggregateFunction, FunctionExpr
@@ -65,7 +65,7 @@ class Database:
         assert isinstance(key, str)
         self.execute(f"SET {key} TO {value}", has_results=False)
 
-    def get_table(self, name: str):
+    def table(self, name: str):
         """
         Returns a :class:`~table.Table` using table name and self
 
@@ -79,10 +79,8 @@ class Database:
 
         return table(name, self)
 
-    def call(
-        self, func: Union["NormalFunction", "AggregateFunction"], *args: Any
-    ) -> "FunctionExpr":
-        return func(*args, db=self)
+    def apply(self, func: Callable[[], "FunctionExpr"]) -> "FunctionExpr":
+        return func().bind(db=self)
 
 
 def database(
