@@ -84,9 +84,9 @@ case ${pipeline_config} in
       hook_res="${proj_name}_pr"
     ;;
   merge|commit)
-      # Default branch is 'master' as it is our main branch
+      # Default branch is 'main' as it is our main branch
       if [ -z "${branch}" ]; then
-          branch="master"
+          branch="main"
       fi
       pipeline_type="merge"
       config_file="commit.yml"
