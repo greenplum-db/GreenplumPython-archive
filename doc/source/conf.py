@@ -60,7 +60,7 @@ html_context = {
     "display_github": True,
     "github_user": "greenplum-db",
     "github_repo": "GreenplumPython",
-    "github_version": "master/doc/source/",
+    "github_version": "main/doc/source/",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

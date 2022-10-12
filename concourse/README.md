@@ -15,8 +15,8 @@ https://dev2.ci.gpdb.pivotal.io/teams/gp-extensions/pipelines/pr.greenplumpython
 
 ### Main Branch Pipeline
 
-The development happens on the `master` branch. The merge pipeline for the `master` branch is
-https://dev2.ci.gpdb.pivotal.io/teams/gp-extensions/pipelines/merge.greenplumpython.master
+The development happens on the `main` branch. The merge pipeline for the `main` branch is
+https://dev2.ci.gpdb.pivotal.io/teams/gp-extensions/pipelines/merge.greenplumpython.main
 
 
 # Fly a pipeline
@@ -48,7 +48,7 @@ fly -t dev2 login -c https://dev2.ci.gpdb.pivotal.io -n gp-extensions
 
 ## Fly the release pipeline
 
-By default, the release is built from the `gpdb` branch.
+By default, the release is built from the `main` branch.
 
 The release pipeline should be located in https://prod.ci.gpdb.pivotal.io
 

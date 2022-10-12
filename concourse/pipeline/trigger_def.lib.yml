@@ -33,7 +33,7 @@ on_success:
      status: success
 #@ end
 
-#! Commit trigger. For master pipelines
+#! Commit trigger. For main pipelines
 #@ def commit_trigger(res_map):
 #@   add_res_by_name(res_map, "greenplumpython_commit")
 #@   add_res_by_name(res_map, "slack_notify")
