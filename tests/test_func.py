@@ -1,6 +1,3 @@
-import inspect
-import string
-from os import environ
 from typing import List
 
 import pytest
@@ -176,12 +173,15 @@ def test_func_long_name(db: gp.Database):
     def loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong() -> None:
         return
 
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as e:
         gp.create_function(
             loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong
         )
     # FIXME: Create more specific exception classes and remove this
-    assert "Function name should be shorter than 64 bytes." == str(exc_info.value)
+    assert (
+        "Function name 'loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong' should be shorter than 64 bytes."
+        == str(e.value)
+    )
 
 
 def test_create_func_with_optional_param(db: gp.Database):
@@ -427,3 +427,17 @@ def test_func_return_list_composite(db: gp.Database):
     results = db.call(add_to_cart, "alice", ["apple"]).to_table().fetch()
     for row in results:
         assert row["customer"] == "alice" and row["items"] == ["apple"]
+
+
+def test_create_func_same_name_throws(db: gp.Database):
+    @gp.create_function
+    def dup_name(a: int, b: int) -> int:
+        return a + b
+
+    with pytest.raises(Exception) as e:
+
+        @gp.create_function
+        def dup_name(a: int, b: int) -> int:
+            return a + 1
+
+    assert "has been defined before" in str(e.value)

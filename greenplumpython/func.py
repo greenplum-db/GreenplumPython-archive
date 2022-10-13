@@ -5,9 +5,7 @@ import functools
 import inspect
 import re
 import textwrap
-from ast import Call
-from tokenize import group
-from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, Union
+from typing import Any, Callable, Dict, Optional, Set, Tuple
 from uuid import uuid4
 
 from greenplumpython.db import Database
@@ -181,11 +179,11 @@ class _AbstractFunction:
         schema: Optional[str],
     ) -> None:
         NAMEDATALEN = 64  # See definition in PostgreSQL
-        if not (
-            (name is not None and len(name) < NAMEDATALEN)
-            or (wrapped_func is not None and len(wrapped_func.__name__) < NAMEDATALEN)
-        ):
-            raise Exception(f"Function name should be shorter than {NAMEDATALEN} bytes.")
+        _name = wrapped_func.__name__ if wrapped_func is not None else name
+        assert _name is not None
+        assert (
+            len(_name) < NAMEDATALEN
+        ), f"Function name '{_name}' should be shorter than {NAMEDATALEN} bytes."
         qualified_name = (
             (name if schema is None else f"{schema}.{name}")
             if name is not None
@@ -193,7 +191,6 @@ class _AbstractFunction:
             if wrapped_func is not None
             else None
         )
-        assert qualified_name is not None
         assert (
             qualified_name not in _global_scope
         ), f'Function named "{qualified_name}" has been defined before.'
