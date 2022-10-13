@@ -87,18 +87,21 @@ class FunctionExpr(Expr):
         ), "Whether returning composite is required to call the function."
         if self.function.returning_composite and self._as_name is None:
             self._as_name = "func_" + uuid4().hex
-        grouping_exprs = self._group_by.flatten() if self._group_by is not None else None
+        grouping_col_names = self._group_by.flatten() if self._group_by is not None else None
         # FIXME: The names of GROUP BY exprs can collide with names of fields in
         # the comosite type, making the column names of the resulting table not
         # unique. This can be mitigated after we implement table column
         # inference by raising an error when the function gets called.
+        grouping_cols = (
+            [Column(name, self._table).serialize() for name in grouping_col_names]
+            if grouping_col_names is not None
+            else None
+        )
         orig_func_table = Table(
             " ".join(
                 [
                     f"SELECT {str(self)}",
-                    ("," + ",".join([str(target) for target in grouping_exprs]))
-                    if grouping_exprs is not None
-                    else "",
+                    ("," + ",".join(grouping_cols)) if grouping_cols is not None else "",
                     from_caluse,
                     group_by_clause,
                 ]
@@ -119,20 +122,20 @@ class FunctionExpr(Expr):
         # )
         # SELECT (result).* FROM func_call;
         # ```
-        rebased_grouping_exprs = (
-            [Column(e.as_name, orig_func_table).serialize() for e in grouping_exprs]
-            if grouping_exprs is not None
+        rebased_grouping_cols = (
+            [Column(name, orig_func_table).serialize() for name in grouping_col_names]
+            if grouping_col_names is not None
             else None
         )
-        result = (
+        results = (
             "*"
             if not self.function.returning_composite
             else f"({self._as_name}).*"
-            if rebased_grouping_exprs is None
-            else f"{(','.join(rebased_grouping_exprs))}, ({self._as_name}).*"
+            if rebased_grouping_cols is None
+            else f"{(','.join(rebased_grouping_cols))}, ({self._as_name}).*"
         )
         return Table(
-            f"SELECT {str(result)} FROM {orig_func_table.name}",
+            f"SELECT {str(results)} FROM {orig_func_table.name}",
             db=self._db,
             parents=[orig_func_table],
         )
@@ -153,13 +156,18 @@ class ArrayFunctionExpr(FunctionExpr):
     def serialize(self) -> str:
         args_string_list = []
         args_string = ""
-        grouping_exprs = self._group_by.flatten() if self._group_by is not None else None
+        grouping_col_names = self._group_by.flatten() if self._group_by is not None else None
+        grouping_cols = (
+            {Column(name, self._table) for name in grouping_col_names}
+            if grouping_col_names is not None
+            else None
+        )
         if any(self._args):
             for i in range(len(self._args)):
                 if self._args[i] is None:
                     continue
                 if isinstance(self._args[i], Expr):
-                    if grouping_exprs is None or self._args[i] not in grouping_exprs:
+                    if grouping_cols is None or self._args[i] not in grouping_cols:
                         s = f"array_agg({str(self._args[i])})"  # type: ignore
                     else:
                         s = str(self._args[i])  # type: ignore
@@ -494,7 +502,7 @@ def create_array_function(
                 rows = [(1, i % 2 == 0) for i in range(10)]
                 numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
                 results = list(
-                    my_sum(numbers["val"], group_by=numbers.group_by(lambda t: t["is_even"])).rename=("result")
+                    my_sum(numbers["val"], group_by=numbers.group_by("is_even")).rename=("result")
                     .to_table()
                     .fetch()
                 )

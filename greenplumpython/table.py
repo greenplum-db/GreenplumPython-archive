@@ -561,27 +561,23 @@ class Table:
         assert results is not None
         return results
 
-    def group_by(
-        self, grouping_items: Callable[["Table"], Union["Expr", Iterable["Expr"]]]
-    ) -> TableGroupingSets:
+    def group_by(self, *column_names: str) -> TableGroupingSets:
         """
-        Returns self group by the given list.
+        Group the current :class:`~table.Table` by columns specified by
+        `column_names`.
 
         Args:
-            grouping_items: one or more :class:`~expr.Expr`s used to group rows of the table
+            column_names: one or more column names of the table
 
         Returns:
-            TableRowGroup : :class:`Table` grouped by the given list of :class:`~expr.Column`
+            TableGroupingSets: a list of grouping sets containing the only
+            grouping set defined by the columns in the arguments.
         """
         #  State transition diagram:
         #  Table --group_by()-> TableRowGroup --aggregate()-> FunctionExpr
         #    ^                                                    |
         #    |------------------------- to_table() ---------------|
-        _grouping_items = grouping_items(self)
-        return TableGroupingSets(
-            self,
-            [_grouping_items if isinstance(_grouping_items, abc.Iterable) else [_grouping_items]],
-        )
+        return TableGroupingSets(self, [column_names])
 
     # FIXME : Add more tests
     def apply(self, func: Callable[["Table"], "FunctionExpr"]) -> "FunctionExpr":

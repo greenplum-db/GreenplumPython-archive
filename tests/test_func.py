@@ -114,7 +114,7 @@ def test_agg_group_by(db: gp.Database):
     results = list(
         count(
             numbers["val"],
-            group_by=numbers.group_by(lambda t: t["is_even"].rename("is_even")),
+            group_by=numbers.group_by("is_even"),
             db=db,
         )
         .to_table()
@@ -133,12 +133,7 @@ def test_agg_group_by_multi_columns(db: gp.Database):
     results = list(
         count(
             numbers["val"],
-            group_by=numbers.group_by(
-                lambda t: [
-                    t["is_even"].rename("is_even"),
-                    t["is_multiple_of_3"].rename("is_multiple_of_3"),
-                ]
-            ),
+            group_by=numbers.group_by("is_even", "is_multiple_of_3"),
             db=db,
         )
         .to_table()
@@ -233,9 +228,7 @@ def test_array_func_group_by(db: gp.Database):
     rows = [(1, i % 2 == 0) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
     results = list(
-        my_sum_array(
-            numbers["val"], group_by=numbers.group_by(lambda t: t["is_even"].rename("is_even"))
-        )
+        my_sum_array(numbers["val"], group_by=numbers.group_by("is_even"))
         .rename("result")
         .to_table()
         .fetch()
@@ -259,11 +252,7 @@ def test_array_func_group_by_return_composite(db: gp.Database):
     rows = [(1, "a",), (1, "a",), (1, "b",), (1, "a",), (1, "b",), (1, "b",)]
     # fmt: on
     numbers = gp.values(rows, db=db, column_names=["val", "lab"])
-    ret = (
-        my_count_sum(numbers["val"], group_by=numbers.group_by(lambda t: t["lab"].rename("lab")))
-        .to_table()
-        .fetch()
-    )
+    ret = my_count_sum(numbers["val"], group_by=numbers.group_by("lab")).to_table().fetch()
     assert sorted(list(ret)[0].keys()) == sorted(["_sum", "_count", "lab"])
     for row in list(ret):
         assert row["_sum"] == 3
@@ -397,10 +386,7 @@ def test_array_func_group_by_composite_apply(db: gp.Database):
     rows = [(1, i % 2 == 0) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
     results = list(
-        numbers.group_by(lambda t: t["is_even"].rename("is_even"))
-        .apply(lambda tab: my_stat(tab["val"]))
-        .to_table()
-        .fetch()
+        numbers.group_by("is_even").apply(lambda tab: my_stat(tab["val"])).to_table().fetch()
     )
     assert sorted(list(results)[0].keys()) == sorted(["sum", "count", "is_even"])
     for row in results:
@@ -433,7 +419,7 @@ def test_array_func_group_by_attribute(db: gp.Database):
     # fmt: on
     numbers = gp.values(rows, db=db, column_names=["label", "val", "initial"])
     results = list(
-        numbers.group_by(lambda t: [t["label"].rename("label"), t["initial"].rename("initial")])
+        numbers.group_by("label", "initial")
         .apply(lambda tab: my_sum_const(tab["label"], tab["val"], tab["initial"]))
         .rename("my_sum")
         .to_table()

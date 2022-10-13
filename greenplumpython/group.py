@@ -1,8 +1,7 @@
 """
 This module creates a Python object TableRowGroup for group by table.
 """
-from collections import abc
-from typing import TYPE_CHECKING, Callable, Iterable, List, MutableSet, Union
+from typing import TYPE_CHECKING, Callable, Iterable, List, MutableSet, Set
 
 from greenplumpython.expr import Expr
 
@@ -33,38 +32,32 @@ class TableGroupingSets:
         Example:
             .. code-block::  python
 
-                numbers.group_by(lambda t: t["is_even"]).apply(lambda row: count(row["*"]))
+                numbers.group_by("is_even").apply(lambda row: count(row["*"]))
         """
         return func(self._table).bind(group_by=self)
 
-    def add(
-        self, grouping_items: Callable[["Table"], Union["Expr", Iterable["Expr"]]]
-    ) -> "TableGroupingSets":
+    def add(self, *column_names: str) -> "TableGroupingSets":
         """
-        Append another group defined by `grouping_items` on the same
-        :class:`~table.Table` to the GROUPING SET so that when applying an
-        agggregate function to the set, the function will be applied to each
-        group individually.
+        Group the current :class:`~table.Table` by `column_names` and add to
+        the GROUPING SETS list so that when applying an agggregate function to
+        the list, the function will be applied to each grouping set
+        individually.
 
         Args:
             grouping_items:
         """
-        _grouping_items = grouping_items(self._table)
         return TableGroupingSets(
             self._table,
-            self._grouping_sets
-            + [_grouping_items if isinstance(_grouping_items, abc.Iterable) else [_grouping_items]],
+            self._grouping_sets + [column_names],
         )
 
-    def flatten(self) -> Iterable["Expr"]:
+    def flatten(self) -> Set[str]:
         """:meta private:"""
         item_set: MutableSet[Expr] = set()
         for grouping_set in self._grouping_sets:
-            for group_by_item in grouping_set:
-                assert isinstance(
-                    group_by_item, Expr
-                ), f"Grouping item {group_by_item} is not an 'Expr'"
-                item_set.add(group_by_item)
+            for item in grouping_set:
+                assert isinstance(item, str), f"Grouping item {item} is not a column name."
+                item_set.add(item)
         return item_set
 
     @property
@@ -81,7 +74,6 @@ class TableGroupingSets:
     def clause(self) -> str:
         """:meta private:"""
         grouping_sets_str = [
-            f"({','.join([item.as_name for item in grouping_set])})"
-            for grouping_set in self._grouping_sets
+            f"({','.join([item for item in grouping_set])})" for grouping_set in self._grouping_sets
         ]
         return "GROUP BY GROUPING SETS " + f"({','.join(grouping_sets_str)})"
