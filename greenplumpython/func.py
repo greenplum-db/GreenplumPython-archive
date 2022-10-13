@@ -467,7 +467,7 @@ def create_array_function(
     wrapped_func: Optional[Callable[..., Any]] = None, language_handler: str = "plpython3u"
 ) -> ArrayFunction:
     """
-    Creates a User Defined Array Function (UDF) in database from the given Python
+    Creates a User Defined Array Function in database from the given Python
     function.
 
     Args:
