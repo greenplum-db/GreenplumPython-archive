@@ -1,7 +1,10 @@
 """
 This  module can create a connection to a Greenplum database
 """
-from typing import Any, Iterable, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Tuple, Union
+
+if TYPE_CHECKING:
+    from greenplumpython.func import NormalFunction, AggregateFunction, FunctionExpr
 
 import psycopg2
 import psycopg2.extras
@@ -13,7 +16,7 @@ class Database:
     Each Database object has an instance **conn** which establishes a connection using psycopg2.
     """
 
-    def __init__(self, params: "dict[str, str]") -> None:
+    def __init__(self, params: Dict[str, str]) -> None:
         self._conn = psycopg2.connect(  # type: ignore
             " ".join([f"{k}={v}" for k, v in params.items()]),
             cursor_factory=psycopg2.extras.RealDictCursor,
@@ -75,6 +78,11 @@ class Database:
         from greenplumpython.table import table
 
         return table(name, self)
+
+    def call(
+        self, func: Union["NormalFunction", "AggregateFunction"], *args: Any
+    ) -> "FunctionExpr":
+        return func(*args, db=self)
 
 
 def database(
