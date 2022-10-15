@@ -129,42 +129,6 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="type.create_type">
-<span class="sig-prename descclassname"><span class="pre">type.</span></span><span class="sig-name descname"><span class="pre">create_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Database</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#type.create_type" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a new composite type in database and returns its name</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>class_type</strong> – object : class which user want to reproduce in Greenplum</p></li>
-<li><p><strong>db</strong> – <a class="reference internal" href="db.html#db.Database" title="db.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a> : where the type will be created</p></li>
-<li><p><strong>as_name</strong> – Optional[str] : name of the created type if different from class</p></li>
-<li><p><strong>is_temp</strong> – bool : if type exists only for current session</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>name of the created composite type</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="type.drop_type">
-<span class="sig-prename descclassname"><span class="pre">type.</span></span><span class="sig-name descname"><span class="pre">drop_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Database</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#type.drop_type" title="Permalink to this definition"></a></dt>
-<dd><p>Drop type in <a class="reference internal" href="db.html#db.Database" title="db.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>type_name</strong> – str: type name</p></li>
-<li><p><strong>db</strong> – <a class="reference internal" href="db.html#db.Database" title="db.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a>: database where stored type</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="type.get_type">
 <span class="sig-prename descclassname"><span class="pre">type.</span></span><span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Database</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#type.Type" title="type.Type"><span class="pre">Type</span></a></span></span><a class="headerlink" href="#type.get_type" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the type corresponding to the name in the <a class="reference internal" href="db.html#db.Database" title="db.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a> given.</p>
@@ -180,35 +144,6 @@
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#type.Type" title="type.Type">Type</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="type.to_pg_const">
-<span class="sig-prename descclassname"><span class="pre">type.</span></span><span class="sig-name descname"><span class="pre">to_pg_const</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#type.to_pg_const" title="Permalink to this definition"></a></dt>
-<dd><p>Converts a const to UTF-8 encoded str</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="type.to_pg_type">
-<span class="sig-prename descclassname"><span class="pre">type.</span></span><span class="sig-name descname"><span class="pre">to_pg_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annotation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Database</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_return</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#type.to_pg_type" title="Permalink to this definition"></a></dt>
-<dd><p>Conversion of Type from Python to Greenplum</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>annotation</strong> – Any: object annotation</p></li>
-<li><p><strong>db</strong> – Optional[<a class="reference internal" href="db.html#db.Database" title="db.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a>]: None if primitive type or database associated with type</p></li>
-<li><p><strong>as_name</strong> – Optional[str]: None or its alias name</p></li>
-<li><p><strong>is_temp</strong> – bool: define if it is a temporary creation</p></li>
-<li><p><strong>is_return</strong> – bool: define if the object is use as a function’s return type</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>name of type or None if not exists</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Union[str, None]</p>
 </dd>
 </dl>
 </dd></dl>
