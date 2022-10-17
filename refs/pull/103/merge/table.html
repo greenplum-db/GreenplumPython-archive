@@ -201,40 +201,22 @@ function.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="table.Table.select">
-<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></span><a class="headerlink" href="#table.Table.select" title="Permalink to this definition"></a></dt>
-<dd><p>Returns <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> with list of targeted <a class="reference internal" href="expr.html#expr.Column" title="expr.Column"><code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code></a></p>
+<dt class="sig sig-object py" id="table.Table.assign">
+<span class="sig-name descname"><span class="pre">assign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">new_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></span><a class="headerlink" href="#table.Table.assign" title="Permalink to this definition"></a></dt>
+<dd><p>Assigns new columns to the current <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>target_list</strong> – Iterable : list of targeted columns</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Table selected only with targeted columns</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
+<dd class="field-odd"><p><strong>new_columns</strong> – a <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> whose keys are column names and values</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="table.Table.extend">
-<span class="sig-name descname"><span class="pre">extend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></span><a class="headerlink" href="#table.Table.extend" title="Permalink to this definition"></a></dt>
-<dd><p>Extends the current <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> by including an extra value as a
-new <code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code>.</p>
+<p>:param are <code class="xref py py-class docutils literal notranslate"><span class="pre">Callable`s</span> <span class="pre">returning</span> <span class="pre">column</span> <span class="pre">data</span> <span class="pre">when</span> <span class="pre">applied</span> <span class="pre">to</span> <span class="pre">the:</span>
+<span class="pre">:param</span> <span class="pre">current</span> <span class="pre">:class:`Table</span></code>.:</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – Name of the new column in the resulting <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a>.</p></li>
-<li><p><strong>value</strong> – Value of the new column, can be either an <code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code>,
-or any other type that can be adapted to a SQL type.</p></li>
-</ul>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>New table including the new assigned columns</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Table after extension</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
 </dd>
 </dl>
 <div class="admonition warning">
