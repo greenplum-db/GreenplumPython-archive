@@ -49,7 +49,7 @@ def test_group_by_multi_columns(db: gp.Database):
 
     results = list(
         numbers.group_by("is_even", "is_multiple_of_3")
-        .apply(lambda row: count(row["val"]))
+        .apply(lambda t: count(t["val"]))
         .to_table()
         .fetch()
     )
@@ -75,8 +75,9 @@ def test_group_union(db: gp.Database):
     count = gp.aggregate_function("count")
 
     results = list(
-        (numbers.group_by("is_even") | numbers.group_by("is_multiple_of_3"))
-        .apply(lambda row: count(row["val"]))
+        numbers.group_by("is_even")
+        .union(lambda t: t.group_by("is_multiple_of_3"))
+        .apply(lambda t: count(t["val"]))
         .to_table()
         .fetch()
     )
