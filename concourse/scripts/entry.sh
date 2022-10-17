@@ -152,6 +152,8 @@ function setup_gpadmin_bashrc() {
         echo "source /home/gpadmin/gpdb_src/gpAux/gpdemo/gpdemo-env.sh"
         echo "export OS_NAME=${OS_NAME}"
         echo "export PATH=\$PATH:${GPHOME}/ext/python3.9/bin"
+        # psycopg2 needs Python.h
+        echo "export CFLAGS=-I/usr/local/greenplum-db-devel/ext/python3.9/include/python3.9"
     } >> /home/gpadmin/.bashrc
 }
 
