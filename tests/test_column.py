@@ -29,10 +29,10 @@ def test_expr_column_str_in_query(db: gp.Database, table: gp.Table):
     query = "select " + str(c) + " from " + c.table.name
     tr = gp.Table(query=query, db=db)
     for row in tr:
-        keys = list(row.column_names())
+        keys = list(row.keys())
         assert len(keys) == 1
         assert "id" in keys[0]
-    assert len(list(tr)) == 3
+    assert tr.ndim == 3
 
 
 def test_expr_column_rename(db: gp.Database, table: gp.Table):

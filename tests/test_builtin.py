@@ -19,13 +19,13 @@ def test_builtin_func_call(db: gp.Database):
 
 def test_builtin_func_apply(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    result = gp.values(rows, db=db, column_names=["a"])["a"].apply(F.count).to_table()
-    assert len(list(result)) == 1
-    assert next(iter(result))["count"] == 10
+    result = iter(gp.values(rows, db=db, column_names=["a"])["a"].apply(F.count).to_table())
+    assert result.ndim == 1
+    assert next(result)["count"] == 10
 
 
 def test_builtin_func_no_arg(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    result = gp.values(rows, db=db, column_names=["a"]).apply(lambda _: F.count()).to_table()
-    assert len(list(result)) == 1
-    assert next(iter(result))["count"] == 10
+    result = iter(gp.values(rows, db=db, column_names=["a"]).apply(lambda _: F.count()).to_table())
+    assert result.ndim == 1
+    assert next(result)["count"] == 10

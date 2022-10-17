@@ -26,8 +26,6 @@ from typing import (
 )
 from uuid import uuid4
 
-from psycopg2.extras import RealDictRow
-
 from greenplumpython import db
 from greenplumpython.group import TableGroupingSets
 
@@ -36,7 +34,6 @@ if TYPE_CHECKING:
 
 from greenplumpython.expr import Column, Expr
 from greenplumpython.order import OrderedTable
-from greenplumpython.row import Row
 from greenplumpython.type import to_pg_const
 
 
@@ -57,6 +54,7 @@ class Table:
         self._parents = parents
         self._name = "cte_" + uuid4().hex if name is None else name
         self._columns = columns
+        self._ndim = None
         self._contents = None
         if any(parents):
             self._db = next(iter(parents))._db
@@ -445,18 +443,39 @@ class Table:
         """
         return self._db
 
-    def list(self) -> List[RealDictRow]:
+    @property
+    def ndim(self) -> int:
         """
-        Returns contents of Table
+        Returns number of rows of Table
 
         Returns:
-            List[RealDictRow]: List of rows of table
+            int: number of rows of table
 
         """
-        if self._contents is None:
-            result = self._fetch()
-            return list(result)
-        return self._contents
+        if self._ndim is None:
+            t: Table = iter(self)
+            assert t._ndim is not None
+            return t._ndim
+        assert self._ndim is not None
+        return self._ndim
+
+    def column_names(self) -> "Table":
+        """
+        Returns :class:`Table` contained column names of self. Need to do a fetch afterwards to get results.
+
+        Returns:
+            Table: table contained list of columns name of self
+        """
+        if any(self._parents):
+            raise NotImplementedError()
+        return Table(
+            f"""
+                SELECT column_name
+                FROM information_schema.columns 
+                WHERE table_name = quote_ident('{self._name}')
+            """,
+            db=self._db,
+        )
 
     @property
     def columns(self) -> Optional[Iterable[Column]]:
@@ -502,41 +521,26 @@ class Table:
             return self._query
         return "WITH " + ",".join(cte_list) + self._query
 
-    def __iter__(self) -> "Table":
-        if self._contents is not None:
-            self._n = 0
+    def __iter__(self):
+        if self._contents is not None and self._n < len(self._contents):
             return self
         assert self._db is not None
         result = self._fetch()
         assert result is not None
-        self._contents: List[RealDictRow] = list(result)
+        self._contents = list(result)
         self._n = 0
+        self._ndim = len(self._contents)
         return self
 
     def __next__(self):
         if self._n < len(self._contents):
             row_contents: Dict[str, str] = {}  # type ignore
             assert self._contents is not None
-            for name in self._contents[0].keys():  # type ignore
+            for name in list(self._contents[0]):  # type ignore
                 row_contents[name] = self._contents[self._n][name]  # type ignore
             self._n += 1
-            return Row(row_contents)
+            return row_contents
         raise StopIteration("StopIteration: Reached last row of table!")
-
-    def refresh(self) -> "Table":
-        """
-        Refresh self._contents
-
-        Returns:
-            self
-        """
-
-        assert self._db is not None
-        result = self._fetch()
-        assert result is not None
-        self._contents = list(result)
-        self._n = 0
-        return self
 
     def _fetch(self, is_all: bool = True) -> Iterable[Tuple[Any]]:
         """

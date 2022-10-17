@@ -14,24 +14,31 @@ def t(db: gp.Database):
 
 
 def test_order_by_head(db: gp.Database, t: gp.Table):
-    ret = list(t.order_by("id").head(5).fetch())
-    assert len(ret) == 5
-    assert ret[0]["id"] == 0
-    assert ret[4]["id"] == 4
+    ret = t.order_by("id").head(5)
+    assert ret.ndim == 5
+    assert next(iter(ret))["id"] == 0
+    assert next(ret)["id"] == 1
+    assert next(ret)["id"] == 2
+    assert next(ret)["id"] == 3
+    assert next(ret)["id"] == 4
 
 
 def test_order_by_head_desc(db: gp.Database, t: gp.Table):
-    ret = list(t.order_by("id", ascending=False).head(5).fetch())
-    assert len(ret) == 5
-    assert ret[0]["id"] == 9
-    assert ret[4]["id"] == 5
+    ret = t.order_by("id", ascending=False).head(5)
+    assert ret.ndim == 5
+    assert next(iter(ret))["id"] == 9
+    assert next(ret)["id"] == 8
+    assert next(ret)["id"] == 7
+    assert next(ret)["id"] == 6
+    assert next(ret)["id"] == 5
 
 
 def test_order_by_head_operator(db: gp.Database, t: gp.Table):
-    ret = list(t.order_by("id", operator=">").head(3).fetch())
-    assert len(ret) == 3
-    assert ret[0]["id"] == 9
-    assert ret[2]["id"] == 7
+    ret = t.order_by("id", operator=">").head(3)
+    assert ret.ndim == 3
+    assert next(iter(ret))["id"] == 9
+    assert next(ret)["id"] == 8
+    assert next(ret)["id"] == 7
 
 
 def test_order_by_head_asc_operator(db: gp.Database, t: gp.Table):
@@ -47,14 +54,24 @@ def test_order_by_multiple_head(db: gp.Database):
     rows = [(1, 2,), (1, 3,), (2, 2,), (3, 1,), (3, 4,)]
     # fmt: on
     t = gp.values(rows, db=db, column_names=["id", "num"])
-    ret = list(t.order_by("id").order_by("num", ascending=False).head(5).fetch())
-    assert len(ret) == 5
-    assert ret[0]["id"] == 1 and ret[0]["num"] == 3
-    assert ret[4]["id"] == 3 and ret[4]["num"] == 1
-    ret2 = list(t.order_by("num", ascending=False).order_by("id").head(5).fetch())
-    assert len(ret) == 5
-    assert ret2[0]["id"] == 3 and ret2[0]["num"] == 4
-    assert ret2[4]["id"] == 3 and ret2[4]["num"] == 1
+    ret = t.order_by("id").order_by("num", ascending=False).head(5)
+    assert ret.ndim == 5
+    row = next(iter(ret))
+    assert row["id"] == 1 and row["num"] == 3
+    row = next(ret)
+    row = next(ret)
+    row = next(ret)
+    row = next(ret)
+    assert row["id"] == 3 and row["num"] == 1
+    ret2 = t.order_by("num", ascending=False).order_by("id").head(5)
+    assert ret.ndim == 5
+    row = next(iter(ret2))
+    assert row["id"] == 3 and row["num"] == 4
+    row = next(ret2)
+    row = next(ret2)
+    row = next(ret2)
+    row = next(ret2)
+    assert row["id"] == 3 and row["num"] == 1
 
 
 def test_order_by_nulls_last(db: gp.Database):
@@ -64,6 +81,10 @@ def test_order_by_nulls_last(db: gp.Database):
             (4, "The Night Watch", 1642,)]
     # fmt: on
     t = gp.values(rows, db=db, column_names=["id", "painting", "year"])
-    ret = list(t.order_by("year", nulls_first=False).head(5).fetch())
-    assert ret[0]["year"] is not None and ret[1]["year"] is not None and ret[2]["year"] is not None
-    assert ret[3]["year"] is None and ret[4]["year"] is None
+    ret = t.order_by("year", nulls_first=False).head(5)
+    assert (
+        next(iter(ret))["year"] is not None
+        and next(ret)["year"] is not None
+        and next(ret)["year"] is not None
+    )
+    assert next(ret)["year"] is None and next(ret)["year"] is None
