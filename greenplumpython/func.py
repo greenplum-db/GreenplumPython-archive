@@ -203,6 +203,9 @@ class _AbstractFunction:
         returning_composite: Optional[bool],
     ) -> None:
         NAMEDATALEN = 64  # See definition in PostgreSQL
+        # if wrapped_func is None, the function object is obtained by 
+        # gp.function() rather than gp.create_function(). Otherwise a
+        # Python function will be passed to wrapped_func.
         _name = wrapped_func.__name__ if wrapped_func is not None else name
         assert _name is not None
         assert (

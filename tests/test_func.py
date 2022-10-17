@@ -204,7 +204,7 @@ def test_create_func_with_optional_param(db: gp.Database):
     assert isinstance(func_opt_param, NormalFunction)
 
 
-def test_create_func_with_optional_param(db: gp.Database):
+def test_create_agg_with_optional_param(db: gp.Database):
     @gp.create_aggregate(language_handler="plcontainer")
     def agg_opt_param() -> None:
         return
