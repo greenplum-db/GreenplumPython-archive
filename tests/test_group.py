@@ -9,10 +9,8 @@ def test_group_agg(db: gp.Database):
     numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
     count = gp.aggregate_function("count")
 
-    results = list(
-        numbers.group_by("is_even").apply(lambda row: count(row["*"])).to_table().fetch()
-    )
-    assert len(results) == 2
+    results = numbers.group_by("is_even").apply(lambda row: count(row["*"])).to_table()
+    assert results.ndim == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["count"] == 5)
 
@@ -27,14 +25,13 @@ def test_group_agg_multi_columns(db: gp.Database):
             return val + val_cp
         return result + val + val_cp
 
-    results = list(
+    results = (
         numbers.group_by("is_even")
         .apply(lambda row: my_sum_copy(row["val"], row["val_cp"]))
         .rename("my_sum")
         .to_table()
-        .fetch()
     )
-    assert len(results) == 2
+    assert results.ndim == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None)
         assert (row["is_even"] and row["my_sum"] == 2 * sum(list(range(0, 10, 2)))) or (
@@ -47,13 +44,12 @@ def test_group_by_multi_columns(db: gp.Database):
     numbers = gp.values(rows, db=db, column_names=["val", "is_even", "is_multiple_of_3"])
     count = gp.aggregate_function("count")
 
-    results = list(
+    results = (
         numbers.group_by("is_even", "is_multiple_of_3")
         .apply(lambda row: count(row["val"]))
         .to_table()
-        .fetch()
     )
-    assert len(results) == 4  # 2 attributes * 2 possible values per attribute
+    assert results.ndim == 4  # 2 attributes * 2 possible values per attribute
     for row in results:
         assert (
             ("is_even" in row)
@@ -74,13 +70,12 @@ def test_group_union(db: gp.Database):
     numbers = gp.values(rows, db=db, column_names=["val", "is_even", "is_multiple_of_3"])
     count = gp.aggregate_function("count")
 
-    results = list(
+    results = (
         (numbers.group_by("is_even") | numbers.group_by("is_multiple_of_3"))
         .apply(lambda row: count(row["val"]))
         .to_table()
-        .fetch()
     )
-    assert len(results) == 4  # 2 attributes * 2 possible values per attribute
+    assert results.ndim == 4  # 2 attributes * 2 possible values per attribute
     for row in results:
         assert ("is_even" in row) and ("is_multiple_of_3" in row)
         assert (

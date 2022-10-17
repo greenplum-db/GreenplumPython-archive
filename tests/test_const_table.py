@@ -17,11 +17,10 @@ def test_const_table(db: gp.Database):
     rows = [(1,), (2,), (3,)]
     t = gp.values(rows, db=db, column_names=["id"])
     t = t.save_as("const_table", column_names=["id"], temp=True)
-    assert sorted([tuple(row.values()) for row in t.fetch()]) == sorted(rows)
+    assert sorted([tuple(row.values()) for row in t]) == sorted(rows)
 
-    t_cols = t.column_names().fetch()
-    assert len(list(t_cols)) == 1
-    for row in t_cols:
+    assert t.column_names().ndim == 1
+    for row in t.column_names():
         assert row["column_name"] == "id"
 
 
@@ -38,23 +37,20 @@ def test_table_getitem_sub_columns(db: gp.Database):
     # fmt: on
     t = gp.values(rows, db=db, column_names=["id", "num"])
     t_sub = t[["id", "num"]]
-    for row in t_sub.fetch():
+    for row in t_sub:
         assert "id" in row and "num" in row
 
 
 def test_table_getitem_slice_limit(db: gp.Database, t: gp.Table):
-    ret = list(t[:2].fetch())
-    assert len(ret) == 2
+    assert t[:2].ndim == 2
 
 
 def test_table_getitem_slice_offset(db: gp.Database, t: gp.Table):
-    ret = list(t[7:].fetch())
-    assert len(ret) == 3
+    assert t[7:].ndim == 3
 
 
 def test_table_getitem_slice_off_limit(db: gp.Database, t: gp.Table):
-    ret = list(t[2:5].fetch())
-    assert len(ret) == 3
+    assert t[2:5].ndim == 3
 
 
 def test_table_display_repr(db: gp.Database):
@@ -132,7 +128,7 @@ def test_table_display_repr_empty_result(db: gp.Database):
 
 def test_table_extend_const(db: gp.Database):
     nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
-    results = nums.extend("x", "hello").fetch()
+    results = nums.extend("x", "hello")
     for row in results:
         assert "num" in row and "x" in row and row["x"] == "hello"
 
@@ -145,7 +141,7 @@ def test_table_extend_expr(db: gp.Database):
     nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
     # FIXME: How to remove the intermdeiate variable `nums`?
     # FIXME: How to support functions returning more than one column?
-    results = nums.extend("result", add_one(nums["num"])).fetch()
+    results = nums.extend("result", add_one(nums["num"]))
     for row in results:
         assert row["result"] == row["num"] + 1
 
@@ -169,5 +165,5 @@ def test_table_extend_multiple_col(db: gp.Database):
     # supported because in this case `extend()` is supposed to modify `nums`
     # implicitly and thus is NOT pure.
     results = results.extend("b", results["num"])
-    for row in results.fetch():
+    for row in results:
         assert row["num"] == row["a"] == row["b"]

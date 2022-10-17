@@ -53,6 +53,8 @@ class Table:
         self._parents = parents
         self._name = "cte_" + uuid4().hex if name is None else name
         self._columns = columns
+        self._ndim = None
+        self._contents = None
         if any(parents):
             self._db = next(iter(parents))._db
         else:
@@ -146,7 +148,7 @@ class Table:
         Return a string representation for a table
         """
         repr_string = ""
-        ret = list(self.fetch())
+        ret = list(self._fetch())  # type: ignore
         if len(ret) != 0:
             # Iterate over the given table to calculate the column width for its ASCII representation.
             width = [0] * len(ret[0])
@@ -173,7 +175,7 @@ class Table:
         return repr_string
 
     def _repr_html_(self):
-        ret = list(self.fetch())
+        ret = list(self._fetch())
         repr_html_str = ""
         if len(ret) != 0:
             repr_html_str = "<table>\n"
@@ -432,6 +434,22 @@ class Table:
         """
         return self._db
 
+    @property
+    def ndim(self) -> int:
+        """
+        Returns number of rows of Table
+
+        Returns:
+            int: number of rows of table
+
+        """
+        if self._ndim is None:
+            t: Table = iter(self)
+            assert t._ndim is not None
+            return t._ndim
+        assert self._ndim is not None
+        return self._ndim
+
     def column_names(self) -> "Table":
         """
         Returns :class:`Table` contained column names of self. Need to do a fetch afterwards to get results.
@@ -494,7 +512,28 @@ class Table:
             return self._query
         return "WITH " + ",".join(cte_list) + self._query
 
-    def fetch(self, is_all: bool = True) -> Iterable[Tuple[Any]]:
+    def __iter__(self):
+        if self._contents is not None and self._n < len(self._contents):
+            return self
+        assert self._db is not None
+        result = self._fetch()
+        assert result is not None
+        self._contents = list(result)
+        self._n = 0
+        self._ndim = len(self._contents)
+        return self
+
+    def __next__(self):
+        if self._n < len(self._contents):
+            row_contents: Dict[str, str] = {}  # type ignore
+            assert self._contents is not None
+            for name in list(self._contents[0]):  # type ignore
+                row_contents[name] = self._contents[self._n][name]  # type ignore
+            self._n += 1
+            return row_contents
+        raise StopIteration("StopIteration: Reached last row of table!")
+
+    def _fetch(self, is_all: bool = True) -> Iterable[Tuple[Any]]:
         """
         Fetch rows of this :class:`Table`.
         - if is_all is True, fetch all rows at once
@@ -529,7 +568,7 @@ class Table:
         # TODO : USE SLICE 1 ROW TO MANIPULATE LESS DATA
         #        OR USING column_names() FUNCTION WITH RESULT ORDERED
         if len(column_names) == 0:
-            ret = self.fetch()
+            ret = self._fetch()
             column_names = list(list(ret)[0].keys())  # type: ignore
         self._db.execute(
             f"""
@@ -607,14 +646,14 @@ class Table:
                 rows = [(i,) for i in range(-10, 0)]
                 series = gp.values(rows, db=db, column_names=["id"])
                 abs = gp.function("abs", db=db)
-                result = series.apply(lambda t: abs(t["id"])).to_table().fetch()
+                result = series.apply(lambda t: abs(t["id"])).to_table()_fetch()
 
             If we want to give constant as attribute, it is also easy to use. Suppose *label* function
             takes a str and a int:
 
             .. code-block::  python
 
-                result = series.apply(lambda t: label("label", t["id"])).to_table().fetch()
+                result = series.apply(lambda t: label("label", t["id"])).to_table()._fetch()
 
         """
         # We need to support calling functions with constant args or even no
