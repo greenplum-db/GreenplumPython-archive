@@ -7,7 +7,7 @@ from tests import db
 def test_op_on_consts(db: gp.Database):
     regex_match = gp.operator("~", db)
     result = regex_match("hello", "h.*o").rename("is_matched").to_table()
-    assert result.ndim == 1 and next(iter(result))["is_matched"]
+    assert len(result) == 1 and next(iter(result))["is_matched"]
 
 
 def test_op_index(db: gp.Database):

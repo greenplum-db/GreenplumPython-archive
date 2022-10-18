@@ -19,9 +19,9 @@ def test_const_table(db: gp.Database):
     t = t.save_as("const_table", column_names=["id"], temp=True)
     assert sorted([tuple(row.values()) for row in t]) == sorted(rows)
 
-    assert t.column_names().ndim == 1
-    for row in t.column_names():
-        assert row["column_name"] == "id"
+    assert len(next(iter(t)).keys()) == 1
+    for row in next(iter(t)).keys():
+        assert row == "id"
 
 
 def test_table_getitem_str(db: gp.Database):
@@ -42,15 +42,15 @@ def test_table_getitem_sub_columns(db: gp.Database):
 
 
 def test_table_getitem_slice_limit(db: gp.Database, t: gp.Table):
-    assert t[:2].ndim == 2
+    assert len(t[:2]) == 2
 
 
 def test_table_getitem_slice_offset(db: gp.Database, t: gp.Table):
-    assert t[7:].ndim == 3
+    assert len(t[7:]) == 3
 
 
 def test_table_getitem_slice_off_limit(db: gp.Database, t: gp.Table):
-    assert t[2:5].ndim == 3
+    assert len(t[2:5]) == 3
 
 
 def test_table_display_repr(db: gp.Database):
@@ -167,3 +167,14 @@ def test_table_extend_multiple_col(db: gp.Database):
     results = results.extend("b", results["num"])
     for row in results:
         assert row["num"] == row["a"] == row["b"]
+
+
+def test_iter_break(db: gp.Database):
+    nums = gp.values([(i,) for i in range(3)], db, column_names=["num"])
+    results = []
+    for row in nums:
+        results.append(row["num"])
+        break
+    for row in nums:
+        results.append(row["num"])
+    assert results == [0, 0, 1, 2]
