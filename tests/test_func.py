@@ -98,7 +98,7 @@ def test_simple_agg(db: gp.Database):
     count = gp.aggregate_function("count")
 
     results = count(numbers["val"], db=db).to_table()
-    assert results.ndim == 1 and next(iter(results))["count"] == 10
+    assert len(results) == 1 and next(iter(results))["count"] == 10
 
 
 def test_agg_group_by(db: gp.Database):
@@ -109,9 +109,9 @@ def test_agg_group_by(db: gp.Database):
     # FIXME: Remove extraneous rename() in group_by() after spearating Expr
     # with NamedExpr.
     results = count(numbers["val"], group_by=numbers.group_by("is_even"), db=db).to_table()
-    assert results.ndim == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["count"] == 5)
+    assert len(results) == 2
 
 
 def test_agg_group_by_multi_columns(db: gp.Database):
@@ -122,7 +122,7 @@ def test_agg_group_by_multi_columns(db: gp.Database):
     results = count(
         numbers["val"], group_by=numbers.group_by("is_even", "is_multiple_of_3"), db=db
     ).to_table()
-    assert results.ndim == 4  # 2 attributes * 2 possible values per attribute
+    assert len(results) == 4  # 2 attributes * 2 possible values per attribute
     for row in results:
         assert (
             ("is_even" in row)
@@ -149,7 +149,7 @@ def test_create_agg(db: gp.Database):
     rows = [(1,) for _ in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
     results = my_sum(numbers["val"]).rename("result").to_table()
-    assert results.ndim == 1 and next(iter(results))["result"] == 10
+    assert len(results) == 1 and next(iter(results))["result"] == 10
 
 
 def test_create_agg_multi_args(db: gp.Database):
@@ -162,7 +162,7 @@ def test_create_agg_multi_args(db: gp.Database):
     rows = [(1, 2) for _ in range(10)]
     vectors = gp.values(rows, db=db, column_names=["a", "b"])
     results = manhattan_distance(vectors["a"], vectors["b"]).rename("result").to_table()
-    assert results.ndim == 1 and next(iter(results))["result"] == 10
+    assert len(results) == 1 and next(iter(results))["result"] == 10
 
 
 def test_func_long_name(db: gp.Database):
@@ -205,7 +205,7 @@ def test_array_func(db: gp.Database):
     rows = [(1,) for _ in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
     results = my_sum_array(numbers["val"]).rename("result").to_table()
-    assert results.ndim == 1 and next(iter(results))["result"] == 10
+    assert len(results) == 1 and next(iter(results))["result"] == 10
 
 
 def test_array_func_group_by(db: gp.Database):
@@ -217,7 +217,7 @@ def test_array_func_group_by(db: gp.Database):
         .to_table()
     )
 
-    assert results.ndim == 2
+    assert len(results) == 2
     assert list(next(iter(results)).keys()) == ["result", "is_even"]
 
     for row in results:
@@ -284,7 +284,7 @@ def test_func_composite_type_setof(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
     ret = create_pair_tuple(numbers["val"], db=db).to_table()
-    assert ret.ndim == 50
+    assert len(ret) == 50
     dict_record = {i: 0 for i in range(10)}
     for row in ret:
         dict_record[row["_num"]] += 1
@@ -316,7 +316,7 @@ def test_func_apply_single_column(db: gp.Database):
     series = gp.values(rows, db=db, column_names=["id"])
     abs = gp.function("abs")
     result = series.apply(lambda t: abs(t["id"])).to_table()
-    assert result.ndim == 10
+    assert len(result) == 10
     for row in result:
         assert row["abs"] >= 0
 
@@ -330,7 +330,7 @@ def test_func_apply_const_and_column(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val"])
     result = numbers.apply(lambda t: label("label", t["val"])).to_table()
-    assert result.ndim == 10
+    assert len(result) == 10
     for row in result:
         assert row["label"].startswith("label")
 
@@ -362,7 +362,7 @@ def test_array_func_apply(db: gp.Database):
     numbers = gp.values(rows, db=db, column_names=["val"])
 
     results = numbers["val"].apply(my_sum_array).rename("my_sum").to_table()
-    assert results.ndim == 1 and next(iter(results))["my_sum"] == 10
+    assert len(results) == 1 and next(iter(results))["my_sum"] == 10
 
 
 def test_array_func_group_by_composite_apply(db: gp.Database):
@@ -388,7 +388,7 @@ def test_array_func_const_apply(db: gp.Database):
     results = (
         numbers.apply(lambda tab: my_sum_const("sum", tab["val"], 5)).rename("my_sum").to_table()
     )
-    assert results.ndim == 1 and next(iter(results))["my_sum"] == "sum : 15"
+    assert len(results) == 1 and next(iter(results))["my_sum"] == "sum : 15"
 
 
 def test_array_func_group_by_attribute(db: gp.Database):
@@ -402,7 +402,7 @@ def test_array_func_group_by_attribute(db: gp.Database):
         .rename("my_sum")
         .to_table()
     )
-    assert results.ndim == 1 and next(iter(results))["my_sum"] == "a : 50"
+    assert len(results) == 1 and next(iter(results))["my_sum"] == "a : 50"
 
 
 def test_func_return_list_composite(db: gp.Database):

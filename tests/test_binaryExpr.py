@@ -12,7 +12,7 @@ def test_expr_bin_equal_int(db: gp.Database):
     t = gp.values(rows, db=db).save_as("temp1", temp=True, column_names=["id"])
     b1: Callable[[gp.Table], gp.Expr] = lambda t: t["id"] == 2
     assert str(b1(t)) == "(temp1.id = 2)"
-    assert t[b1].ndim == 2
+    assert len(t[b1]) == 2
 
 
 def test_expr_bin_equal_str(db: gp.Database):
@@ -20,7 +20,7 @@ def test_expr_bin_equal_str(db: gp.Database):
     t = gp.values(rows, db=db).save_as("temp2", temp=True, column_names=["id"])
     b2: Callable[[gp.Table], gp.Expr] = lambda t: t["id"] == "aaa"
     assert str(b2(t)) == "(temp2.id = 'aaa')"
-    assert t[b2].ndim == 1
+    assert len(t[b2]) == 1
 
 
 def test_expr_bin_equal_none(db: gp.Database):
@@ -28,7 +28,7 @@ def test_expr_bin_equal_none(db: gp.Database):
     t = gp.values(rows, db=db).save_as("temp3", temp=True, column_names=["id"])
     b3: Callable[[gp.Table], gp.Expr] = lambda t: t["id"] == None
     assert str(b3(t)) == "(temp3.id IS NULL)"
-    assert t[b3].ndim == 1
+    assert len(t[b3]) == 1
 
 
 def test_expr_bin_equal_2expr(db: gp.Database):
@@ -37,7 +37,7 @@ def test_expr_bin_equal_2expr(db: gp.Database):
     t2 = gp.values(rows, db=db).save_as("temp5", temp=True, column_names=["id"])
     b4: Callable[[gp.Table, gp.Table], gp.Expr] = lambda t1, t2: t1["id"] == t2["id"]
     assert str(b4(t1, t2)) == "(temp4.id = temp5.id)"
-    assert t1.join(t2, using=["id"]).ndim == 3
+    assert len(t1.join(t2, using=["id"])) == 3
 
 
 def test_expr_bin_equal_bool(db: gp.Database):
@@ -45,7 +45,7 @@ def test_expr_bin_equal_bool(db: gp.Database):
     t = gp.values(rows, db=db).save_as("temp1", temp=True, column_names=["id"])
     b5: Callable[[gp.Table], gp.Expr] = lambda t: t["id"] == True
     assert str(b5(t)) == "(temp1.id = true)"
-    assert t[b5].ndim == 2
+    assert len(t[b5]) == 2
 
 
 @pytest.fixture
@@ -56,34 +56,34 @@ def table_num(db: gp.Database):
 
 def test_expr_bin_lt(table_num: gp.Table):
     ret = table_num[lambda t: t["id"] < 3]
-    assert ret.ndim == 3
+    assert len(ret) == 3
 
 
 def test_expr_bin_le(table_num: gp.Table):
     ret = table_num[lambda t: t["id"] <= 3]
-    assert ret.ndim == 4
+    assert len(ret) == 4
 
 
 def test_expr_bin_gt(table_num: gp.Table):
     ret = table_num[lambda t: t["id"] > 3]
-    assert ret.ndim == 6
+    assert len(ret) == 6
 
 
 def test_expr_bin_ge(table_num: gp.Table):
     ret = table_num[lambda t: t["id"] >= 3]
-    assert ret.ndim == 7
+    assert len(ret) == 7
 
 
 def test_expr_bin_ne(table_num: gp.Table):
     ret = table_num[lambda t: t["id"] != 3]
-    assert ret.ndim == 9
+    assert len(ret) == 9
 
 
 def test_expr_bin_and(table_num: gp.Table):
     ret = table_num[lambda t: (t["id"] >= 3) & (t["id"] < 8)]
-    assert ret.ndim == 5
     for row in ret:
         assert 3 <= row["id"] < 8
+    assert len(ret) == 5
 
 
 def test_expr_bin_or(db: gp.Database):
@@ -93,22 +93,22 @@ def test_expr_bin_or(db: gp.Database):
     assert len(list(ret)) == 2
     for row in ret:
         assert 3 <= row["id"] or row["id"] < 0
-    assert ret.ndim == 2
+    assert len(ret) == 2
 
 
 def test_table_like(db: gp.Database):
     rows = [("aaa",), ("bba",), ("acac",)]
     t = gp.values(rows, db=db, column_names=["id"])
     result = t[lambda t: t["id"].like(r"a%")]
-    assert result.ndim == 2
+    assert len(result) == 2
     result = t[lambda t: t["id"].like(r"%a")]
-    assert result.ndim == 2
+    assert len(result) == 2
     result = t[lambda t: t["id"].like(r"%a%")]
-    assert result.ndim == 3
+    assert len(result) == 3
     result = t[lambda t: t["id"].like(r"a%c")]
-    assert result.ndim == 1
+    assert len(result) == 1
     result = t[lambda t: t["id"].like(r"_a%")]
-    assert result.ndim == 1
+    assert len(result) == 1
 
 
 def test_table_add(db: gp.Database):

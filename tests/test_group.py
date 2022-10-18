@@ -10,7 +10,7 @@ def test_group_agg(db: gp.Database):
     count = gp.aggregate_function("count")
 
     results = numbers.group_by("is_even").apply(lambda row: count(row["*"])).to_table()
-    assert results.ndim == 2
+    assert len(results) == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["count"] == 5)
 
@@ -31,7 +31,7 @@ def test_group_agg_multi_columns(db: gp.Database):
         .rename("my_sum")
         .to_table()
     )
-    assert results.ndim == 2
+    assert len(results) == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None)
         assert (row["is_even"] and row["my_sum"] == 2 * sum(list(range(0, 10, 2)))) or (
@@ -49,7 +49,7 @@ def test_group_by_multi_columns(db: gp.Database):
         .apply(lambda t: count(t["val"]))
         .to_table()
     )
-    assert results.ndim == 4  # 2 attributes * 2 possible values per attribute
+    assert len(results) == 4  # 2 attributes * 2 possible values per attribute
     for row in results:
         assert (
             ("is_even" in row)
@@ -76,7 +76,7 @@ def test_group_union(db: gp.Database):
         .apply(lambda t: count(t["val"]))
         .to_table()
     )
-    assert results.ndim == 4  # 2 attributes * 2 possible values per attribute
+    assert len(results) == 4  # 2 attributes * 2 possible values per attribute
     for row in results:
         assert ("is_even" in row) and ("is_multiple_of_3" in row)
         assert (

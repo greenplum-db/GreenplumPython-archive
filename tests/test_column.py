@@ -32,7 +32,7 @@ def test_expr_column_str_in_query(db: gp.Database, table: gp.Table):
         keys = list(row.keys())
         assert len(keys) == 1
         assert "id" in keys[0]
-    assert tr.ndim == 3
+    assert len(tr) == 3
 
 
 def test_expr_column_rename(db: gp.Database, table: gp.Table):
