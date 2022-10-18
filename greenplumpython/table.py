@@ -25,6 +25,8 @@ from typing import (
 )
 from uuid import uuid4
 
+from psycopg2.extras import RealDictRow
+
 from greenplumpython import db
 from greenplumpython.group import TableRowGroup
 
@@ -498,7 +500,7 @@ class Table:
         assert self._db is not None
         result = self._fetch()
         assert result is not None
-        self._contents = list(result)
+        self._contents: List[RealDictRow] = list(result)
         self._n = 0
         return self
 
