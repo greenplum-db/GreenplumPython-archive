@@ -104,11 +104,12 @@ def test_join_same_column_using(db: gp.Database):
 #     rows = [(1, 1), (2, 1), (3, 1)]
 #     t1 = gp.values(rows, db=db, column_names=["id", "n1"])
 #     t2 = gp.values(rows, db=db, column_names=["id", "n2"])
-#     t1.cross_join(
+#     ret = t1.cross_join(
 #         t2,
 #         self_columns={"*"},
 #         other_columns={"*"},
 #     )
+#     assert False
 
 
 def test_table_inner_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):

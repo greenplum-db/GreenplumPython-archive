@@ -1,9 +1,7 @@
 """
 This module creates a Python object Row for table iteration.
 """
-from typing import Any, List
-
-from psycopg2.extras import RealDictRow
+from typing import List
 
 
 class Row:
@@ -11,16 +9,16 @@ class Row:
     Represents a row of :class:`~table.Table`.
     """
 
-    def __init__(self, contents: RealDictRow):
+    def __init__(self, contents):
         self._contents = contents
 
-    def __getitem__(self, name: str) -> Any:
+    def __getitem__(self, name: str):
         return self._contents[name]
 
-    def __contains__(self, name: str) -> bool:
+    def __contains__(self, name: str):
         return name in self._contents
 
-    def __str__(self) -> str:
+    def __str__(self):
         return str(self._contents)
 
     def column_names(self) -> List[str]:
@@ -31,9 +29,9 @@ class Row:
             List[str]: list of column names
 
         """
-        return list(self._contents.keys())
+        return self._contents.keys()
 
-    def values(self) -> List[Any]:
+    def values(self):
         """
         Return list of values of row
 
