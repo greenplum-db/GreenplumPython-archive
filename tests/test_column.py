@@ -29,7 +29,7 @@ def test_expr_column_str_in_query(db: gp.Database, table: gp.Table):
     query = "select " + str(c) + " from " + c.table.name
     tr = gp.Table(query=query, db=db)
     for row in tr:
-        keys = list(row.keys())
+        keys = list(row.column_names())
         assert len(keys) == 1
         assert "id" in keys[0]
     assert len(tr) == 3

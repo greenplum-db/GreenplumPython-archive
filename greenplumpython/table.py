@@ -33,6 +33,7 @@ if TYPE_CHECKING:
 
 from greenplumpython.expr import Column, Expr
 from greenplumpython.order import OrderedTable
+from greenplumpython.row import Row
 from greenplumpython.type import to_pg_const
 
 
@@ -505,10 +506,10 @@ class Table:
         if self._n < len(self._contents):
             row_contents: Dict[str, str] = {}  # type ignore
             assert self._contents is not None
-            for name in list(self._contents[0]):  # type ignore
+            for name in self._contents[0].keys():  # type ignore
                 row_contents[name] = self._contents[self._n][name]  # type ignore
             self._n += 1
-            return row_contents
+            return Row(row_contents)
         raise StopIteration("StopIteration: Reached last row of table!")
 
     def refresh(self) -> "Table":
