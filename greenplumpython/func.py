@@ -115,7 +115,7 @@ class FunctionExpr(Expr):
                 [
                     f"SELECT {str(result)}",
                     ("," + ",".join([str(target) for target in self._group_by.get_targets()]))
-                    if self._group_by is not None
+                    if self._group_by is not None and self._returning_composite
                     else "",
                     f"FROM {orig_func_table.name}",
                 ]

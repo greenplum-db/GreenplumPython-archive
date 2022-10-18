@@ -57,7 +57,7 @@ class Table:
         self._name = "cte_" + uuid4().hex if name is None else name
         self._columns = columns
         self._contents = None
-        if any(parents):
+        if len(parents):
             self._db = next(iter(parents))._db
         else:
             self._db = db

@@ -96,16 +96,20 @@ def test_join_same_column_using(db: gp.Database):
 # duplicated columns. Unfortunately, currently the duplicated column will get
 # overwritten slicently, which can confuse the user. Let's fix this by
 # wrapping the result of psycopg2.
-# def test_join_same_column_names(db: gp.Database):
-#     rows = [(1, 1), (2, 1), (3, 1)]
-#     t1 = gp.values(rows, db=db, column_names=["id", "n1"])
-#     t2 = gp.values(rows, db=db, column_names=["id", "n2"])
-#     ret = t1.cross_join(
-#         t2,
-#         self_columns={"*"},
-#         other_columns={"*"},
-#     )
-#     assert False
+def test_join_same_column_names(db: gp.Database):
+    rows = [(1, 1), (2, 1), (3, 1)]
+    t1 = gp.values(rows, db=db, column_names=["id", "n1"])
+    t2 = gp.values(rows, db=db, column_names=["id", "n2"])
+    ret = t1.cross_join(
+        t2,
+        self_columns={"*"},
+        other_columns={"*"},
+    )
+    with pytest.raises(Exception) as e:
+        print(ret)
+    assert str(e.value) == (
+        "Same column names for multiple columns in same table keeps only one of them!"
+    )
 
 
 def test_table_inner_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
