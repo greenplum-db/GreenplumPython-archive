@@ -44,6 +44,7 @@ class Database:
             cursor.execute(query)
             if has_results:
                 column_names = [desc[0] for desc in cursor.description]
+                print(column_names)
                 if len(column_names) != len(set(column_names)):
                     raise Exception(
                         "Same column names for multiple columns in same table keeps only one of them!"

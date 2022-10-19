@@ -42,15 +42,15 @@ def test_table_getitem_sub_columns(db: gp.Database):
 
 
 def test_table_getitem_slice_limit(db: gp.Database, t: gp.Table):
-    assert len(t[:2]) == 2
+    assert len(list(t[:2])) == 2
 
 
 def test_table_getitem_slice_offset(db: gp.Database, t: gp.Table):
-    assert len(t[7:]) == 3
+    assert len(list(t[7:])) == 3
 
 
 def test_table_getitem_slice_off_limit(db: gp.Database, t: gp.Table):
-    assert len(t[2:5]) == 3
+    assert len(list(t[2:5])) == 3
 
 
 def test_table_display_repr(db: gp.Database):

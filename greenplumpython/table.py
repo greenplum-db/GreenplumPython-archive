@@ -57,7 +57,7 @@ class Table:
         self._name = "cte_" + uuid4().hex if name is None else name
         self._columns = columns
         self._contents = None
-        if len(parents):
+        if any(parents):
             self._db = next(iter(parents))._db
         else:
             self._db = db
@@ -436,18 +436,18 @@ class Table:
         """
         return self._db
 
-    def __len__(self) -> int:
+    def list(self) -> List[RealDictRow]:
         """
-        Returns number of rows of Table
+        Returns contents of Table
 
         Returns:
-            int: number of rows of table
+            List[RealDictRow]: List of rows of table
 
         """
         if self._contents is None:
             result = self._fetch()
-            return len(result)
-        return len(self._contents)
+            return list(result)
+        return self._contents
 
     @property
     def columns(self) -> Optional[Iterable[Column]]:

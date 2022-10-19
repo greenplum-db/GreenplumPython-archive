@@ -13,7 +13,7 @@ def test_expr_bin_equal_int(db: gp.Database):
     b1 = t["id"] == 2
     assert str(b1) == str(gp.expr.BinaryExpr("=", t["id"], 2))
     assert str(b1) == "(temp1.id = 2)"
-    assert len(t[b1]) == 2
+    assert len(list(t[b1])) == 2
 
 
 def test_expr_bin_equal_str(db: gp.Database):
@@ -22,7 +22,7 @@ def test_expr_bin_equal_str(db: gp.Database):
     b2 = t["id"] == "aaa"
     assert str(b2) == str(gp.expr.BinaryExpr("=", t["id"], "aaa"))
     assert str(b2) == "(temp2.id = 'aaa')"
-    assert len(t[b2]) == 1
+    assert len(list(t[b2])) == 1
 
 
 def test_expr_bin_equal_none(db: gp.Database):
@@ -31,7 +31,7 @@ def test_expr_bin_equal_none(db: gp.Database):
     b3 = t["id"] == None
     assert str(b3) == str(gp.expr.BinaryExpr("is", t["id"], None))
     assert str(b3) == "(temp3.id is NULL)"
-    assert len(t[b3]) == 1
+    assert len(list(t[b3])) == 1
 
 
 def test_expr_bin_equal_2expr(db: gp.Database):
@@ -41,7 +41,7 @@ def test_expr_bin_equal_2expr(db: gp.Database):
     b4 = t1["id"] == t2["id"]
     assert str(b4) == str(gp.expr.BinaryExpr("=", t1["id"], t2["id"]))
     assert str(b4) == "(temp4.id = temp5.id)"
-    assert len(t1.join(t2, using=["id"])) == 3
+    assert len(list(t1.join(t2, using=["id"]))) == 3
 
 
 def test_expr_bin_equal_bool(db: gp.Database):
@@ -49,7 +49,7 @@ def test_expr_bin_equal_bool(db: gp.Database):
     t = gp.values(rows, db=db).save_as("temp1", temp=True, column_names=["id"])
     b5 = t["id"] == True
     assert str(b5) == "(temp1.id = true)"
-    assert len(t[b5]) == 2
+    assert len(list(t[b5])) == 2
 
 
 @pytest.fixture
@@ -60,34 +60,34 @@ def table_num(db: gp.Database):
 
 def test_expr_bin_lt(db: gp.Database, table_num: gp.Table):
     b1 = table_num["id"] < 3
-    assert len(table_num[b1]) == 3
+    assert len(list(table_num[b1])) == 3
 
 
 def test_expr_bin_le(db: gp.Database, table_num: gp.Table):
     b1 = table_num["id"] <= 3
-    assert len(table_num[b1]) == 4
+    assert len(list(table_num[b1])) == 4
 
 
 def test_expr_bin_gt(db: gp.Database, table_num: gp.Table):
     b1 = table_num["id"] > 3
-    assert len(table_num[b1]) == 6
+    assert len(list(table_num[b1])) == 6
 
 
 def test_expr_bin_ge(db: gp.Database, table_num: gp.Table):
     b1 = table_num["id"] >= 3
-    assert len(table_num[b1]) == 7
+    assert len(list(table_num[b1])) == 7
 
 
 def test_expr_bin_ne(db: gp.Database, table_num: gp.Table):
     b1 = table_num["id"] != 3
-    assert len(table_num[b1]) == 9
+    assert len(list(table_num[b1])) == 9
 
 
 def test_expr_bin_and(db: gp.Database, table_num: gp.Table):
     b = (table_num["id"] >= 3) & (table_num["id"] < 8)
     for row in table_num[b]:
         assert 3 <= row["id"] < 8
-    assert len(table_num[b]) == 5
+    assert len(list(table_num[b])) == 5
 
 
 def test_expr_bin_or(db: gp.Database):
@@ -96,17 +96,17 @@ def test_expr_bin_or(db: gp.Database):
     b = (t["id"] >= 3) | (t["id"] < 0)
     for row in t[b]:
         assert 3 <= row["id"] or row["id"] < 0
-    assert len(t[b]) == 2
+    assert len(list(t[b])) == 2
 
 
 def test_table_like(db: gp.Database):
     rows = [("aaa",), ("bba",), ("acac",)]
     t = gp.values(rows, db=db, column_names=["id"])
-    assert len(t[t["id"].like(r"a%")]) == 2
-    assert len(t[t["id"].like(r"%a")]) == 2
-    assert len(t[t["id"].like(r"%a%")]) == 3
-    assert len(t[t["id"].like(r"a%c")]) == 1
-    assert len(t[t["id"].like(r"_a%")]) == 1
+    assert len(list(t[t["id"].like(r"a%")])) == 2
+    assert len(list(t[t["id"].like(r"%a")])) == 2
+    assert len(list(t[t["id"].like(r"%a%")])) == 3
+    assert len(list(t[t["id"].like(r"a%c")])) == 1
+    assert len(list(t[t["id"].like(r"_a%")])) == 1
 
 
 def test_table_add(db: gp.Database):
