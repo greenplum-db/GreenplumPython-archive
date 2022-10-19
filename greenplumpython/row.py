@@ -31,7 +31,7 @@ class Row:
             List[str]: list of column names
 
         """
-        return self._contents.keys()
+        return list(self._contents.keys())
 
     def values(self) -> List[Any]:
         """
