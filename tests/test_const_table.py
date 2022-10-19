@@ -9,7 +9,7 @@ from tests import db
 
 @pytest.fixture
 def t(db: gp.Database):
-    t = db.call(generate_series, 0, 9).rename("id").to_table()
+    t = db.apply(lambda: generate_series(0, 9)).rename("id").to_table()
     return t
 
 
@@ -17,11 +17,12 @@ def test_const_table(db: gp.Database):
     rows = [(1,), (2,), (3,)]
     t = gp.values(rows, db=db, column_names=["id"])
     t = t.save_as("const_table", column_names=["id"], temp=True)
-    assert sorted([tuple(row.values()) for row in t]) == sorted(rows)
+    assert sorted([tuple(row.values()) for row in t.fetch()]) == sorted(rows)
 
-    assert len(next(iter(t)).column_names()) == 1
-    for row in next(iter(t)).column_names():
-        assert row == "id"
+    t_cols = t.column_names().fetch()
+    assert len(list(t_cols)) == 1
+    for row in t_cols:
+        assert row["column_name"] == "id"
 
 
 def test_table_getitem_str(db: gp.Database):
@@ -37,20 +38,23 @@ def test_table_getitem_sub_columns(db: gp.Database):
     # fmt: on
     t = gp.values(rows, db=db, column_names=["id", "num"])
     t_sub = t[["id", "num"]]
-    for row in t_sub:
+    for row in t_sub.fetch():
         assert "id" in row and "num" in row
 
 
 def test_table_getitem_slice_limit(db: gp.Database, t: gp.Table):
-    assert len(list(t[:2])) == 2
+    ret = list(t[:2].fetch())
+    assert len(ret) == 2
 
 
 def test_table_getitem_slice_offset(db: gp.Database, t: gp.Table):
-    assert len(list(t[7:])) == 3
+    ret = list(t[7:].fetch())
+    assert len(ret) == 3
 
 
 def test_table_getitem_slice_off_limit(db: gp.Database, t: gp.Table):
-    assert len(list(t[2:5])) == 3
+    ret = list(t[2:5].fetch())
+    assert len(ret) == 3
 
 
 def test_table_display_repr(db: gp.Database):
@@ -66,7 +70,7 @@ def test_table_display_repr(db: gp.Database):
         "|  3 || Wolf   |\n"
         "|  4 || Fox    |\n"
     )
-    assert str(t.order_by(t["id"]).head(4)) == expected
+    assert str(t.order_by("id").head(4)) == expected
 
 
 def test_table_display_repr_long_content(db: gp.Database):
@@ -82,7 +86,7 @@ def test_table_display_repr_long_content(db: gp.Database):
         "|                    3 || Wolf             |\n"
         "|                    4 || Fox              |\n"
     )
-    assert str(t.order_by(t["iddddddddddddddddddd"]).head(4)) == expected
+    assert str(t.order_by("iddddddddddddddddddd").head(4)) == expected
 
 
 def test_table_display_repr_html(db: gp.Database):
@@ -114,7 +118,7 @@ def test_table_display_repr_html(db: gp.Database):
         "\t</tr>\n"
         "</table>"
     )
-    assert (t.order_by(t["id"]).head(4)._repr_html_()) == expected
+    assert (t.order_by("id").head(4)._repr_html_()) == expected
 
 
 def test_table_display_repr_empty_result(db: gp.Database):
@@ -122,18 +126,18 @@ def test_table_display_repr_empty_result(db: gp.Database):
     rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
     t = gp.values(rows, db=db, column_names=["id", "animal"])
-    assert str(t[t["id"] == 0]) == ""
-    assert (t[t["id"] == 0]._repr_html_()) == ""
+    assert str(t[lambda t: t["id"] == 0]) == ""
+    assert (t[lambda t: t["id"] == 0]._repr_html_()) == ""
 
 
-def test_table_extend_const(db: gp.Database):
+def test_table_assign_const(db: gp.Database):
     nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
-    results = nums.extend("x", "hello")
+    results = nums.assign(x=lambda _: "hello").fetch()
     for row in results:
         assert "num" in row and "x" in row and row["x"] == "hello"
 
 
-def test_table_extend_expr(db: gp.Database):
+def test_table_assign_expr(db: gp.Database):
     @gp.create_function
     def add_one(num: int) -> int:
         return num + 1
@@ -141,82 +145,24 @@ def test_table_extend_expr(db: gp.Database):
     nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
     # FIXME: How to remove the intermdeiate variable `nums`?
     # FIXME: How to support functions returning more than one column?
-    results = nums.extend("result", add_one(nums["num"]))
+    results = nums.assign(result=lambda nums: add_one(nums["num"])).fetch()
     for row in results:
         assert row["result"] == row["num"] + 1
 
 
-def test_table_extend_same_base(db: gp.Database):
+def test_table_assign_same_base(db: gp.Database):
     nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
     nums2 = gp.values([(i,) for i in range(10)], db, column_names=["num"])
     with pytest.raises(Exception) as exc_info:
-        nums.extend("num2", nums2["num"])
+        nums.assign(num2=lambda _: nums2["num"])
     assert (
         str(exc_info.value)
-        == "Current table and included expression must be based on the same table"
+        == "Current table and newly included expression must be based on the same table"
     )
 
 
-def test_table_extend_multiple_col(db: gp.Database):
+def test_table_assign_multiple_col(db: gp.Database):
     nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
-    results = nums.extend("a", nums["num"])
-
-    # NOTE: `nums.extend("a", nums["num"]).extend("b", nums["num"])` is not
-    # supported because in this case `extend()` is supposed to modify `nums`
-    # implicitly and thus is NOT pure.
-    results = results.extend("b", results["num"])
-    for row in results:
+    results = nums.assign(a=lambda t: t["num"], b=lambda t: t["num"])
+    for row in results.fetch():
         assert row["num"] == row["a"] == row["b"]
-
-
-def test_iter_break(db: gp.Database):
-    nums = gp.values([(i,) for i in range(3)], db, column_names=["num"])
-    results = []
-    for row in nums:
-        results.append(row["num"])
-        break
-    for row in nums:
-        results.append(row["num"])
-    assert results == [0, 0, 1, 2]
-
-
-def test_table_refresh_add_rows(db: gp.Database):
-    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
-    t = nums.save_as("const_table", column_names=["num"], temp=True)
-    assert len(list(t)) == 10
-
-    db.execute("INSERT INTO const_table(num) VALUES (10);", has_results=False)
-
-    assert len(list(t)) == 10
-    t.refresh()
-    assert len(list(t)) == 11
-
-
-def test_table_refresh_add_columns(db: gp.Database):
-    # Initial Table
-    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
-    t = nums.save_as("const_table", column_names=["num"], temp=True)
-    assert len(next(iter(t)).column_names()) == 1
-    assert next(iter(t)).column_names() == ["num"]
-    assert sorted(row["num"] for row in t) == sorted(list(range(10)))
-
-    # Add a new column
-    db.execute("ALTER TABLE const_table ADD num_copy int;", has_results=False)
-    assert len(next(iter(t)).column_names()) == 1
-    for row in next(iter(t)).column_names():
-        assert row == "num"
-    # Refresh Table contents
-    t.refresh()
-    assert len(next(iter(t)).column_names()) == 2
-    assert next(iter(t)).column_names() == ["num", "num_copy"]
-    for row in t:
-        assert row["num_copy"] is None
-
-    # Update column
-    db.execute("UPDATE const_table SET num_copy=num;", has_results=False)
-    for row in t:
-        assert row["num_copy"] is None
-    # Refresh Table contents
-    t.refresh()
-    for row in t:
-        assert row["num_copy"] is not None and row["num_copy"] == row["num"]

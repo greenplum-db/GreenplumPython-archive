@@ -9,8 +9,8 @@ from typing import Any, Callable, Dict, Optional, Set, Tuple
 from uuid import uuid4
 
 from greenplumpython.db import Database
-from greenplumpython.expr import Expr
-from greenplumpython.group import TableRowGroup
+from greenplumpython.expr import Column, Expr
+from greenplumpython.group import TableGroupingSets
 from greenplumpython.table import Table
 from greenplumpython.type import primitive_type_map, to_pg_const, to_pg_type
 
@@ -27,10 +27,9 @@ class FunctionExpr(Expr):
         self,
         func: "_AbstractFunction",
         args: Tuple[Any] = [],
-        group_by: Optional[TableRowGroup] = None,
+        group_by: Optional[TableGroupingSets] = None,
         table: Optional[Table] = None,
         db: Optional[Database] = None,
-        returning_composite: bool = False,
     ) -> None:
         if table is None and group_by is not None:
             table = group_by.table
@@ -44,19 +43,23 @@ class FunctionExpr(Expr):
         self._func = func
         self._args = args
         self._group_by = group_by
-        self._returning_composite = returning_composite
 
-    def __call__(self, group_by: Optional[TableRowGroup] = None, table: Optional[Table] = None):
+    def bind(
+        self,
+        group_by: Optional[TableGroupingSets] = None,
+        table: Optional[Table] = None,
+        db: Optional[Database] = None,
+    ):
         return FunctionExpr(
             self._func,
             self._args,
             group_by=group_by,
             table=table,
-            db=self._db,
-            returning_composite=self._returning_composite,  # type: ignore
+            db=db if db is not None else self._db,
         )
 
     def serialize(self) -> str:
+        self.function.create_in_db(self._db)
         args_string = (
             ",".join(
                 [
@@ -75,21 +78,31 @@ class FunctionExpr(Expr):
         Returns the result table of the self function applied on args, with potential GROUP BY if
         it is an Aggregation function.
         """
-        from_caluse = f"FROM {self.table.name}" if self.table is not None else ""
-        group_by_clause = (
-            self._group_by.make_group_by_clause() if self._group_by is not None else ""
-        )
+        self.function.create_in_db(self._db)
+        from_clause = f"FROM {self.table.name}" if self.table is not None else ""
+        group_by_clause = self._group_by.clause() if self._group_by is not None else ""
         parents = [self.table] if self.table is not None else []
-        if self._returning_composite and self._as_name is None:
+        assert (
+            self.function.returning_composite is not None
+        ), "Whether returning composite is required to call the function."
+        if self.function.returning_composite and self._as_name is None:
             self._as_name = "func_" + uuid4().hex
+        grouping_col_names = self._group_by.flatten() if self._group_by is not None else None
+        # FIXME: The names of GROUP BY exprs can collide with names of fields in
+        # the comosite type, making the column names of the resulting table not
+        # unique. This can be mitigated after we implement table column
+        # inference by raising an error when the function gets called.
+        grouping_cols = (
+            [Column(name, self._table).serialize() for name in grouping_col_names]
+            if grouping_col_names is not None
+            else None
+        )
         orig_func_table = Table(
             " ".join(
                 [
                     f"SELECT {str(self)}",
-                    ("," + ",".join([str(target) for target in self._group_by.get_targets()]))
-                    if self._group_by is not None
-                    else "",
-                    from_caluse,
+                    ("," + ",".join(grouping_cols)) if grouping_cols is not None else "",
+                    from_clause,
                     group_by_clause,
                 ]
             ),
@@ -109,23 +122,26 @@ class FunctionExpr(Expr):
         # )
         # SELECT (result).* FROM func_call;
         # ```
-        result = f"({self._as_name}).*" if self._returning_composite else "*"
+        rebased_grouping_cols = (
+            [Column(name, orig_func_table).serialize() for name in grouping_col_names]
+            if grouping_col_names is not None
+            else None
+        )
+        results = (
+            "*"
+            if not self.function.returning_composite
+            else f"({self._as_name}).*"
+            if rebased_grouping_cols is None
+            else f"{(','.join(rebased_grouping_cols))}, ({self._as_name}).*"
+        )
         return Table(
-            " ".join(
-                [
-                    f"SELECT {str(result)}",
-                    ("," + ",".join([str(target) for target in self._group_by.get_targets()]))
-                    if self._group_by is not None and self._returning_composite
-                    else "",
-                    f"FROM {orig_func_table.name}",
-                ]
-            ),
+            f"SELECT {str(results)} FROM {orig_func_table.name}",
             db=self._db,
             parents=[orig_func_table],
         )
 
     @property
-    def function(self) -> "NormalFunction":
+    def function(self) -> "_AbstractFunction":
         return self._func
 
 
@@ -140,15 +156,18 @@ class ArrayFunctionExpr(FunctionExpr):
     def serialize(self) -> str:
         args_string_list = []
         args_string = ""
+        grouping_col_names = self._group_by.flatten() if self._group_by is not None else None
+        grouping_cols = (
+            {Column(name, self._table) for name in grouping_col_names}
+            if grouping_col_names is not None
+            else None
+        )
         if any(self._args):
             for i in range(len(self._args)):
                 if self._args[i] is None:
                     continue
                 if isinstance(self._args[i], Expr):
-                    if (
-                        self._group_by is None
-                        or self._args[i].name not in self._group_by.get_targets()
-                    ):
+                    if grouping_cols is None or self._args[i] not in grouping_cols:
                         s = f"array_agg({str(self._args[i])})"  # type: ignore
                     else:
                         s = str(self._args[i])  # type: ignore
@@ -158,14 +177,18 @@ class ArrayFunctionExpr(FunctionExpr):
             args_string = ",".join(args_string_list)
         return f"{self._func.qualified_name}({args_string})"
 
-    def __call__(self, group_by: Optional[TableRowGroup] = None, table: Optional[Table] = None):
+    def bind(
+        self,
+        group_by: Optional[TableGroupingSets] = None,
+        table: Optional[Table] = None,
+        db: Optional[Database] = None,
+    ):
         return ArrayFunctionExpr(
             self._func,
             self._args,
             group_by=group_by,
             table=table,
-            db=self._db,
-            returning_composite=self._returning_composite,
+            db=db if db is not None else self._db,
         )
 
 
@@ -177,8 +200,12 @@ class _AbstractFunction:
         wrapped_func: Optional[Callable[..., Any]],
         name: Optional[str],
         schema: Optional[str],
+        returning_composite: Optional[bool],
     ) -> None:
         NAMEDATALEN = 64  # See definition in PostgreSQL
+        # if wrapped_func is None, the function object is obtained by
+        # gp.function() rather than gp.create_function(). Otherwise a
+        # Python function will be passed to wrapped_func.
         _name = wrapped_func.__name__ if wrapped_func is not None else name
         assert _name is not None
         assert (
@@ -196,18 +223,18 @@ class _AbstractFunction:
         ), f'Function named "{qualified_name}" has been defined before.'
         self._qualified_name = qualified_name
         _global_scope[qualified_name] = self
+        self._returning_composite = returning_composite
 
     @property
     def qualified_name(self) -> str:
         return self._qualified_name
 
-    def _try_resolve_db(self, args: Tuple[Any, ...], db: Optional[Database]) -> Optional[Database]:
-        if db is None:
-            for arg in args:
-                if isinstance(arg, Expr) and arg.db is not None:
-                    db = arg.db
-                    break
-        return db
+    @property
+    def returning_composite(self) -> Optional[bool]:
+        return self._returning_composite
+
+    def create_in_db(self, _: Database) -> None:
+        raise NotImplementedError("Cannot create abstract function in database")
 
 
 _global_scope: Dict[str, _AbstractFunction] = {}
@@ -219,14 +246,13 @@ class NormalFunction(_AbstractFunction):
         wrapped_func: Optional[Callable[..., Any]] = None,
         name: Optional[str] = None,
         schema: Optional[str] = None,
-        returning_composite: bool = False,
+        returning_composite: Optional[bool] = None,
         language_handler: str = "plpython3u",
     ) -> None:
-        super().__init__(wrapped_func, name, schema)
+        super().__init__(wrapped_func, name, schema, returning_composite)
         self._created_in_dbs: Optional[Set[Database]] = set() if wrapped_func is not None else None
         self._wrapped_func = wrapped_func
         self._language_handler = language_handler
-        self._returning_composite = returning_composite
 
     def unwrap(self) -> Callable[..., Any]:
         """
@@ -235,9 +261,10 @@ class NormalFunction(_AbstractFunction):
         assert self._wrapped_func is not None, "No Python function is wrapped inside."
         return self._wrapped_func
 
-    def _create_in_db(self, db: Database) -> None:
+    def create_in_db(self, db: Database) -> None:
+        if self._wrapped_func is None:  # Function has already existed.
+            return
         assert self._created_in_dbs is not None
-        assert self._wrapped_func is not None
         if db not in self._created_in_dbs:
             func_sig = inspect.signature(self._wrapped_func)
             func_args = ",".join(
@@ -268,11 +295,7 @@ class NormalFunction(_AbstractFunction):
             self._created_in_dbs.add(db)
 
     def __call__(self, *args: Any, db: Optional[Database] = None) -> FunctionExpr:
-        if self._wrapped_func is not None:
-            _db = self._try_resolve_db(args, db)
-            assert _db is not None, "Database is required to create function"
-            self._create_in_db(_db)
-        return FunctionExpr(self, args, db=db, returning_composite=self._returning_composite)
+        return FunctionExpr(self, args, db=db)
 
 
 def function(
@@ -299,18 +322,18 @@ class AggregateFunction(_AbstractFunction):
         transition_func: Optional[NormalFunction] = None,
         name: Optional[str] = None,
         schema: Optional[str] = None,
-        returning_composite: bool = False,
+        returning_composite: Optional[bool] = None,
     ) -> None:
         super().__init__(
             transition_func.unwrap() if transition_func is not None else None,
             name,
             schema,
+            returning_composite,
         )
         self._transition_func = transition_func
         self._created_in_dbs: Optional[Set[Database]] = (
             set() if transition_func is not None else None
         )
-        self._returning_composite = returning_composite
 
     @property
     def transition_function(self) -> NormalFunction:
@@ -319,10 +342,15 @@ class AggregateFunction(_AbstractFunction):
         ), f'Transition function of the aggregate function "{self.qualified_name}" is unknown.'
         return self._transition_func
 
-    def _create_in_db(self, db: Database) -> None:
+    def create_in_db(self, db: Database) -> None:
+        # If self._transition_func is None, then the aggregate function is not
+        # created with gp.create_aggregate(), but only refers to an existing
+        # aggregate function.
+        if self._transition_func is None:
+            return
         assert self._created_in_dbs is not None
-        assert self.transition_function is not None
         if db not in self._created_in_dbs:
+            self._transition_func.create_in_db(db)
             sig = inspect.signature(self.transition_function.unwrap())
             param_list = iter(sig.parameters.values())
             state_param = next(param_list)
@@ -340,18 +368,15 @@ class AggregateFunction(_AbstractFunction):
                 """,
                 has_results=False,
             )
+            self._created_in_dbs.add(db)
 
     def __call__(
-        self, *args: Any, group_by: Optional[TableRowGroup] = None, db: Optional[Database] = None
+        self,
+        *args: Any,
+        group_by: Optional[TableGroupingSets] = None,
+        db: Optional[Database] = None,
     ) -> FunctionExpr:
-        if self._transition_func is not None:
-            _db = self._try_resolve_db(args, db)
-            assert _db is not None, "Database is required to create aggregate function"
-            self._transition_func(*args, db=_db)
-            self._create_in_db(_db)
-        return FunctionExpr(
-            self, args, db=db, group_by=group_by, returning_composite=self._returning_composite
-        )
+        return FunctionExpr(self, args, db=db, group_by=group_by)
 
 
 def aggregate_function(
@@ -448,18 +473,12 @@ def create_aggregate(
 
 class ArrayFunction(NormalFunction):
     def __call__(
-        self, *args: Any, group_by: Optional[TableRowGroup] = None, db: Optional[Database] = None
+        self,
+        *args: Any,
+        group_by: Optional[TableGroupingSets] = None,
+        db: Optional[Database] = None,
     ) -> ArrayFunctionExpr:
-        if self._wrapped_func is not None:
-            _db = self._try_resolve_db(args, db)
-            assert _db is not None, "Database is required to create array function"
-            self._create_in_db(_db)
-        assert (
-            self._returning_composite is not None
-        ), f'Unknown if the return type of array function "{self.qualified_name}" is composite.'
-        return ArrayFunctionExpr(
-            self, args=args, group_by=group_by, db=db, returning_composite=self._returning_composite
-        )
+        return ArrayFunctionExpr(self, args=args, group_by=group_by, db=db)
 
 
 # FIXME: Add test cases for optional parameters
