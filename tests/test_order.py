@@ -15,7 +15,7 @@ def t(db: gp.Database):
 
 def test_order_by_head(db: gp.Database, t: gp.Table):
     ret = t.order_by("id").head(5)
-    assert len(ret) == 5
+    assert len(list(ret)) == 5
     assert next(iter(ret))["id"] == 0
     assert next(ret)["id"] == 1
     assert next(ret)["id"] == 2
@@ -25,7 +25,7 @@ def test_order_by_head(db: gp.Database, t: gp.Table):
 
 def test_order_by_head_desc(db: gp.Database, t: gp.Table):
     ret = t.order_by("id", ascending=False).head(5)
-    assert len(ret) == 5
+    assert len(list(ret)) == 5
     assert next(iter(ret))["id"] == 9
     assert next(ret)["id"] == 8
     assert next(ret)["id"] == 7
@@ -35,7 +35,7 @@ def test_order_by_head_desc(db: gp.Database, t: gp.Table):
 
 def test_order_by_head_operator(db: gp.Database, t: gp.Table):
     ret = t.order_by("id", operator=">").head(3)
-    assert len(ret) == 3
+    assert len(list(ret)) == 3
     assert next(iter(ret))["id"] == 9
     assert next(ret)["id"] == 8
     assert next(ret)["id"] == 7
@@ -55,7 +55,7 @@ def test_order_by_multiple_head(db: gp.Database):
     # fmt: on
     t = gp.values(rows, db=db, column_names=["id", "num"])
     ret = t.order_by("id").order_by("num", ascending=False).head(5)
-    assert len(ret) == 5
+    assert len(list(ret)) == 5
     row = next(iter(ret))
     assert row["id"] == 1 and row["num"] == 3
     row = next(ret)
@@ -64,7 +64,7 @@ def test_order_by_multiple_head(db: gp.Database):
     row = next(ret)
     assert row["id"] == 3 and row["num"] == 1
     ret2 = t.order_by("num", ascending=False).order_by("id").head(5)
-    assert len(ret) == 5
+    assert len(list(ret)) == 5
     row = next(iter(ret2))
     assert row["id"] == 3 and row["num"] == 4
     row = next(ret2)

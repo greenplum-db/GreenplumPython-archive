@@ -123,7 +123,7 @@ def test_table_inner_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
         other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
     )
-    assert len(ret) == 2
+    assert len(list(ret)) == 2
     for row in ret:
         assert row["zoo1_animal"] == row["zoo2_animal"]
         assert row["zoo1_animal"] == "Lion" or row["zoo1_animal"] == "Tiger"
@@ -136,7 +136,7 @@ def test_table_left_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
         other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
     )
-    assert len(ret) == 4
+    assert len(list(ret)) == 4
     for row in ret:
         if row["zoo1_animal"] == "Lion" or row["zoo1_animal"] == "Tiger":
             assert row["zoo1_animal"] == row["zoo2_animal"]
@@ -152,7 +152,7 @@ def test_table_right_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
         other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
     )
-    assert len(ret) == 4
+    assert len(list(ret)) == 4
     for row in ret:
         if row["zoo2_animal"] == "Lion" or row["zoo2_animal"] == "Tiger":
             assert row["zoo1_animal"] == row["zoo2_animal"]
@@ -168,7 +168,7 @@ def test_table_full_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
         other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
     )
-    assert len(ret) == 6
+    assert len(list(ret)) == 6
     for row in ret:
         if row["zoo2_animal"] == "Lion" or row["zoo2_animal"] == "Tiger":
             assert row["zoo1_animal"] == row["zoo2_animal"]
@@ -196,7 +196,7 @@ def test_join_natural(db: gp.Database):
         self_columns={"category_name", "category_id"},
         other_columns={"product_name"},
     )
-    assert len(ret) == 6
+    assert len(list(ret)) == 6
     for col in ["category_id", "category_name", "product_name"]:
         assert col in next(iter(ret))
     for row in ret:
@@ -214,7 +214,7 @@ def test_table_cross_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
         other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
     )
-    assert len(ret) == 16
+    assert len(list(ret)) == 16
     ini1_dict = {"Tiger": 0, "Lion": 0, "Wolf": 0, "Fox": 0}
     ini2_dict = {"Tiger": 0, "Lion": 0, "Rhino": 0, "Panther": 0}
     zoo2_cpt = {"Tiger": ini2_dict, "Lion": ini2_dict, "Wolf": ini2_dict, "Fox": ini2_dict}
@@ -236,7 +236,7 @@ def test_table_self_join(db: gp.Database, zoo_1: gp.Table):
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
         other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
     )
-    assert len(ret) == 4
+    assert len(list(ret)) == 4
     for row in ret:
         assert row["zoo1_animal"] == row["zoo2_animal"]
 
@@ -263,7 +263,7 @@ def test_table_join_ine(db: gp.Database):
     t1 = gp.values(rows1, db=db, column_names=["a"])
     t2 = gp.values(rows2, db=db, column_names=["b"])
     ret = t1.join(t2, cond=lambda t1, t2: t1["a"] < t2["b"], self_columns={"a"}, other_columns={"b"})
-    assert len(ret) == 6
+    assert len(list(ret)) == 6
     for row in ret:
         assert row["a"] < row["b"]
 
@@ -283,7 +283,7 @@ def test_table_multiple_self_join(db: gp.Database, zoo_1: gp.Table):
         self_columns={"*"},
         other_columns={"*"},
     )
-    assert len(ret) == 4
+    assert len(list(ret)) == 4
     for row in ret:
         assert row["zoo2_animal"] == row["animal"]
 
@@ -299,4 +299,4 @@ def test_lineage_dfs_order(db: gp.Database):
     mod = numbers.assign(mod=lambda t: t["val"] % 2)
     mod3 = mod.assign(mod3=lambda t: t["val"] % 3)
     results: gp.Table = mod3.join(numbers, using=["val"], self_columns={"val"})
-    assert len(results) == 10
+    assert len(list(results)) == 10
