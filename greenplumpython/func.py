@@ -79,7 +79,7 @@ class FunctionExpr(Expr):
         it is an Aggregation function.
         """
         self.function.create_in_db(self._db)
-        from_caluse = f"FROM {self.table.name}" if self.table is not None else ""
+        from_clause = f"FROM {self.table.name}" if self.table is not None else ""
         group_by_clause = self._group_by.clause() if self._group_by is not None else ""
         parents = [self.table] if self.table is not None else []
         assert (
@@ -102,7 +102,7 @@ class FunctionExpr(Expr):
                 [
                     f"SELECT {str(self)}",
                     ("," + ",".join(grouping_cols)) if grouping_cols is not None else "",
-                    from_caluse,
+                    from_clause,
                     group_by_clause,
                 ]
             ),
@@ -343,7 +343,10 @@ class AggregateFunction(_AbstractFunction):
         return self._transition_func
 
     def create_in_db(self, db: Database) -> None:
-        if self._transition_func is None:  # Function has already existed.
+        # If self._transition_func is None, then the aggregate function is not
+        # created with gp.create_aggregate(), but only refers to an existing
+        # aggregate function.
+        if self._transition_func is None:
             return
         assert self._created_in_dbs is not None
         if db not in self._created_in_dbs:
