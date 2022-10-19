@@ -445,19 +445,6 @@ class Table:
         """
         return self._db
 
-    def list(self) -> List[RealDictRow]:
-        """
-        Returns contents of Table
-
-        Returns:
-            List[RealDictRow]: List of rows of table
-
-        """
-        if self._contents is None:
-            result = self._fetch()
-            return list(result)
-        return self._contents
-
     @property
     def columns(self) -> Optional[Iterable[Column]]:
         """

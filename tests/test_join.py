@@ -40,7 +40,13 @@ def zoo_2(db: gp.Database):
 
 def test_join_all_and_all_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
     row = next(
-        iter(t1.join(t2, cond=lambda t1, t2: t1["id1"] == t2["id2"], self_columns={"*"}, other_columns={"*"})
+        iter(
+            t1.join(
+                t2,
+                cond=lambda t1, t2: t1["id1"] == t2["id2"],
+                self_columns={"*"},
+                other_columns={"*"},
+            )
         )
     )
     for col in ["id1", "idd1", "n1", "id2", "idd2", "n2"]:
@@ -61,7 +67,11 @@ def test_join_all_and_no_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
 def test_join_all_and_one_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
     ret = next(
         iter(
-            t1.join(t2, cond=lambda t1, t2: t1["id1"] == t2["id2"], self_columns={"id1"}, other_columns={"*"}
+            t1.join(
+                t2,
+                cond=lambda t1, t2: t1["id1"] == t2["id2"],
+                self_columns={"id1"},
+                other_columns={"*"},
             )
         )
     )
@@ -262,7 +272,9 @@ def test_table_join_ine(db: gp.Database):
     rows2 = [(2,), (3,), (4,)]
     t1 = gp.values(rows1, db=db, column_names=["a"])
     t2 = gp.values(rows2, db=db, column_names=["b"])
-    ret = t1.join(t2, cond=lambda t1, t2: t1["a"] < t2["b"], self_columns={"a"}, other_columns={"b"})
+    ret = t1.join(
+        t2, cond=lambda t1, t2: t1["a"] < t2["b"], self_columns={"a"}, other_columns={"b"}
+    )
     assert len(list(ret)) == 6
     for row in ret:
         assert row["a"] < row["b"]

@@ -45,9 +45,7 @@ def test_group_by_multi_columns(db: gp.Database):
     count = gp.aggregate_function("count")
 
     results = (
-        numbers.group_by("is_even", "is_multiple_of_3")
-        .apply(lambda t: count(t["val"]))
-        .to_table()
+        numbers.group_by("is_even", "is_multiple_of_3").apply(lambda t: count(t["val"])).to_table()
     )
     assert len(list(results)) == 4  # 2 attributes * 2 possible values per attribute
     for row in results:

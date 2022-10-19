@@ -218,7 +218,7 @@ def test_array_func_group_by(db: gp.Database):
     )
 
     assert len(list(results)) == 2
-    assert list(next(iter(results)).column_names()) == ["result", "is_even"]
+    assert next(iter(results)).column_names() == ["result", "is_even"]
 
     for row in results:
         print(row["is_even"])
@@ -239,7 +239,7 @@ def test_array_func_group_by_return_composite(db: gp.Database):
     # fmt: on
     numbers = gp.values(rows, db=db, column_names=["val", "lab"])
     ret = my_count_sum(numbers["val"], group_by=numbers.group_by("lab")).to_table()
-    assert sorted(list(next(iter(ret)).column_names())) == sorted(["_sum", "_count", "lab"])
+    assert sorted(next(iter(ret)).column_names()) == sorted(["_sum", "_count", "lab"])
     for row in ret:
         assert row["_sum"] == 3
         assert row["_count"] == 3
@@ -370,7 +370,7 @@ def test_array_func_group_by_composite_apply(db: gp.Database):
     rows = [(1, i % 2 == 0) for i in range(10)]
     numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
     results = numbers.group_by("is_even").apply(lambda tab: my_stat(tab["val"])).to_table()
-    assert sorted(list(next(iter(results)).column_names())) == sorted(["sum", "count", "is_even"])
+    assert sorted(next(iter(results)).column_names()) == sorted(["sum", "count", "is_even"])
     for row in results:
         assert all(
             ["is_even" in row, row["is_even"] is not None, row["sum"] == 5, row["count"] == 5]
