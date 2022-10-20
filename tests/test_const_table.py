@@ -133,10 +133,12 @@ def test_table_assign_const(db: gp.Database):
         assert "num" in row and "x" in row and row["x"] == "hello"
 
 
+@gp.create_function
+def add_one(num: int) -> int:
+    return num + 1
+
+
 def test_table_assign_expr(db: gp.Database):
-    @gp.create_function
-    def add_one(num: int) -> int:
-        return num + 1
 
     nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
     # FIXME: How to remove the intermdeiate variable `nums`?
@@ -144,6 +146,28 @@ def test_table_assign_expr(db: gp.Database):
     results = nums.assign(result=lambda nums: add_one(nums["num"]))
     for row in results:
         assert row["result"] == row["num"] + 1
+
+
+def test_table_assign_composite_type(db: gp.Database):
+    class rank_label:
+        val: int
+        label: str
+
+    @gp.create_function
+    def my_count_sum(val: int) -> rank_label:
+        return {"val": val, "label": "label"}
+
+    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    results = nums.assign(result=lambda nums: my_count_sum(nums["num"]))
+    results = results.assign(result2=lambda nums: my_count_sum(nums["num"]))
+    results = results.assign(next_val=lambda nums: add_one(nums["num"]))
+    for row in results:
+        assert row["num"] == row["result"]["val"] and row["result"]["label"] == "label"
+        assert (
+            row["result2"]["val"] == row["result"]["val"]
+            and row["result2"]["label"] == row["result"]["label"]
+        )
+        assert row["next_val"] == row["num"] + 1
 
 
 def test_table_assign_same_base(db: gp.Database):

@@ -22,6 +22,7 @@ from typing import (
     Set,
     Tuple,
     Union,
+    get_type_hints,
     overload,
 )
 from uuid import uuid4
@@ -52,6 +53,7 @@ class Table:
         name: Optional[str] = None,
         db: Optional[db.Database] = None,
         columns: Optional[Iterable[Column]] = None,
+        columns_type_dict: Optional[Dict[str, List[Any]]] = None,
     ) -> None:
         self._query = query
         self._parents = parents
@@ -62,6 +64,7 @@ class Table:
             self._db = next(iter(parents))._db
         else:
             self._db = db
+        self._columns_type_dict = columns_type_dict
 
     @singledispatchmethod
     def _getitem(self, _) -> "Table":
@@ -268,9 +271,12 @@ class Table:
             issue will be fixed as soon as we implement column inference for
             GreenplumPython.
         """
+        from greenplumpython.func import FunctionExpr
+
         if len(new_columns) == 0:
             return self
         new_columns_str = []
+        new_columns_type_dict = {}
         for k, f in new_columns.items():
             v: Any = f(self)
             if isinstance(v, Expr) and not (v.table is None or v.table == self):
@@ -280,7 +286,20 @@ class Table:
             new_columns_str.append(
                 f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)} AS {k}"
             )
-        return Table(f"SELECT *, {','.join(new_columns_str)} FROM {self.name}", parents=[self])
+            if isinstance(v, FunctionExpr):
+                v_wrapped_func: Callable[..., Any] = v.function._wrapped_func  # type ignore
+                type_return = get_type_hints(v_wrapped_func)["return"]  # type ignore
+                new_columns_type_dict[k] = [
+                    v.function.returning_composite,
+                    get_type_hints(type_return).items(),
+                ]
+            if self._columns_type_dict is not None:
+                new_columns_type_dict.update(self._columns_type_dict)
+        return Table(
+            f"SELECT *, {','.join(new_columns_str)} FROM {self.name}",
+            parents=[self],
+            columns_type_dict=new_columns_type_dict,
+        )
 
     def order_by(
         self,
@@ -502,10 +521,27 @@ class Table:
 
     def __next__(self):
         if self._n < len(self._contents):
-            row_contents: Dict[str, str] = {}  # type ignore
+            row_contents: Dict[str, Union[str, List[str]]] = {}  # type ignore
             assert self._contents is not None
             for name in self._contents[0].keys():  # type ignore
-                row_contents[name] = self._contents[self._n][name]  # type ignore
+                if (
+                    self._columns_type_dict is not None
+                    and name in self._columns_type_dict
+                    and self._columns_type_dict[name][0]
+                ):
+                    row_composite_dict: Dict[str, str] = {}
+                    row_composite_contents: List[str] = list(
+                        self._contents[self._n][name][1:-1].split(",")
+                    )
+                    i: int = 0
+                    for key in self._columns_type_dict[name][1]:  # type ignore
+                        row_composite_dict[key[0]] = key[1](
+                            row_composite_contents[i]
+                        )  # type ignore
+                        i += 1
+                    row_contents[name] = row_composite_dict
+                else:
+                    row_contents[name] = self._contents[self._n][name]  # type ignore
             self._n += 1
             return Row(row_contents)
         raise StopIteration("StopIteration: Reached last row of table!")
