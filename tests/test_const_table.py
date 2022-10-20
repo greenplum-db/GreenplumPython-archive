@@ -154,12 +154,12 @@ def test_table_assign_composite_type(db: gp.Database):
         label: str
 
     @gp.create_function
-    def my_count_sum(val: int) -> rank_label:
+    def my_rank_label(val: int) -> rank_label:
         return {"val": val, "label": "label"}
 
     nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
-    results = nums.assign(result=lambda nums: my_count_sum(nums["num"]))
-    results = results.assign(result2=lambda nums: my_count_sum(nums["num"]))
+    results = nums.assign(result=lambda nums: my_rank_label(nums["num"]))
+    results = results.assign(result2=lambda nums: my_rank_label(nums["num"]))
     results = results.assign(next_val=lambda nums: add_one(nums["num"]))
     for row in results:
         assert row["num"] == row["result"]["val"] and row["result"]["label"] == "label"
