@@ -150,8 +150,8 @@ class Table:
         """
         Return a string representation for a table
         """
-        repr_string = ""
-        ret = list(self._fetch())  # type: ignore
+        repr_string: str = ""
+        ret: List[RealDictRow] = list(self._fetch())
         if len(ret) != 0:
             # Iterate over the given table to calculate the column width for its ASCII representation.
             width = [0] * len(ret[0])
@@ -268,6 +268,7 @@ class Table:
             issue will be fixed as soon as we implement column inference for
             GreenplumPython.
         """
+
         if len(new_columns) == 0:
             return self
         new_columns_str = []
@@ -280,7 +281,10 @@ class Table:
             new_columns_str.append(
                 f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)} AS {k}"
             )
-        return Table(f"SELECT *, {','.join(new_columns_str)} FROM {self.name}", parents=[self])
+        return Table(
+            f"SELECT *, {','.join(new_columns_str)} FROM {self.name}",
+            parents=[self],
+        )
 
     def order_by(
         self,
@@ -494,7 +498,11 @@ class Table:
             self._n = 0
             return self
         assert self._db is not None
-        result = self._fetch()
+        to_json_table = Table(
+            f"SELECT to_json({self.name})::TEXT FROM {self.name}",
+            parents=[self],
+        )
+        result = to_json_table._fetch()
         assert result is not None
         self._contents: List[RealDictRow] = list(result)
         self._n = 0
@@ -502,10 +510,10 @@ class Table:
 
     def __next__(self):
         if self._n < len(self._contents):
-            row_contents: Dict[str, str] = {}  # type ignore
+            row_contents: Dict[str, Union[str, List[str]]] = {}
             assert self._contents is not None
-            for name in self._contents[0].keys():  # type ignore
-                row_contents[name] = self._contents[self._n][name]  # type ignore
+            for name in self._contents[0].keys():
+                row_contents[name] = self._contents[self._n][name]
             self._n += 1
             return Row(row_contents)
         raise StopIteration("StopIteration: Reached last row of table!")

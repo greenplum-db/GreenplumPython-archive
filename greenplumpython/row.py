@@ -1,6 +1,8 @@
 """
 This module creates a Python object Row for table iteration.
 """
+import collections
+import json
 from typing import Any, List
 
 from psycopg2.extras import RealDictRow
@@ -12,7 +14,21 @@ class Row:
     """
 
     def __init__(self, contents: RealDictRow):
-        self._contents = contents
+        def detect_duplicate_keys(json_pairs: List[tuple[str, Any]]):
+            key_count = collections.Counter(k for k, _ in json_pairs)
+            duplicate_keys = ", ".join(k for k, v in key_count.items() if v > 1)
+
+            if len(duplicate_keys) > 0:
+                raise Exception("Duplicate key(s) found: {}".format(duplicate_keys))
+
+        def validate_data(json_pairs: List[tuple[str, Any]]):
+            detect_duplicate_keys(json_pairs)
+            return dict(json_pairs)
+
+        if "to_json" in contents:
+            self._contents = json.loads(contents["to_json"], object_pairs_hook=validate_data)
+        else:
+            self._contents = contents
 
     def __getitem__(self, name: str) -> Any:
         return self._contents[name]
