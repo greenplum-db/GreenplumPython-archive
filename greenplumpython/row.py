@@ -14,15 +14,14 @@ class Row:
     """
 
     def __init__(self, contents: RealDictRow):
-
-        def detect_duplicate_keys(json_pairs):
-            key_count = collections.Counter(k for k, v in json_pairs)
+        def detect_duplicate_keys(json_pairs: List[tuple[str, Any]]):
+            key_count = collections.Counter(k for k, _ in json_pairs)
             duplicate_keys = ", ".join(k for k, v in key_count.items() if v > 1)
 
             if len(duplicate_keys) > 0:
                 raise Exception("Duplicate key(s) found: {}".format(duplicate_keys))
 
-        def validate_data(json_pairs):
+        def validate_data(json_pairs: List[tuple[str, Any]]):
             detect_duplicate_keys(json_pairs)
             return dict(json_pairs)
 

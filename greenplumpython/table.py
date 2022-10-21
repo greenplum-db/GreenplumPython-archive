@@ -22,11 +22,10 @@ from typing import (
     Set,
     Tuple,
     Union,
-    overload, get_type_hints,
+    overload,
 )
 from uuid import uuid4
 
-import psycopg2
 from psycopg2.extras import RealDictRow
 
 from greenplumpython import db
@@ -38,7 +37,7 @@ if TYPE_CHECKING:
 from greenplumpython.expr import Column, Expr
 from greenplumpython.order import OrderedTable
 from greenplumpython.row import Row
-from greenplumpython.type import to_pg_const, to_pg_type
+from greenplumpython.type import to_pg_const
 
 
 class Table:
@@ -53,7 +52,6 @@ class Table:
         name: Optional[str] = None,
         db: Optional[db.Database] = None,
         columns: Optional[Iterable[Column]] = None,
-        columns_type_dict: Optional[Dict[str, List[Any]]] = None,
     ) -> None:
         self._query = query
         self._parents = parents
@@ -64,7 +62,6 @@ class Table:
             self._db = next(iter(parents))._db
         else:
             self._db = db
-        self._columns_type_dict = columns_type_dict
 
     @singledispatchmethod
     def _getitem(self, _) -> "Table":
@@ -153,8 +150,8 @@ class Table:
         """
         Return a string representation for a table
         """
-        repr_string = ""
-        ret = list(self._fetch())  # type: ignore
+        repr_string: str = ""
+        ret: List[RealDictRow] = list(self._fetch())
         if len(ret) != 0:
             # Iterate over the given table to calculate the column width for its ASCII representation.
             width = [0] * len(ret[0])
@@ -284,15 +281,10 @@ class Table:
             new_columns_str.append(
                 f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)} AS {k}"
             )
-        orig_table = Table(
+        return Table(
             f"SELECT *, {','.join(new_columns_str)} FROM {self.name}",
             parents=[self],
         )
-        # return Table(
-        #     f"SELECT to_j{orig_table.name} FROM {orig_table.name}",
-        #     parents=[orig_table],
-        # )
-        return orig_table
 
     def order_by(
         self,
@@ -506,11 +498,11 @@ class Table:
             self._n = 0
             return self
         assert self._db is not None
-        result_table =  Table(
+        to_json_table = Table(
             f"SELECT to_json({self.name})::TEXT FROM {self.name}",
             parents=[self],
         )
-        result = result_table._fetch()
+        result = to_json_table._fetch()
         assert result is not None
         self._contents: List[RealDictRow] = list(result)
         self._n = 0
@@ -518,10 +510,10 @@ class Table:
 
     def __next__(self):
         if self._n < len(self._contents):
-            row_contents: Dict[str, Union[str, List[str]]] = {}  # type ignore
+            row_contents: Dict[str, Union[str, List[str]]] = {}
             assert self._contents is not None
-            for name in self._contents[0].keys():  # type ignore
-                row_contents[name] = self._contents[self._n][name]  # type ignore
+            for name in self._contents[0].keys():
+                row_contents[name] = self._contents[self._n][name]
             self._n += 1
             return Row(row_contents)
         raise StopIteration("StopIteration: Reached last row of table!")

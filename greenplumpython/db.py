@@ -41,7 +41,6 @@ class Database:
 
         """
         with self._conn.cursor() as cursor:
-            print(query)
             cursor.execute(query)
             if has_results:
                 column_names = [desc[0] for desc in cursor.description]

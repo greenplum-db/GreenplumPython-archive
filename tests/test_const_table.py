@@ -148,6 +148,15 @@ def test_table_assign_expr(db: gp.Database):
         assert row["result"] == row["num"] + 1
 
 
+def test_table_assign_same_column_name(db: gp.Database):
+
+    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    with pytest.raises(Exception) as exc_info:
+        results = nums.assign(num=lambda nums: add_one(nums["num"]))
+        next(iter(results))
+    assert str(exc_info.value) == "Duplicate key(s) found: num"
+
+
 def test_table_assign_composite_type(db: gp.Database):
     class rank_label:
         val: int
