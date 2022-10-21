@@ -9,13 +9,13 @@ from tests import db
 
 @pytest.fixture
 def t(db: gp.Database):
-    t = db.apply(lambda: generate_series(0, 9)).rename("id").to_table()
+    t = db.apply(lambda: generate_series(0, 9)).rename("id")
     return t
 
 
 def test_const_table(db: gp.Database):
     rows = [(1,), (2,), (3,)]
-    t = gp.values(rows, db=db, column_names=["id"])
+    t = gp.to_table(rows, db=db, column_names=["id"])
     t = t.save_as("const_table", column_names=["id"], temp=True)
     assert sorted([tuple(row.values()) for row in t.fetch()]) == sorted(rows)
 
@@ -27,7 +27,7 @@ def test_const_table(db: gp.Database):
 
 def test_table_getitem_str(db: gp.Database):
     rows = [(1,), (2,), (3,)]
-    t = gp.values(rows, db=db, column_names=["id"])
+    t = gp.to_table(rows, db=db, column_names=["id"])
     c = t["id"]
     assert str(c) == (t.name + ".id")
 
@@ -36,7 +36,7 @@ def test_table_getitem_sub_columns(db: gp.Database):
     # fmt: off
     rows = [(1, 2,), (1, 3,), (2, 2,), (3, 1,), (3, 4,)]
     # fmt: on
-    t = gp.values(rows, db=db, column_names=["id", "num"])
+    t = gp.to_table(rows, db=db, column_names=["id", "num"])
     t_sub = t[["id", "num"]]
     for row in t_sub.fetch():
         assert "id" in row and "num" in row
@@ -61,7 +61,7 @@ def test_table_display_repr(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
-    t = gp.values(rows, db=db, column_names=["id", "animal"])
+    t = gp.to_table(rows, db=db, column_names=["id", "animal"])
     expected = (
         "| id || animal |\n"
         "================\n"
@@ -77,7 +77,7 @@ def test_table_display_repr_long_content(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tigerrrrrrrrrrrr",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
-    t = gp.values(rows, db=db, column_names=["iddddddddddddddddddd", "animal"])
+    t = gp.to_table(rows, db=db, column_names=["iddddddddddddddddddd", "animal"])
     expected = (
         "| iddddddddddddddddddd || animal           |\n"
         "============================================\n"
@@ -93,7 +93,7 @@ def test_table_display_repr_html(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
-    t = gp.values(rows, db=db, column_names=["id", "animal"])
+    t = gp.to_table(rows, db=db, column_names=["id", "animal"])
     expected = (
         "<table>\n"
         "\t<tr>\n"
@@ -125,13 +125,13 @@ def test_table_display_repr_empty_result(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
-    t = gp.values(rows, db=db, column_names=["id", "animal"])
+    t = gp.to_table(rows, db=db, column_names=["id", "animal"])
     assert str(t[lambda t: t["id"] == 0]) == ""
     assert (t[lambda t: t["id"] == 0]._repr_html_()) == ""
 
 
 def test_table_assign_const(db: gp.Database):
-    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    nums = gp.to_table([(i,) for i in range(10)], db, column_names=["num"])
     results = nums.assign(x=lambda _: "hello").fetch()
     for row in results:
         assert "num" in row and "x" in row and row["x"] == "hello"
@@ -142,7 +142,7 @@ def test_table_assign_expr(db: gp.Database):
     def add_one(num: int) -> int:
         return num + 1
 
-    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    nums = gp.to_table([(i,) for i in range(10)], db, column_names=["num"])
     # FIXME: How to remove the intermdeiate variable `nums`?
     # FIXME: How to support functions returning more than one column?
     results = nums.assign(result=lambda nums: add_one(nums["num"])).fetch()
@@ -151,8 +151,8 @@ def test_table_assign_expr(db: gp.Database):
 
 
 def test_table_assign_same_base(db: gp.Database):
-    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
-    nums2 = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    nums = gp.to_table([(i,) for i in range(10)], db, column_names=["num"])
+    nums2 = gp.to_table([(i,) for i in range(10)], db, column_names=["num"])
     with pytest.raises(Exception) as exc_info:
         nums.assign(num2=lambda _: nums2["num"])
     assert (
@@ -162,7 +162,7 @@ def test_table_assign_same_base(db: gp.Database):
 
 
 def test_table_assign_multiple_col(db: gp.Database):
-    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    nums = gp.to_table([(i,) for i in range(10)], db, column_names=["num"])
     results = nums.assign(a=lambda t: t["num"], b=lambda t: t["num"])
     for row in results.fetch():
         assert row["num"] == row["a"] == row["b"]

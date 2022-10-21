@@ -1,10 +1,11 @@
 """
 This  module can create a connection to a Greenplum database
 """
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Optional, Tuple
 
 if TYPE_CHECKING:
     from greenplumpython.func import FunctionExpr
+    from greenplumpython.table import Table
 
 import psycopg2
 import psycopg2.extras
@@ -79,8 +80,18 @@ class Database:
 
         return table(name, self)
 
-    def apply(self, func: Callable[[], "FunctionExpr"]) -> "FunctionExpr":
-        return func().bind(db=self)
+    def assign(self, **new_columns: Dict[str, Callable[[], Any]]) -> "Table":
+        from greenplumpython.type import to_pg_const
+        from greenplumpython.expr import Expr
+        from greenplumpython.table import Table
+
+        targets: List[str] = []
+        for k, f in new_columns.items():
+            v: Any = f()
+            if isinstance(v, Expr):
+                assert v.table is None, "New column should not depend on any table."
+            targets.append(f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)} AS {k}")
+        return Table(f"SELECT {','.join(targets)}", db=self)
 
 
 def database(

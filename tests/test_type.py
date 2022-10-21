@@ -10,10 +10,10 @@ from tests import db
 
 def test_type_cast(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    series = gp.values(rows, db, column_names=["val"]).save_as("series", temp=True)
+    series = gp.to_table(rows, db, column_names=["val"]).save_as("series", temp=True)
     regclass = gp.get_type("regclass", db)
-    table_name = regclass(series["tableoid"]).rename("table_name")
-    for row in table_name.to_table().fetch():
+    table_name = series.assign(table_name=lambda t: regclass(t["tableoid"]))
+    for row in table_name.fetch():
         assert row["table_name"] == "series"
 
 

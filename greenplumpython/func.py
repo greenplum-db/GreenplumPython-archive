@@ -73,7 +73,7 @@ class FunctionExpr(Expr):
         )
         return f"{self._func.qualified_name}({args_string})"
 
-    def to_table(self) -> Table:
+    def as_table(self) -> Table:
         """
         Returns the result table of the self function applied on args, with potential GROUP BY if
         it is an Aggregation function.
@@ -454,7 +454,7 @@ def create_aggregate(
                 return result + val
 
             rows = [(1,) for _ in range(10)]
-            numbers = gp.values(rows, db=db, column_names=["val"])
+            numbers = gp.to_table(rows, db=db, column_names=["val"])
             my_sum(numbers["val"])
 
     """
@@ -505,10 +505,10 @@ def create_array_function(
                     return sum(val_list)
 
                 rows = [(1, i % 2 == 0) for i in range(10)]
-                numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
+                numbers = gp.to_table(rows, db=db, column_names=["val", "is_even"])
                 results = list(
-                    my_sum(numbers["val"], group_by=numbers.group_by("is_even")).rename=("result")
-                    .to_table()
+                    my_sum(numbers["val"], group_by=numbers.group_by("is_even"))
+                    .rename=("result")
                     .fetch()
                 )
     """

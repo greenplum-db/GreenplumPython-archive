@@ -27,7 +27,7 @@ class TypeCast(Expr):
             .. code-block::  Python
 
                 rows = [(i,) for i in range(10)]
-                series = gp.values(rows, db, column_names=["val"]).save_as("series")
+                series = gp.to_table(rows, db, column_names=["val"]).save_as("series")
                 regclass = gp.get_type("regclass", db)
                 table_name = regclass(series["tableoid"]).rename("table_name")
     """

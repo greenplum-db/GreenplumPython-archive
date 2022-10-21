@@ -9,7 +9,7 @@ from tests import db
 
 @pytest.fixture
 def t(db: gp.Database):
-    t = db.apply(lambda: generate_series(0, 9)).rename("id").to_table()
+    t = db.assign(id=lambda: generate_series(0, 9))
     return t
 
 
@@ -46,7 +46,7 @@ def test_order_by_multiple_head(db: gp.Database):
     # fmt: off
     rows = [(1, 2,), (1, 3,), (2, 2,), (3, 1,), (3, 4,)]
     # fmt: on
-    t = gp.values(rows, db=db, column_names=["id", "num"])
+    t = gp.to_table(rows, db=db, column_names=["id", "num"])
     ret = list(t.order_by("id").order_by("num", ascending=False).head(5).fetch())
     assert len(ret) == 5
     assert ret[0]["id"] == 1 and ret[0]["num"] == 3
@@ -63,7 +63,7 @@ def test_order_by_nulls_last(db: gp.Database):
             (3, "The Scream", 1893, ), (2, "The Starry Night", 1889,),
             (4, "The Night Watch", 1642,)]
     # fmt: on
-    t = gp.values(rows, db=db, column_names=["id", "painting", "year"])
+    t = gp.to_table(rows, db=db, column_names=["id", "painting", "year"])
     ret = list(t.order_by("year", nulls_first=False).head(5).fetch())
     assert ret[0]["year"] is not None and ret[1]["year"] is not None and ret[2]["year"] is not None
     assert ret[3]["year"] is None and ret[4]["year"] is None

@@ -9,7 +9,7 @@ from tests import db
 @pytest.fixture
 def table(db: gp.Database):
     rows = [(1,), (2,), (3,)]
-    t = gp.values(rows, db=db)
+    t = gp.to_table(rows, db=db)
     t = t.save_as("const_table", temp=True, column_names=["id"])
     return t
 

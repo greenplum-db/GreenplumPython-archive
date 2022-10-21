@@ -11,17 +11,17 @@ from tests import db
 @pytest.fixture
 def series(db: gp.Database):
     rows = [(i, i) for i in range(10)]
-    return gp.values(rows, db=db, column_names=["a", "b"])
+    return gp.to_table(rows, db=db, column_names=["a", "b"])
 
 
 def test_plain_func(db: gp.Database):
     version = gp.function("version")
-    for row in version(db=db).to_table().fetch():
+    for row in version(db=db).fetch():
         assert "Greenplum" in row["version"] or row["version"].startswith("PostgreSQL")
 
 
 def test_set_returning_func(db: gp.Database):
-    results = generate_series(0, 9, db=db).rename("id").to_table().fetch()
+    results = db.assign(id=lambda: generate_series(0, 9)).fetch()
     assert sorted([row["id"] for row in results]) == list(range(10))
 
 
@@ -31,7 +31,7 @@ def test_create_func(db: gp.Database):
     def add(a: int, b: int) -> int:
         return a + b
 
-    for row in db.apply(lambda: add(1, 2)).rename("result").to_table().fetch():
+    for row in db.apply(lambda: add(1, 2)).rename("result").fetch():
         assert row["result"] == 1 + 2
         assert row["result"] == add.unwrap()(1, 2)
 
@@ -44,7 +44,7 @@ def test_create_func_multiline(db: gp.Database):
         else:
             return b
 
-    for row in db.apply(lambda: my_max(1, 2)).rename("result").to_table().fetch():
+    for row in db.apply(lambda: my_max(1, 2)).rename("result").fetch():
         assert row["result"] == max(1, 2)
         assert row["result"] == my_max.unwrap()(1, 2)
 
@@ -58,7 +58,7 @@ def test_create_func_tab_indent(db: gp.Database):
 		else:
 			return b
 
-	for row in db.apply(lambda: my_min(1, 2)).rename("result").to_table().fetch():
+	for row in db.apply(lambda: my_min(1, 2)).rename("result").fetch():
 		assert row["result"] == min(1, 2)
 		assert row["result"] == my_min.unwrap()(1, 2)
 # fmt: on
@@ -66,9 +66,9 @@ def test_create_func_tab_indent(db: gp.Database):
 
 def test_func_on_one_column(db: gp.Database):
     rows = [(i,) for i in range(-10, 0)]
-    series = gp.values(rows, db=db, column_names=["id"])
+    series = gp.to_table(rows, db=db, column_names=["id"])
     abs = gp.function("abs")
-    results = abs(series["id"], db=db).to_table().fetch()
+    results = abs(series["id"], db=db).fetch()
     assert sorted([row["abs"] for row in results]) == list(range(1, 11))
 
 
@@ -77,15 +77,15 @@ def test_func_on_multi_columns(db: gp.Database, series: gp.Table):
     def multiply(a: int, b: int) -> int:
         return a * b
 
-    results = multiply(series["a"], series["b"]).rename("result").to_table().fetch()
+    results = multiply(series["a"], series["b"]).rename("result").fetch()
     assert sorted([row["result"] for row in results]) == [i * i for i in range(10)]
 
 
 def test_func_on_more_than_one_table(db: gp.Database):
     div = gp.function("div")
     rows = [(1,) for _ in range(10)]
-    t1 = gp.values(rows, db=db, column_names=["i"])
-    t2 = gp.values(rows, db=db, column_names=["i"])
+    t1 = gp.to_table(rows, db=db, column_names=["i"])
+    t2 = gp.to_table(rows, db=db, column_names=["i"])
     with pytest.raises(Exception) as exc_info:
         div(t1["i"], t2["i"], db=db)
     # FIXME: Create more specific exception classes and remove this
@@ -94,16 +94,16 @@ def test_func_on_more_than_one_table(db: gp.Database):
 
 def test_simple_agg(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    numbers = gp.values(rows, db=db, column_names=["val"])
+    numbers = gp.to_table(rows, db=db, column_names=["val"])
     count = gp.aggregate_function("count")
 
-    results = list(count(numbers["val"], db=db).to_table().fetch())
+    results = list(count(numbers["val"], db=db).fetch())
     assert len(results) == 1 and results[0]["count"] == 10
 
 
 def test_agg_group_by(db: gp.Database):
     rows = [(i, i % 2 == 0) for i in range(10)]
-    numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
+    numbers = gp.to_table(rows, db=db, column_names=["val", "is_even"])
     count = gp.aggregate_function("count")
 
     # FIXME: Remove extraneous rename() in group_by() after spearating Expr
@@ -113,9 +113,7 @@ def test_agg_group_by(db: gp.Database):
             numbers["val"],
             group_by=numbers.group_by("is_even"),
             db=db,
-        )
-        .to_table()
-        .fetch()
+        ).fetch()
     )
     assert len(results) == 2
     for row in results:
@@ -124,7 +122,7 @@ def test_agg_group_by(db: gp.Database):
 
 def test_agg_group_by_multi_columns(db: gp.Database):
     rows = [(i, i % 2 == 0, i % 3 == 0) for i in range(6)]  # 0, 1, 2, 3, 4, 5
-    numbers = gp.values(rows, db=db, column_names=["val", "is_even", "is_multiple_of_3"])
+    numbers = gp.to_table(rows, db=db, column_names=["val", "is_even", "is_multiple_of_3"])
     count = gp.aggregate_function("count")
 
     results = list(
@@ -132,9 +130,7 @@ def test_agg_group_by_multi_columns(db: gp.Database):
             numbers["val"],
             group_by=numbers.group_by("is_even", "is_multiple_of_3"),
             db=db,
-        )
-        .to_table()
-        .fetch()
+        ).fetch()
     )
     assert len(results) == 4  # 2 attributes * 2 possible values per attribute
     for row in results:
@@ -161,8 +157,8 @@ def my_sum(result: int, val: int) -> int:
 
 def test_create_agg(db: gp.Database):
     rows = [(1,) for _ in range(10)]
-    numbers = gp.values(rows, db=db, column_names=["val"])
-    results = list(my_sum(numbers["val"]).rename("result").to_table().fetch())
+    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    results = list(my_sum(numbers["val"]).rename("result").fetch())
     assert len(results) == 1 and results[0]["result"] == 10
 
 
@@ -174,10 +170,8 @@ def test_create_agg_multi_args(db: gp.Database):
         return result + abs(a - b)
 
     rows = [(1, 2) for _ in range(10)]
-    vectors = gp.values(rows, db=db, column_names=["a", "b"])
-    results = list(
-        manhattan_distance(vectors["a"], vectors["b"]).rename("result").to_table().fetch()
-    )
+    vectors = gp.to_table(rows, db=db, column_names=["a", "b"])
+    results = list(manhattan_distance(vectors["a"], vectors["b"]).rename("result").fetch())
     assert len(results) == 1 and results[0]["result"] == 10
 
 
@@ -219,19 +213,16 @@ def my_sum_array(val_list: List[int]) -> int:
 
 def test_array_func(db: gp.Database):
     rows = [(1,) for _ in range(10)]
-    numbers = gp.values(rows, db=db, column_names=["val"])
-    results = list(my_sum_array(numbers["val"]).rename("result").to_table().fetch())
+    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    results = list(my_sum_array(numbers["val"]).rename("result").fetch())
     assert len(results) == 1 and results[0]["result"] == 10
 
 
 def test_array_func_group_by(db: gp.Database):
     rows = [(1, i % 2 == 0) for i in range(10)]
-    numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
+    numbers = gp.to_table(rows, db=db, column_names=["val", "is_even"])
     results = list(
-        my_sum_array(numbers["val"], group_by=numbers.group_by("is_even"))
-        .rename("result")
-        .to_table()
-        .fetch()
+        my_sum_array(numbers["val"], group_by=numbers.group_by("is_even")).rename("result").fetch()
     )
     assert len(results) == 2
     assert list(list(results)[0].keys()) == ["result", "is_even"]
@@ -251,8 +242,8 @@ def test_array_func_group_by_return_composite(db: gp.Database):
     # fmt: off
     rows = [(1, "a",), (1, "a",), (1, "b",), (1, "a",), (1, "b",), (1, "b",)]
     # fmt: on
-    numbers = gp.values(rows, db=db, column_names=["val", "lab"])
-    ret = my_count_sum(numbers["val"], group_by=numbers.group_by("lab")).to_table().fetch()
+    numbers = gp.to_table(rows, db=db, column_names=["val", "lab"])
+    ret = my_count_sum(numbers["val"], group_by=numbers.group_by("lab")).fetch()
     assert sorted(list(ret)[0].keys()) == sorted(["_sum", "_count", "lab"])
     for row in list(ret):
         assert row["_sum"] == 3
@@ -268,7 +259,7 @@ def test_func_return_composite_type(db: gp.Database):
     def create_person(first: str, last: str) -> Person:
         return {"_first_name": first, "_last_name": last}
 
-    for row in create_person("Amy", "An", db=db).to_table().fetch():
+    for row in create_person("Amy", "An", db=db).fetch():
         assert row["_first_name"] == "Amy" and row["_last_name"] == "An"
 
 
@@ -284,8 +275,8 @@ def create_pair(num: int) -> Pair:
 
 def test_func_composite_type_column(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    numbers = gp.values(rows, db=db, column_names=["val"])
-    for row in create_pair(numbers["val"], db=db).to_table().fetch():
+    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    for row in create_pair(numbers["val"], db=db).fetch():
         assert row["_next"] == row["_num"] + 1
 
 
@@ -299,8 +290,8 @@ def test_func_composite_type_setof(db: gp.Database):
         return [(num, num + 1) for _ in range(5)]
 
     rows = [(i,) for i in range(10)]
-    numbers = gp.values(rows, db=db, column_names=["val"])
-    ret = list(create_pair_tuple(numbers["val"], db=db).to_table().fetch())
+    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    ret = list(create_pair_tuple(numbers["val"], db=db).fetch())
     assert len(ret) == 50
     dict_record = {i: 0 for i in range(10)}
     for row in ret:
@@ -322,17 +313,17 @@ def my_stat(val_list: List[int]) -> Stat:
 
 def test_array_func_composite_type(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    numbers = gp.values(rows, db=db, column_names=["val"])
-    ret = list(my_stat(numbers["val"], db=db).to_table().fetch())
+    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    ret = list(my_stat(numbers["val"], db=db).fetch())
     for row in ret:
         assert row["sum"] == sum(list([i for i in range(10)])) and row["count"] == len(rows)
 
 
 def test_func_apply_single_column(db: gp.Database):
     rows = [(i,) for i in range(-10, 0)]
-    series = gp.values(rows, db=db, column_names=["id"])
+    series = gp.to_table(rows, db=db, column_names=["id"])
     abs = gp.function("abs")
-    result = series.apply(lambda t: abs(t["id"])).to_table().fetch()
+    result = series.apply(lambda t: abs(t["id"])).fetch()
     assert len(list(result)) == 10
     for row in result:
         assert row["abs"] >= 0
@@ -345,8 +336,8 @@ def label(type_or_type: str, num: int) -> str:
 
 def test_func_apply_const_and_column(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    numbers = gp.values(rows, db=db, column_names=["val"])
-    result = numbers.apply(lambda t: label("label", t["val"])).to_table().fetch()
+    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    result = numbers.apply(lambda t: label("label", t["val"])).fetch()
     assert len(list(result)) == 10
     for row in result:
         assert row["label"].startswith("label")
@@ -357,37 +348,35 @@ def test_func_apply_join(db: gp.Database):
     rows1 = [(1, "a1",), (2, "a2",), (3, "a3",)]
     rows2 = [(1, "b1",), (2, "b2",), (3, "b3",)]
     # fmt: on
-    t1 = gp.values(rows1, db=db, column_names=["id1", "n1"])
-    t2 = gp.values(rows2, db=db, column_names=["id2", "n2"])
+    t1 = gp.to_table(rows1, db=db, column_names=["id1", "n1"])
+    t2 = gp.to_table(rows2, db=db, column_names=["id2", "n2"])
     ret = t1.join(
         t2, cond=lambda t1, t2: t1["id1"] == t2["id2"], self_columns={"id1"}, other_columns={"n2"}
     )
-    result = ret.apply(lambda t: label(t["n2"], t["id1"])).to_table().fetch()
+    result = ret.apply(lambda t: label(t["n2"], t["id1"])).fetch()
     for row in list(result):
         assert row["label"][1] == row["label"][2]
 
 
 def test_func_composite_type_column_apply(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    numbers = gp.values(rows, db=db, column_names=["val"])
-    for row in numbers.apply(lambda tab: create_pair(tab["val"])).to_table().fetch():
+    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    for row in numbers.apply(lambda tab: create_pair(tab["val"])).fetch():
         assert row["_next"] == row["_num"] + 1
 
 
 def test_array_func_apply(db: gp.Database):
     rows = [(1,) for _ in range(10)]
-    numbers = gp.values(rows, db=db, column_names=["val"])
+    numbers = gp.to_table(rows, db=db, column_names=["val"])
 
-    results = list(numbers["val"].apply(my_sum_array).rename("my_sum").to_table().fetch())
+    results = list(numbers["val"].apply(my_sum_array).rename("my_sum").fetch())
     assert len(results) == 1 and results[0]["my_sum"] == 10
 
 
 def test_array_func_group_by_composite_apply(db: gp.Database):
     rows = [(1, i % 2 == 0) for i in range(10)]
-    numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
-    results = list(
-        numbers.group_by("is_even").apply(lambda tab: my_stat(tab["val"])).to_table().fetch()
-    )
+    numbers = gp.to_table(rows, db=db, column_names=["val", "is_even"])
+    results = list(numbers.group_by("is_even").apply(lambda tab: my_stat(tab["val"])).fetch())
     assert sorted(list(results)[0].keys()) == sorted(["sum", "count", "is_even"])
     for row in results:
         assert all(
@@ -402,13 +391,10 @@ def my_sum_const(label: str, val_list: List[int], initial: int) -> str:
 
 def test_array_func_const_apply(db: gp.Database):
     rows = [(1,) for _ in range(10)]
-    numbers = gp.values(rows, db=db, column_names=["val"])
+    numbers = gp.to_table(rows, db=db, column_names=["val"])
 
     results = list(
-        numbers.apply(lambda tab: my_sum_const("sum", tab["val"], 5))
-        .rename("my_sum")
-        .to_table()
-        .fetch()
+        numbers.apply(lambda tab: my_sum_const("sum", tab["val"], 5)).rename("my_sum").fetch()
     )
     assert len(results) == 1 and results[0]["my_sum"] == "sum : 15"
 
@@ -417,12 +403,11 @@ def test_array_func_group_by_attribute(db: gp.Database):
     # fmt: off
     rows = [("a", i, 5,) for i in range(10)]
     # fmt: on
-    numbers = gp.values(rows, db=db, column_names=["label", "val", "initial"])
+    numbers = gp.to_table(rows, db=db, column_names=["label", "val", "initial"])
     results = list(
         numbers.group_by("label", "initial")
         .apply(lambda tab: my_sum_const(tab["label"], tab["val"], tab["initial"]))
         .rename("my_sum")
-        .to_table()
         .fetch()
     )
     assert len(results) == 1 and results[0]["my_sum"] == "a : 50"
@@ -437,7 +422,7 @@ def test_func_return_list_composite(db: gp.Database):
     def add_to_cart(customer: str, items: List[str]) -> ShoppingCart:
         return {"customer": customer, "items": items}
 
-    results = db.apply(lambda: add_to_cart("alice", ["apple"])).to_table().fetch()
+    results = db.apply(lambda: add_to_cart("alice", ["apple"])).fetch()
     for row in results:
         assert row["customer"] == "alice" and row["items"] == ["apple"]
 
@@ -454,3 +439,7 @@ def test_create_func_same_name_throws(db: gp.Database):
             return a + 1
 
     assert "has been defined before" in str(e.value)
+
+
+def test_agg_set_retuning(db: gp.Database):
+    assert False

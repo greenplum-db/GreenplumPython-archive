@@ -24,13 +24,11 @@ class Expr:
 
     def __init__(
         self,
-        as_name: Optional[str] = None,
         table: Optional["Table"] = None,
         db: Optional[Database] = None,
     ) -> None:
-        self._as_name = as_name
         self._table = table
-        self._db = table.db if table is not None else db
+        self._db = db if db is not None else (table.db if table is not None else None)
 
     def __hash__(self) -> int:
         return hash(self.serialize())
@@ -286,34 +284,10 @@ class Expr:
         """
         Returns string statement of Expr, ie : name + AS (optional)
         """
-        return self.serialize() + (" AS " + self._as_name if self._as_name is not None else "")
-
-    def rename(self, new_name: str) -> "Expr":
-        """
-        Return copy of :class:`Expr` with a new name
-
-        Args:
-            new_name: str: Expr's new name
-
-        Returns:
-            Expr: a new :class:`Expr` with given new name
-        """
-        new_expr = copy.copy(self)  # Shallow copy
-        new_expr._as_name = new_name
-        return new_expr
+        return self.serialize()
 
     def serialize(self) -> str:
         raise NotImplementedError()
-
-    @property
-    def as_name(self) -> str:
-        """
-        Returns alias name of :class:`Expr`
-
-        Returns:
-            str: :class:`Expr` alias name
-        """
-        return self._as_name
 
     @property
     def db(self) -> Optional[Database]:
@@ -335,7 +309,7 @@ class Expr:
         """
         return self._table
 
-    def to_table(self) -> "Table":
+    def as_table(self) -> "Table":
         """
         Returns a :class:`~table.Table`
 
@@ -346,9 +320,6 @@ class Expr:
         from_clause = f"FROM {self.table.name}" if self.table is not None else ""
         parents = [self.table] if self.table is not None else []
         return Table(f"SELECT {str(self)} {from_clause}", parents=parents, db=self._db)
-
-    def apply(self, func: Callable[["Expr"], "FunctionExpr"]) -> "FunctionExpr":
-        return func(self)
 
 
 class BinaryExpr(Expr):
@@ -463,6 +434,28 @@ class UnaryExpr(Expr):
         return f"{self.operator}({right_str})"
 
 
+class ColumnField(Expr):
+    def __init__(
+        self,
+        column: "Column",
+        field_name: str,
+        as_name: Optional[str] = None,
+        table: Optional["Table"] = None,
+        db: Optional[Database] = None,
+    ) -> None:
+        self._field_name = field_name
+        self._column = column
+        self._table = column.table
+        super().__init__(as_name, table, db)
+
+    @property
+    def column(self) -> "Column":
+        return self._column
+
+    def serialize(self) -> str:
+        return f"({self.column.serialize()}).{self._field_name}"
+
+
 class Column(Expr):
     """
     Inherited from :class:`Expr`.
@@ -498,6 +491,12 @@ class Column(Expr):
             Optional[Table]: :class:`~table.Table` associated with :class:`Column`
         """
         return self._table
+
+    def __getitem__(self, field_name: str) -> ColumnField:
+        return ColumnField(self, field_name=field_name)
+
+    def expand(self) -> ColumnField:
+        return ColumnField(self, "*")
 
 
 class ConstExpr(Expr):

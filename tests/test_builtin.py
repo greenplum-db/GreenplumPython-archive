@@ -5,23 +5,21 @@ from tests import db
 
 def test_builtin_func_call(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    t = gp.values(rows, db=db, column_names=["a"])
-    result = list(F.count(t["a"]).to_table().fetch())
+    t = gp.to_table(rows, db=db, column_names=["a"])
+    result = list(t.assign(count=lambda t: F.count(t["a"])).fetch())
     assert len(result) == 1
     assert result[0]["count"] == 10
 
 
 def test_builtin_func_apply(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    result = list(gp.values(rows, db=db, column_names=["a"])["a"].apply(F.count).to_table().fetch())
+    result = list(gp.to_table(rows, db=db, column_names=["a"])["a"].apply(F.count).fetch())
     assert len(result) == 1
     assert result[0]["count"] == 10
 
 
 def test_builtin_func_no_arg(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    result = list(
-        gp.values(rows, db=db, column_names=["a"]).apply(lambda _: F.count()).to_table().fetch()
-    )
+    result = list(gp.to_table(rows, db=db, column_names=["a"]).apply(lambda _: F.count()).fetch())
     assert len(result) == 1
     assert result[0]["count"] == 10
