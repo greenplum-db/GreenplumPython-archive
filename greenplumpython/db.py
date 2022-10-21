@@ -80,16 +80,27 @@ class Database:
 
         return table(name, self)
 
-    def assign(self, **new_columns: Dict[str, Callable[[], Any]]) -> "Table":
+    def assign(self, *func_list: List[Callable[["Table"], Any]], **new_columns: Dict[str, Callable[[], Any]]) -> "Table":
         from greenplumpython.type import to_pg_const
         from greenplumpython.expr import Expr
+        from greenplumpython.func import FunctionExpr
         from greenplumpython.table import Table
 
         targets: List[str] = []
+        if len(func_list):
+            for f in func_list:
+                v: Any = f()
+                if isinstance(v, Expr) and not (v.table is None or v.table == self):
+                    raise Exception("Newly included columns must be based on the current table")
+                if isinstance(v, FunctionExpr):
+                    v = v.bind(db=self)
+                targets.append(f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)}")
         for k, f in new_columns.items():
             v: Any = f()
             if isinstance(v, Expr):
                 assert v.table is None, "New column should not depend on any table."
+            if isinstance(v, FunctionExpr):
+                v = v.bind(db=self)
             targets.append(f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)} AS {k}")
         return Table(f"SELECT {','.join(targets)}", db=self)
 

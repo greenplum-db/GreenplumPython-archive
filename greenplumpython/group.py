@@ -21,7 +21,7 @@ class TableGroupingSets:
         self._table = table
         self._grouping_sets = grouping_sets
 
-    def assign(self, **new_columns: Dict[str, Callable[["Table"], Any]]) -> "Table":
+    def assign(self, *func_list: List[Callable[["Table"], Any]], **new_columns: Dict[str, Callable[["Table"], Any]]) -> "Table":
         """
         Assigns new columns to the current grouping sets. Existing columns
         cannot be reassigned.
@@ -32,18 +32,27 @@ class TableGroupingSets:
         Returns:
             :class:`Table` with the new columns.
         """
-        if len(new_columns) == 0:
-            return self.table
+        from greenplumpython.table import Table
+        if len(new_columns) == 0 and len(func_list) == 0:
+            return self
         targets: List[str] = []
-        for k, f in new_columns.items():
-            v: Any = f(self)
-            if isinstance(v, Expr) and not (v.table is None or v.table == self.table):
-                raise Exception("Newly included columns must be based on the current table")
-            targets.append(f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)} AS {k}")
-        targets += list(self.flatten())
+        if len(func_list):
+            for f in func_list:
+                v: Any = f(self.table).bind(group_by=self)
+                if isinstance(v, Expr) and not (v.table is None or v.table == self.table):
+                    raise Exception("Newly included columns must be based on the current table")
+                targets.append(f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)}")
+            return Table(f"SELECT {','.join(targets)} FROM {self.table.name}", parents=[self.table])
+        if len(new_columns):
+            for k, f in new_columns.items():
+                v: Any = f(self.table).bind(group_by=self)
+                if isinstance(v, Expr) and not (v.table is None or v.table == self.table):
+                    raise Exception("Newly included columns must be based on the current table")
+                targets.append(f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)} AS {k}")
+            targets += list(self.flatten())
         return Table(
             f"SELECT {','.join(targets)} FROM {self.table.name}",
-            parents=[self],
+            parents=[self.table],
         )
 
     def union(self, other: Callable[["Table"], "TableGroupingSets"]) -> "TableGroupingSets":

@@ -9,7 +9,7 @@ from tests import db
 
 @pytest.fixture
 def t(db: gp.Database):
-    t = db.apply(lambda: generate_series(0, 9)).rename("id")
+    t = db.assign(id=lambda: generate_series(0, 9))
     return t
 
 
@@ -157,7 +157,7 @@ def test_table_assign_same_base(db: gp.Database):
         nums.assign(num2=lambda _: nums2["num"])
     assert (
         str(exc_info.value)
-        == "Current table and newly included expression must be based on the same table"
+        == "Newly included columns must be based on the current table"
     )
 
 

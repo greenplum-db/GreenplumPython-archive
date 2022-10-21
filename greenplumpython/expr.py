@@ -343,7 +343,7 @@ class BinaryExpr(Expr):
             table = left.table
         if isinstance(right, Expr) and right.table is not None:
             table = right.table
-        super().__init__(as_name=as_name, table=table, db=db)
+        super().__init__(table=table, db=db)
         self.operator = operator
         self.left = left
         self.right = right
@@ -416,7 +416,6 @@ class UnaryExpr(Expr):
         self,
         operator: str,
         right: Expr,
-        as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ):
         """
@@ -425,7 +424,7 @@ class UnaryExpr(Expr):
             right: :class:`Expr`
         """
         table = right.table
-        super().__init__(as_name=as_name, table=table, db=db)
+        super().__init__(table=table, db=db)
         self.operator = operator
         self.right = right
 
@@ -439,14 +438,13 @@ class ColumnField(Expr):
         self,
         column: "Column",
         field_name: str,
-        as_name: Optional[str] = None,
         table: Optional["Table"] = None,
         db: Optional[Database] = None,
     ) -> None:
         self._field_name = field_name
         self._column = column
         self._table = column.table
-        super().__init__(as_name, table, db)
+        super().__init__(table, db)
 
     @property
     def column(self) -> "Column":
@@ -463,8 +461,8 @@ class Column(Expr):
     Representation of a Python object :class:`.Column`.
     """
 
-    def __init__(self, name: str, table: "Table", as_name: Optional[str] = None) -> None:
-        super().__init__(as_name=as_name, table=table)
+    def __init__(self, name: str, table: "Table") -> None:
+        super().__init__(table=table)
         self._name = name
         self._type: Optional[Type] = None  # TODO: Add type inference
 

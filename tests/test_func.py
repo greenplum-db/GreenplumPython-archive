@@ -16,7 +16,7 @@ def series(db: gp.Database):
 
 def test_plain_func(db: gp.Database):
     version = gp.function("version")
-    for row in version(db=db).fetch():
+    for row in db.assign(lambda: version()).fetch():
         assert "Greenplum" in row["version"] or row["version"].startswith("PostgreSQL")
 
 
@@ -31,7 +31,7 @@ def test_create_func(db: gp.Database):
     def add(a: int, b: int) -> int:
         return a + b
 
-    for row in db.apply(lambda: add(1, 2)).rename("result").fetch():
+    for row in db.assign(result=lambda: add(1, 2)).fetch():
         assert row["result"] == 1 + 2
         assert row["result"] == add.unwrap()(1, 2)
 
@@ -44,7 +44,7 @@ def test_create_func_multiline(db: gp.Database):
         else:
             return b
 
-    for row in db.apply(lambda: my_max(1, 2)).rename("result").fetch():
+    for row in db.assign(result=lambda: my_max(1, 2)).fetch():
         assert row["result"] == max(1, 2)
         assert row["result"] == my_max.unwrap()(1, 2)
 
@@ -58,7 +58,7 @@ def test_create_func_tab_indent(db: gp.Database):
 		else:
 			return b
 
-	for row in db.apply(lambda: my_min(1, 2)).rename("result").fetch():
+	for row in db.assign(result=lambda: my_min(1, 2)).fetch():
 		assert row["result"] == min(1, 2)
 		assert row["result"] == my_min.unwrap()(1, 2)
 # fmt: on
@@ -68,7 +68,7 @@ def test_func_on_one_column(db: gp.Database):
     rows = [(i,) for i in range(-10, 0)]
     series = gp.to_table(rows, db=db, column_names=["id"])
     abs = gp.function("abs")
-    results = abs(series["id"], db=db).fetch()
+    results = series.assign(abs=lambda nums: abs(nums["id"])).fetch()
     assert sorted([row["abs"] for row in results]) == list(range(1, 11))
 
 
@@ -77,7 +77,7 @@ def test_func_on_multi_columns(db: gp.Database, series: gp.Table):
     def multiply(a: int, b: int) -> int:
         return a * b
 
-    results = multiply(series["a"], series["b"]).rename("result").fetch()
+    results = series.assign(result=lambda t: multiply(t["a"], t["b"])).fetch()
     assert sorted([row["result"] for row in results]) == [i * i for i in range(10)]
 
 
@@ -97,7 +97,7 @@ def test_simple_agg(db: gp.Database):
     numbers = gp.to_table(rows, db=db, column_names=["val"])
     count = gp.aggregate_function("count")
 
-    results = list(count(numbers["val"], db=db).fetch())
+    results = list(numbers.assign(lambda t: count(t["val"])).fetch())
     assert len(results) == 1 and results[0]["count"] == 10
 
 
@@ -108,13 +108,13 @@ def test_agg_group_by(db: gp.Database):
 
     # FIXME: Remove extraneous rename() in group_by() after spearating Expr
     # with NamedExpr.
-    results = list(
+    results = numbers.group_by("is_even").assign(lambda t:
         count(
-            numbers["val"],
-            group_by=numbers.group_by("is_even"),
+            t["val"],
+            group_by=t.group_by("is_even"),
             db=db,
-        ).fetch()
-    )
+        )).fetch()
+    print(results)
     assert len(results) == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["count"] == 5)
@@ -214,7 +214,7 @@ def my_sum_array(val_list: List[int]) -> int:
 def test_array_func(db: gp.Database):
     rows = [(1,) for _ in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val"])
-    results = list(my_sum_array(numbers["val"]).rename("result").fetch())
+    results = numbers.assign(result=lambda t: my_sum_array(t["val"])).fetch()
     assert len(results) == 1 and results[0]["result"] == 10
 
 
@@ -259,7 +259,7 @@ def test_func_return_composite_type(db: gp.Database):
     def create_person(first: str, last: str) -> Person:
         return {"_first_name": first, "_last_name": last}
 
-    for row in create_person("Amy", "An", db=db).fetch():
+    for row in db.assign(result=lambda: create_person("Amy", "An")).assign(lambda t: t["result"].expand()).fetch():
         assert row["_first_name"] == "Amy" and row["_last_name"] == "An"
 
 
@@ -276,7 +276,7 @@ def create_pair(num: int) -> Pair:
 def test_func_composite_type_column(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val"])
-    for row in create_pair(numbers["val"], db=db).fetch():
+    for row in numbers.assign(result=lambda t: create_pair(t["val"])).assign(lambda t: t["result"].expand()).fetch():
         assert row["_next"] == row["_num"] + 1
 
 
@@ -291,7 +291,7 @@ def test_func_composite_type_setof(db: gp.Database):
 
     rows = [(i,) for i in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val"])
-    ret = list(create_pair_tuple(numbers["val"], db=db).fetch())
+    ret = numbers.assign(result=lambda t: create_pair_tuple(t["val"])).assign(lambda t: t["result"].expand()).fetch()
     assert len(ret) == 50
     dict_record = {i: 0 for i in range(10)}
     for row in ret:
@@ -323,7 +323,7 @@ def test_func_apply_single_column(db: gp.Database):
     rows = [(i,) for i in range(-10, 0)]
     series = gp.to_table(rows, db=db, column_names=["id"])
     abs = gp.function("abs")
-    result = series.apply(lambda t: abs(t["id"])).fetch()
+    result = series.assign(lambda t: abs(t["id"])).fetch()
     assert len(list(result)) == 10
     for row in result:
         assert row["abs"] >= 0
@@ -337,7 +337,7 @@ def label(type_or_type: str, num: int) -> str:
 def test_func_apply_const_and_column(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val"])
-    result = numbers.apply(lambda t: label("label", t["val"])).fetch()
+    result = numbers.assign(lambda t: label("label", t["val"])).fetch()
     assert len(list(result)) == 10
     for row in result:
         assert row["label"].startswith("label")
@@ -353,7 +353,7 @@ def test_func_apply_join(db: gp.Database):
     ret = t1.join(
         t2, cond=lambda t1, t2: t1["id1"] == t2["id2"], self_columns={"id1"}, other_columns={"n2"}
     )
-    result = ret.apply(lambda t: label(t["n2"], t["id1"])).fetch()
+    result = ret.assign(lambda t: label(t["n2"], t["id1"])).fetch()
     for row in list(result):
         assert row["label"][1] == row["label"][2]
 
@@ -361,7 +361,7 @@ def test_func_apply_join(db: gp.Database):
 def test_func_composite_type_column_apply(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val"])
-    for row in numbers.apply(lambda tab: create_pair(tab["val"])).fetch():
+    for row in numbers.assign(result=lambda tab: create_pair(tab["val"])).assign(lambda t: t["result"].expand()).fetch():
         assert row["_next"] == row["_num"] + 1
 
 
@@ -369,7 +369,7 @@ def test_array_func_apply(db: gp.Database):
     rows = [(1,) for _ in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val"])
 
-    results = list(numbers["val"].apply(my_sum_array).rename("my_sum").fetch())
+    results = list(numbers["val"].assign(my_sum=lambda c: my_sum_array(c)).fetch())
     assert len(results) == 1 and results[0]["my_sum"] == 10
 
 
@@ -422,7 +422,7 @@ def test_func_return_list_composite(db: gp.Database):
     def add_to_cart(customer: str, items: List[str]) -> ShoppingCart:
         return {"customer": customer, "items": items}
 
-    results = db.apply(lambda: add_to_cart("alice", ["apple"])).fetch()
+    results = db.assign(result=lambda: add_to_cart("alice", ["apple"])).assign(lambda t: t["result"].expand()).fetch()
     for row in results:
         assert row["customer"] == "alice" and row["items"] == ["apple"]
 

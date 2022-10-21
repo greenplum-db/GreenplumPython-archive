@@ -36,7 +36,6 @@ class TypeCast(Expr):
         self,
         obj: object,
         type_name: str,
-        as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ) -> None:
         """
@@ -46,7 +45,7 @@ class TypeCast(Expr):
             type_name : str : name of type which object will be cast
         """
         table = obj.table if isinstance(obj, Expr) else None
-        super().__init__(as_name, table, db)
+        super().__init__(table, db)
         self._obj = obj
         self._type_name = type_name
 

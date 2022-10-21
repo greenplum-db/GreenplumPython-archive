@@ -34,11 +34,3 @@ def test_expr_column_str_in_query(db: gp.Database, table: gp.Table):
         keys = list(row.keys())
         assert len(keys) == 1
         assert "id" in keys[0]
-
-
-def test_expr_column_rename(db: gp.Database, table: gp.Table):
-    t = table["id"]
-    t_renamed = t.rename("table_id")
-    assert t is not t_renamed
-    assert str(t_renamed) == "const_table.id AS table_id"
-    assert str(t) == "const_table.id"
