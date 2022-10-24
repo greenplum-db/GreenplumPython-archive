@@ -309,18 +309,6 @@ class Expr:
         """
         return self._table
 
-    def as_table(self) -> "Table":
-        """
-        Returns a :class:`~table.Table`
-
-        Method for Function object
-        """
-        from greenplumpython.table import Table
-
-        from_clause = f"FROM {self.table.name}" if self.table is not None else ""
-        parents = [self.table] if self.table is not None else []
-        return Table(f"SELECT {str(self)} {from_clause}", parents=parents, db=self._db)
-
 
 class BinaryExpr(Expr):
     """
@@ -492,9 +480,6 @@ class Column(Expr):
 
     def __getitem__(self, field_name: str) -> ColumnField:
         return ColumnField(self, field_name=field_name)
-
-    def expand(self) -> ColumnField:
-        return ColumnField(self, "*")
 
 
 class ConstExpr(Expr):

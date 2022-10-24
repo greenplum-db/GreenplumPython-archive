@@ -73,73 +73,6 @@ class FunctionExpr(Expr):
         )
         return f"{self._func.qualified_name}({args_string})"
 
-    def as_table(self) -> Table:
-        """
-        Returns the result table of the self function applied on args, with potential GROUP BY if
-        it is an Aggregation function.
-        """
-        self.function.create_in_db(self._db)
-        from_clause = f"FROM {self.table.name}" if self.table is not None else ""
-        group_by_clause = self._group_by.clause() if self._group_by is not None else ""
-        parents = [self.table] if self.table is not None else []
-        assert (
-            self.function.returning_composite is not None
-        ), "Whether returning composite is required to call the function."
-        if self.function.returning_composite and self._as_name is None:
-            self._as_name = "func_" + uuid4().hex
-        grouping_col_names = self._group_by.flatten() if self._group_by is not None else None
-        # FIXME: The names of GROUP BY exprs can collide with names of fields in
-        # the comosite type, making the column names of the resulting table not
-        # unique. This can be mitigated after we implement table column
-        # inference by raising an error when the function gets called.
-        grouping_cols = (
-            [Column(name, self._table).serialize() for name in grouping_col_names]
-            if grouping_col_names is not None
-            else None
-        )
-        orig_func_table = Table(
-            " ".join(
-                [
-                    f"SELECT {str(self)}",
-                    ("," + ",".join(grouping_cols)) if grouping_cols is not None else "",
-                    from_clause,
-                    group_by_clause,
-                ]
-            ),
-            db=self._db,
-            parents=parents,
-        )
-        # We use 2 `Table`s here because on GPDB 6X and PostgreSQL <= 9.6, a
-        # function returning records that contains more than one attributes
-        # will be called multiple times if we do
-        # ```sql
-        # SELECT (func(a, b)).* FROM t;
-        # ```
-        # which might cause performance issue. To workaround we need to do
-        # ```sql
-        # WITH func_call AS (
-        #     SELECT func(a, b) AS result FROM t
-        # )
-        # SELECT (result).* FROM func_call;
-        # ```
-        rebased_grouping_cols = (
-            [Column(name, orig_func_table).serialize() for name in grouping_col_names]
-            if grouping_col_names is not None
-            else None
-        )
-        results = (
-            "*"
-            if not self.function.returning_composite
-            else f"({self._as_name}).*"
-            if rebased_grouping_cols is None
-            else f"{(','.join(rebased_grouping_cols))}, ({self._as_name}).*"
-        )
-        return Table(
-            f"SELECT {str(results)} FROM {orig_func_table.name}",
-            db=self._db,
-            parents=[orig_func_table],
-        )
-
     @property
     def function(self) -> "_AbstractFunction":
         return self._func
@@ -154,6 +87,7 @@ class ArrayFunctionExpr(FunctionExpr):
     """
 
     def serialize(self) -> str:
+        self.function.create_in_db(self._db)
         args_string_list = []
         args_string = ""
         grouping_col_names = self._group_by.flatten() if self._group_by is not None else None

@@ -16,7 +16,7 @@ def series(db: gp.Database):
 
 def test_plain_func(db: gp.Database):
     version = gp.function("version")
-    for row in db.assign(lambda: version()).fetch():
+    for row in db.assign(version=lambda: version()).fetch():
         assert "Greenplum" in row["version"] or row["version"].startswith("PostgreSQL")
 
 
@@ -97,7 +97,7 @@ def test_simple_agg(db: gp.Database):
     numbers = gp.to_table(rows, db=db, column_names=["val"])
     count = gp.aggregate_function("count")
 
-    results = list(numbers.assign(lambda t: count(t["val"])).fetch())
+    results = list(numbers.group_by().assign(count=lambda t: count(t["val"])).fetch())
     assert len(results) == 1 and results[0]["count"] == 10
 
 
@@ -108,12 +108,7 @@ def test_agg_group_by(db: gp.Database):
 
     # FIXME: Remove extraneous rename() in group_by() after spearating Expr
     # with NamedExpr.
-    results = numbers.group_by("is_even").assign(lambda t:
-        count(
-            t["val"],
-            group_by=t.group_by("is_even"),
-            db=db,
-        )).fetch()
+    results = numbers.group_by("is_even").assign(count=lambda t: count(t["val"])).fetch()
     print(results)
     assert len(results) == 2
     for row in results:
@@ -125,12 +120,10 @@ def test_agg_group_by_multi_columns(db: gp.Database):
     numbers = gp.to_table(rows, db=db, column_names=["val", "is_even", "is_multiple_of_3"])
     count = gp.aggregate_function("count")
 
-    results = list(
-        count(
-            numbers["val"],
-            group_by=numbers.group_by("is_even", "is_multiple_of_3"),
-            db=db,
-        ).fetch()
+    results = (
+        numbers.group_by("is_even", "is_multiple_of_3")
+        .assign(count=lambda t: count(t["val"]))
+        .fetch()
     )
     assert len(results) == 4  # 2 attributes * 2 possible values per attribute
     for row in results:
@@ -158,7 +151,7 @@ def my_sum(result: int, val: int) -> int:
 def test_create_agg(db: gp.Database):
     rows = [(1,) for _ in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val"])
-    results = list(my_sum(numbers["val"]).rename("result").fetch())
+    results = numbers.group_by().assign(result=lambda t: my_sum(t["val"])).fetch()
     assert len(results) == 1 and results[0]["result"] == 10
 
 
@@ -171,7 +164,7 @@ def test_create_agg_multi_args(db: gp.Database):
 
     rows = [(1, 2) for _ in range(10)]
     vectors = gp.to_table(rows, db=db, column_names=["a", "b"])
-    results = list(manhattan_distance(vectors["a"], vectors["b"]).rename("result").fetch())
+    results = vectors.group_by().assign(result=lambda t: manhattan_distance(t["a"], t["b"])).fetch()
     assert len(results) == 1 and results[0]["result"] == 10
 
 
@@ -214,18 +207,17 @@ def my_sum_array(val_list: List[int]) -> int:
 def test_array_func(db: gp.Database):
     rows = [(1,) for _ in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val"])
-    results = numbers.assign(result=lambda t: my_sum_array(t["val"])).fetch()
+    results = numbers.group_by().assign(result=lambda t: my_sum_array(t["val"])).fetch()
     assert len(results) == 1 and results[0]["result"] == 10
 
 
 def test_array_func_group_by(db: gp.Database):
     rows = [(1, i % 2 == 0) for i in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val", "is_even"])
-    results = list(
-        my_sum_array(numbers["val"], group_by=numbers.group_by("is_even")).rename("result").fetch()
-    )
+    results = numbers.group_by("is_even").assign(result=lambda t: my_sum_array(t["val"])).fetch()
+
     assert len(results) == 2
-    assert list(list(results)[0].keys()) == ["result", "is_even"]
+    assert all(e in list(results)[0].keys() for e in ["result", "is_even"])
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["result"] == 5)
 
@@ -243,8 +235,13 @@ def test_array_func_group_by_return_composite(db: gp.Database):
     rows = [(1, "a",), (1, "a",), (1, "b",), (1, "a",), (1, "b",), (1, "b",)]
     # fmt: on
     numbers = gp.to_table(rows, db=db, column_names=["val", "lab"])
-    ret = my_count_sum(numbers["val"], group_by=numbers.group_by("lab")).fetch()
-    assert sorted(list(ret)[0].keys()) == sorted(["_sum", "_count", "lab"])
+    ret = (
+        numbers.group_by("lab")
+        .assign(result=lambda t: my_count_sum(t["val"]))
+        .assign(_sum=lambda t: t["result"]["_sum"], _count=lambda t: t["result"]["_count"])
+        .fetch()
+    )
+    assert all(e in list(ret)[0].keys() for e in ["_sum", "_count", "lab"])
     for row in list(ret):
         assert row["_sum"] == 3
         assert row["_count"] == 3
@@ -259,8 +256,15 @@ def test_func_return_composite_type(db: gp.Database):
     def create_person(first: str, last: str) -> Person:
         return {"_first_name": first, "_last_name": last}
 
-    for row in db.assign(result=lambda: create_person("Amy", "An")).assign(lambda t: t["result"].expand()).fetch():
-        assert row["_first_name"] == "Amy" and row["_last_name"] == "An"
+    for row in (
+        db.assign(result=lambda: create_person("Amy", "An"))
+        .assign(
+            first_name=lambda t: t["result"]["_first_name"],
+            last_name=lambda t: t["result"]["_last_name"],
+        )
+        .fetch()
+    ):
+        assert row["first_name"] == "Amy" and row["last_name"] == "An"
 
 
 class Pair:
@@ -276,7 +280,11 @@ def create_pair(num: int) -> Pair:
 def test_func_composite_type_column(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val"])
-    for row in numbers.assign(result=lambda t: create_pair(t["val"])).assign(lambda t: t["result"].expand()).fetch():
+    for row in (
+        numbers.assign(result=lambda t: create_pair(t["val"]))
+        .assign(_next=lambda t: t["result"]["_next"], _num=lambda t: t["result"]["_num"])
+        .fetch()
+    ):
         assert row["_next"] == row["_num"] + 1
 
 
@@ -291,7 +299,11 @@ def test_func_composite_type_setof(db: gp.Database):
 
     rows = [(i,) for i in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val"])
-    ret = numbers.assign(result=lambda t: create_pair_tuple(t["val"])).assign(lambda t: t["result"].expand()).fetch()
+    ret = (
+        numbers.assign(result=lambda t: create_pair_tuple(t["val"]))
+        .assign(_next=lambda t: t["result"]["_next"], _num=lambda t: t["result"]["_num"])
+        .fetch()
+    )
     assert len(ret) == 50
     dict_record = {i: 0 for i in range(10)}
     for row in ret:
@@ -314,7 +326,12 @@ def my_stat(val_list: List[int]) -> Stat:
 def test_array_func_composite_type(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val"])
-    ret = list(my_stat(numbers["val"], db=db).fetch())
+    ret = (
+        numbers.group_by()
+        .assign(result=lambda t: my_stat(t["val"]))
+        .assign(sum=lambda t: t["result"]["sum"], count=lambda t: t["result"]["count"])
+        .fetch()
+    )
     for row in ret:
         assert row["sum"] == sum(list([i for i in range(10)])) and row["count"] == len(rows)
 
@@ -323,7 +340,7 @@ def test_func_apply_single_column(db: gp.Database):
     rows = [(i,) for i in range(-10, 0)]
     series = gp.to_table(rows, db=db, column_names=["id"])
     abs = gp.function("abs")
-    result = series.assign(lambda t: abs(t["id"])).fetch()
+    result = series.assign(abs=lambda t: abs(t["id"])).fetch()
     assert len(list(result)) == 10
     for row in result:
         assert row["abs"] >= 0
@@ -337,7 +354,7 @@ def label(type_or_type: str, num: int) -> str:
 def test_func_apply_const_and_column(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val"])
-    result = numbers.assign(lambda t: label("label", t["val"])).fetch()
+    result = numbers.assign(label=lambda t: label("label", t["val"])).fetch()
     assert len(list(result)) == 10
     for row in result:
         assert row["label"].startswith("label")
@@ -353,7 +370,7 @@ def test_func_apply_join(db: gp.Database):
     ret = t1.join(
         t2, cond=lambda t1, t2: t1["id1"] == t2["id2"], self_columns={"id1"}, other_columns={"n2"}
     )
-    result = ret.assign(lambda t: label(t["n2"], t["id1"])).fetch()
+    result = ret.assign(label=lambda t: label(t["n2"], t["id1"])).fetch()
     for row in list(result):
         assert row["label"][1] == row["label"][2]
 
@@ -361,7 +378,11 @@ def test_func_apply_join(db: gp.Database):
 def test_func_composite_type_column_apply(db: gp.Database):
     rows = [(i,) for i in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val"])
-    for row in numbers.assign(result=lambda tab: create_pair(tab["val"])).assign(lambda t: t["result"].expand()).fetch():
+    for row in (
+        numbers.assign(result=lambda tab: create_pair(tab["val"]))
+        .assign(_next=lambda t: t["result"]["_next"], _num=lambda t: t["result"]["_num"])
+        .fetch()
+    ):
         assert row["_next"] == row["_num"] + 1
 
 
@@ -369,15 +390,20 @@ def test_array_func_apply(db: gp.Database):
     rows = [(1,) for _ in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val"])
 
-    results = list(numbers["val"].assign(my_sum=lambda c: my_sum_array(c)).fetch())
+    results = list(numbers.group_by().assign(my_sum=lambda t: my_sum_array(t["val"])).fetch())
     assert len(results) == 1 and results[0]["my_sum"] == 10
 
 
 def test_array_func_group_by_composite_apply(db: gp.Database):
     rows = [(1, i % 2 == 0) for i in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val", "is_even"])
-    results = list(numbers.group_by("is_even").apply(lambda tab: my_stat(tab["val"])).fetch())
-    assert sorted(list(results)[0].keys()) == sorted(["sum", "count", "is_even"])
+    results = list(
+        numbers.group_by("is_even")
+        .assign(result=lambda tab: my_stat(tab["val"]))
+        .assign(sum=lambda t: t["result"]["sum"], count=lambda t: t["result"]["sum"])
+        .fetch()
+    )
+    assert all(e in list(results)[0].keys() for e in ["sum", "count", "is_even"])
     for row in results:
         assert all(
             ["is_even" in row, row["is_even"] is not None, row["sum"] == 5, row["count"] == 5]
@@ -394,7 +420,7 @@ def test_array_func_const_apply(db: gp.Database):
     numbers = gp.to_table(rows, db=db, column_names=["val"])
 
     results = list(
-        numbers.apply(lambda tab: my_sum_const("sum", tab["val"], 5)).rename("my_sum").fetch()
+        numbers.group_by().assign(my_sum=lambda tab: my_sum_const("sum", tab["val"], 5)).fetch()
     )
     assert len(results) == 1 and results[0]["my_sum"] == "sum : 15"
 
@@ -406,8 +432,7 @@ def test_array_func_group_by_attribute(db: gp.Database):
     numbers = gp.to_table(rows, db=db, column_names=["label", "val", "initial"])
     results = list(
         numbers.group_by("label", "initial")
-        .apply(lambda tab: my_sum_const(tab["label"], tab["val"], tab["initial"]))
-        .rename("my_sum")
+        .assign(my_sum=lambda tab: my_sum_const(tab["label"], tab["val"], tab["initial"]))
         .fetch()
     )
     assert len(results) == 1 and results[0]["my_sum"] == "a : 50"
@@ -422,7 +447,11 @@ def test_func_return_list_composite(db: gp.Database):
     def add_to_cart(customer: str, items: List[str]) -> ShoppingCart:
         return {"customer": customer, "items": items}
 
-    results = db.assign(result=lambda: add_to_cart("alice", ["apple"])).assign(lambda t: t["result"].expand()).fetch()
+    results = (
+        db.assign(result=lambda: add_to_cart("alice", ["apple"]))
+        .assign(customer=lambda t: t["result"]["customer"], items=lambda t: t["result"]["items"])
+        .fetch()
+    )
     for row in results:
         assert row["customer"] == "alice" and row["items"] == ["apple"]
 

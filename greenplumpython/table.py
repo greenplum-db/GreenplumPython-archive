@@ -238,7 +238,7 @@ class Table:
             parents=[self],
         )
 
-    def assign(self, *func_list: List[Callable[["Table"], Any]], **new_columns: Dict[str, Callable[["Table"], Any]]) -> "Table":
+    def assign(self, **new_columns: Callable[["Table"], Any]) -> "Table":
         """
         Assigns new columns to the current :class:`Table`. Existing columns
         cannot be reassigned.
@@ -250,31 +250,10 @@ class Table:
 
         Returns:
             Table: New table including the new assigned columns
-
-        Warning:
-            Currently, value of type :class:`Expr` whose result has more than
-            one column is **not supported** even though no exception will
-            be thrown in that case. Please **don't rely on this behavior** as
-            this will be fixed soon.
-
-            Examples of this case include functions returning composite type
-            objects, etc.
-
-            This is because GreenplumPython have no knowledge on what columns
-            are in a :class:`Table` or the result of an :class:`Expr`. This
-            issue will be fixed as soon as we implement column inference for
-            GreenplumPython.
         """
-        if len(new_columns) == 0 and len(func_list) == 0:
+        if len(new_columns) == 0:
             return self
         targets: List[str] = []
-        if len(func_list):
-            for f in func_list:
-                v: Any = f(self)
-                if isinstance(v, Expr) and not (v.table is None or v.table == self):
-                    raise Exception("Newly included columns must be based on the current table")
-                targets.append(f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)}")
-            return Table(f"SELECT {','.join(targets)} FROM {self.name}", parents=[self])
         if len(new_columns):
             for k, f in new_columns.items():
                 v: Any = f(self)
@@ -619,7 +598,9 @@ def table(name: str, db: db.Database) -> Table:
     return Table(f"TABLE {name}", name=name, db=db)
 
 
-def to_table(rows: Iterable[Tuple[Any]], db: db.Database, column_names: Iterable[str] = []) -> Table:
+def to_table(
+    rows: Iterable[Tuple[Any]], db: db.Database, column_names: Iterable[str] = []
+) -> Table:
     """
     Returns a :class:`Table` using list of values given
 

@@ -1,13 +1,12 @@
 """
 This module creates a Python object TableRowGroup for group by table.
 """
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, List, MutableSet, Set
+from typing import TYPE_CHECKING, Any, Callable, Iterable, List, MutableSet, Set
 
 from greenplumpython.expr import Expr
 from greenplumpython.type import to_pg_const
 
 if TYPE_CHECKING:
-    from greenplumpython.func import FunctionExpr
     from greenplumpython.table import Table
 
 
@@ -21,7 +20,7 @@ class TableGroupingSets:
         self._table = table
         self._grouping_sets = grouping_sets
 
-    def assign(self, *func_list: List[Callable[["Table"], Any]], **new_columns: Dict[str, Callable[["Table"], Any]]) -> "Table":
+    def assign(self, **new_columns: Callable[["Table"], Any]) -> "Table":
         """
         Assigns new columns to the current grouping sets. Existing columns
         cannot be reassigned.
@@ -33,16 +32,10 @@ class TableGroupingSets:
             :class:`Table` with the new columns.
         """
         from greenplumpython.table import Table
-        if len(new_columns) == 0 and len(func_list) == 0:
+
+        if len(new_columns) == 0:
             return self
         targets: List[str] = []
-        if len(func_list):
-            for f in func_list:
-                v: Any = f(self.table).bind(group_by=self)
-                if isinstance(v, Expr) and not (v.table is None or v.table == self.table):
-                    raise Exception("Newly included columns must be based on the current table")
-                targets.append(f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)}")
-            return Table(f"SELECT {','.join(targets)} FROM {self.table.name}", parents=[self.table])
         if len(new_columns):
             for k, f in new_columns.items():
                 v: Any = f(self.table).bind(group_by=self)
@@ -51,7 +44,7 @@ class TableGroupingSets:
                 targets.append(f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)} AS {k}")
             targets += list(self.flatten())
         return Table(
-            f"SELECT {','.join(targets)} FROM {self.table.name}",
+            f"SELECT {','.join(targets)} FROM {self.table.name} {self.clause()}",
             parents=[self.table],
         )
 
