@@ -109,7 +109,6 @@ def test_agg_group_by(db: gp.Database):
     # FIXME: Remove extraneous rename() in group_by() after spearating Expr
     # with NamedExpr.
     results = numbers.group_by("is_even").assign(count=lambda t: count(t["val"])).fetch()
-    print(results)
     assert len(results) == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["count"] == 5)
@@ -470,5 +469,14 @@ def test_create_func_same_name_throws(db: gp.Database):
     assert "has been defined before" in str(e.value)
 
 
-def test_agg_set_retuning(db: gp.Database):
-    assert False
+def test_agg_returning_table(db: gp.Database):
+    @gp.create_aggregate
+    def pass_agg(result: List[int], val: int) -> List[int]:
+        if result is None:
+            return [val]
+        return result + [val]
+
+    rows = [(i,) for i in range(10)]
+    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    with pytest.raises(Exception):  # state transition functions may not return table
+        numbers.group_by().assign(result=lambda t: pass_agg(t["val"])).fetch()

@@ -4,7 +4,6 @@ This  module can create a connection to a Greenplum database
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Optional, Tuple
 
 if TYPE_CHECKING:
-    from greenplumpython.func import FunctionExpr
     from greenplumpython.table import Table
 
 import psycopg2
