@@ -155,10 +155,7 @@ def test_table_assign_same_base(db: gp.Database):
     nums2 = gp.to_table([(i,) for i in range(10)], db, column_names=["num"])
     with pytest.raises(Exception) as exc_info:
         nums.assign(num2=lambda _: nums2["num"])
-    assert (
-        str(exc_info.value)
-        == "Newly included columns must be based on the current table"
-    )
+    assert str(exc_info.value) == "Newly included columns must be based on the current table"
 
 
 def test_table_assign_multiple_col(db: gp.Database):
