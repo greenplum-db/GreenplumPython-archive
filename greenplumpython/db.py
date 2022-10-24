@@ -41,7 +41,6 @@ class Database:
                 result = db.execute("SELECT version()")
 
         """
-        print(query)
         with self._conn.cursor() as cursor:
             cursor.execute(query)
             return cursor.fetchall() if has_results else None
@@ -82,10 +81,10 @@ class Database:
         return table(name, self)
 
     def assign(self, **new_columns: Callable[[], Any]) -> "Table":
-        from greenplumpython.type import to_pg_const
         from greenplumpython.expr import Expr
         from greenplumpython.func import FunctionExpr
         from greenplumpython.table import Table
+        from greenplumpython.type import to_pg_const
 
         targets: List[str] = []
         for k, f in new_columns.items():

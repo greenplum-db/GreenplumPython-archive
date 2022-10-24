@@ -15,17 +15,17 @@ def table(db: gp.Database):
 
 
 def test_expr_column_name(db: gp.Database, table: gp.Table):
-    c = gp.expr.Column("id", table)
+    c = gp.col.Column("id", table)
     assert c.name == "id"
 
 
 def test_expr_column_str(db: gp.Database, table: gp.Table):
-    c = gp.expr.Column("id", table)
+    c = gp.col.Column("id", table)
     assert str(c) == "const_table.id"
 
 
 def test_expr_column_str_in_query(db: gp.Database, table: gp.Table):
-    c = gp.expr.Column("id", table)
+    c = gp.col.Column("id", table)
     query = "select " + str(c) + " from " + c.table.name
     tr = gp.Table(query=query, db=db)
     ret = tr.fetch()

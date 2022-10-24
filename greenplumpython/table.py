@@ -27,12 +27,8 @@ from typing import (
 from uuid import uuid4
 
 from greenplumpython import db
+from greenplumpython.col import Column, Expr
 from greenplumpython.group import TableGroupingSets
-
-if TYPE_CHECKING:
-    from greenplumpython.func import FunctionExpr
-
-from greenplumpython.expr import Column, Expr
 from greenplumpython.order import OrderedTable
 from greenplumpython.type import to_pg_const
 

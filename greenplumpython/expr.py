@@ -1,16 +1,13 @@
 """
 This module creates a Python object Expr.
 """
-import copy
 from functools import singledispatchmethod
-from typing import TYPE_CHECKING, Any, Callable, Optional, Union, overload
+from typing import TYPE_CHECKING, Any, Optional, overload
 
 from greenplumpython.db import Database
 
 if TYPE_CHECKING:
-    from greenplumpython.func import FunctionExpr
     from greenplumpython.table import Table
-    from greenplumpython.type import Type
 
 
 class Expr:
@@ -419,81 +416,3 @@ class UnaryExpr(Expr):
     def serialize(self) -> str:
         right_str = str(self.right)
         return f"{self.operator}({right_str})"
-
-
-class ColumnField(Expr):
-    def __init__(
-        self,
-        column: "Column",
-        field_name: str,
-        table: Optional["Table"] = None,
-        db: Optional[Database] = None,
-    ) -> None:
-        self._field_name = field_name
-        self._column = column
-        self._table = column.table
-        super().__init__(table, db)
-
-    @property
-    def column(self) -> "Column":
-        return self._column
-
-    def serialize(self) -> str:
-        return f"({self.column.serialize()}).{self._field_name}"
-
-
-class Column(Expr):
-    """
-    Inherited from :class:`Expr`.
-
-    Representation of a Python object :class:`.Column`.
-    """
-
-    def __init__(self, name: str, table: "Table") -> None:
-        super().__init__(table=table)
-        self._name = name
-        self._type: Optional[Type] = None  # TODO: Add type inference
-
-    def serialize(self) -> str:
-        assert self.table is not None
-        return self.table.name + "." + self.name
-
-    @property
-    def name(self) -> str:
-        """
-        Returns :class:`Column` name
-
-        Returns:
-            str: column name
-        """
-        return self._name
-
-    @property
-    def table(self) -> Optional["Table"]:
-        """
-        Returns :class:`Column` associated :class:`~table.Table`
-
-        Returns:
-            Optional[Table]: :class:`~table.Table` associated with :class:`Column`
-        """
-        return self._table
-
-    def __getitem__(self, field_name: str) -> ColumnField:
-        return ColumnField(self, field_name=field_name)
-
-
-class ConstExpr(Expr):
-    """
-    Inherited from :class:`Expr`.
-
-    Representation of a constant object :class:`.Const`.
-    """
-
-    def __init__(self, val: str, as_name: Optional[str] = None) -> None:
-        super().__init__(as_name=as_name)
-        self._val = val
-
-    def serialize(self) -> str:
-        from greenplumpython.type import to_pg_const
-
-        return to_pg_const(self._val)

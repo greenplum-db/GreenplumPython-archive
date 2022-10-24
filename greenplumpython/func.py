@@ -8,8 +8,9 @@ import textwrap
 from typing import Any, Callable, Dict, Optional, Set, Tuple
 from uuid import uuid4
 
+from greenplumpython.col import Column
 from greenplumpython.db import Database
-from greenplumpython.expr import Column, Expr
+from greenplumpython.expr import Expr
 from greenplumpython.group import TableGroupingSets
 from greenplumpython.table import Table
 from greenplumpython.type import primitive_type_map, to_pg_const, to_pg_type
