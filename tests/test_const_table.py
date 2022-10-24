@@ -154,7 +154,7 @@ def test_table_assign_same_column_name(db: gp.Database):
     with pytest.raises(Exception) as exc_info:
         results = nums.assign(num=lambda nums: add_one(nums["num"]))
         next(iter(results))
-    assert str(exc_info.value) == "Duplicate key(s) found: num"
+    assert str(exc_info.value) == "Duplicate column_name(s) found: num"
 
 
 def test_table_assign_composite_type(db: gp.Database):

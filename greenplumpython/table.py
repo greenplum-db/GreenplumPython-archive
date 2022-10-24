@@ -151,23 +151,27 @@ class Table:
         Return a string representation for a table
         """
         repr_string: str = ""
-        ret: List[RealDictRow] = list(self._fetch())
-        if len(ret) != 0:
+        if len(list(self)) != 0:
             # Iterate over the given table to calculate the column width for its ASCII representation.
-            width = [0] * len(ret[0])
-            for row in ret:
+            width = [0] * len(next(iter(self)).column_names())
+            for row in self:
                 for col_idx, col in enumerate(row):
                     width[col_idx] = max(width[col_idx], len(col), len(str(row[col])))
 
             # Table header.
             repr_string += (
-                "".join(["| {:{}} |".format(col, width[idx]) for idx, col in enumerate(ret[0])])
+                "".join(
+                    [
+                        "| {:{}} |".format(col, width[idx])
+                        for idx, col in enumerate(next(iter(self)))
+                    ]
+                )
                 + "\n"
             )
             # Dividing line below table header.
             repr_string += ("=" * (sum(width) + 4 * len(width))) + "\n"
             # Table contents.
-            for row in ret:
+            for row in self:
                 content = [row[c] for c in row]
                 for idx, c in enumerate(content):
                     if isinstance(c, list):
@@ -178,17 +182,18 @@ class Table:
         return repr_string
 
     def _repr_html_(self):
-        ret = list(self._fetch())
         repr_html_str = ""
-        if len(ret) != 0:
+        if len(list(self)) != 0:
             repr_html_str = "<table>\n"
             repr_html_str += "\t<tr>\n"
-            repr_html_str += ("\t\t<th>{:}</th>\n" * len(ret[0])).format(*ret[0])
+            repr_html_str += ("\t\t<th>{:}</th>\n" * len(list(next(iter(self))))).format(
+                *((next(iter(self))))
+            )
             repr_html_str += "\t</tr>\n"
-            for row in ret:
+            for row in self:
                 repr_html_str += "\t<tr>\n"
                 content = [row[c] for c in row]
-                repr_html_str += ("\t\t<td>{:}</td>\n" * len(row)).format(*content)
+                repr_html_str += ("\t\t<td>{:}</td>\n" * len(list(row))).format(*content)
                 repr_html_str += "\t</tr>\n"
             repr_html_str += "</table>"
         return repr_html_str
@@ -498,11 +503,7 @@ class Table:
             self._n = 0
             return self
         assert self._db is not None
-        to_json_table = Table(
-            f"SELECT to_json({self.name})::TEXT FROM {self.name}",
-            parents=[self],
-        )
-        result = to_json_table._fetch()
+        result = self._fetch()
         assert result is not None
         self._contents: List[RealDictRow] = list(result)
         self._n = 0
@@ -548,7 +549,11 @@ class Table:
         if not is_all:
             raise NotImplementedError()
         assert self._db is not None
-        result = self._db.execute(self._build_full_query())
+        to_json_table = Table(
+            f"SELECT to_json({self.name})::TEXT FROM {self.name}",
+            parents=[self],
+        )
+        result = self._db.execute(to_json_table._build_full_query())
         return result if result is not None else []
 
     def save_as(self, table_name: str, temp: bool = False, column_names: List[str] = []) -> "Table":
@@ -568,8 +573,7 @@ class Table:
         # TODO : USE SLICE 1 ROW TO MANIPULATE LESS DATA
         #        OR USING column_names() FUNCTION WITH RESULT ORDERED
         if len(column_names) == 0:
-            ret = self._fetch()
-            column_names = list(list(ret)[0].keys())  # type: ignore
+            column_names = next(iter(self)).column_names()  # type: ignore
         self._db.execute(
             f"""
             CREATE {'TEMP' if temp else ''} TABLE {table_name} ({','.join(column_names)}) 

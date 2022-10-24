@@ -19,7 +19,7 @@ class Row:
             duplicate_keys = ", ".join(k for k, v in key_count.items() if v > 1)
 
             if len(duplicate_keys) > 0:
-                raise Exception("Duplicate key(s) found: {}".format(duplicate_keys))
+                raise Exception("Duplicate column_name(s) found: {}".format(duplicate_keys))
 
         def validate_data(json_pairs: List[tuple[str, Any]]):
             detect_duplicate_keys(json_pairs)
@@ -38,6 +38,9 @@ class Row:
 
     def __str__(self) -> str:
         return str(self._contents)
+
+    def __iter__(self):
+        return iter(self._contents)
 
     def column_names(self) -> List[str]:
         """

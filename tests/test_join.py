@@ -121,9 +121,7 @@ def test_join_same_column_names(db: gp.Database):
     )
     with pytest.raises(Exception) as e:
         print(ret)
-    assert str(e.value) == (
-        "Same column names for multiple columns in same table keeps only one of them!"
-    )
+    assert str(e.value) == ("Duplicate column_name(s) found: id")
 
 
 def test_table_inner_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
@@ -262,7 +260,7 @@ def test_table_join_save(db: gp.Database, zoo_1: gp.Table):
     t_join.save_as("table_join", temp=True)
     t_join_reload = gp.table("table_join", db=db)
     for col in ["zoo1_id", "zoo1_animal", "zoo2_id", "zoo2_animal"]:
-        assert col in next(iter(t_join_reload))
+        assert col in next(iter(t_join_reload)).column_names()
     for row in t_join_reload:
         assert row["zoo1_animal"] == row["zoo2_animal"]
 
