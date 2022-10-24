@@ -9,6 +9,8 @@ user calling `fetch()` function.
 All modifications made by users are only saved to the database when calling the `save_as()`
 function.
 """
+import collections
+import json
 from collections import abc
 from functools import partialmethod, singledispatchmethod
 from typing import (
@@ -510,11 +512,29 @@ class Table:
         return self
 
     def __next__(self):
+        def detect_duplicate_keys(json_pairs: List[tuple[str, Any]]):
+            key_count = collections.Counter(k for k, _ in json_pairs)
+            duplicate_keys = ", ".join(k for k, v in key_count.items() if v > 1)
+
+            if len(duplicate_keys) > 0:
+                raise Exception("Duplicate column_name(s) found: {}".format(duplicate_keys))
+
+        def validate_data(json_pairs: List[tuple[str, Any]]):
+            detect_duplicate_keys(json_pairs)
+            return dict(json_pairs)
+
         if self._n < len(self._contents):
             row_contents: Dict[str, Union[str, List[str]]] = {}
             assert self._contents is not None
             for name in self._contents[0].keys():
-                row_contents[name] = self._contents[self._n][name]
+                if name == "to_json":
+                    to_json_dict = json.loads(
+                        self._contents[self._n][name], object_pairs_hook=validate_data
+                    )
+                    for sub_name in to_json_dict:
+                        row_contents[sub_name] = to_json_dict[sub_name]
+                else:
+                    row_contents[name] = self._contents[self._n][name]
             self._n += 1
             return Row(row_contents)
         raise StopIteration("StopIteration: Reached last row of table!")
