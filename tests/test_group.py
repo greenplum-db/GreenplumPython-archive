@@ -9,8 +9,8 @@ def test_group_agg(db: gp.Database):
     numbers = gp.to_table(rows, db=db, column_names=["val", "is_even"])
     count = gp.aggregate_function("count")
 
-    results = list(numbers.group_by("is_even").assign(count=lambda row: count(row["*"])))
-    assert len(results) == 2
+    results = numbers.group_by("is_even").assign(count=lambda row: count(row["*"]))
+    assert len(list(results)) == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["count"] == 5)
 
@@ -41,8 +41,8 @@ def test_group_by_multi_columns(db: gp.Database):
     numbers = gp.to_table(rows, db=db, column_names=["val", "is_even", "is_multiple_of_3"])
     count = gp.aggregate_function("count")
 
-    results = list(
-        numbers.group_by("is_even", "is_multiple_of_3").assign(count=lambda t: count(t["val"]))
+    results = numbers.group_by("is_even", "is_multiple_of_3").assign(
+        count=lambda t: count(t["val"])
     )
     assert len(list(results)) == 4  # 2 attributes * 2 possible values per attribute
     for row in results:

@@ -97,8 +97,8 @@ def test_simple_agg(db: gp.Database):
     numbers = gp.to_table(rows, db=db, column_names=["val"])
     count = gp.aggregate_function("count")
 
-    results = list(numbers.group_by().assign(count=lambda t: count(t["val"])))
-    assert len(results) == 1 and results[0]["count"] == 10
+    results = numbers.group_by().assign(count=lambda t: count(t["val"]))
+    assert len(list(results)) == 1 and next(iter(results))["count"] == 10
 
 
 def test_agg_group_by(db: gp.Database):
@@ -239,7 +239,7 @@ def test_array_func_group_by_return_composite(db: gp.Database):
         .assign(_sum=lambda t: t["result"]["_sum"], _count=lambda t: t["result"]["_count"])
     )
     assert all(e in next(iter(ret)).column_names() for e in ["_sum", "_count", "lab"])
-    for row in list(ret):
+    for row in ret:
         assert row["_sum"] == 3
         assert row["_count"] == 3
 
@@ -357,7 +357,7 @@ def test_func_apply_join(db: gp.Database):
         t2, cond=lambda t1, t2: t1["id1"] == t2["id2"], self_columns={"id1"}, other_columns={"n2"}
     )
     result = ret.assign(label=lambda t: label(t["n2"], t["id1"]))
-    for row in list(result):
+    for row in result:
         assert row["label"][1] == row["label"][2]
 
 
@@ -374,14 +374,14 @@ def test_array_func_apply(db: gp.Database):
     rows = [(1,) for _ in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val"])
 
-    results = list(numbers.group_by().assign(my_sum=lambda t: my_sum_array(t["val"])))
-    assert len(results) == 1 and results[0]["my_sum"] == 10
+    results = numbers.group_by().assign(my_sum=lambda t: my_sum_array(t["val"]))
+    assert len(list(results)) == 1 and next(iter(results))["my_sum"] == 10
 
 
 def test_array_func_group_by_composite_apply(db: gp.Database):
     rows = [(1, i % 2 == 0) for i in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val", "is_even"])
-    results = list(
+    results = (
         numbers.group_by("is_even")
         .assign(result=lambda tab: my_stat(tab["val"]))
         .assign(sum=lambda t: t["result"]["sum"], count=lambda t: t["result"]["sum"])
@@ -402,7 +402,7 @@ def test_array_func_const_apply(db: gp.Database):
     rows = [(1,) for _ in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val"])
 
-    results = list(numbers.group_by().assign(my_sum=lambda tab: my_sum_const("sum", tab["val"], 5)))
+    results = numbers.group_by().assign(my_sum=lambda tab: my_sum_const("sum", tab["val"], 5))
     assert len(list(results)) == 1 and next(iter(results))["my_sum"] == "sum : 15"
 
 
@@ -411,10 +411,8 @@ def test_array_func_group_by_attribute(db: gp.Database):
     rows = [("a", i, 5,) for i in range(10)]
     # fmt: on
     numbers = gp.to_table(rows, db=db, column_names=["label", "val", "initial"])
-    results = list(
-        numbers.group_by("label", "initial").assign(
-            my_sum=lambda tab: my_sum_const(tab["label"], tab["val"], tab["initial"])
-        )
+    results = numbers.group_by("label", "initial").assign(
+        my_sum=lambda tab: my_sum_const(tab["label"], tab["val"], tab["initial"])
     )
     assert len(list(results)) == 1 and next(iter(results))["my_sum"] == "a : 50"
 

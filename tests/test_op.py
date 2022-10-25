@@ -6,8 +6,8 @@ from tests import db
 
 def test_op_on_consts(db: gp.Database):
     regex_match = gp.operator("~", db)
-    result = list(db.assign(is_matched=lambda: regex_match("hello", "h.*o")))
-    assert len(result) == 1 and result[0]["is_matched"]
+    result = db.assign(is_matched=lambda: regex_match("hello", "h.*o"))
+    assert len(list(result)) == 1 and next(iter(result))["is_matched"]
 
 
 def test_op_index(db: gp.Database):
