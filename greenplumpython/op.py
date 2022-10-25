@@ -20,7 +20,7 @@ def operator(name: str, db: Database) -> Callable[[Any, Any], BinaryExpr]:
         .. code-block::  python
 
             regex_match = gp.operator("~", db)
-            result = list(regex_match("hello", "h.*o").rename("is_matched").fetch())
+            result = list(regex_match("hello", "h.*o").rename("is_matched"))
     """
 
     def make_operator_expr(left: Any, right: Any) -> BinaryExpr:

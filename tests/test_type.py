@@ -13,7 +13,7 @@ def test_type_cast(db: gp.Database):
     series = gp.to_table(rows, db, column_names=["val"]).save_as("series", temp=True)
     regclass = gp.get_type("regclass", db)
     table_name = series.assign(table_name=lambda t: regclass(t["tableoid"]))
-    for row in table_name.fetch():
+    for row in table_name:
         assert row["table_name"] == "series"
 
 

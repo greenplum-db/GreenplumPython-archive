@@ -6,7 +6,7 @@ from tests import db
 
 def test_op_on_consts(db: gp.Database):
     regex_match = gp.operator("~", db)
-    result = list(db.assign(is_matched=lambda: regex_match("hello", "h.*o")).fetch())
+    result = list(db.assign(is_matched=lambda: regex_match("hello", "h.*o")))
     assert len(result) == 1 and result[0]["is_matched"]
 
 

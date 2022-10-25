@@ -128,7 +128,7 @@ def test_table_display_repr_empty_result(db: gp.Database):
 
 def test_table_assign_const(db: gp.Database):
     nums = gp.to_table([(i,) for i in range(10)], db, column_names=["num"])
-    results = nums.assign(x=lambda _: "hello").fetch()
+    results = nums.assign(x=lambda _: "hello")
     for row in results:
         assert "num" in row and "x" in row and row["x"] == "hello"
 
@@ -150,7 +150,7 @@ def test_table_assign_expr(db: gp.Database):
 
 def test_table_assign_same_column_name(db: gp.Database):
 
-    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    nums = gp.to_table([(i,) for i in range(10)], db, column_names=["num"])
     with pytest.raises(Exception) as exc_info:
         results = nums.assign(num=lambda nums: add_one(nums["num"]))
         next(iter(results))
@@ -166,7 +166,7 @@ def test_table_assign_composite_type(db: gp.Database):
     def my_rank_label(val: int) -> rank_label:
         return {"val": val, "label": "label"}
 
-    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    nums = gp.to_table([(i,) for i in range(10)], db, column_names=["num"])
     results = nums.assign(result=lambda nums: my_rank_label(nums["num"]))
     results = results.assign(result2=lambda nums: my_rank_label(nums["num"]))
     results = results.assign(next_val=lambda nums: add_one(nums["num"]))
@@ -195,7 +195,7 @@ def test_table_assign_multiple_col(db: gp.Database):
 
 
 def test_iter_break(db: gp.Database):
-    nums = gp.values([(i,) for i in range(3)], db, column_names=["num"])
+    nums = gp.to_table([(i,) for i in range(3)], db, column_names=["num"])
     results = []
     for row in nums:
         results.append(row["num"])
@@ -206,7 +206,7 @@ def test_iter_break(db: gp.Database):
 
 
 def test_table_refresh_add_rows(db: gp.Database):
-    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    nums = gp.to_table([(i,) for i in range(10)], db, column_names=["num"])
     t = nums.save_as("const_table", column_names=["num"], temp=True)
     assert len(list(t)) == 10
 
@@ -219,7 +219,7 @@ def test_table_refresh_add_rows(db: gp.Database):
 
 def test_table_refresh_add_columns(db: gp.Database):
     # Initial Table
-    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    nums = gp.to_table([(i,) for i in range(10)], db, column_names=["num"])
     t = nums.save_as("const_table", column_names=["num"], temp=True)
     assert len(next(iter(t)).column_names()) == 1
     assert next(iter(t)).column_names() == ["num"]

@@ -54,11 +54,11 @@ def test_order_by_multiple_head(db: gp.Database):
     rows = [(1, 2,), (1, 3,), (2, 2,), (3, 1,), (3, 4,)]
     # fmt: on
     t = gp.to_table(rows, db=db, column_names=["id", "num"])
-    ret = list(t.order_by("id").order_by("num", ascending=False).head(5).fetch())
+    ret = list(t.order_by("id").order_by("num", ascending=False).head(5))
     assert len(ret) == 5
     assert ret[0]["id"] == 1 and ret[0]["num"] == 3
     assert ret[4]["id"] == 3 and ret[4]["num"] == 1
-    ret2 = list(t.order_by("num", ascending=False).order_by("id").head(5).fetch())
+    ret2 = list(t.order_by("num", ascending=False).order_by("id").head(5))
     assert len(ret) == 5
     assert ret2[0]["id"] == 3 and ret2[0]["num"] == 4
     assert ret2[4]["id"] == 3 and ret2[4]["num"] == 1
@@ -71,6 +71,6 @@ def test_order_by_nulls_last(db: gp.Database):
             (4, "The Night Watch", 1642,)]
     # fmt: on
     t = gp.to_table(rows, db=db, column_names=["id", "painting", "year"])
-    ret = list(t.order_by("year", nulls_first=False).head(5).fetch())
+    ret = list(t.order_by("year", nulls_first=False).head(5))
     assert ret[0]["year"] is not None and ret[1]["year"] is not None and ret[2]["year"] is not None
     assert ret[3]["year"] is None and ret[4]["year"] is None

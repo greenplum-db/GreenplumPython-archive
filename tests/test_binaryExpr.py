@@ -90,7 +90,7 @@ def test_expr_bin_and(table_num: gp.Table):
 def test_expr_bin_or(db: gp.Database):
     rows = [(1,), (2,), (3,), (-2,)]
     t = gp.to_table(rows, db=db, column_names=["id"])
-    ret = t[lambda t: (t["id"] >= 3) | (t["id"] < 0)].fetch()
+    ret = t[lambda t: (t["id"] >= 3) | (t["id"] < 0)]
     assert len(list(ret)) == 2
     for row in ret:
         assert 3 <= row["id"] or row["id"] < 0
@@ -100,7 +100,7 @@ def test_expr_bin_or(db: gp.Database):
 def test_table_like(db: gp.Database):
     rows = [("aaa",), ("bba",), ("acac",)]
     t = gp.to_table(rows, db=db, column_names=["id"])
-    result = t[lambda t: t["id"].like(r"a%")].fetch()
+    result = t[lambda t: t["id"].like(r"a%")]
     assert len(list(result)) == 2
     result = t[lambda t: t["id"].like(r"%a")]
     assert len(list(result)) == 2

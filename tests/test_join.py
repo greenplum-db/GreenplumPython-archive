@@ -118,7 +118,7 @@ def test_join_same_column_using(db: gp.Database):
 #         t2,
 #         self_columns={"*"},
 #         other_columns={"*"},
-#     ).fetch()
+#     )
 
 
 def test_table_inner_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):

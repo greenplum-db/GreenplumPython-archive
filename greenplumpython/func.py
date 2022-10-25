@@ -429,7 +429,7 @@ def create_array_function(
                 results = list(
                     my_sum(numbers["val"], group_by=numbers.group_by("is_even"))
                     .rename=("result")
-                    .fetch()
+
                 )
     """
     # If user needs extra parameters when creating a function
