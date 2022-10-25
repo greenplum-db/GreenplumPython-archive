@@ -206,3 +206,45 @@ def test_iter_break(db: gp.Database):
     for row in nums:
         results.append(row["num"])
     assert results == [0, 0, 1, 2]
+
+
+def test_table_refresh_add_rows(db: gp.Database):
+    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    t = nums.save_as("const_table", column_names=["num"], temp=True)
+    assert len(list(t)) == 10
+
+    db.execute("INSERT INTO const_table(num) VALUES (10);", has_results=False)
+
+    assert len(list(t)) == 10
+    t.refresh()
+    assert len(list(t)) == 11
+
+
+def test_table_refresh_add_columns(db: gp.Database):
+    # Initial Table
+    nums = gp.values([(i,) for i in range(10)], db, column_names=["num"])
+    t = nums.save_as("const_table", column_names=["num"], temp=True)
+    assert len(next(iter(t)).column_names()) == 1
+    assert next(iter(t)).column_names() == ["num"]
+    assert sorted(row["num"] for row in t) == sorted(list(range(10)))
+
+    # Add a new column
+    db.execute("ALTER TABLE const_table ADD num_copy int;", has_results=False)
+    assert len(next(iter(t)).column_names()) == 1
+    for row in next(iter(t)).column_names():
+        assert row == "num"
+    # Refresh Table contents
+    t.refresh()
+    assert len(next(iter(t)).column_names()) == 2
+    assert next(iter(t)).column_names() == ["num", "num_copy"]
+    for row in t:
+        assert row["num_copy"] is None
+
+    # Update column
+    db.execute("UPDATE const_table SET num_copy=num;", has_results=False)
+    for row in t:
+        assert row["num_copy"] is None
+    # Refresh Table contents
+    t.refresh()
+    for row in t:
+        assert row["num_copy"] is not None and row["num_copy"] == row["num"]

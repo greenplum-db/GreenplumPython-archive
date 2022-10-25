@@ -39,6 +39,6 @@ def test_create_type_recursive(db: gp.Database):
         return Couple()
 
     # FIXME : In this case, program will create twice Person type
-    #         when creating Couple type with difƒrent type_name
+    #         when creating Couple type with different type_name
     func_sig = inspect.signature(create_couple)
     create_type(func_sig.return_annotation, db)
