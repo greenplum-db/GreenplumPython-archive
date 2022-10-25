@@ -42,6 +42,12 @@ class Database:
         """
         with self._conn.cursor() as cursor:
             cursor.execute(query)
+            if has_results:
+                column_names = [desc[0] for desc in cursor.description]
+                if len(column_names) != len(set(column_names)):
+                    raise Exception(
+                        "Same column names for multiple columns in same table keeps only one of them!"
+                    )
             return cursor.fetchall() if has_results else None
 
     def close(self) -> None:

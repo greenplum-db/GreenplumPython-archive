@@ -9,6 +9,8 @@ user calling `fetch()` function.
 All modifications made by users are only saved to the database when calling the `save_as()`
 function.
 """
+import collections
+import json
 from collections import abc
 from functools import partialmethod, singledispatchmethod
 from typing import (
@@ -26,6 +28,8 @@ from typing import (
 )
 from uuid import uuid4
 
+from psycopg2.extras import RealDictRow
+
 from greenplumpython import db
 from greenplumpython.group import TableGroupingSets
 
@@ -34,6 +38,7 @@ if TYPE_CHECKING:
 
 from greenplumpython.expr import Column, Expr
 from greenplumpython.order import OrderedTable
+from greenplumpython.row import Row
 from greenplumpython.type import to_pg_const
 
 
@@ -54,6 +59,7 @@ class Table:
         self._parents = parents
         self._name = "cte_" + uuid4().hex if name is None else name
         self._columns = columns
+        self._contents = None
         if any(parents):
             self._db = next(iter(parents))._db
         else:
@@ -146,24 +152,28 @@ class Table:
         """
         Return a string representation for a table
         """
-        repr_string = ""
-        ret = list(self.fetch())
-        if len(ret) != 0:
+        repr_string: str = ""
+        if len(list(self)) != 0:
             # Iterate over the given table to calculate the column width for its ASCII representation.
-            width = [0] * len(ret[0])
-            for row in ret:
+            width = [0] * len(next(iter(self)).column_names())
+            for row in self:
                 for col_idx, col in enumerate(row):
                     width[col_idx] = max(width[col_idx], len(col), len(str(row[col])))
 
             # Table header.
             repr_string += (
-                "".join(["| {:{}} |".format(col, width[idx]) for idx, col in enumerate(ret[0])])
+                "".join(
+                    [
+                        "| {:{}} |".format(col, width[idx])
+                        for idx, col in enumerate(next(iter(self)))
+                    ]
+                )
                 + "\n"
             )
             # Dividing line below table header.
             repr_string += ("=" * (sum(width) + 4 * len(width))) + "\n"
             # Table contents.
-            for row in ret:
+            for row in self:
                 content = [row[c] for c in row]
                 for idx, c in enumerate(content):
                     if isinstance(c, list):
@@ -174,17 +184,18 @@ class Table:
         return repr_string
 
     def _repr_html_(self):
-        ret = list(self.fetch())
         repr_html_str = ""
-        if len(ret) != 0:
+        if len(list(self)) != 0:
             repr_html_str = "<table>\n"
             repr_html_str += "\t<tr>\n"
-            repr_html_str += ("\t\t<th>{:}</th>\n" * len(ret[0])).format(*ret[0])
+            repr_html_str += ("\t\t<th>{:}</th>\n" * len(list(next(iter(self))))).format(
+                *((next(iter(self))))
+            )
             repr_html_str += "\t</tr>\n"
-            for row in ret:
+            for row in self:
                 repr_html_str += "\t<tr>\n"
                 content = [row[c] for c in row]
-                repr_html_str += ("\t\t<td>{:}</td>\n" * len(row)).format(*content)
+                repr_html_str += ("\t\t<td>{:}</td>\n" * len(list(row))).format(*content)
                 repr_html_str += "\t</tr>\n"
             repr_html_str += "</table>"
         return repr_html_str
@@ -264,6 +275,7 @@ class Table:
             issue will be fixed as soon as we implement column inference for
             GreenplumPython.
         """
+
         if len(new_columns) == 0:
             return self
         new_columns_str = []
@@ -276,7 +288,10 @@ class Table:
             new_columns_str.append(
                 f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)} AS {k}"
             )
-        return Table(f"SELECT *, {','.join(new_columns_str)} FROM {self.name}", parents=[self])
+        return Table(
+            f"SELECT *, {','.join(new_columns_str)} FROM {self.name}",
+            parents=[self],
+        )
 
     def order_by(
         self,
@@ -441,24 +456,6 @@ class Table:
         """
         return self._db
 
-    def column_names(self) -> "Table":
-        """
-        Returns :class:`Table` contained column names of self. Need to do a fetch afterwards to get results.
-
-        Returns:
-            Table: table contained list of columns name of self
-        """
-        if any(self._parents):
-            raise NotImplementedError()
-        return Table(
-            f"""
-                SELECT column_name
-                FROM information_schema.columns 
-                WHERE table_name = quote_ident('{self._name}')
-            """,
-            db=self._db,
-        )
-
     @property
     def columns(self) -> Optional[Iterable[Column]]:
         """
@@ -503,7 +500,61 @@ class Table:
             return self._query
         return "WITH " + ",".join(cte_list) + self._query
 
-    def fetch(self, is_all: bool = True) -> Iterable[Tuple[Any]]:
+    def __iter__(self) -> "Table":
+        if self._contents is not None:
+            self._n = 0
+            return self
+        assert self._db is not None
+        result = self._fetch()
+        assert result is not None
+        self._contents: List[RealDictRow] = list(result)
+        self._n = 0
+        return self
+
+    def __next__(self):
+        def detect_duplicate_keys(json_pairs: List[tuple[str, Any]]):
+            key_count = collections.Counter(k for k, _ in json_pairs)
+            duplicate_keys = ", ".join(k for k, v in key_count.items() if v > 1)
+
+            if len(duplicate_keys) > 0:
+                raise Exception("Duplicate column_name(s) found: {}".format(duplicate_keys))
+
+        def validate_data(json_pairs: List[tuple[str, Any]]):
+            detect_duplicate_keys(json_pairs)
+            return dict(json_pairs)
+
+        if self._n < len(self._contents):
+            row_contents: Dict[str, Union[str, List[str]]] = {}
+            assert self._contents is not None
+            for name in self._contents[0].keys():
+                if name == "to_json":
+                    to_json_dict = json.loads(
+                        self._contents[self._n][name], object_pairs_hook=validate_data
+                    )
+                    for sub_name in to_json_dict:
+                        row_contents[sub_name] = to_json_dict[sub_name]
+                else:
+                    row_contents[name] = self._contents[self._n][name]
+            self._n += 1
+            return Row(row_contents)
+        raise StopIteration("StopIteration: Reached last row of table!")
+
+    def refresh(self) -> "Table":
+        """
+        Refresh self._contents
+
+        Returns:
+            self
+        """
+
+        assert self._db is not None
+        result = self._fetch()
+        assert result is not None
+        self._contents = list(result)
+        self._n = 0
+        return self
+
+    def _fetch(self, is_all: bool = True) -> Iterable[Tuple[Any]]:
         """
         Fetch rows of this :class:`Table`.
         - if is_all is True, fetch all rows at once
@@ -518,7 +569,11 @@ class Table:
         if not is_all:
             raise NotImplementedError()
         assert self._db is not None
-        result = self._db.execute(self._build_full_query())
+        to_json_table = Table(
+            f"SELECT to_json({self.name})::TEXT FROM {self.name}",
+            parents=[self],
+        )
+        result = self._db.execute(to_json_table._build_full_query())
         return result if result is not None else []
 
     def save_as(self, table_name: str, temp: bool = False, column_names: List[str] = []) -> "Table":
@@ -538,8 +593,7 @@ class Table:
         # TODO : USE SLICE 1 ROW TO MANIPULATE LESS DATA
         #        OR USING column_names() FUNCTION WITH RESULT ORDERED
         if len(column_names) == 0:
-            ret = self.fetch()
-            column_names = list(list(ret)[0].keys())  # type: ignore
+            column_names = next(iter(self)).column_names()  # type: ignore
         self._db.execute(
             f"""
             CREATE {'TEMP' if temp else ''} TABLE {table_name} ({','.join(column_names)}) 
@@ -618,14 +672,14 @@ class Table:
                 rows = [(i,) for i in range(-10, 0)]
                 series = gp.values(rows, db=db, column_names=["id"])
                 abs = gp.function("abs", db=db)
-                result = series.apply(lambda t: abs(t["id"])).to_table().fetch()
+                result = series.apply(lambda t: abs(t["id"])).to_table()_fetch()
 
             If we want to give constant as attribute, it is also easy to use. Suppose *label* function
             takes a str and a int:
 
             .. code-block::  python
 
-                result = series.apply(lambda t: label("label", t["id"])).to_table().fetch()
+                result = series.apply(lambda t: label("label", t["id"])).to_table()._fetch()
 
         """
         # We need to support calling functions with constant args or even no
