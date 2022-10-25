@@ -112,6 +112,7 @@ def test_agg_group_by(db: gp.Database):
     assert len(results) == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["count"] == 5)
+    assert len(list(results)) == 2
 
 
 def test_agg_group_by_multi_columns(db: gp.Database):
@@ -218,6 +219,7 @@ def test_array_func_group_by(db: gp.Database):
     assert len(results) == 2
     assert all(e in list(results)[0].keys() for e in ["result", "is_even"])
     for row in results:
+        print(row["is_even"])
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["result"] == 5)
 
 
@@ -245,8 +247,6 @@ def test_array_func_group_by_return_composite(db: gp.Database):
         assert row["_sum"] == 3
         assert row["_count"] == 3
 
-
-def test_func_return_composite_type(db: gp.Database):
     class Person:
         _first_name: str
         _last_name: str
@@ -421,7 +421,7 @@ def test_array_func_const_apply(db: gp.Database):
     results = list(
         numbers.group_by().assign(my_sum=lambda tab: my_sum_const("sum", tab["val"], 5)).fetch()
     )
-    assert len(results) == 1 and results[0]["my_sum"] == "sum : 15"
+    assert len(list(results)) == 1 and next(iter(results))["my_sum"] == "sum : 15"
 
 
 def test_array_func_group_by_attribute(db: gp.Database):
@@ -434,7 +434,7 @@ def test_array_func_group_by_attribute(db: gp.Database):
         .assign(my_sum=lambda tab: my_sum_const(tab["label"], tab["val"], tab["initial"]))
         .fetch()
     )
-    assert len(results) == 1 and results[0]["my_sum"] == "a : 50"
+    assert len(list(results)) == 1 and next(iter(results))["my_sum"] == "a : 50"
 
 
 def test_func_return_list_composite(db: gp.Database):
