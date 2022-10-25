@@ -36,13 +36,12 @@ class TableGroupingSets:
         if len(new_columns) == 0:
             return self
         targets: List[str] = []
-        if len(new_columns):
-            for k, f in new_columns.items():
-                v: Any = f(self.table).bind(group_by=self)
-                if isinstance(v, Expr) and not (v.table is None or v.table == self.table):
-                    raise Exception("Newly included columns must be based on the current table")
-                targets.append(f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)} AS {k}")
-            targets += list(self.flatten())
+        for k, f in new_columns.items():
+            v: Any = f(self.table).bind(group_by=self)
+            if isinstance(v, Expr) and not (v.table is None or v.table == self.table):
+                raise Exception("Newly included columns must be based on the current table")
+            targets.append(f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)} AS {k}")
+        targets += list(self.flatten())
         return Table(
             f"SELECT {','.join(targets)} FROM {self.table.name} {self.clause()}",
             parents=[self.table],
