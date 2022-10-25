@@ -109,7 +109,6 @@ def test_agg_group_by(db: gp.Database):
     # FIXME: Remove extraneous rename() in group_by() after spearating Expr
     # with NamedExpr.
     results = numbers.group_by("is_even").assign(count=lambda t: count(t["val"]))
-    assert len(results) == 2
     for row in results:
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["count"] == 5)
     assert len(list(results)) == 2
@@ -123,7 +122,7 @@ def test_agg_group_by_multi_columns(db: gp.Database):
     results = numbers.group_by("is_even", "is_multiple_of_3").assign(
         count=lambda t: count(t["val"])
     )
-    assert len(results) == 4  # 2 attributes * 2 possible values per attribute
+    assert len(list(results)) == 4  # 2 attributes * 2 possible values per attribute
     for row in results:
         assert (
             ("is_even" in row)
@@ -150,7 +149,7 @@ def test_create_agg(db: gp.Database):
     rows = [(1,) for _ in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val"])
     results = numbers.group_by().assign(result=lambda t: my_sum(t["val"]))
-    assert len(results) == 1 and results[0]["result"] == 10
+    assert len(list(results)) == 1 and next(iter(results))["result"] == 10
 
 
 def test_create_agg_multi_args(db: gp.Database):
@@ -163,7 +162,7 @@ def test_create_agg_multi_args(db: gp.Database):
     rows = [(1, 2) for _ in range(10)]
     vectors = gp.to_table(rows, db=db, column_names=["a", "b"])
     results = vectors.group_by().assign(result=lambda t: manhattan_distance(t["a"], t["b"]))
-    assert len(results) == 1 and results[0]["result"] == 10
+    assert len(list(results)) == 1 and next(iter(results))["result"] == 10
 
 
 def test_func_long_name(db: gp.Database):
@@ -206,7 +205,7 @@ def test_array_func(db: gp.Database):
     rows = [(1,) for _ in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val"])
     results = numbers.group_by().assign(result=lambda t: my_sum_array(t["val"]))
-    assert len(results) == 1 and results[0]["result"] == 10
+    assert len(list(results)) == 1 and next(iter(results))["result"] == 10
 
 
 def test_array_func_group_by(db: gp.Database):
@@ -214,8 +213,8 @@ def test_array_func_group_by(db: gp.Database):
     numbers = gp.to_table(rows, db=db, column_names=["val", "is_even"])
     results = numbers.group_by("is_even").assign(result=lambda t: my_sum_array(t["val"]))
 
-    assert len(results) == 2
-    assert all(e in list(results)[0].keys() for e in ["result", "is_even"])
+    assert len(list(results)) == 2
+    assert all(e in next(iter(results)).column_names() for e in ["result", "is_even"])
     for row in results:
         print(row["is_even"])
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["result"] == 5)
@@ -239,7 +238,7 @@ def test_array_func_group_by_return_composite(db: gp.Database):
         .assign(result=lambda t: my_count_sum(t["val"]))
         .assign(_sum=lambda t: t["result"]["_sum"], _count=lambda t: t["result"]["_count"])
     )
-    assert all(e in list(ret)[0].keys() for e in ["_sum", "_count", "lab"])
+    assert all(e in next(iter(ret)).column_names() for e in ["_sum", "_count", "lab"])
     for row in list(ret):
         assert row["_sum"] == 3
         assert row["_count"] == 3
@@ -292,7 +291,7 @@ def test_func_composite_type_setof(db: gp.Database):
     ret = numbers.assign(result=lambda t: create_pair_tuple(t["val"])).assign(
         _next=lambda t: t["result"]["_next"], _num=lambda t: t["result"]["_num"]
     )
-    assert len(ret) == 50
+    assert len(list(ret)) == 50
     dict_record = {i: 0 for i in range(10)}
     for row in ret:
         dict_record[row["_num"]] += 1
@@ -387,7 +386,7 @@ def test_array_func_group_by_composite_apply(db: gp.Database):
         .assign(result=lambda tab: my_stat(tab["val"]))
         .assign(sum=lambda t: t["result"]["sum"], count=lambda t: t["result"]["sum"])
     )
-    assert all(e in list(results)[0].keys() for e in ["sum", "count", "is_even"])
+    assert all(e in next(iter(results)).column_names() for e in ["sum", "count", "is_even"])
     for row in results:
         assert all(
             ["is_even" in row, row["is_even"] is not None, row["sum"] == 5, row["count"] == 5]
