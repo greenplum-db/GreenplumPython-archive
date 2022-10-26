@@ -27,7 +27,7 @@ class TypeCast(Expr):
             .. code-block::  Python
 
                 rows = [(i,) for i in range(10)]
-                series = gp.values(rows, db, column_names=["val"]).save_as("series")
+                series = gp.to_table(rows, db, column_names=["val"]).save_as("series")
                 regclass = gp.get_type("regclass", db)
                 table_name = regclass(series["tableoid"]).rename("table_name")
     """
@@ -36,7 +36,6 @@ class TypeCast(Expr):
         self,
         obj: object,
         type_name: str,
-        as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ) -> None:
         """
@@ -46,7 +45,7 @@ class TypeCast(Expr):
             type_name : str : name of type which object will be cast
         """
         table = obj.table if isinstance(obj, Expr) else None
-        super().__init__(as_name, table, db)
+        super().__init__(table, db)
         self._obj = obj
         self._type_name = type_name
 
@@ -137,10 +136,10 @@ def to_pg_type(annotation: Any, db: Optional[Database] = None, for_return: bool 
         # The `or` here is to make the function work on Python 3.6.
         # Python 3.6 is the default Python version on CentOS 7 and Ubuntu 18.04
         if annotation.__origin__ == list or annotation.__origin__ == List:
-            if annotation.__args__[0] in primitive_type_map:
-                return f"{to_pg_type(annotation.__args__[0], db)}[]"
             if for_return:
                 return f"SETOF {to_pg_type(annotation.__args__[0], db)}"
+            if annotation.__args__[0] in primitive_type_map:
+                return f"{to_pg_type(annotation.__args__[0], db)}[]"
         raise NotImplementedError()
     else:
         if annotation in primitive_type_map:

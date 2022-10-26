@@ -8,8 +8,9 @@ import textwrap
 from typing import Any, Callable, Dict, Optional, Set, Tuple
 from uuid import uuid4
 
+from greenplumpython.col import Column
 from greenplumpython.db import Database
-from greenplumpython.expr import Column, Expr
+from greenplumpython.expr import Expr
 from greenplumpython.group import TableGroupingSets
 from greenplumpython.table import Table
 from greenplumpython.type import primitive_type_map, to_pg_const, to_pg_type
@@ -73,73 +74,6 @@ class FunctionExpr(Expr):
         )
         return f"{self._func.qualified_name}({args_string})"
 
-    def to_table(self) -> Table:
-        """
-        Returns the result table of the self function applied on args, with potential GROUP BY if
-        it is an Aggregation function.
-        """
-        self.function.create_in_db(self._db)
-        from_clause = f"FROM {self.table.name}" if self.table is not None else ""
-        group_by_clause = self._group_by.clause() if self._group_by is not None else ""
-        parents = [self.table] if self.table is not None else []
-        assert (
-            self.function.returning_composite is not None
-        ), "Whether returning composite is required to call the function."
-        if self.function.returning_composite and self._as_name is None:
-            self._as_name = "func_" + uuid4().hex
-        grouping_col_names = self._group_by.flatten() if self._group_by is not None else None
-        # FIXME: The names of GROUP BY exprs can collide with names of fields in
-        # the comosite type, making the column names of the resulting table not
-        # unique. This can be mitigated after we implement table column
-        # inference by raising an error when the function gets called.
-        grouping_cols = (
-            [Column(name, self._table).serialize() for name in grouping_col_names]
-            if grouping_col_names is not None
-            else None
-        )
-        orig_func_table = Table(
-            " ".join(
-                [
-                    f"SELECT {str(self)}",
-                    ("," + ",".join(grouping_cols)) if grouping_cols is not None else "",
-                    from_clause,
-                    group_by_clause,
-                ]
-            ),
-            db=self._db,
-            parents=parents,
-        )
-        # We use 2 `Table`s here because on GPDB 6X and PostgreSQL <= 9.6, a
-        # function returning records that contains more than one attributes
-        # will be called multiple times if we do
-        # ```sql
-        # SELECT (func(a, b)).* FROM t;
-        # ```
-        # which might cause performance issue. To workaround we need to do
-        # ```sql
-        # WITH func_call AS (
-        #     SELECT func(a, b) AS result FROM t
-        # )
-        # SELECT (result).* FROM func_call;
-        # ```
-        rebased_grouping_cols = (
-            [Column(name, orig_func_table).serialize() for name in grouping_col_names]
-            if grouping_col_names is not None
-            else None
-        )
-        results = (
-            "*"
-            if not self.function.returning_composite
-            else f"({self._as_name}).*"
-            if rebased_grouping_cols is None
-            else f"{(','.join(rebased_grouping_cols))}, ({self._as_name}).*"
-        )
-        return Table(
-            f"SELECT {str(results)} FROM {orig_func_table.name}",
-            db=self._db,
-            parents=[orig_func_table],
-        )
-
     @property
     def function(self) -> "_AbstractFunction":
         return self._func
@@ -154,6 +88,7 @@ class ArrayFunctionExpr(FunctionExpr):
     """
 
     def serialize(self) -> str:
+        self.function.create_in_db(self._db)
         args_string_list = []
         args_string = ""
         grouping_col_names = self._group_by.flatten() if self._group_by is not None else None
@@ -200,7 +135,6 @@ class _AbstractFunction:
         wrapped_func: Optional[Callable[..., Any]],
         name: Optional[str],
         schema: Optional[str],
-        returning_composite: Optional[bool],
     ) -> None:
         NAMEDATALEN = 64  # See definition in PostgreSQL
         # if wrapped_func is None, the function object is obtained by
@@ -223,15 +157,10 @@ class _AbstractFunction:
         ), f'Function named "{qualified_name}" has been defined before.'
         self._qualified_name = qualified_name
         _global_scope[qualified_name] = self
-        self._returning_composite = returning_composite
 
     @property
     def qualified_name(self) -> str:
         return self._qualified_name
-
-    @property
-    def returning_composite(self) -> Optional[bool]:
-        return self._returning_composite
 
     def create_in_db(self, _: Database) -> None:
         raise NotImplementedError("Cannot create abstract function in database")
@@ -246,10 +175,9 @@ class NormalFunction(_AbstractFunction):
         wrapped_func: Optional[Callable[..., Any]] = None,
         name: Optional[str] = None,
         schema: Optional[str] = None,
-        returning_composite: Optional[bool] = None,
         language_handler: str = "plpython3u",
     ) -> None:
-        super().__init__(wrapped_func, name, schema, returning_composite)
+        super().__init__(wrapped_func, name, schema)
         self._created_in_dbs: Optional[Set[Database]] = set() if wrapped_func is not None else None
         self._wrapped_func = wrapped_func
         self._language_handler = language_handler
@@ -278,7 +206,6 @@ class NormalFunction(_AbstractFunction):
             func_lines = textwrap.dedent(inspect.getsource(self._wrapped_func)).split("\n")
             func_body = "\n".join([line for line in func_lines if re.match(r"^\s", line)])
             return_type = to_pg_type(func_sig.return_annotation, db, for_return=True)
-            self._returning_composite = func_sig.return_annotation not in primitive_type_map
             assert (
                 db.execute(
                     (
@@ -298,9 +225,7 @@ class NormalFunction(_AbstractFunction):
         return FunctionExpr(self, args, db=db)
 
 
-def function(
-    name: str, schema: Optional[str] = None, returning_composite: bool = False
-) -> NormalFunction:
+def function(name: str, schema: Optional[str] = None) -> NormalFunction:
     """
     A wrap in order to call function
 
@@ -310,7 +235,7 @@ def function(
 
     """
     if name not in _global_scope:
-        return NormalFunction(name=name, schema=schema, returning_composite=returning_composite)
+        return NormalFunction(name=name, schema=schema)
     func = _global_scope[name]
     assert isinstance(func, NormalFunction), f'"{name}" is not a normal function'
     return func
@@ -322,13 +247,11 @@ class AggregateFunction(_AbstractFunction):
         transition_func: Optional[NormalFunction] = None,
         name: Optional[str] = None,
         schema: Optional[str] = None,
-        returning_composite: Optional[bool] = None,
     ) -> None:
         super().__init__(
             transition_func.unwrap() if transition_func is not None else None,
             name,
             schema,
-            returning_composite,
         )
         self._transition_func = transition_func
         self._created_in_dbs: Optional[Set[Database]] = (
@@ -357,7 +280,6 @@ class AggregateFunction(_AbstractFunction):
             args_string = ",".join(
                 [f"{param.name} {to_pg_type(param.annotation, db)}" for param in param_list]
             )
-            self._returning_composite = sig.return_annotation not in primitive_type_map
             # -- Creation of UDA in Greenplum
             db.execute(
                 f"""
@@ -379,9 +301,7 @@ class AggregateFunction(_AbstractFunction):
         return FunctionExpr(self, args, db=db, group_by=group_by)
 
 
-def aggregate_function(
-    name: str, schema: Optional[str] = None, returning_composite: bool = False
-) -> AggregateFunction:
+def aggregate_function(name: str, schema: Optional[str] = None) -> AggregateFunction:
     """
     A wrap in order to call an aggregate function
 
@@ -390,7 +310,7 @@ def aggregate_function(
             count = gp.aggregate_function("count", db=db)
     """
     if name not in _global_scope:
-        return AggregateFunction(name=name, schema=schema, returning_composite=returning_composite)
+        return AggregateFunction(name=name, schema=schema)
     func = _global_scope[name]
     assert isinstance(func, AggregateFunction), f'"{name}" is not an aggregate function'
     return func
@@ -454,7 +374,7 @@ def create_aggregate(
                 return result + val
 
             rows = [(1,) for _ in range(10)]
-            numbers = gp.values(rows, db=db, column_names=["val"])
+            numbers = gp.to_table(rows, db=db, column_names=["val"])
             my_sum(numbers["val"])
 
     """
@@ -505,11 +425,11 @@ def create_array_function(
                     return sum(val_list)
 
                 rows = [(1, i % 2 == 0) for i in range(10)]
-                numbers = gp.values(rows, db=db, column_names=["val", "is_even"])
+                numbers = gp.to_table(rows, db=db, column_names=["val", "is_even"])
                 results = list(
-                    my_sum(numbers["val"], group_by=numbers.group_by("is_even")).rename=("result")
-                    .to_table()
-                    .fetch()
+                    my_sum(numbers["val"], group_by=numbers.group_by("is_even"))
+                    .rename=("result")
+
                 )
     """
     # If user needs extra parameters when creating a function

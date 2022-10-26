@@ -9,7 +9,7 @@ from tests import db
 
 @pytest.fixture
 def t(db: gp.Database):
-    t = db.apply(lambda: generate_series(0, 9)).rename("id").to_table()
+    t = db.assign(id=lambda: generate_series(0, 9))
     return t
 
 
@@ -53,7 +53,7 @@ def test_order_by_multiple_head(db: gp.Database):
     # fmt: off
     rows = [(1, 2,), (1, 3,), (2, 2,), (3, 1,), (3, 4,)]
     # fmt: on
-    t = gp.values(rows, db=db, column_names=["id", "num"])
+    t = gp.to_table(rows, db=db, column_names=["id", "num"])
     ret = t.order_by("id").order_by("num", ascending=False).head(5)
     assert len(list(ret)) == 5
     row = next(iter(ret))
@@ -80,7 +80,7 @@ def test_order_by_nulls_last(db: gp.Database):
             (3, "The Scream", 1893, ), (2, "The Starry Night", 1889,),
             (4, "The Night Watch", 1642,)]
     # fmt: on
-    t = gp.values(rows, db=db, column_names=["id", "painting", "year"])
+    t = gp.to_table(rows, db=db, column_names=["id", "painting", "year"])
     ret = t.order_by("year", nulls_first=False).head(5)
     assert (
         next(iter(ret))["year"] is not None

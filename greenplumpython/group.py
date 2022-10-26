@@ -1,12 +1,12 @@
 """
 This module creates a Python object TableRowGroup for group by table.
 """
-from typing import TYPE_CHECKING, Callable, Iterable, List, MutableSet, Set
+from typing import TYPE_CHECKING, Any, Callable, Iterable, List, MutableSet, Set
 
 from greenplumpython.expr import Expr
+from greenplumpython.type import to_pg_const
 
 if TYPE_CHECKING:
-    from greenplumpython.func import FunctionExpr
     from greenplumpython.table import Table
 
 
@@ -20,22 +20,32 @@ class TableGroupingSets:
         self._table = table
         self._grouping_sets = grouping_sets
 
-    def apply(self, func: Callable[["Table"], "FunctionExpr"]) -> "FunctionExpr":
+    def assign(self, **new_columns: Callable[["Table"], Any]) -> "Table":
         """
-        Apply a function to the grouping set.
+        Assigns new columns to the current grouping sets. Existing columns
+        cannot be reassigned.
 
         Args:
-            func: An aggregate function to be applied to
+            new_columns:
 
         Returns:
-            FunctionExpr: a callable
-
-        Example:
-            .. code-block::  python
-
-                numbers.group_by("is_even").apply(lambda row: count(row["*"]))
+            :class:`Table` with the new columns.
         """
-        return func(self._table).bind(group_by=self)
+        from greenplumpython.table import Table
+
+        if len(new_columns) == 0:
+            return self
+        targets: List[str] = []
+        for k, f in new_columns.items():
+            v: Any = f(self.table).bind(group_by=self)
+            if isinstance(v, Expr) and not (v.table is None or v.table == self.table):
+                raise Exception("Newly included columns must be based on the current table")
+            targets.append(f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)} AS {k}")
+        targets += list(self.flatten())
+        return Table(
+            f"SELECT {','.join(targets)} FROM {self.table.name} {self.clause()}",
+            parents=[self.table],
+        )
 
     def union(self, other: Callable[["Table"], "TableGroupingSets"]) -> "TableGroupingSets":
         """

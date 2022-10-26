@@ -31,12 +31,8 @@ from uuid import uuid4
 from psycopg2.extras import RealDictRow
 
 from greenplumpython import db
+from greenplumpython.col import Column, Expr
 from greenplumpython.group import TableGroupingSets
-
-if TYPE_CHECKING:
-    from greenplumpython.func import FunctionExpr
-
-from greenplumpython.expr import Column, Expr
 from greenplumpython.order import OrderedTable
 from greenplumpython.row import Row
 from greenplumpython.type import to_pg_const
@@ -249,9 +245,10 @@ class Table:
             parents=[self],
         )
 
-    def assign(self, **new_columns: Dict[str, Callable[["Table"], Any]]) -> "Table":
+    def assign(self, **new_columns: Callable[["Table"], Any]) -> "Table":
         """
-        Assigns new columns to the current :class:`Table`.
+        Assigns new columns to the current :class:`Table`. Existing columns
+        cannot be reassigned.
 
         Args:
             new_columns: a :class:`dict` whose keys are column names and values
@@ -260,38 +257,18 @@ class Table:
 
         Returns:
             Table: New table including the new assigned columns
-
-        Warning:
-            Currently, value of type :class:`Expr` whose result has more than
-            one column is **not supported** even though no exception will
-            be thrown in that case. Please **don't rely on this behavior** as
-            this will be fixed soon.
-
-            Examples of this case include functions returning composite type
-            objects, etc.
-
-            This is because GreenplumPython have no knowledge on what columns
-            are in a :class:`Table` or the result of an :class:`Expr`. This
-            issue will be fixed as soon as we implement column inference for
-            GreenplumPython.
         """
 
         if len(new_columns) == 0:
             return self
-        new_columns_str = []
-        for k, f in new_columns.items():
-            v: Any = f(self)
-            if isinstance(v, Expr) and not (v.table is None or v.table == self):
-                raise Exception(
-                    "Current table and newly included expression must be based on the same table"
-                )
-            new_columns_str.append(
-                f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)} AS {k}"
-            )
-        return Table(
-            f"SELECT *, {','.join(new_columns_str)} FROM {self.name}",
-            parents=[self],
-        )
+        targets: List[str] = []
+        if len(new_columns):
+            for k, f in new_columns.items():
+                v: Any = f(self)
+                if isinstance(v, Expr) and not (v.table is None or v.table == self):
+                    raise Exception("Newly included columns must be based on the current table")
+                targets.append(f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)} AS {k}")
+            return Table(f"SELECT *, {','.join(targets)} FROM {self.name}", parents=[self])
 
     def order_by(
         self,
@@ -655,42 +632,6 @@ class Table:
         #    |------------------------- to_table() ---------------|
         return TableGroupingSets(self, [column_names])
 
-    # FIXME : Add more tests
-    def apply(self, func: Callable[["Table"], "FunctionExpr"]) -> "FunctionExpr":
-        """
-        Apply a function to the :class:`Table`
-
-        Args:
-            func: Callable[[:class:`Table`], :class:`~func.FunctionExpr`]: a lambda function of a FunctionExpr
-
-        Returns:
-            FunctionExpr: a callable
-
-        Example:
-            .. code-block::  python
-
-                rows = [(i,) for i in range(-10, 0)]
-                series = gp.values(rows, db=db, column_names=["id"])
-                abs = gp.function("abs", db=db)
-                result = series.apply(lambda t: abs(t["id"])).to_table()_fetch()
-
-            If we want to give constant as attribute, it is also easy to use. Suppose *label* function
-            takes a str and a int:
-
-            .. code-block::  python
-
-                result = series.apply(lambda t: label("label", t["id"])).to_table()._fetch()
-
-        """
-        # We need to support calling functions with constant args or even no
-        # arg. For example: SELECT count(*) FROM t; In that case, the
-        # arguments do not conain information on any table or any database.
-        # As a result, the generated SQL cannot be executed.
-        #
-        # To fix this, we need to pass the table to the resulting FunctionExpr
-        # explicitly.
-        return func(self).bind(table=self)
-
 
 # table_name can be table/view name
 def table(name: str, db: db.Database) -> Table:
@@ -704,7 +645,9 @@ def table(name: str, db: db.Database) -> Table:
     return Table(f"TABLE {name}", name=name, db=db)
 
 
-def values(rows: Iterable[Tuple[Any]], db: db.Database, column_names: Iterable[str] = []) -> Table:
+def to_table(
+    rows: Iterable[Tuple[Any]], db: db.Database, column_names: Iterable[str] = []
+) -> Table:
     """
     Returns a :class:`Table` using list of values given
 
@@ -719,7 +662,7 @@ def values(rows: Iterable[Tuple[Any]], db: db.Database, column_names: Iterable[s
     .. code-block::  python
 
        rows = [(1,), (2,), (3,)]
-        t = gp.values(rows, db=db)
+        t = gp.to_table(rows, db=db)
 
     """
     rows_string = ",".join(

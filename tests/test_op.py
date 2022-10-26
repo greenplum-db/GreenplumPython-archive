@@ -6,7 +6,7 @@ from tests import db
 
 def test_op_on_consts(db: gp.Database):
     regex_match = gp.operator("~", db)
-    result = regex_match("hello", "h.*o").rename("is_matched").to_table()
+    result = db.assign(is_matched=lambda: regex_match("hello", "h.*o"))
     assert len(list(result)) == 1 and next(iter(result))["is_matched"]
 
 
@@ -22,7 +22,7 @@ def test_op_index(db: gp.Database):
     john = Student("john", 9, ["math", "english"])
     jsonb = gp.get_type("jsonb", db)
     rows = [(jsonb(json.dumps(john.__dict__)),)]
-    student = gp.values(rows, db=db, column_names=["info"]).save_as("student", temp=True)
+    student = gp.to_table(rows, db=db, column_names=["info"]).save_as("student", temp=True)
     db.execute("CREATE INDEX student_name ON student USING gin (info)", has_results=False)
 
     db.set_config("enable_seqscan", False)

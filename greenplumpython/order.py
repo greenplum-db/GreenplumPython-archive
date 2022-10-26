@@ -1,12 +1,11 @@
 """
 This module creates a Python object OrderedTable for order by table.
 """
-from typing import TYPE_CHECKING, Callable, List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
-from greenplumpython.expr import Column
+from greenplumpython.col import Column
 
 if TYPE_CHECKING:
-    from greenplumpython.expr import Expr
     from greenplumpython.table import Table
 
 
