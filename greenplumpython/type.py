@@ -79,7 +79,7 @@ def get_type(name: str, db: Database) -> Type:
         db: :class:`~db.Database`: database where stored type
 
     Returns:
-        Type: type object
+        Type: :class:`Type`
     """
 
     return Type(name, db=db)

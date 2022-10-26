@@ -42,12 +42,6 @@ class Database:
         """
         with self._conn.cursor() as cursor:
             cursor.execute(query)
-            if has_results:
-                column_names = [desc[0] for desc in cursor.description]
-                if len(column_names) != len(set(column_names)):
-                    raise Exception(
-                        "Same column names for multiple columns in same table keeps only one of them!"
-                    )
             return cursor.fetchall() if has_results else None
 
     def close(self) -> None:
@@ -86,6 +80,26 @@ class Database:
         return table(name, self)
 
     def assign(self, **new_columns: Callable[[], Any]) -> "Table":
+        """
+        Assign new columns by calling functions in database
+
+        Args:
+            **new_columns: a :class:`dict` whose keys are column names and values
+            are :class:`Callable`s returning column data when applied to constant value
+            in database.
+
+        Returns:
+            Table: Table resulted with assigned columns
+
+
+        Example:
+
+            .. code-block::  python
+
+                version = gp.function("version")
+                db.assign(version=lambda: version())
+
+        """
         from greenplumpython.expr import Expr
         from greenplumpython.func import FunctionExpr
         from greenplumpython.table import Table

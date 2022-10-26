@@ -20,7 +20,7 @@ class FunctionExpr(Expr):
     """
     Inherited from :class:`~expr.Expr`.
 
-    A Function object associated with a Greenplum function which can be called and applied to
+    A Function Expression object associated with a Greenplum function which can be called and applied to
     Greenplum data.
     """
 
@@ -51,6 +51,7 @@ class FunctionExpr(Expr):
         table: Optional[Table] = None,
         db: Optional[Database] = None,
     ):
+        """:meta private:"""
         return FunctionExpr(
             self._func,
             self._args,
@@ -60,6 +61,7 @@ class FunctionExpr(Expr):
         )
 
     def serialize(self) -> str:
+        """:meta private:"""
         self.function.create_in_db(self._db)
         args_string = (
             ",".join(
@@ -88,6 +90,7 @@ class ArrayFunctionExpr(FunctionExpr):
     """
 
     def serialize(self) -> str:
+        """:meta private:"""
         self.function.create_in_db(self._db)
         args_string_list = []
         args_string = ""
@@ -118,6 +121,7 @@ class ArrayFunctionExpr(FunctionExpr):
         table: Optional[Table] = None,
         db: Optional[Database] = None,
     ):
+        """:meta private:"""
         return ArrayFunctionExpr(
             self._func,
             self._args,
@@ -163,6 +167,7 @@ class _AbstractFunction:
         return self._qualified_name
 
     def create_in_db(self, _: Database) -> None:
+        """:meta private:"""
         raise NotImplementedError("Cannot create abstract function in database")
 
 
@@ -170,6 +175,12 @@ _global_scope: Dict[str, _AbstractFunction] = {}
 
 
 class NormalFunction(_AbstractFunction):
+    """
+    Inherited from :class:`_AbstractFunction`.
+
+    It will wrap a python function wrote by user which will be created in database.
+    """
+
     def __init__(
         self,
         wrapped_func: Optional[Callable[..., Any]] = None,
@@ -190,6 +201,7 @@ class NormalFunction(_AbstractFunction):
         return self._wrapped_func
 
     def create_in_db(self, db: Database) -> None:
+        """:meta private:"""
         if self._wrapped_func is None:  # Function has already existed.
             return
         assert self._created_in_dbs is not None
@@ -222,6 +234,7 @@ class NormalFunction(_AbstractFunction):
             self._created_in_dbs.add(db)
 
     def __call__(self, *args: Any, db: Optional[Database] = None) -> FunctionExpr:
+        """:meta private:"""
         return FunctionExpr(self, args, db=db)
 
 
@@ -231,7 +244,7 @@ def function(name: str, schema: Optional[str] = None) -> NormalFunction:
 
     Example:
         .. code-block::  Python
-            generate_series = gp.function("generate_series", db)
+            generate_series = gp.function("generate_series")
 
     """
     if name not in _global_scope:
@@ -242,6 +255,12 @@ def function(name: str, schema: Optional[str] = None) -> NormalFunction:
 
 
 class AggregateFunction(_AbstractFunction):
+    """
+    Inherited from :class:`_AbstractFunction`.
+
+    It will wrap a python function wrote by user as the transition function of an aggregate function which will be created in database.
+    """
+
     def __init__(
         self,
         transition_func: Optional[NormalFunction] = None,
@@ -260,12 +279,14 @@ class AggregateFunction(_AbstractFunction):
 
     @property
     def transition_function(self) -> NormalFunction:
+        """Return the transition function of aggregate function"""
         assert (
             self._transition_func is not None
         ), f'Transition function of the aggregate function "{self.qualified_name}" is unknown.'
         return self._transition_func
 
     def create_in_db(self, db: Database) -> None:
+        """:meta private:"""
         # If self._transition_func is None, then the aggregate function is not
         # created with gp.create_aggregate(), but only refers to an existing
         # aggregate function.
@@ -298,6 +319,7 @@ class AggregateFunction(_AbstractFunction):
         group_by: Optional[TableGroupingSets] = None,
         db: Optional[Database] = None,
     ) -> FunctionExpr:
+        """:meta private:"""
         return FunctionExpr(self, args, db=db, group_by=group_by)
 
 
@@ -307,7 +329,7 @@ def aggregate_function(name: str, schema: Optional[str] = None) -> AggregateFunc
 
     Example:
         .. code-block::  Python
-            count = gp.aggregate_function("count", db=db)
+            count = gp.aggregate_function("count")
     """
     if name not in _global_scope:
         return AggregateFunction(name=name, schema=schema)
@@ -330,7 +352,7 @@ def create_function(
             will also support plcontainer later.
 
     Returns:
-        a database function
+        :class:`NormalFunction`
 
     Example:
         .. code-block::  Python
@@ -339,7 +361,7 @@ def create_function(
             def multiply(a: int, b: int) -> int:
                 return a * b
 
-            multiply(series["a"], series["b"])
+            db.assign(result=lambda: multiply(1, 2))
 
     """
     # If user needs extra parameters when creating a function
@@ -362,7 +384,7 @@ def create_aggregate(
             defaults to plpython3u, will also support plcontainer later.
 
     Returns:
-        A database aggregate function.
+        :class:`AggregateFunction`
 
     Example:
         .. code-block::  Python
@@ -375,7 +397,7 @@ def create_aggregate(
 
             rows = [(1,) for _ in range(10)]
             numbers = gp.to_table(rows, db=db, column_names=["val"])
-            my_sum(numbers["val"])
+            results = numbers.group_by().assign(result=lambda t: my_sum(t["val"]))
 
     """
     # If user needs extra parameters when creating a function
@@ -392,6 +414,12 @@ def create_aggregate(
 
 
 class ArrayFunction(NormalFunction):
+    """
+    Inherited from :class:`NormalFunction`.
+
+    Specialized for array functions.
+    """
+
     def __call__(
         self,
         *args: Any,
@@ -415,22 +443,18 @@ def create_array_function(
             will also support plcontainer later.
 
     Returns:
-        Callable : FunctionCall
+        :class:`ArrayFunction`
 
     Example:
             .. code-block::  Python
 
                 @gp.create_array_function
-                def my_sum(val_list: List[int]) -> int:
+                def my_sum_array(val_list: List[int]) -> int:
                     return sum(val_list)
 
                 rows = [(1, i % 2 == 0) for i in range(10)]
-                numbers = gp.to_table(rows, db=db, column_names=["val", "is_even"])
-                results = list(
-                    my_sum(numbers["val"], group_by=numbers.group_by("is_even"))
-                    .rename=("result")
-
-                )
+                numbers = gp.to_table(rows, db=db, column_names=["val"])
+                results = numbers.group_by().assign(result=lambda t: my_sum_array(t["val"]))
     """
     # If user needs extra parameters when creating a function
     if wrapped_func is None:

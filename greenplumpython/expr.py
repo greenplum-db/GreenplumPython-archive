@@ -279,7 +279,7 @@ class Expr:
 
     def __str__(self) -> str:
         """
-        Returns string statement of Expr, ie : name + AS (optional)
+        Returns string statement of Expr
         """
         return self.serialize()
 
