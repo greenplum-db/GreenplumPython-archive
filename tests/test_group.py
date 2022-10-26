@@ -85,6 +85,6 @@ def test_group_empty_assign_empty(db: gp.Database):
     rows = [(i,) for i in range(10)]
     t = gp.to_table(rows, db=db, column_names=["i"])
     results = list(t.group_by().assign())
-    assert len(results) == len(rows)
+    # NOTE: len(results) == 1 on PostgreSQL, while == 10 on Greenplum
     for row in results:
         assert len(row) == 0
