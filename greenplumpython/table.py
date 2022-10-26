@@ -547,7 +547,6 @@ class Table:
 
     def __next__(self):
         """:meta private:"""
-
         def detect_duplicate_keys(json_pairs: List[tuple[str, Any]]):
             key_count = collections.Counter(k for k, _ in json_pairs)
             duplicate_keys = ", ".join(k for k, v in key_count.items() if v > 1)
