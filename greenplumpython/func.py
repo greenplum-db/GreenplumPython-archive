@@ -1,11 +1,11 @@
 """
 This module creates a Python object Func which able creation and calling of Greenplum UDF and UDA.
 """
-from dis import dis
 import functools
 import inspect
 import re
 import textwrap
+from dis import dis
 from typing import Any, Callable, Dict, Optional, Set, Tuple
 from uuid import uuid4
 
