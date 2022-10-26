@@ -245,3 +245,18 @@ def test_table_refresh_add_columns(db: gp.Database):
     t.refresh()
     for row in t:
         assert row["num_copy"] is not None and row["num_copy"] == row["num"]
+
+
+def test_table_distinct(db: gp.Database):
+    rows = [(i, 1) for i in range(10)]
+    t = gp.to_table(rows, db=db, column_names=["i", "j"])
+
+    result = list(t.distinct_on("i", "j"))
+    assert len(result) == len(rows)
+    for row in result:
+        assert "i" in row and "j" in row
+
+    result = list(t.distinct_on("j"))
+    assert len(result) == 1
+    for row in result:
+        assert "i" in row and "j" in row

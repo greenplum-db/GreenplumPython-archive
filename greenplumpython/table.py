@@ -632,6 +632,10 @@ class Table:
         #    |------------------------- to_table() ---------------|
         return TableGroupingSets(self, [column_names])
 
+    def distinct_on(self, *column_names: str) -> "Table":
+        cols = [Column(name, self).serialize() for name in column_names]
+        return Table(f"SELECT DISTINCT ON ({','.join(cols)}) * FROM {self.name}", parents=[self])
+
 
 # table_name can be table/view name
 def table(name: str, db: db.Database) -> Table:
