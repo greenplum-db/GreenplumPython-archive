@@ -51,6 +51,13 @@
 <li class="toctree-l2"><a class="reference internal" href="#Data-Exploration">Data Exploration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Execute-the-OLS-Linear-Regression-Function-by-‘sex’">Execute the OLS Linear Regression Function by ‘sex’</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Training-Process">Training Process</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#SELECT">SELECT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sex,">sex,</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#UNNEST(ARRAY_APPEND(col_nm,-‘intercept’))-AS-col_nm,">UNNEST(ARRAY_APPEND(col_nm, ‘intercept’)) AS col_nm,</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#UNNEST(ARRAY_APPEND(coef,-intercept))-AS-coef">UNNEST(ARRAY_APPEND(coef, intercept)) AS coef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#from-linreg_fitted;">from linreg_fitted;</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Prediction">Prediction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Evaluation-of-model">Evaluation of model</a></li>
 </ul>
@@ -545,7 +552,7 @@ Done.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">abalone</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;abalone&quot;</span><span class="p">,</span> <span class="n">db</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">abalone</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;abalone&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -556,7 +563,7 @@ Done.
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># SELECT * FROM abalone ORDER BY id LIMIT 5;</span>
 
-<span class="n">abalone</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">abalone</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">abalone</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -652,7 +659,7 @@ Done.
 
 <span class="kn">import</span> <span class="nn">greenplumpython.builtin.function</span> <span class="k">as</span> <span class="nn">F</span>
 
-<span class="n">abalone</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;gp_segment_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="n">F</span><span class="o">.</span><span class="n">count</span><span class="p">())</span><span class="o">.</span><span class="n">to_table</span><span class="p">()</span>
+<span class="n">abalone</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;gp_segment_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="n">F</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
 </pre></div>
 </div>
 </div>
@@ -681,8 +688,8 @@ Done.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">abalone_train</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;abalone_train&quot;</span><span class="p">,</span> <span class="n">db</span><span class="p">)</span>
-<span class="n">abalone_test</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;abalone_test&quot;</span><span class="p">,</span> <span class="n">db</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">abalone_train</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;abalone_train&quot;</span><span class="p">)</span>
+<span class="n">abalone_test</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;abalone_test&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -777,11 +784,21 @@ Done.
 <span class="c1"># ) DISTRIBUTED BY (sex);</span>
 
 <span class="n">linreg_fitted</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">abalone_train</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">)</span>
-    <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">linreg_func</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;shucked_weight&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">]))</span>
-    <span class="o">.</span><span class="n">to_table</span><span class="p">()</span>
-<span class="p">)</span>
-</pre></div>
+   <span class="n">abalone_train</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+      <span class="n">result</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">linreg_func</span><span class="p">(</span>
+         <span class="n">t</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
+         <span class="n">t</span><span class="p">[</span><span class="s2">&quot;shucked_weight&quot;</span><span class="p">],</span>
+         <span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">]</span>
+      <span class="p">)</span>
+   <span class="p">)</span>
+<span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">col_nm</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="s2">&quot;col_nm&quot;</span><span class="p">],</span>
+        <span class="n">coef</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="s2">&quot;coef&quot;</span><span class="p">],</span>
+        <span class="n">intercept</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="s2">&quot;intercept&quot;</span><span class="p">],</span>
+        <span class="n">serialized_linreg_model</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="s2">&quot;serialized_linreg_model&quot;</span><span class="p">],</span>
+        <span class="n">created_dt</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="s2">&quot;created_dt&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+<br/></pre></div>
 </div>
 </div>
 <p><strong>Take a look at models built</strong></p>
@@ -809,23 +826,23 @@ Done.
     <tr>
             <td>F</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[24.849936356088897, -7.829448311767511]</td>
-            <td>0.21748556932817742</td>
-            <td>2022-08-31 15:31:07.193186</td>
+            <td>[26.697375771066156, -9.040770479060155]</td>
+            <td>-0.29525008437008005</td>
+            <td>2022-10-26 15:49:14.214683</td>
     </tr>
     <tr>
             <td>M</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[21.901123322160092, -5.89547811353611]</td>
-            <td>0.8898115753242095</td>
-            <td>2022-08-31 15:31:07.193090</td>
+            <td>[23.557338620876184, -6.839687707228657]</td>
+            <td>0.46425313157533665</td>
+            <td>2022-10-26 15:49:14.214683</td>
     </tr>
     <tr>
             <td>I</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[15.43767935437459, 0.5125315282409975]</td>
-            <td>1.1574382350035979</td>
-            <td>2022-08-31 15:31:07.194423</td>
+            <td>[15.01963531115115, 0.9189953677118429]</td>
+            <td>1.304723831629281</td>
+            <td>2022-10-26 15:49:14.218381</td>
     </tr>
 </table></div>
 </div>
@@ -833,92 +850,30 @@ Done.
 <ul class="simple">
 <li><p>Using ARRAY_APPEND</p></li>
 </ul>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># SELECT</span>
-<span class="c1">#   sex,</span>
-<span class="c1">#   UNNEST(ARRAY_APPEND(col_nm, &#39;intercept&#39;)) AS col_nm,</span>
-<span class="c1">#   UNNEST(ARRAY_APPEND(coef, intercept)) AS coef</span>
-<span class="c1"># from linreg_fitted;</span>
-
-<span class="n">unnest</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;unnest&quot;</span><span class="p">)</span>
-
-<span class="n">array_append</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;array_append&quot;</span><span class="p">)</span>
-
-<span class="n">linreg_fitted</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
-    <span class="n">linreg_fitted</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">],</span>
-    <span class="n">unnest</span><span class="p">(</span><span class="n">array_append</span><span class="p">(</span><span class="n">linreg_fitted</span><span class="p">[</span><span class="s2">&quot;col_nm&quot;</span><span class="p">],</span> <span class="s2">&quot;intercept&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;col_nm&quot;</span><span class="p">),</span>
-    <span class="n">unnest</span><span class="p">(</span><span class="n">array_append</span><span class="p">(</span><span class="n">linreg_fitted</span><span class="p">[</span><span class="s2">&quot;coef&quot;</span><span class="p">],</span> <span class="n">linreg_fitted</span><span class="p">[</span><span class="s2">&quot;intercept&quot;</span><span class="p">]))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;coef&quot;</span><span class="p">),</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<table>
-    <tr>
-            <th>sex</th>
-            <th>col_nm</th>
-            <th>coef</th>
-    </tr>
-    <tr>
-            <td>F</td>
-            <td>length</td>
-            <td>24.849936356088904</td>
-    </tr>
-    <tr>
-            <td>F</td>
-            <td>shucked_weight</td>
-            <td>-7.829448311767513</td>
-    </tr>
-    <tr>
-            <td>F</td>
-            <td>intercept</td>
-            <td>0.21748556932817387</td>
-    </tr>
-    <tr>
-            <td>M</td>
-            <td>length</td>
-            <td>21.901123322160092</td>
-    </tr>
-    <tr>
-            <td>M</td>
-            <td>shucked_weight</td>
-            <td>-5.89547811353611</td>
-    </tr>
-    <tr>
-            <td>M</td>
-            <td>intercept</td>
-            <td>0.8898115753242095</td>
-    </tr>
-    <tr>
-            <td>I</td>
-            <td>length</td>
-            <td>15.437679354374595</td>
-    </tr>
-    <tr>
-            <td>I</td>
-            <td>shucked_weight</td>
-            <td>0.5125315282409966</td>
-    </tr>
-    <tr>
-            <td>I</td>
-            <td>intercept</td>
-            <td>1.157438235003596</td>
-    </tr>
-</table></div>
-</div>
 </section>
+</section>
+<section id="SELECT">
+<h1>SELECT<a class="headerlink" href="#SELECT" title="Permalink to this heading"></a></h1>
+</section>
+<section id="sex,">
+<h1>sex,<a class="headerlink" href="#sex," title="Permalink to this heading"></a></h1>
+</section>
+<section id="UNNEST(ARRAY_APPEND(col_nm,-‘intercept’))-AS-col_nm,">
+<h1>UNNEST(ARRAY_APPEND(col_nm, ‘intercept’)) AS col_nm,<a class="headerlink" href="#UNNEST(ARRAY_APPEND(col_nm,-‘intercept’))-AS-col_nm," title="Permalink to this heading"></a></h1>
+</section>
+<section id="UNNEST(ARRAY_APPEND(coef,-intercept))-AS-coef">
+<h1>UNNEST(ARRAY_APPEND(coef, intercept)) AS coef<a class="headerlink" href="#UNNEST(ARRAY_APPEND(coef,-intercept))-AS-coef" title="Permalink to this heading"></a></h1>
+</section>
+<section id="from-linreg_fitted;">
+<h1>from linreg_fitted;<a class="headerlink" href="#from-linreg_fitted;" title="Permalink to this heading"></a></h1>
+<p>unnest = gp.function(“unnest”)</p>
+<p>array_append = gp.function(“array_append”)</p>
+<p>linreg_fitted.assign( col_nm=lambda t: t.assign(col_nm=lambda t: array_append(t[“col_nm”], “intercept”)), coef=lambda t: t.assign(col_nm=lambda t: array_append(t[“coef”], “intercept”)), )</p>
 <section id="Prediction">
 <h2>Prediction<a class="headerlink" href="#Prediction" title="Permalink to this heading"></a></h2>
 <p><strong>Creation of prediction function</strong></p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_function</span>
@@ -940,27 +895,21 @@ Done.
 </div>
 <p><strong>Join model table and test set table</strong></p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">linreg_test_fit</span> <span class="o">=</span> <span class="n">linreg_fitted</span><span class="o">.</span><span class="n">inner_join</span><span class="p">(</span>
     <span class="n">abalone_test</span><span class="p">,</span>
-    <span class="n">cond</span><span class="o">=</span><span class="n">linreg_fitted</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">abalone_test</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">],</span>
-    <span class="n">targets</span><span class="o">=</span><span class="p">[</span>
-        <span class="n">linreg_fitted</span><span class="p">[</span><span class="s2">&quot;col_nm&quot;</span><span class="p">],</span>
-        <span class="n">linreg_fitted</span><span class="p">[</span><span class="s2">&quot;coef&quot;</span><span class="p">],</span>
-        <span class="n">linreg_fitted</span><span class="p">[</span><span class="s2">&quot;intercept&quot;</span><span class="p">],</span>
-        <span class="n">linreg_fitted</span><span class="p">[</span><span class="s2">&quot;serialized_linreg_model&quot;</span><span class="p">],</span>
-        <span class="n">linreg_fitted</span><span class="p">[</span><span class="s2">&quot;created_dt&quot;</span><span class="p">],</span>
-        <span class="n">abalone_test</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
-    <span class="p">],</span>
+    <span class="n">cond</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">:</span> <span class="n">t1</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">t2</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">],</span>
+    <span class="n">self_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;col_nm&quot;</span><span class="p">,</span> <span class="s2">&quot;coef&quot;</span><span class="p">,</span> <span class="s2">&quot;intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;serialized_linreg_model&quot;</span><span class="p">,</span> <span class="s2">&quot;created_dt&quot;</span><span class="p">],</span>
+    <span class="n">other_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <p><strong>Predict test set</strong></p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># CREATE TABLE plc_linreg_pred_dot AS (</span>
@@ -980,29 +929,29 @@ Done.
 <span class="c1"># ) DISTRIBUTED BY (sex);</span>
 
 
-<span class="n">linreg_pred</span> <span class="o">=</span> <span class="n">linreg_test_fit</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-    <span class="s2">&quot;rings_pred&quot;</span><span class="p">,</span>
-    <span class="n">linreg_pred_func</span><span class="p">(</span>
-        <span class="n">linreg_test_fit</span><span class="p">[</span><span class="s2">&quot;serialized_linreg_model&quot;</span><span class="p">],</span>
-        <span class="n">linreg_test_fit</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
-        <span class="n">linreg_test_fit</span><span class="p">[</span><span class="s2">&quot;shucked_weight&quot;</span><span class="p">],</span>
-    <span class="p">),</span>
+<span class="n">linreg_pred</span> <span class="o">=</span> <span class="n">linreg_test_fit</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+    <span class="n">rings_pred</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span>
+        <span class="n">linreg_pred_func</span><span class="p">(</span>
+            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;serialized_linreg_model&quot;</span><span class="p">],</span>
+            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
+            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;shucked_weight&quot;</span><span class="p">],</span>
+        <span class="p">),</span>
 <span class="p">)[[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;sex&quot;</span><span class="p">,</span> <span class="s2">&quot;rings&quot;</span><span class="p">,</span> <span class="s2">&quot;rings_pred&quot;</span><span class="p">]]</span>
 </pre></div>
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># SELECT * FROM plc_linreg_pred WHERE sex=&#39;I&#39; ORDER BY id LIMIT 5;</span>
 
-<span class="n">linreg_pred</span><span class="p">[</span><span class="n">linreg_pred</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;I&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">linreg_pred</span><span class="p">[</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;I&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1014,34 +963,34 @@ Done.
             <th>rings_pred</th>
     </tr>
     <tr>
-            <td>22</td>
+            <td>45</td>
             <td>I</td>
-            <td>10</td>
-            <td>7.064758911925222</td>
+            <td>4</td>
+            <td>4.47492966590598</td>
     </tr>
     <tr>
-            <td>44</td>
+            <td>51</td>
             <td>I</td>
-            <td>5</td>
-            <td>4.3352320566205345</td>
+            <td>8</td>
+            <td>9.334114588627155</td>
     </tr>
     <tr>
             <td>59</td>
             <td>I</td>
             <td>4</td>
-            <td>4.961196001011494</td>
+            <td>5.02313228830521</td>
     </tr>
     <tr>
-            <td>125</td>
+            <td>101</td>
             <td>I</td>
-            <td>6</td>
-            <td>6.756517856365971</td>
+            <td>7</td>
+            <td>6.808287057253439</td>
     </tr>
     <tr>
-            <td>128</td>
+            <td>126</td>
             <td>I</td>
-            <td>8</td>
-            <td>7.158348317600807</td>
+            <td>5</td>
+            <td>5.38621673361988</td>
     </tr>
 </table></div>
 </div>
@@ -1050,7 +999,7 @@ Done.
 <h2>Evaluation of model<a class="headerlink" href="#Evaluation-of-model" title="Permalink to this heading"></a></h2>
 <p><strong>Creation of evaluation return type</strong></p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># CREATE TYPE plc_linreg_eval_type AS (</span>
@@ -1071,7 +1020,7 @@ Done.
 </div>
 <p><strong>Creation of evaluation function</strong></p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_array_function</span>
@@ -1094,7 +1043,7 @@ Done.
 </div>
 <p>Evaluate our model</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># SELECT</span>
@@ -1110,12 +1059,17 @@ Done.
 <span class="c1"># ) a</span>
 
 
-<span class="n">linreg_pred</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">linreg_eval</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings_pred&quot;</span><span class="p">]))</span><span class="o">.</span><span class="n">to_table</span><span class="p">()</span>
+<span class="n">linreg_pred</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">linreg_eval</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings_pred&quot;</span><span class="p">]))</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">mae</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="s2">&quot;mae&quot;</span><span class="p">],</span>
+        <span class="n">mape</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="s2">&quot;mape&quot;</span><span class="p">],</span>
+        <span class="n">mse</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="s2">&quot;mse&quot;</span><span class="p">],</span>
+        <span class="n">r2_score</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="s2">&quot;r2_score&quot;</span><span class="p">],</span>
+<span class="p">)[[</span><span class="s2">&quot;mae&quot;</span><span class="p">,</span> <span class="s2">&quot;mape&quot;</span><span class="p">,</span> <span class="s2">&quot;mse&quot;</span><span class="p">,</span> <span class="s2">&quot;r2_score&quot;</span><span class="p">,</span> <span class="s2">&quot;sex&quot;</span><span class="p">]]</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1128,27 +1082,35 @@ Done.
             <th>sex</th>
     </tr>
     <tr>
-            <td>2.19173015676694</td>
-            <td>19.328471523164783</td>
-            <td>9.093740806504178</td>
-            <td>0.106803748432587</td>
+            <td>2.091137517029722</td>
+            <td>19.76797679701784</td>
+            <td>7.591765814888473</td>
+            <td>0.11209505111905493</td>
             <td>F</td>
     </tr>
     <tr>
-            <td>1.8486465599963873</td>
-            <td>18.20059877583045</td>
-            <td>5.7465674411093834</td>
-            <td>0.16199750988433637</td>
+            <td>1.9687614896616366</td>
+            <td>18.570417501625883</td>
+            <td>7.1979320458627</td>
+            <td>0.16535225607838444</td>
             <td>M</td>
     </tr>
     <tr>
-            <td>1.3057635589413563</td>
-            <td>15.473786026729583</td>
-            <td>3.6832514047601204</td>
-            <td>0.4418210407385168</td>
+            <td>1.2588203204896984</td>
+            <td>15.31473649364326</td>
+            <td>3.592317138688826</td>
+            <td>0.4497568658287141</td>
             <td>I</td>
     </tr>
 </table></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
 </div>
 </section>
 </section>
