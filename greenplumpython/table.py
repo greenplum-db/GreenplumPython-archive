@@ -26,6 +26,10 @@ from typing import (
     Union,
     overload,
 )
+
+if TYPE_CHECKING:
+    from greenplumpython.func import FunctionExpr
+
 from uuid import uuid4
 
 from psycopg2.extras import RealDictRow
@@ -244,6 +248,40 @@ class Table:
             """,
             parents=[self],
         )
+
+    def apply(
+        self,
+        func: Callable[["Table"], "FunctionExpr"],
+        expand: bool = False,
+        as_name: Optional[str] = None,
+    ) -> "Table":
+        """
+        Apply a function to the :class:`Table`
+        Args:
+            func: Callable[[:class:`Table`], :class:`~func.FunctionExpr`]: a lambda function of a FunctionExpr
+            expand: bool: expand field of composite returning type
+            as_name: str: rename returning column
+        Returns:
+            Table: resulted Table
+        Example:
+            .. code-block::  python
+                rows = [(i,) for i in range(-10, 0)]
+                series = gp.values(rows, db=db, column_names=["id"])
+                abs = gp.function("abs", db=db)
+                result = series.apply(lambda t: abs(t["id"]))
+            If we want to give constant as attribute, it is also easy to use. Suppose *label* function
+            takes a str and a int:
+            .. code-block::  python
+                result = series.apply(lambda t: label("label", t["id"]))
+        """
+        # We need to support calling functions with constant args or even no
+        # arg. For example: SELECT count(*) FROM t; In that case, the
+        # arguments do not conain information on any table or any database.
+        # As a result, the generated SQL cannot be executed.
+        #
+        # To fix this, we need to pass the table to the resulting FunctionExpr
+        # explicitly.
+        return func(self).bind(table=self, expand=expand, as_name=as_name).apply()
 
     def assign(self, **new_columns: Callable[["Table"], Any]) -> "Table":
         """

@@ -1,12 +1,22 @@
 """
 This module creates a Python object TableRowGroup for group by table.
 """
-from typing import TYPE_CHECKING, Any, Callable, Iterable, List, MutableSet, Set
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterable,
+    List,
+    MutableSet,
+    Optional,
+    Set,
+)
 
 from greenplumpython.expr import Expr
 from greenplumpython.type import to_pg_const
 
 if TYPE_CHECKING:
+    from greenplumpython.func import FunctionExpr
     from greenplumpython.table import Table
 
 
@@ -19,6 +29,26 @@ class TableGroupingSets:
     def __init__(self, table: "Table", grouping_sets: List[Iterable["Expr"]]) -> None:
         self._table = table
         self._grouping_sets = grouping_sets
+
+    def apply(
+        self,
+        func: Callable[["Table"], "FunctionExpr"],
+        expand: bool = False,
+        as_name: Optional[str] = None,
+    ) -> "Table":
+        """
+        Apply a function to the grouping set.
+        Args:
+            func: An aggregate function to be applied to
+            expand: bool: expand field of composite returning type
+            as_name: str: rename returning column
+        Returns:
+            Table: resulted Table
+        Example:
+            .. code-block::  python
+                numbers.group_by("is_even").apply(lambda row: count(row["*"]))
+        """
+        return func(self._table).bind(group_by=self, expand=expand, as_name=as_name).apply()
 
     def assign(self, **new_columns: Callable[["Table"], Any]) -> "Table":
         """

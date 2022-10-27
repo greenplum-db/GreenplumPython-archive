@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Optional,
 
 if TYPE_CHECKING:
     from greenplumpython.table import Table
+    from greenplumpython.func import FunctionExpr
 
 import psycopg2
 import psycopg2.extras
@@ -84,6 +85,26 @@ class Database:
         from greenplumpython.table import table
 
         return table(name, self)
+
+    def apply(
+        self,
+        func: Callable[[], "FunctionExpr"],
+        expand: bool = False,
+        as_name: Optional[str] = None,
+    ) -> "Table":
+        """
+        Apply a function in database.
+        Args:
+            func: An aggregate function to be applied to
+            expand: bool: expand field of composite returning type
+            as_name: str: rename returning column
+        Returns:
+            Table: resulted Table
+        Example:
+            .. code-block::  python
+                db.apply(lambda row: add(1, 2))
+        """
+        return func().bind(db=self, expand=expand, as_name=as_name).apply()
 
     def assign(self, **new_columns: Callable[[], Any]) -> "Table":
         from greenplumpython.expr import Expr

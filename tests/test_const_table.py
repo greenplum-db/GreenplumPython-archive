@@ -66,7 +66,7 @@ def test_table_display_repr(db: gp.Database):
         "|  3 || Wolf   |\n"
         "|  4 || Fox    |\n"
     )
-    assert str(t.order_by("id").head(4)) == expected
+    assert str(t.order_by("id")[:]) == expected
 
 
 def test_table_display_repr_long_content(db: gp.Database):
@@ -82,7 +82,7 @@ def test_table_display_repr_long_content(db: gp.Database):
         "|                    3 || Wolf             |\n"
         "|                    4 || Fox              |\n"
     )
-    assert str(t.order_by("iddddddddddddddddddd").head(4)) == expected
+    assert str(t.order_by("iddddddddddddddddddd")[:]) == expected
 
 
 def test_table_display_repr_html(db: gp.Database):
@@ -114,7 +114,7 @@ def test_table_display_repr_html(db: gp.Database):
         "\t</tr>\n"
         "</table>"
     )
-    assert (t.order_by("id").head(4)._repr_html_()) == expected
+    assert (t.order_by("id")[:]._repr_html_()) == expected
 
 
 def test_table_display_repr_empty_result(db: gp.Database):
