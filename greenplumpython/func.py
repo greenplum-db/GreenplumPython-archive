@@ -300,7 +300,7 @@ class AggregateFunction(_AbstractFunction):
         """
         Apply the current aggregate function to only each distinct set of the
         arguments.
-        
+
         For example, `count.distinct(t['a'])` means applying the
         `count()` function to each distinct value of :class:`Column` `t['a']`.
 
