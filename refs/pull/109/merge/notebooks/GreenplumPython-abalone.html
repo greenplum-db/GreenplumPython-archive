@@ -51,13 +51,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#Data-Exploration">Data Exploration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Execute-the-OLS-Linear-Regression-Function-by-‘sex’">Execute the OLS Linear Regression Function by ‘sex’</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Training-Process">Training Process</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#SELECT">SELECT</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#sex,">sex,</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#UNNEST(ARRAY_APPEND(col_nm,-‘intercept’))-AS-col_nm,">UNNEST(ARRAY_APPEND(col_nm, ‘intercept’)) AS col_nm,</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#UNNEST(ARRAY_APPEND(coef,-intercept))-AS-coef">UNNEST(ARRAY_APPEND(coef, intercept)) AS coef</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#from-linreg_fitted;">from linreg_fitted;</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Prediction">Prediction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Evaluation-of-model">Evaluation of model</a></li>
 </ul>
@@ -826,23 +819,23 @@ Done.
     <tr>
             <td>F</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[26.697375771066156, -9.040770479060155]</td>
-            <td>-0.29525008437008005</td>
-            <td>2022-10-26 15:49:14.214683</td>
+            <td>[26.137109355672255, -8.424186514283774]</td>
+            <td>-0.23824844403114476</td>
+            <td>2022-10-27 08:58:52.204444</td>
     </tr>
     <tr>
             <td>M</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[23.557338620876184, -6.839687707228657]</td>
-            <td>0.46425313157533665</td>
-            <td>2022-10-26 15:49:14.214683</td>
+            <td>[22.38069869528873, -6.071067605694741]</td>
+            <td>0.7650399388740272</td>
+            <td>2022-10-27 08:58:52.204623</td>
     </tr>
     <tr>
             <td>I</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[15.01963531115115, 0.9189953677118429]</td>
-            <td>1.304723831629281</td>
-            <td>2022-10-26 15:49:14.218381</td>
+            <td>[15.321569717681122, 0.4916985308303924]</td>
+            <td>1.2825426862371936</td>
+            <td>2022-10-27 08:58:52.206658</td>
     </tr>
 </table></div>
 </div>
@@ -850,30 +843,90 @@ Done.
 <ul class="simple">
 <li><p>Using ARRAY_APPEND</p></li>
 </ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># SELECT</span>
+<span class="c1">#   sex,</span>
+<span class="c1">#   UNNEST(ARRAY_APPEND(col_nm, &#39;intercept&#39;)) AS col_nm2,</span>
+<span class="c1">#   UNNEST(ARRAY_APPEND(coef, intercept)) AS coef2</span>
+<span class="c1"># from linreg_fitted;</span>
+
+<span class="n">unnest</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;unnest&quot;</span><span class="p">)</span>
+<span class="n">array_append</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;array_append&quot;</span><span class="p">)</span>
+
+<span class="n">linreg_fitted</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+    <span class="n">col_nm2</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">unnest</span><span class="p">(</span><span class="n">array_append</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;col_nm&quot;</span><span class="p">],</span> <span class="s2">&quot;intercept&quot;</span><span class="p">)),</span>
+    <span class="n">coef2</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">unnest</span><span class="p">(</span><span class="n">array_append</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;coef&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;intercept&quot;</span><span class="p">])),</span>
+<span class="p">)[[</span><span class="s2">&quot;sex&quot;</span><span class="p">,</span> <span class="s2">&quot;col_nm2&quot;</span><span class="p">,</span> <span class="s2">&quot;coef2&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>sex</th>
+            <th>col_nm2</th>
+            <th>coef2</th>
+    </tr>
+    <tr>
+            <td>F</td>
+            <td>length</td>
+            <td>26.137109355672255</td>
+    </tr>
+    <tr>
+            <td>F</td>
+            <td>shucked_weight</td>
+            <td>-8.424186514283774</td>
+    </tr>
+    <tr>
+            <td>F</td>
+            <td>intercept</td>
+            <td>-0.23824844403114476</td>
+    </tr>
+    <tr>
+            <td>M</td>
+            <td>length</td>
+            <td>22.38069869528873</td>
+    </tr>
+    <tr>
+            <td>M</td>
+            <td>shucked_weight</td>
+            <td>-6.071067605694741</td>
+    </tr>
+    <tr>
+            <td>M</td>
+            <td>intercept</td>
+            <td>0.7650399388740272</td>
+    </tr>
+    <tr>
+            <td>I</td>
+            <td>length</td>
+            <td>15.321569717681122</td>
+    </tr>
+    <tr>
+            <td>I</td>
+            <td>shucked_weight</td>
+            <td>0.4916985308303924</td>
+    </tr>
+    <tr>
+            <td>I</td>
+            <td>intercept</td>
+            <td>1.2825426862371936</td>
+    </tr>
+</table></div>
+</div>
 </section>
-</section>
-<section id="SELECT">
-<h1>SELECT<a class="headerlink" href="#SELECT" title="Permalink to this heading"></a></h1>
-</section>
-<section id="sex,">
-<h1>sex,<a class="headerlink" href="#sex," title="Permalink to this heading"></a></h1>
-</section>
-<section id="UNNEST(ARRAY_APPEND(col_nm,-‘intercept’))-AS-col_nm,">
-<h1>UNNEST(ARRAY_APPEND(col_nm, ‘intercept’)) AS col_nm,<a class="headerlink" href="#UNNEST(ARRAY_APPEND(col_nm,-‘intercept’))-AS-col_nm," title="Permalink to this heading"></a></h1>
-</section>
-<section id="UNNEST(ARRAY_APPEND(coef,-intercept))-AS-coef">
-<h1>UNNEST(ARRAY_APPEND(coef, intercept)) AS coef<a class="headerlink" href="#UNNEST(ARRAY_APPEND(coef,-intercept))-AS-coef" title="Permalink to this heading"></a></h1>
-</section>
-<section id="from-linreg_fitted;">
-<h1>from linreg_fitted;<a class="headerlink" href="#from-linreg_fitted;" title="Permalink to this heading"></a></h1>
-<p>unnest = gp.function(“unnest”)</p>
-<p>array_append = gp.function(“array_append”)</p>
-<p>linreg_fitted.assign( col_nm=lambda t: t.assign(col_nm=lambda t: array_append(t[“col_nm”], “intercept”)), coef=lambda t: t.assign(col_nm=lambda t: array_append(t[“coef”], “intercept”)), )</p>
 <section id="Prediction">
 <h2>Prediction<a class="headerlink" href="#Prediction" title="Permalink to this heading"></a></h2>
 <p><strong>Creation of prediction function</strong></p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_function</span>
@@ -895,7 +948,7 @@ Done.
 </div>
 <p><strong>Join model table and test set table</strong></p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">linreg_test_fit</span> <span class="o">=</span> <span class="n">linreg_fitted</span><span class="o">.</span><span class="n">inner_join</span><span class="p">(</span>
@@ -909,7 +962,7 @@ Done.
 </div>
 <p><strong>Predict test set</strong></p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># CREATE TABLE plc_linreg_pred_dot AS (</span>
@@ -941,7 +994,7 @@ Done.
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># SELECT * FROM plc_linreg_pred WHERE sex=&#39;I&#39; ORDER BY id LIMIT 5;</span>
@@ -951,7 +1004,7 @@ Done.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -963,34 +1016,34 @@ Done.
             <th>rings_pred</th>
     </tr>
     <tr>
-            <td>45</td>
+            <td>5</td>
             <td>I</td>
-            <td>4</td>
-            <td>4.47492966590598</td>
+            <td>7</td>
+            <td>6.382667711581284</td>
     </tr>
     <tr>
-            <td>51</td>
+            <td>46</td>
             <td>I</td>
-            <td>8</td>
-            <td>9.334114588627155</td>
+            <td>7</td>
+            <td>7.30097849758049</td>
     </tr>
     <tr>
             <td>59</td>
             <td>I</td>
             <td>4</td>
-            <td>5.02313228830521</td>
+            <td>5.056978605363945</td>
     </tr>
     <tr>
-            <td>101</td>
-            <td>I</td>
-            <td>7</td>
-            <td>6.808287057253439</td>
-    </tr>
-    <tr>
-            <td>126</td>
+            <td>177</td>
             <td>I</td>
             <td>5</td>
-            <td>5.38621673361988</td>
+            <td>6.1383390591565705</td>
+    </tr>
+    <tr>
+            <td>178</td>
+            <td>I</td>
+            <td>8</td>
+            <td>6.134897169440757</td>
     </tr>
 </table></div>
 </div>
@@ -999,7 +1052,7 @@ Done.
 <h2>Evaluation of model<a class="headerlink" href="#Evaluation-of-model" title="Permalink to this heading"></a></h2>
 <p><strong>Creation of evaluation return type</strong></p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># CREATE TYPE plc_linreg_eval_type AS (</span>
@@ -1020,7 +1073,7 @@ Done.
 </div>
 <p><strong>Creation of evaluation function</strong></p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_array_function</span>
@@ -1043,7 +1096,7 @@ Done.
 </div>
 <p>Evaluate our model</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># SELECT</span>
@@ -1069,7 +1122,7 @@ Done.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1082,30 +1135,30 @@ Done.
             <th>sex</th>
     </tr>
     <tr>
-            <td>2.091137517029722</td>
-            <td>19.76797679701784</td>
-            <td>7.591765814888473</td>
-            <td>0.11209505111905493</td>
+            <td>1.98380905186679</td>
+            <td>17.929775625631404</td>
+            <td>6.825198413375387</td>
+            <td>0.1113883891158246</td>
             <td>F</td>
     </tr>
     <tr>
-            <td>1.9687614896616366</td>
-            <td>18.570417501625883</td>
-            <td>7.1979320458627</td>
-            <td>0.16535225607838444</td>
+            <td>2.083924421181288</td>
+            <td>19.248150260652814</td>
+            <td>7.770403748522946</td>
+            <td>0.18528209801088324</td>
             <td>M</td>
     </tr>
     <tr>
-            <td>1.2588203204896984</td>
-            <td>15.31473649364326</td>
-            <td>3.592317138688826</td>
-            <td>0.4497568658287141</td>
+            <td>1.325978986090538</td>
+            <td>15.628214597897044</td>
+            <td>3.5806270466689174</td>
+            <td>0.45487762785763686</td>
             <td>I</td>
     </tr>
 </table></div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
