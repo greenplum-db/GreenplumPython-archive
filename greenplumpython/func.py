@@ -5,7 +5,6 @@ import functools
 import inspect
 import re
 import textwrap
-from dis import dis
 from typing import Any, Callable, Dict, Optional, Set, Tuple
 from uuid import uuid4
 
@@ -53,7 +52,6 @@ class FunctionExpr(Expr):
         group_by: Optional[TableGroupingSets] = None,
         table: Optional[Table] = None,
         db: Optional[Database] = None,
-        distinct: Optional[bool] = None,
     ):
         return FunctionExpr(
             self._func,
@@ -61,7 +59,7 @@ class FunctionExpr(Expr):
             group_by=group_by,
             table=table,
             db=db if db is not None else self._db,
-            distinct=distinct if distinct is not None else self._distinct,
+            distinct=self._distinct,
         )
 
     def serialize(self) -> str:
@@ -299,6 +297,19 @@ class AggregateFunction(_AbstractFunction):
             self._created_in_dbs.add(db)
 
     def distinct(self, *args: Any) -> FunctionExpr:
+        """
+        Apply the current aggregate function to only each distinct set of the
+        arguments.
+        
+        For example, `count.distinct(t['a'])` means applying the
+        `count()` function to each distinct value of :class:`Column` `t['a']`.
+
+        Args:
+            args: Argument of the aggregate function.
+
+        Returns:
+            FunctionExpr: An expression represents the function call.
+        """
         return FunctionExpr(self, args, distinct=True)
 
     def __call__(self, *args: Any) -> FunctionExpr:
