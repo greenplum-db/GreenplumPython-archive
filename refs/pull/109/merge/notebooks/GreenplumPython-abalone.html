@@ -556,7 +556,7 @@ Done.
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># SELECT * FROM abalone ORDER BY id LIMIT 5;</span>
 
-<span class="n">abalone</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">abalone</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -652,7 +652,7 @@ Done.
 
 <span class="kn">import</span> <span class="nn">greenplumpython.builtin.function</span> <span class="k">as</span> <span class="nn">F</span>
 
-<span class="n">abalone</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;gp_segment_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="n">F</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+<span class="n">abalone</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;gp_segment_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="n">F</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
 </pre></div>
 </div>
 </div>
@@ -667,12 +667,12 @@ Done.
             <th>gp_segment_id</th>
     </tr>
     <tr>
-            <td>1307</td>
-            <td>2</td>
-    </tr>
-    <tr>
             <td>2870</td>
             <td>1</td>
+    </tr>
+    <tr>
+            <td>1307</td>
+            <td>2</td>
     </tr>
 </table></div>
 </div>
@@ -777,21 +777,10 @@ Done.
 <span class="c1"># ) DISTRIBUTED BY (sex);</span>
 
 <span class="n">linreg_fitted</span> <span class="o">=</span> <span class="p">(</span>
-   <span class="n">abalone_train</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-      <span class="n">result</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">linreg_func</span><span class="p">(</span>
-         <span class="n">t</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
-         <span class="n">t</span><span class="p">[</span><span class="s2">&quot;shucked_weight&quot;</span><span class="p">],</span>
-         <span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">]</span>
-      <span class="p">)</span>
-   <span class="p">)</span>
-<span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-        <span class="n">col_nm</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="s2">&quot;col_nm&quot;</span><span class="p">],</span>
-        <span class="n">coef</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="s2">&quot;coef&quot;</span><span class="p">],</span>
-        <span class="n">intercept</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="s2">&quot;intercept&quot;</span><span class="p">],</span>
-        <span class="n">serialized_linreg_model</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="s2">&quot;serialized_linreg_model&quot;</span><span class="p">],</span>
-        <span class="n">created_dt</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="s2">&quot;created_dt&quot;</span><span class="p">]</span>
-    <span class="p">)</span>
-<br/></pre></div>
+    <span class="n">abalone_train</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">linreg_func</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;shucked_weight&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">]),</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
 </div>
 </div>
 <p><strong>Take a look at models built</strong></p>
@@ -819,23 +808,23 @@ Done.
     <tr>
             <td>F</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[26.137109355672255, -8.424186514283774]</td>
-            <td>-0.23824844403114476</td>
-            <td>2022-10-27 08:58:52.204444</td>
+            <td>[25.064476469020896, -7.971276893342533]</td>
+            <td>0.14402961193298403</td>
+            <td>2022-10-28 10:27:49.073549</td>
     </tr>
     <tr>
             <td>M</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[22.38069869528873, -6.071067605694741]</td>
-            <td>0.7650399388740272</td>
-            <td>2022-10-27 08:58:52.204623</td>
+            <td>[23.474589477353632, -6.486874929907139]</td>
+            <td>0.400537367442098</td>
+            <td>2022-10-28 10:27:49.073452</td>
     </tr>
     <tr>
             <td>I</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[15.321569717681122, 0.4916985308303924]</td>
-            <td>1.2825426862371936</td>
-            <td>2022-10-27 08:58:52.206658</td>
+            <td>[15.60472937590157, 0.170324586295711]</td>
+            <td>1.1456532205072136</td>
+            <td>2022-10-28 10:27:49.079175</td>
     </tr>
 </table></div>
 </div>
@@ -877,47 +866,47 @@ Done.
     <tr>
             <td>F</td>
             <td>length</td>
-            <td>26.137109355672255</td>
+            <td>25.064476469020896</td>
     </tr>
     <tr>
             <td>F</td>
             <td>shucked_weight</td>
-            <td>-8.424186514283774</td>
+            <td>-7.971276893342533</td>
     </tr>
     <tr>
             <td>F</td>
             <td>intercept</td>
-            <td>-0.23824844403114476</td>
+            <td>0.14402961193298403</td>
     </tr>
     <tr>
             <td>M</td>
             <td>length</td>
-            <td>22.38069869528873</td>
+            <td>23.474589477353632</td>
     </tr>
     <tr>
             <td>M</td>
             <td>shucked_weight</td>
-            <td>-6.071067605694741</td>
+            <td>-6.486874929907139</td>
     </tr>
     <tr>
             <td>M</td>
             <td>intercept</td>
-            <td>0.7650399388740272</td>
+            <td>0.400537367442098</td>
     </tr>
     <tr>
             <td>I</td>
             <td>length</td>
-            <td>15.321569717681122</td>
+            <td>15.60472937590157</td>
     </tr>
     <tr>
             <td>I</td>
             <td>shucked_weight</td>
-            <td>0.4916985308303924</td>
+            <td>0.170324586295711</td>
     </tr>
     <tr>
             <td>I</td>
             <td>intercept</td>
-            <td>1.2825426862371936</td>
+            <td>1.1456532205072136</td>
     </tr>
 </table></div>
 </div>
@@ -999,7 +988,7 @@ Done.
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># SELECT * FROM plc_linreg_pred WHERE sex=&#39;I&#39; ORDER BY id LIMIT 5;</span>
 
-<span class="n">linreg_pred</span><span class="p">[</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;I&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">linreg_pred</span><span class="p">[</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;I&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -1016,34 +1005,34 @@ Done.
             <th>rings_pred</th>
     </tr>
     <tr>
-            <td>5</td>
-            <td>I</td>
-            <td>7</td>
-            <td>6.382667711581284</td>
-    </tr>
-    <tr>
-            <td>46</td>
-            <td>I</td>
-            <td>7</td>
-            <td>7.30097849758049</td>
-    </tr>
-    <tr>
-            <td>59</td>
-            <td>I</td>
-            <td>4</td>
-            <td>5.056978605363945</td>
-    </tr>
-    <tr>
-            <td>177</td>
-            <td>I</td>
-            <td>5</td>
-            <td>6.1383390591565705</td>
-    </tr>
-    <tr>
-            <td>178</td>
+            <td>51</td>
             <td>I</td>
             <td>8</td>
-            <td>6.134897169440757</td>
+            <td>9.300734909807558</td>
+    </tr>
+    <tr>
+            <td>135</td>
+            <td>I</td>
+            <td>7</td>
+            <td>5.287719488572958</td>
+    </tr>
+    <tr>
+            <td>148</td>
+            <td>I</td>
+            <td>9</td>
+            <td>5.523834324247031</td>
+    </tr>
+    <tr>
+            <td>149</td>
+            <td>I</td>
+            <td>5</td>
+            <td>3.878269269446093</td>
+    </tr>
+    <tr>
+            <td>234</td>
+            <td>I</td>
+            <td>7</td>
+            <td>5.4452145413154875</td>
     </tr>
 </table></div>
 </div>
@@ -1112,12 +1101,7 @@ Done.
 <span class="c1"># ) a</span>
 
 
-<span class="n">linreg_pred</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">linreg_eval</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings_pred&quot;</span><span class="p">]))</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-        <span class="n">mae</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="s2">&quot;mae&quot;</span><span class="p">],</span>
-        <span class="n">mape</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="s2">&quot;mape&quot;</span><span class="p">],</span>
-        <span class="n">mse</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="s2">&quot;mse&quot;</span><span class="p">],</span>
-        <span class="n">r2_score</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="s2">&quot;r2_score&quot;</span><span class="p">],</span>
-<span class="p">)[[</span><span class="s2">&quot;mae&quot;</span><span class="p">,</span> <span class="s2">&quot;mape&quot;</span><span class="p">,</span> <span class="s2">&quot;mse&quot;</span><span class="p">,</span> <span class="s2">&quot;r2_score&quot;</span><span class="p">,</span> <span class="s2">&quot;sex&quot;</span><span class="p">]]</span>
+<span class="n">linreg_pred</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">linreg_eval</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings_pred&quot;</span><span class="p">]),</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1128,32 +1112,32 @@ Done.
 <div class="output_area rendered_html docutils container">
 <table>
     <tr>
+            <th>sex</th>
             <th>mae</th>
             <th>mape</th>
             <th>mse</th>
             <th>r2_score</th>
-            <th>sex</th>
     </tr>
     <tr>
-            <td>1.98380905186679</td>
-            <td>17.929775625631404</td>
-            <td>6.825198413375387</td>
-            <td>0.1113883891158246</td>
             <td>F</td>
+            <td>2.1684036058174128</td>
+            <td>19.81216897545126</td>
+            <td>7.876612765316872</td>
+            <td>0.08913495016372974</td>
     </tr>
     <tr>
-            <td>2.083924421181288</td>
-            <td>19.248150260652814</td>
-            <td>7.770403748522946</td>
-            <td>0.18528209801088324</td>
             <td>M</td>
+            <td>2.0103204067022693</td>
+            <td>19.164943108519978</td>
+            <td>7.788626230610322</td>
+            <td>0.2140201106290267</td>
     </tr>
     <tr>
-            <td>1.325978986090538</td>
-            <td>15.628214597897044</td>
-            <td>3.5806270466689174</td>
-            <td>0.45487762785763686</td>
             <td>I</td>
+            <td>1.1442499649201459</td>
+            <td>14.423205839401918</td>
+            <td>2.665751060618734</td>
+            <td>0.5163806536192345</td>
     </tr>
 </table></div>
 </div>
