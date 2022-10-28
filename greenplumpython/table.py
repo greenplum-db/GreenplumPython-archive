@@ -3,9 +3,20 @@ This module creates a Python object :class:`Table` which keeps in memory all the
 on a table, in order to proceed with SQL query. It concatenates different pieces of queries
 together using CTEs.
 
-Table sends the aggregated SQL query to the database and returns the final result only when `_fetch()` function is called.
+Iterating over rows of a Table can be expensive, so is printing it, or converting it to other data structures
+like :class:`list`, :class:`tuple`, as well as :class:`pandas.DataFrame`. This is because the content need to
+be computed and fetched from a remote database system. That's why :class:`Table` sends the aggregated SQL query
+to the database and returns the final result only when `_fetch()` function is called.
 
-N.B: _fetch() function will be called when user wants to iterate through table contents.
+Once the content of a :class:`Table` is fetched from the database system, it will be cached locally for later use.
+Therefore, re-iterating the same table again will be fast.
+
+Since the content is cached locally, it will become stale once the Table gets modified by someone else on the database system.
+Therefore, you might want to use refresh() to sync the latest update.
+**Note that refresh() is also expensive.**
+
+
+N.B: _fetch() function will be called when user wants to iterate through table contents for the first time.
 
 All modifications made by users are only saved to the database when calling the `save_as()`
 function.
