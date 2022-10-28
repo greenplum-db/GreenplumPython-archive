@@ -111,8 +111,16 @@
 <p>This module creates a Python object <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> which keeps in memory all the user modifications
 on a table, in order to proceed with SQL query. It concatenates different pieces of queries
 together using CTEs.</p>
-<p>Table sends the aggregated SQL query to the database and returns the final result only when <cite>_fetch()</cite> function is called.</p>
-<p>N.B: _fetch() function will be called when user wants to iterate through table contents.</p>
+<p>Iterating over rows of a Table can be expensive, so is printing it, or converting it to other data structures
+like <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>, as well as <code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>. This is because the content need to
+be computed and fetched from a remote database system. That’s why <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> sends the aggregated SQL query
+to the database and returns the final result only when <cite>_fetch()</cite> function is called.</p>
+<p>Once the content of a <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> is fetched from the database system, it will be cached locally for later use.
+Therefore, re-iterating the same table again will be fast.</p>
+<p>Since the content is cached locally, it will become stale once the Table gets modified by someone else on the database system.
+Therefore, you might want to use refresh() to sync the latest update.
+<strong>Note that refresh() is also expensive.</strong></p>
+<p>N.B: _fetch() function will be called when user wants to iterate through table contents for the first time.</p>
 <p>All modifications made by users are only saved to the database when calling the <cite>save_as()</cite>
 function.</p>
 <dl class="py class">

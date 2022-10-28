@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Selecting the Database of Your Data &mdash; GreenplumPython 1.0.0-beta2 documentation</title>
+  <title>&lt;no title&gt; &mdash; GreenplumPython 1.0.0-beta2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -42,16 +42,9 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../basic.html">Getting Started</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Selecting the Database of Your Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Accessing-a-Table-in-the-Database">Accessing a Table in the Database</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Basic-Data-Manipulation">Basic Data Manipulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#JOIN-ing-Two-Tables"><code class="docutils literal notranslate"><span class="pre">JOIN</span></code>-ing Two Tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Creating-and-Calling-Functions">Creating and Calling Functions</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../basic.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules.html">GreenplumPython</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Data Science on Python with GreenplumPython</a></li>
 </ul>
@@ -71,7 +64,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../basic.html">Getting Started</a> &raquo;</li>
-      <li>Selecting the Database of Your Data</li>
+      <li>&lt;no title&gt;</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/notebooks/basic.ipynb" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -83,260 +76,6 @@
              
   
 <style>
-/* CSS for nbsphinx extension */
-
-/* remove conflicting styling from Sphinx themes */
-div.nbinput.container div.prompt *,
-div.nboutput.container div.prompt *,
-div.nbinput.container div.input_area pre,
-div.nboutput.container div.output_area pre,
-div.nbinput.container div.input_area .highlight,
-div.nboutput.container div.output_area .highlight {
-    border: none;
-    padding: 0;
-    margin: 0;
-    box-shadow: none;
-}
-
-div.nbinput.container > div[class*=highlight],
-div.nboutput.container > div[class*=highlight] {
-    margin: 0;
-}
-
-div.nbinput.container div.prompt *,
-div.nboutput.container div.prompt * {
-    background: none;
-}
-
-div.nboutput.container div.output_area .highlight,
-div.nboutput.container div.output_area pre {
-    background: unset;
-}
-
-div.nboutput.container div.output_area div.highlight {
-    color: unset;  /* override Pygments text color */
-}
-
-/* avoid gaps between output lines */
-div.nboutput.container div[class*=highlight] pre {
-    line-height: normal;
-}
-
-/* input/output containers */
-div.nbinput.container,
-div.nboutput.container {
-    display: -webkit-flex;
-    display: flex;
-    align-items: flex-start;
-    margin: 0;
-    width: 100%;
-}
-@media (max-width: 540px) {
-    div.nbinput.container,
-    div.nboutput.container {
-        flex-direction: column;
-    }
-}
-
-/* input container */
-div.nbinput.container {
-    padding-top: 5px;
-}
-
-/* last container */
-div.nblast.container {
-    padding-bottom: 5px;
-}
-
-/* input prompt */
-div.nbinput.container div.prompt pre {
-    color: #307FC1;
-}
-
-/* output prompt */
-div.nboutput.container div.prompt pre {
-    color: #BF5B3D;
-}
-
-/* all prompts */
-div.nbinput.container div.prompt,
-div.nboutput.container div.prompt {
-    width: 4.5ex;
-    padding-top: 5px;
-    position: relative;
-    user-select: none;
-}
-
-div.nbinput.container div.prompt > div,
-div.nboutput.container div.prompt > div {
-    position: absolute;
-    right: 0;
-    margin-right: 0.3ex;
-}
-
-@media (max-width: 540px) {
-    div.nbinput.container div.prompt,
-    div.nboutput.container div.prompt {
-        width: unset;
-        text-align: left;
-        padding: 0.4em;
-    }
-    div.nboutput.container div.prompt.empty {
-        padding: 0;
-    }
-
-    div.nbinput.container div.prompt > div,
-    div.nboutput.container div.prompt > div {
-        position: unset;
-    }
-}
-
-/* disable scrollbars on prompts */
-div.nbinput.container div.prompt pre,
-div.nboutput.container div.prompt pre {
-    overflow: hidden;
-}
-
-/* input/output area */
-div.nbinput.container div.input_area,
-div.nboutput.container div.output_area {
-    -webkit-flex: 1;
-    flex: 1;
-    overflow: auto;
-}
-@media (max-width: 540px) {
-    div.nbinput.container div.input_area,
-    div.nboutput.container div.output_area {
-        width: 100%;
-    }
-}
-
-/* input area */
-div.nbinput.container div.input_area {
-    border: 1px solid #e0e0e0;
-    border-radius: 2px;
-    /*background: #f5f5f5;*/
-}
-
-/* override MathJax center alignment in output cells */
-div.nboutput.container div[class*=MathJax] {
-    text-align: left !important;
-}
-
-/* override sphinx.ext.imgmath center alignment in output cells */
-div.nboutput.container div.math p {
-    text-align: left;
-}
-
-/* standard error */
-div.nboutput.container div.output_area.stderr {
-    background: #fdd;
-}
-
-/* ANSI colors */
-.ansi-black-fg { color: #3E424D; }
-.ansi-black-bg { background-color: #3E424D; }
-.ansi-black-intense-fg { color: #282C36; }
-.ansi-black-intense-bg { background-color: #282C36; }
-.ansi-red-fg { color: #E75C58; }
-.ansi-red-bg { background-color: #E75C58; }
-.ansi-red-intense-fg { color: #B22B31; }
-.ansi-red-intense-bg { background-color: #B22B31; }
-.ansi-green-fg { color: #00A250; }
-.ansi-green-bg { background-color: #00A250; }
-.ansi-green-intense-fg { color: #007427; }
-.ansi-green-intense-bg { background-color: #007427; }
-.ansi-yellow-fg { color: #DDB62B; }
-.ansi-yellow-bg { background-color: #DDB62B; }
-.ansi-yellow-intense-fg { color: #B27D12; }
-.ansi-yellow-intense-bg { background-color: #B27D12; }
-.ansi-blue-fg { color: #208FFB; }
-.ansi-blue-bg { background-color: #208FFB; }
-.ansi-blue-intense-fg { color: #0065CA; }
-.ansi-blue-intense-bg { background-color: #0065CA; }
-.ansi-magenta-fg { color: #D160C4; }
-.ansi-magenta-bg { background-color: #D160C4; }
-.ansi-magenta-intense-fg { color: #A03196; }
-.ansi-magenta-intense-bg { background-color: #A03196; }
-.ansi-cyan-fg { color: #60C6C8; }
-.ansi-cyan-bg { background-color: #60C6C8; }
-.ansi-cyan-intense-fg { color: #258F8F; }
-.ansi-cyan-intense-bg { background-color: #258F8F; }
-.ansi-white-fg { color: #C5C1B4; }
-.ansi-white-bg { background-color: #C5C1B4; }
-.ansi-white-intense-fg { color: #A1A6B2; }
-.ansi-white-intense-bg { background-color: #A1A6B2; }
-
-.ansi-default-inverse-fg { color: #FFFFFF; }
-.ansi-default-inverse-bg { background-color: #000000; }
-
-.ansi-bold { font-weight: bold; }
-.ansi-underline { text-decoration: underline; }
-
-
-div.nbinput.container div.input_area div[class*=highlight] > pre,
-div.nboutput.container div.output_area div[class*=highlight] > pre,
-div.nboutput.container div.output_area div[class*=highlight].math,
-div.nboutput.container div.output_area.rendered_html,
-div.nboutput.container div.output_area > div.output_javascript,
-div.nboutput.container div.output_area:not(.rendered_html) > img{
-    padding: 5px;
-    margin: 0;
-}
-
-/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
-div.nbinput.container div.input_area > div[class^='highlight'],
-div.nboutput.container div.output_area > div[class^='highlight']{
-    overflow-y: hidden;
-}
-
-/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt .copybtn {
-    display: none;
-}
-
-/* Some additional styling taken form the Jupyter notebook CSS */
-.jp-RenderedHTMLCommon table,
-div.rendered_html table {
-  border: none;
-  border-collapse: collapse;
-  border-spacing: 0;
-  color: black;
-  font-size: 12px;
-  table-layout: fixed;
-}
-.jp-RenderedHTMLCommon thead,
-div.rendered_html thead {
-  border-bottom: 1px solid black;
-  vertical-align: bottom;
-}
-.jp-RenderedHTMLCommon tr,
-.jp-RenderedHTMLCommon th,
-.jp-RenderedHTMLCommon td,
-div.rendered_html tr,
-div.rendered_html th,
-div.rendered_html td {
-  text-align: right;
-  vertical-align: middle;
-  padding: 0.5em 0.5em;
-  line-height: normal;
-  white-space: normal;
-  max-width: none;
-  border: none;
-}
-.jp-RenderedHTMLCommon th,
-div.rendered_html th {
-  font-weight: bold;
-}
-.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
-div.rendered_html tbody tr:nth-child(odd) {
-  background: #f5f5f5;
-}
-.jp-RenderedHTMLCommon tbody tr:hover,
-div.rendered_html tbody tr:hover {
-  background: rgba(66, 165, 245, 0.2);
-}
-
 /* CSS overrides for sphinx_rtd_theme */
 
 /* 24px margin */
@@ -359,652 +98,719 @@ div.rendered_html tbody tr:hover {
     text-align: unset;
 }
 </style>
-<section id="Selecting-the-Database-of-Your-Data">
-<h1>Selecting the Database of Your Data<a class="headerlink" href="#Selecting-the-Database-of-Your-Data" title="Permalink to this heading"></a></h1>
-<p>To begin with, we need to select the database that contains the data we want:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">greenplumpython</span> <span class="k">as</span> <span class="nn">gp</span>
-
-<span class="n">db</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">database</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="n">dbname</span><span class="o">=</span><span class="s2">&quot;postgres&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="Accessing-a-Table-in-the-Database">
-<h1>Accessing a Table in the Database<a class="headerlink" href="#Accessing-a-Table-in-the-Database" title="Permalink to this heading"></a></h1>
-<p>After selecting the database, we can access a table in the database by specifying its name:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;demo&quot;</span><span class="p">)</span>
-<span class="n">t</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<table>
-    <tr>
-            <th>i</th>
-            <th>j</th>
-            <th>k</th>
-    </tr>
-    <tr>
-            <td>2</td>
-            <td>2</td>
-            <td>2</td>
-    </tr>
-    <tr>
-            <td>3</td>
-            <td>3</td>
-            <td>3</td>
-    </tr>
-    <tr>
-            <td>4</td>
-            <td>4</td>
-            <td>4</td>
-    </tr>
-    <tr>
-            <td>7</td>
-            <td>7</td>
-            <td>7</td>
-    </tr>
-    <tr>
-            <td>8</td>
-            <td>8</td>
-            <td>8</td>
-    </tr>
-    <tr>
-            <td>5</td>
-            <td>5</td>
-            <td>5</td>
-    </tr>
-    <tr>
-            <td>6</td>
-            <td>6</td>
-            <td>6</td>
-    </tr>
-    <tr>
-            <td>9</td>
-            <td>9</td>
-            <td>9</td>
-    </tr>
-    <tr>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-    </tr>
-    <tr>
-            <td>1</td>
-            <td>1</td>
-            <td>1</td>
-    </tr>
-</table></div>
-</div>
-<p>And of course, we can <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> the first ordered N rows of a table, like this:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<table>
-    <tr>
-            <th>i</th>
-            <th>j</th>
-            <th>k</th>
-    </tr>
-    <tr>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-    </tr>
-    <tr>
-            <td>1</td>
-            <td>1</td>
-            <td>1</td>
-    </tr>
-    <tr>
-            <td>2</td>
-            <td>2</td>
-            <td>2</td>
-    </tr>
-    <tr>
-            <td>3</td>
-            <td>3</td>
-            <td>3</td>
-    </tr>
-    <tr>
-            <td>4</td>
-            <td>4</td>
-            <td>4</td>
-    </tr>
-    <tr>
-            <td>5</td>
-            <td>5</td>
-            <td>5</td>
-    </tr>
-    <tr>
-            <td>6</td>
-            <td>6</td>
-            <td>6</td>
-    </tr>
-    <tr>
-            <td>7</td>
-            <td>7</td>
-            <td>7</td>
-    </tr>
-    <tr>
-            <td>8</td>
-            <td>8</td>
-            <td>8</td>
-    </tr>
-    <tr>
-            <td>9</td>
-            <td>9</td>
-            <td>9</td>
-    </tr>
-</table></div>
-</div>
-</section>
-<section id="Basic-Data-Manipulation">
-<h1>Basic Data Manipulation<a class="headerlink" href="#Basic-Data-Manipulation" title="Permalink to this heading"></a></h1>
-<p>Now we have a table. We can do basic data manipulation on it, just like in SQL.</p>
-<p>For example, we can <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> a subset of its columns:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_ij</span> <span class="o">=</span> <span class="n">t</span><span class="p">[[</span><span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="s2">&quot;j&quot;</span><span class="p">]]</span>
-<span class="n">t_ij</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<table>
-    <tr>
-            <th>i</th>
-            <th>j</th>
-    </tr>
-    <tr>
-            <td>0</td>
-            <td>0</td>
-    </tr>
-    <tr>
-            <td>1</td>
-            <td>1</td>
-    </tr>
-    <tr>
-            <td>2</td>
-            <td>2</td>
-    </tr>
-    <tr>
-            <td>3</td>
-            <td>3</td>
-    </tr>
-    <tr>
-            <td>4</td>
-            <td>4</td>
-    </tr>
-    <tr>
-            <td>7</td>
-            <td>7</td>
-    </tr>
-    <tr>
-            <td>8</td>
-            <td>8</td>
-    </tr>
-    <tr>
-            <td>5</td>
-            <td>5</td>
-    </tr>
-    <tr>
-            <td>6</td>
-            <td>6</td>
-    </tr>
-    <tr>
-            <td>9</td>
-            <td>9</td>
-    </tr>
-</table></div>
-</div>
-<p>And we can also <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> a subset of its rows. Say we want all the even numbers:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_even</span> <span class="o">=</span> <span class="n">t_ij</span><span class="p">[</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;i&quot;</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
-<span class="n">t_even</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<table>
-    <tr>
-            <th>i</th>
-            <th>j</th>
-    </tr>
-    <tr>
-            <td>6</td>
-            <td>6</td>
-    </tr>
-    <tr>
-            <td>2</td>
-            <td>2</td>
-    </tr>
-    <tr>
-            <td>4</td>
-            <td>4</td>
-    </tr>
-    <tr>
-            <td>8</td>
-            <td>8</td>
-    </tr>
-    <tr>
-            <td>0</td>
-            <td>0</td>
-    </tr>
-</table></div>
-</div>
-<p>For a quick glance, we can <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> the first unordered N rows of a table, like this:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_n</span> <span class="o">=</span> <span class="n">t_even</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
-<span class="n">t_n</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<table>
-    <tr>
-            <th>i</th>
-            <th>j</th>
-    </tr>
-    <tr>
-            <td>2</td>
-            <td>2</td>
-    </tr>
-    <tr>
-            <td>4</td>
-            <td>4</td>
-    </tr>
-    <tr>
-            <td>8</td>
-            <td>8</td>
-    </tr>
-</table></div>
-</div>
-<p>Finally when we are done, we can save the resulting table to the database, either temporarily or persistently:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_n</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;t_n&quot;</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<table>
-    <tr>
-            <th>i</th>
-            <th>j</th>
-    </tr>
-    <tr>
-            <td>6</td>
-            <td>6</td>
-    </tr>
-    <tr>
-            <td>2</td>
-            <td>2</td>
-    </tr>
-    <tr>
-            <td>4</td>
-            <td>4</td>
-    </tr>
-</table></div>
-</div>
-</section>
-<section id="JOIN-ing-Two-Tables">
-<h1><code class="docutils literal notranslate"><span class="pre">JOIN</span></code>-ing Two Tables<a class="headerlink" href="#JOIN-ing-Two-Tables" title="Permalink to this heading"></a></h1>
-<p>We can also <code class="docutils literal notranslate"><span class="pre">JOIN</span></code> two tables with GreenplumPython. For example, suppose we have two tables like this:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">(</span>
-        <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;&#39;a&#39;&quot;</span><span class="p">,</span>
-    <span class="p">),</span>
-    <span class="p">(</span>
-        <span class="mi">2</span><span class="p">,</span>
-        <span class="s2">&quot;&#39;b&#39;&quot;</span><span class="p">,</span>
-    <span class="p">),</span>
-    <span class="p">(</span>
-        <span class="mi">3</span><span class="p">,</span>
-        <span class="s2">&quot;&#39;c&#39;&quot;</span><span class="p">,</span>
-    <span class="p">),</span>
-    <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;&#39;d&#39;&quot;</span><span class="p">),</span>
-<span class="p">]</span>
-<span class="n">t1</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">to_table</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id, val&quot;</span><span class="p">])</span>
-<span class="n">t1</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<table>
-    <tr>
-            <th>id</th>
-            <th>val</th>
-    </tr>
-    <tr>
-            <td>1</td>
-            <td>'a'</td>
-    </tr>
-    <tr>
-            <td>2</td>
-            <td>'b'</td>
-    </tr>
-    <tr>
-            <td>3</td>
-            <td>'c'</td>
-    </tr>
-    <tr>
-            <td>4</td>
-            <td>'d'</td>
-    </tr>
-</table></div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">(</span>
-        <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;&#39;a&#39;&quot;</span><span class="p">,</span>
-    <span class="p">),</span>
-    <span class="p">(</span>
-        <span class="mi">2</span><span class="p">,</span>
-        <span class="s2">&quot;&#39;b&#39;&quot;</span><span class="p">,</span>
-    <span class="p">),</span>
-    <span class="p">(</span>
-        <span class="mi">3</span><span class="p">,</span>
-        <span class="s2">&quot;&#39;a&#39;&quot;</span><span class="p">,</span>
-    <span class="p">),</span>
-    <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;&#39;b&#39;&quot;</span><span class="p">),</span>
-<span class="p">]</span>
-<span class="n">t2</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">to_table</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id, val&quot;</span><span class="p">])</span>
-<span class="n">t2</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<table>
-    <tr>
-            <th>id</th>
-            <th>val</th>
-    </tr>
-    <tr>
-            <td>1</td>
-            <td>'a'</td>
-    </tr>
-    <tr>
-            <td>2</td>
-            <td>'b'</td>
-    </tr>
-    <tr>
-            <td>3</td>
-            <td>'a'</td>
-    </tr>
-    <tr>
-            <td>4</td>
-            <td>'b'</td>
-    </tr>
-</table></div>
-</div>
-<p>We can <code class="docutils literal notranslate"><span class="pre">JOIN</span></code> the two table like this:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_join</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-    <span class="n">t2</span><span class="p">,</span>
-    <span class="n">using</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">],</span>
-    <span class="n">self_columns</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;t1_id&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="s2">&quot;t1_val&quot;</span>
-    <span class="p">},</span>
-    <span class="n">other_columns</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;t2_id&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="s2">&quot;t2_val&quot;</span>
-    <span class="p">}</span>
-<span class="p">)</span>
-<span class="n">t_join</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<table>
-    <tr>
-            <th>t1_id</th>
-            <th>t1_val</th>
-            <th>t2_id</th>
-            <th>t2_val</th>
-    </tr>
-    <tr>
-            <td>1</td>
-            <td>'a'</td>
-            <td>3</td>
-            <td>'a'</td>
-    </tr>
-    <tr>
-            <td>1</td>
-            <td>'a'</td>
-            <td>1</td>
-            <td>'a'</td>
-    </tr>
-    <tr>
-            <td>2</td>
-            <td>'b'</td>
-            <td>4</td>
-            <td>'b'</td>
-    </tr>
-    <tr>
-            <td>2</td>
-            <td>'b'</td>
-            <td>2</td>
-            <td>'b'</td>
-    </tr>
-</table></div>
-</div>
-</section>
-<section id="Creating-and-Calling-Functions">
-<h1>Creating and Calling Functions<a class="headerlink" href="#Creating-and-Calling-Functions" title="Permalink to this heading"></a></h1>
-<p>Calling functions is essential for data analytics. GreenplumPython supports creating Greenplum UDFs and UDAs from Python functions and calling them in Python.</p>
-<p>Suppose we have a table of numbers:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
-<span class="n">numbers</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">to_table</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">])</span>
-<span class="n">numbers</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<table>
-    <tr>
-            <th>val</th>
-    </tr>
-    <tr>
-            <td>0</td>
-    </tr>
-    <tr>
-            <td>1</td>
-    </tr>
-    <tr>
-            <td>2</td>
-    </tr>
-    <tr>
-            <td>3</td>
-    </tr>
-    <tr>
-            <td>4</td>
-    </tr>
-    <tr>
-            <td>5</td>
-    </tr>
-    <tr>
-            <td>6</td>
-    </tr>
-    <tr>
-            <td>7</td>
-    </tr>
-    <tr>
-            <td>8</td>
-    </tr>
-    <tr>
-            <td>9</td>
-    </tr>
-</table></div>
-</div>
-<p>If we want to get the square of each number, we can write a function to do that:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_function</span>
-<span class="k">def</span> <span class="nf">square</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">a</span><span class="o">**</span><span class="mi">2</span>
-
-
-<span class="n">numbers</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">square</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]))</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<table>
-    <tr>
-            <th>square</th>
-    </tr>
-    <tr>
-            <td>0</td>
-    </tr>
-    <tr>
-            <td>1</td>
-    </tr>
-    <tr>
-            <td>4</td>
-    </tr>
-    <tr>
-            <td>9</td>
-    </tr>
-    <tr>
-            <td>16</td>
-    </tr>
-    <tr>
-            <td>25</td>
-    </tr>
-    <tr>
-            <td>36</td>
-    </tr>
-    <tr>
-            <td>49</td>
-    </tr>
-    <tr>
-            <td>64</td>
-    </tr>
-    <tr>
-            <td>81</td>
-    </tr>
-</table></div>
-</div>
-<p>Note that this function is called in exactly the same way as ordinary Python functions.</p>
-<p>If we also want to get the sum of these numbers, what we need is to write an aggregate function like this:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_aggregate</span>
-<span class="k">def</span> <span class="nf">my_sum</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">val</span>
-    <span class="k">return</span> <span class="n">result</span> <span class="o">+</span> <span class="n">val</span>
-
-
-<span class="n">numbers</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">my_sum</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]))</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<table>
-    <tr>
-            <th>my_sum</th>
-    </tr>
-    <tr>
-            <td>45</td>
-    </tr>
-</table></div>
-</div>
-</section>
+<dl>
+<dt>{</dt><dd><dl>
+<dt>“cells”: [</dt><dd><dl>
+<dt>{</dt><dd><p>“cell_type”: “markdown”,
+“metadata”: {},
+“source”: [</p>
+<blockquote>
+<div><p>“### Selecting the Database of Your Datan”,
+“n”,
+“To begin with, we need to select the database that contains the data we want:”</p>
+</div></blockquote>
+<p>]</p>
+</dd>
+</dl>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “code”,
+“execution_count”: 1,
+“metadata”: {},
+“outputs”: [],
+“source”: [</p>
+<blockquote>
+<div><p>“import greenplumpython as gpn”,
+“n”,
+“db = gp.database(host=&quot;localhost&quot;, dbname=&quot;postgres&quot;)”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “markdown”,
+“metadata”: {},
+“source”: [</p>
+<blockquote>
+<div><p>“### Accessing a Table in the Databasen”,
+“n”,
+“After selecting the database, we can access a table in the database by specifying its name:”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “code”,
+“execution_count”: 2,
+“metadata”: {},
+“outputs”: [</p>
+<blockquote>
+<div><dl>
+<dt>{</dt><dd><dl class="simple">
+<dt>“data”: {</dt><dd><p>“text/plain”: “| i || j || k <a href="#id25"><span class="problematic" id="id26">|\n===============\n|</span></a> 2 || 2 || 2 <a href="#id27"><span class="problematic" id="id28">|\n|</span></a> 3 || 3 || 3 <a href="#id29"><span class="problematic" id="id30">|\n|</span></a> 4 || 4 || 4 <a href="#id31"><span class="problematic" id="id32">|\n|</span></a> 7 || 7 || 7 <a href="#id33"><span class="problematic" id="id34">|\n|</span></a> 8 || 8 || 8 <a href="#id35"><span class="problematic" id="id36">|\n|</span></a> 5 || 5 || 5 <a href="#id37"><span class="problematic" id="id38">|\n|</span></a> 6 || 6 || 6 <a href="#id39"><span class="problematic" id="id40">|\n|</span></a> 9 || 9 || 9 <a href="#id41"><span class="problematic" id="id42">|\n|</span></a> 0 || 0 || 0 <a href="#id43"><span class="problematic" id="id44">|\n|</span></a> 1 || 1 || 1 <a href="#id1"><span class="problematic" id="id2">|</span></a>”,
+“text/html”: “&lt;table&gt;nt&lt;tr&gt;ntt&lt;th&gt;i&lt;/th&gt;ntt&lt;th&gt;j&lt;/th&gt;ntt&lt;th&gt;k&lt;/th&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;2&lt;/td&gt;ntt&lt;td&gt;2&lt;/td&gt;ntt&lt;td&gt;2&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;3&lt;/td&gt;ntt&lt;td&gt;3&lt;/td&gt;ntt&lt;td&gt;3&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;4&lt;/td&gt;ntt&lt;td&gt;4&lt;/td&gt;ntt&lt;td&gt;4&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;7&lt;/td&gt;ntt&lt;td&gt;7&lt;/td&gt;ntt&lt;td&gt;7&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;8&lt;/td&gt;ntt&lt;td&gt;8&lt;/td&gt;ntt&lt;td&gt;8&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;5&lt;/td&gt;ntt&lt;td&gt;5&lt;/td&gt;ntt&lt;td&gt;5&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;6&lt;/td&gt;ntt&lt;td&gt;6&lt;/td&gt;ntt&lt;td&gt;6&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;9&lt;/td&gt;ntt&lt;td&gt;9&lt;/td&gt;ntt&lt;td&gt;9&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;0&lt;/td&gt;ntt&lt;td&gt;0&lt;/td&gt;ntt&lt;td&gt;0&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;1&lt;/td&gt;ntt&lt;td&gt;1&lt;/td&gt;ntt&lt;td&gt;1&lt;/td&gt;nt&lt;/tr&gt;n&lt;/table&gt;”</p>
+</dd>
+</dl>
+<p>},
+“execution_count”: 2,
+“metadata”: {},
+“output_type”: “execute_result”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>],
+“source”: [</p>
+<blockquote>
+<div><p>“t = db.table(&quot;demo&quot;)n”,
+“t”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “markdown”,
+“metadata”: {},
+“source”: [</p>
+<blockquote>
+<div><p>“And of course, we can <cite>SELECT</cite> the first ordered N rows of a table, like this:”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “code”,
+“execution_count”: 3,
+“metadata”: {},
+“outputs”: [</p>
+<blockquote>
+<div><dl>
+<dt>{</dt><dd><dl class="simple">
+<dt>“data”: {</dt><dd><p>“text/plain”: “| i || j || k <a href="#id45"><span class="problematic" id="id46">|\n===============\n|</span></a> 0 || 0 || 0 <a href="#id47"><span class="problematic" id="id48">|\n|</span></a> 1 || 1 || 1 <a href="#id49"><span class="problematic" id="id50">|\n|</span></a> 2 || 2 || 2 <a href="#id51"><span class="problematic" id="id52">|\n|</span></a> 3 || 3 || 3 <a href="#id53"><span class="problematic" id="id54">|\n|</span></a> 4 || 4 || 4 <a href="#id55"><span class="problematic" id="id56">|\n|</span></a> 5 || 5 || 5 <a href="#id57"><span class="problematic" id="id58">|\n|</span></a> 6 || 6 || 6 <a href="#id59"><span class="problematic" id="id60">|\n|</span></a> 7 || 7 || 7 <a href="#id61"><span class="problematic" id="id62">|\n|</span></a> 8 || 8 || 8 <a href="#id63"><span class="problematic" id="id64">|\n|</span></a> 9 || 9 || 9 <a href="#id3"><span class="problematic" id="id4">|</span></a>”,
+“text/html”: “&lt;table&gt;nt&lt;tr&gt;ntt&lt;th&gt;i&lt;/th&gt;ntt&lt;th&gt;j&lt;/th&gt;ntt&lt;th&gt;k&lt;/th&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;0&lt;/td&gt;ntt&lt;td&gt;0&lt;/td&gt;ntt&lt;td&gt;0&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;1&lt;/td&gt;ntt&lt;td&gt;1&lt;/td&gt;ntt&lt;td&gt;1&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;2&lt;/td&gt;ntt&lt;td&gt;2&lt;/td&gt;ntt&lt;td&gt;2&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;3&lt;/td&gt;ntt&lt;td&gt;3&lt;/td&gt;ntt&lt;td&gt;3&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;4&lt;/td&gt;ntt&lt;td&gt;4&lt;/td&gt;ntt&lt;td&gt;4&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;5&lt;/td&gt;ntt&lt;td&gt;5&lt;/td&gt;ntt&lt;td&gt;5&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;6&lt;/td&gt;ntt&lt;td&gt;6&lt;/td&gt;ntt&lt;td&gt;6&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;7&lt;/td&gt;ntt&lt;td&gt;7&lt;/td&gt;ntt&lt;td&gt;7&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;8&lt;/td&gt;ntt&lt;td&gt;8&lt;/td&gt;ntt&lt;td&gt;8&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;9&lt;/td&gt;ntt&lt;td&gt;9&lt;/td&gt;ntt&lt;td&gt;9&lt;/td&gt;nt&lt;/tr&gt;n&lt;/table&gt;”</p>
+</dd>
+</dl>
+<p>},
+“execution_count”: 3,
+“metadata”: {},
+“output_type”: “execute_result”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>],
+“source”: [</p>
+<blockquote>
+<div><p>“t.order_by(&quot;i&quot;)[:10]”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “markdown”,
+“metadata”: {},
+“source”: [</p>
+<blockquote>
+<div><p>“### Basic Data Manipulationn”,
+“n”,
+“Now we have a table. We can do basic data manipulation on it, just like in SQL.n”,
+“n”,
+“For example, we can <cite>SELECT</cite> a subset of its columns:”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “code”,
+“execution_count”: 4,
+“metadata”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“pycharm”: {</dt><dd><p>“name”: “#%%n”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>},
+“outputs”: [</p>
+<blockquote>
+<div><dl>
+<dt>{</dt><dd><dl class="simple">
+<dt>“data”: {</dt><dd><p>“text/plain”: “| i || j <a href="#id65"><span class="problematic" id="id66">|\n==========\n|</span></a> 0 || 0 <a href="#id67"><span class="problematic" id="id68">|\n|</span></a> 1 || 1 <a href="#id69"><span class="problematic" id="id70">|\n|</span></a> 2 || 2 <a href="#id71"><span class="problematic" id="id72">|\n|</span></a> 3 || 3 <a href="#id73"><span class="problematic" id="id74">|\n|</span></a> 4 || 4 <a href="#id75"><span class="problematic" id="id76">|\n|</span></a> 7 || 7 <a href="#id77"><span class="problematic" id="id78">|\n|</span></a> 8 || 8 <a href="#id79"><span class="problematic" id="id80">|\n|</span></a> 5 || 5 <a href="#id81"><span class="problematic" id="id82">|\n|</span></a> 6 || 6 <a href="#id83"><span class="problematic" id="id84">|\n|</span></a> 9 || 9 <a href="#id5"><span class="problematic" id="id6">|</span></a>”,
+“text/html”: “&lt;table&gt;nt&lt;tr&gt;ntt&lt;th&gt;i&lt;/th&gt;ntt&lt;th&gt;j&lt;/th&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;0&lt;/td&gt;ntt&lt;td&gt;0&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;1&lt;/td&gt;ntt&lt;td&gt;1&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;2&lt;/td&gt;ntt&lt;td&gt;2&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;3&lt;/td&gt;ntt&lt;td&gt;3&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;4&lt;/td&gt;ntt&lt;td&gt;4&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;7&lt;/td&gt;ntt&lt;td&gt;7&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;8&lt;/td&gt;ntt&lt;td&gt;8&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;5&lt;/td&gt;ntt&lt;td&gt;5&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;6&lt;/td&gt;ntt&lt;td&gt;6&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;9&lt;/td&gt;ntt&lt;td&gt;9&lt;/td&gt;nt&lt;/tr&gt;n&lt;/table&gt;”</p>
+</dd>
+</dl>
+<p>},
+“execution_count”: 4,
+“metadata”: {},
+“output_type”: “execute_result”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>],
+“source”: [</p>
+<blockquote>
+<div><p>“t_ij = t[[&quot;i&quot;, &quot;j&quot;]]n”,
+“t_ij”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “markdown”,
+“metadata”: {},
+“source”: [</p>
+<blockquote>
+<div><p>“And we can also <cite>SELECT</cite> a subset of its rows. Say we want all the even numbers:”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “code”,
+“execution_count”: 5,
+“metadata”: {},
+“outputs”: [</p>
+<blockquote>
+<div><dl class="simple">
+<dt>{</dt><dd><p>“data”: {</p>
+</dd>
+</dl>
+</div></blockquote>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+<dt>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</dt><dd><p>“text/plain”: “| i || j <a href="#id85"><span class="problematic" id="id86">|\n==========\n|</span></a> 6 || 6 <a href="#id87"><span class="problematic" id="id88">|\n|</span></a> 2 || 2 <a href="#id89"><span class="problematic" id="id90">|\n|</span></a> 4 || 4 <a href="#id91"><span class="problematic" id="id92">|\n|</span></a> 8 || 8 <a href="#id93"><span class="problematic" id="id94">|\n|</span></a> 0 || 0 <a href="#id7"><span class="problematic" id="id8">|</span></a>”,
+“text/html”: “&lt;table&gt;nt&lt;tr&gt;ntt&lt;th&gt;i&lt;/th&gt;ntt&lt;th&gt;j&lt;/th&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;6&lt;/td&gt;ntt&lt;td&gt;6&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;2&lt;/td&gt;ntt&lt;td&gt;2&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;4&lt;/td&gt;ntt&lt;td&gt;4&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;8&lt;/td&gt;ntt&lt;td&gt;8&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;0&lt;/td&gt;ntt&lt;td&gt;0&lt;/td&gt;nt&lt;/tr&gt;n&lt;/table&gt;”</p>
+</dd>
+</dl>
+<dl>
+<dt>&gt;&gt;&gt;&gt;&gt;&gt;&gt; cf22354 (Resupport <cite>apply()</cite> function (#110))</dt><dd><blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><p>},
+“execution_count”: 5,
+“metadata”: {},
+“output_type”: “execute_result”</p>
+</div></blockquote>
+<p>}</p>
+</div></blockquote>
+<p>],
+“source”: [</p>
+<blockquote>
+<div><p>“t_even = t_ij[lambda t: t[&quot;i&quot;] % 2 == 0]n”,
+“t_even”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “markdown”,
+“metadata”: {},
+“source”: [</p>
+<blockquote>
+<div><p>“For a quick glance, we can <cite>SELECT</cite> the first unordered N rows of a table, like this:”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “code”,
+“execution_count”: 6,
+“metadata”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“pycharm”: {</dt><dd><p>“name”: “#%%n”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>},
+“outputs”: [</p>
+<blockquote>
+<div><dl>
+<dt>{</dt><dd><dl class="simple">
+<dt>“data”: {</dt><dd><p>“text/plain”: “| i || j <a href="#id95"><span class="problematic" id="id96">|\n==========\n|</span></a> 2 || 2 <a href="#id97"><span class="problematic" id="id98">|\n|</span></a> 4 || 4 <a href="#id99"><span class="problematic" id="id100">|\n|</span></a> 8 || 8 <a href="#id9"><span class="problematic" id="id10">|</span></a>”,
+“text/html”: “&lt;table&gt;nt&lt;tr&gt;ntt&lt;th&gt;i&lt;/th&gt;ntt&lt;th&gt;j&lt;/th&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;2&lt;/td&gt;ntt&lt;td&gt;2&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;4&lt;/td&gt;ntt&lt;td&gt;4&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;8&lt;/td&gt;ntt&lt;td&gt;8&lt;/td&gt;nt&lt;/tr&gt;n&lt;/table&gt;”</p>
+</dd>
+</dl>
+<p>},
+“execution_count”: 6,
+“metadata”: {},
+“output_type”: “execute_result”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>],
+“source”: [</p>
+<blockquote>
+<div><p>“t_n = t_even[:3]n”,
+“t_n”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “markdown”,
+“metadata”: {},
+“source”: [</p>
+<blockquote>
+<div><p>“Finally when we are done, we can save the resulting table to the database, either temporarily or persistently:”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “code”,
+“execution_count”: 7,
+“metadata”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“pycharm”: {</dt><dd><p>“name”: “#%%n”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>},
+“outputs”: [</p>
+<blockquote>
+<div><dl>
+<dt>{</dt><dd><dl class="simple">
+<dt>“data”: {</dt><dd><p>“text/plain”: “| i || j <a href="#id101"><span class="problematic" id="id102">|\n==========\n|</span></a> 6 || 6 <a href="#id103"><span class="problematic" id="id104">|\n|</span></a> 2 || 2 <a href="#id105"><span class="problematic" id="id106">|\n|</span></a> 4 || 4 <a href="#id11"><span class="problematic" id="id12">|</span></a>”,
+“text/html”: “&lt;table&gt;nt&lt;tr&gt;ntt&lt;th&gt;i&lt;/th&gt;ntt&lt;th&gt;j&lt;/th&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;6&lt;/td&gt;ntt&lt;td&gt;6&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;2&lt;/td&gt;ntt&lt;td&gt;2&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;4&lt;/td&gt;ntt&lt;td&gt;4&lt;/td&gt;nt&lt;/tr&gt;n&lt;/table&gt;”</p>
+</dd>
+</dl>
+<p>},
+“execution_count”: 7,
+“metadata”: {},
+“output_type”: “execute_result”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>],
+“source”: [</p>
+<blockquote>
+<div><p>“t_n.save_as(table_name=&quot;t_n&quot;, temp=True)”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “markdown”,
+“metadata”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“pycharm”: {</dt><dd><p>“name”: “#%% mdn”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>},
+“source”: [</p>
+<blockquote>
+<div><p>“### <cite>JOIN</cite>-ing Two Tablesn”,
+“n”,
+“We can also <cite>JOIN</cite> two tables with GreenplumPython. For example, suppose we have two tables like this:”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “code”,
+“execution_count”: 8,
+“metadata”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“pycharm”: {</dt><dd><p>“name”: “#%%n”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>},
+“outputs”: [</p>
+<blockquote>
+<div><dl>
+<dt>{</dt><dd><dl class="simple">
+<dt>“data”: {</dt><dd><p>“text/plain”: “| id || val <a href="#id107"><span class="problematic" id="id108">|\n=============\n|</span></a>  1 || ‘a’ <a href="#id109"><span class="problematic" id="id110">|\n|</span></a>  2 || ‘b’ <a href="#id111"><span class="problematic" id="id112">|\n|</span></a>  3 || ‘c’ <a href="#id113"><span class="problematic" id="id114">|\n|</span></a>  4 || ‘d’ <a href="#id13"><span class="problematic" id="id14">|</span></a>”,
+“text/html”: “&lt;table&gt;nt&lt;tr&gt;ntt&lt;th&gt;id&lt;/th&gt;ntt&lt;th&gt;val&lt;/th&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;1&lt;/td&gt;ntt&lt;td&gt;’a’&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;2&lt;/td&gt;ntt&lt;td&gt;’b’&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;3&lt;/td&gt;ntt&lt;td&gt;’c’&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;4&lt;/td&gt;ntt&lt;td&gt;’d’&lt;/td&gt;nt&lt;/tr&gt;n&lt;/table&gt;”</p>
+</dd>
+</dl>
+<p>},
+“execution_count”: 8,
+“metadata”: {},
+“output_type”: “execute_result”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>],
+“source”: [</p>
+<blockquote>
+<div><p>“rows = [n”,
+”    (n”,
+”        1,n”,
+”        &quot;’a’&quot;,n”,
+”    ),n”,
+”    (n”,
+”        2,n”,
+”        &quot;’b’&quot;,n”,
+”    ),n”,
+”    (n”,
+”        3,n”,
+”        &quot;’c’&quot;,n”,
+”    ),n”,
+”    (4, &quot;’d’&quot;),n”,
+“]n”,
+“t1 = gp.to_table(rows, db=db, column_names=[&quot;id, val&quot;])n”,
+“t1”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “code”,
+“execution_count”: 9,
+“metadata”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“pycharm”: {</dt><dd><p>“name”: “#%%n”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>},
+“outputs”: [</p>
+<blockquote>
+<div><dl>
+<dt>{</dt><dd><dl class="simple">
+<dt>“data”: {</dt><dd><p>“text/plain”: “| id || val <a href="#id115"><span class="problematic" id="id116">|\n=============\n|</span></a>  1 || ‘a’ <a href="#id117"><span class="problematic" id="id118">|\n|</span></a>  2 || ‘b’ <a href="#id119"><span class="problematic" id="id120">|\n|</span></a>  3 || ‘a’ <a href="#id121"><span class="problematic" id="id122">|\n|</span></a>  4 || ‘b’ <a href="#id15"><span class="problematic" id="id16">|</span></a>”,
+“text/html”: “&lt;table&gt;nt&lt;tr&gt;ntt&lt;th&gt;id&lt;/th&gt;ntt&lt;th&gt;val&lt;/th&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;1&lt;/td&gt;ntt&lt;td&gt;’a’&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;2&lt;/td&gt;ntt&lt;td&gt;’b’&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;3&lt;/td&gt;ntt&lt;td&gt;’a’&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;4&lt;/td&gt;ntt&lt;td&gt;’b’&lt;/td&gt;nt&lt;/tr&gt;n&lt;/table&gt;”</p>
+</dd>
+</dl>
+<p>},
+“execution_count”: 9,
+“metadata”: {},
+“output_type”: “execute_result”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>],
+“source”: [</p>
+<blockquote>
+<div><p>“rows = [n”,
+”    (n”,
+”        1,n”,
+”        &quot;’a’&quot;,n”,
+”    ),n”,
+”    (n”,
+”        2,n”,
+”        &quot;’b’&quot;,n”,
+”    ),n”,
+”    (n”,
+”        3,n”,
+”        &quot;’a’&quot;,n”,
+”    ),n”,
+”    (4, &quot;’b’&quot;),n”,
+“]n”,
+“t2 = gp.to_table(rows, db=db, column_names=[&quot;id, val&quot;])n”,
+“t2”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “markdown”,
+“metadata”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“pycharm”: {</dt><dd><p>“name”: “#%% mdn”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>},
+“source”: [</p>
+<blockquote>
+<div><p>“We can <cite>JOIN</cite> the two table like this:”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “code”,
+“execution_count”: 10,
+“metadata”: {},
+“outputs”: [</p>
+<blockquote>
+<div><dl>
+<dt>{</dt><dd><dl class="simple">
+<dt>“data”: {</dt><dd><p>“text/plain”: “| t1_id || t1_val || t2_id || t2_val <a href="#id123"><span class="problematic" id="id124">|\n======================================\n|</span></a>     1 || ‘a’    ||     3 || ‘a’    <a href="#id125"><span class="problematic" id="id126">|\n|</span></a>     1 || ‘a’    ||     1 || ‘a’    <a href="#id127"><span class="problematic" id="id128">|\n|</span></a>     2 || ‘b’    ||     4 || ‘b’    <a href="#id129"><span class="problematic" id="id130">|\n|</span></a>     2 || ‘b’    ||     2 || ‘b’    <a href="#id17"><span class="problematic" id="id18">|</span></a>”,
+“text/html”: “&lt;table&gt;nt&lt;tr&gt;ntt&lt;th&gt;t1_id&lt;/th&gt;ntt&lt;th&gt;t1_val&lt;/th&gt;ntt&lt;th&gt;t2_id&lt;/th&gt;ntt&lt;th&gt;t2_val&lt;/th&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;1&lt;/td&gt;ntt&lt;td&gt;’a’&lt;/td&gt;ntt&lt;td&gt;3&lt;/td&gt;ntt&lt;td&gt;’a’&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;1&lt;/td&gt;ntt&lt;td&gt;’a’&lt;/td&gt;ntt&lt;td&gt;1&lt;/td&gt;ntt&lt;td&gt;’a’&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;2&lt;/td&gt;ntt&lt;td&gt;’b’&lt;/td&gt;ntt&lt;td&gt;4&lt;/td&gt;ntt&lt;td&gt;’b’&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;2&lt;/td&gt;ntt&lt;td&gt;’b’&lt;/td&gt;ntt&lt;td&gt;2&lt;/td&gt;ntt&lt;td&gt;’b’&lt;/td&gt;nt&lt;/tr&gt;n&lt;/table&gt;”</p>
+</dd>
+</dl>
+<p>},
+“execution_count”: 10,
+“metadata”: {},
+“output_type”: “execute_result”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>],
+“source”: [</p>
+<blockquote>
+<div><p>“t_join = t1.join(n”,
+”    t2,n”,
+”    using=[&quot;val&quot;],n”,
+”    self_columns = {n”,
+”        &quot;id&quot;: &quot;t1_id&quot;,n”,
+”        &quot;val&quot;: &quot;t1_val&quot;n”,
+”    },n”,
+”    other_columns = {n”,
+”        &quot;id&quot;: &quot;t2_id&quot;,n”,
+”        &quot;val&quot;: &quot;t2_val&quot;n”,
+”    }n”,
+“)n”,
+“t_join”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “markdown”,
+“metadata”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“pycharm”: {</dt><dd><p>“name”: “#%% mdn”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>},
+“source”: [</p>
+<blockquote>
+<div><p>“### Creating and Calling Functionsn”,
+“n”,
+“Calling functions is essential for data analytics. GreenplumPython supports creating Greenplum UDFs and UDAs from Python functions and calling them in Python.n”,
+“n”,
+“Suppose we have a table of numbers:”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “code”,
+“execution_count”: 11,
+“metadata”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“pycharm”: {</dt><dd><p>“name”: “#%%n”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>},
+“outputs”: [</p>
+<blockquote>
+<div><dl>
+<dt>{</dt><dd><dl class="simple">
+<dt>“data”: {</dt><dd><p>“text/plain”: “| val <a href="#id131"><span class="problematic" id="id132">|\n=======\n|</span></a>   0 <a href="#id133"><span class="problematic" id="id134">|\n|</span></a>   1 <a href="#id135"><span class="problematic" id="id136">|\n|</span></a>   2 <a href="#id137"><span class="problematic" id="id138">|\n|</span></a>   3 <a href="#id139"><span class="problematic" id="id140">|\n|</span></a>   4 <a href="#id141"><span class="problematic" id="id142">|\n|</span></a>   5 <a href="#id143"><span class="problematic" id="id144">|\n|</span></a>   6 <a href="#id145"><span class="problematic" id="id146">|\n|</span></a>   7 <a href="#id147"><span class="problematic" id="id148">|\n|</span></a>   8 <a href="#id149"><span class="problematic" id="id150">|\n|</span></a>   9 <a href="#id19"><span class="problematic" id="id20">|</span></a>”,
+“text/html”: “&lt;table&gt;nt&lt;tr&gt;ntt&lt;th&gt;val&lt;/th&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;0&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;1&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;2&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;3&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;4&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;5&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;6&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;7&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;8&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;9&lt;/td&gt;nt&lt;/tr&gt;n&lt;/table&gt;”</p>
+</dd>
+</dl>
+<p>},
+“execution_count”: 11,
+“metadata”: {},
+“output_type”: “execute_result”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>],
+“source”: [</p>
+<blockquote>
+<div><p>“rows = [(i,) for i in range(10)]n”,
+“numbers = gp.to_table(rows, db=db, column_names=[&quot;val&quot;])n”,
+“numbers”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “markdown”,
+“metadata”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“pycharm”: {</dt><dd><p>“name”: “#%% mdn”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>},
+“source”: [</p>
+<blockquote>
+<div><p>“If we want to get the square of each number, we can write a function to do that:”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “code”,
+“execution_count”: 12,
+“metadata”: {},
+“outputs”: [</p>
+<blockquote>
+<div><dl>
+<dt>{</dt><dd><dl class="simple">
+<dt>“data”: {</dt><dd><p>“text/plain”: “| square <a href="#id151"><span class="problematic" id="id152">|\n==========\n|</span></a>      0 <a href="#id153"><span class="problematic" id="id154">|\n|</span></a>      1 <a href="#id155"><span class="problematic" id="id156">|\n|</span></a>      4 <a href="#id157"><span class="problematic" id="id158">|\n|</span></a>      9 <a href="#id159"><span class="problematic" id="id160">|\n|</span></a>     16 <a href="#id161"><span class="problematic" id="id162">|\n|</span></a>     25 <a href="#id163"><span class="problematic" id="id164">|\n|</span></a>     36 <a href="#id165"><span class="problematic" id="id166">|\n|</span></a>     49 <a href="#id167"><span class="problematic" id="id168">|\n|</span></a>     64 <a href="#id169"><span class="problematic" id="id170">|\n|</span></a>     81 <a href="#id21"><span class="problematic" id="id22">|</span></a>”,
+“text/html”: “&lt;table&gt;nt&lt;tr&gt;ntt&lt;th&gt;square&lt;/th&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;0&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;1&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;4&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;9&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;16&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;25&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;36&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;49&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;64&lt;/td&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;81&lt;/td&gt;nt&lt;/tr&gt;n&lt;/table&gt;”</p>
+</dd>
+</dl>
+<p>},
+“execution_count”: 12,
+“metadata”: {},
+“output_type”: “execute_result”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>],
+“source”: [</p>
+<blockquote>
+<div><p>“&#64;gp.create_functionn”,
+“def square(a: int) -&gt; int:n”,
+”    return a**2n”,
+“n”,
+“n”,
+“numbers.apply(lambda t: square(t[&quot;val&quot;]))”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “markdown”,
+“metadata”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“pycharm”: {</dt><dd><p>“name”: “#%% mdn”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>},
+“source”: [</p>
+<blockquote>
+<div><p>“Note that this function is called in exactly the same way as ordinary Python functions.n”,
+“n”,
+“If we also want to get the sum of these numbers, what we need is to write an aggregate function like this:”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “code”,
+“execution_count”: 13,
+“metadata”: {},
+“outputs”: [</p>
+<blockquote>
+<div><dl>
+<dt>{</dt><dd><dl class="simple">
+<dt>“data”: {</dt><dd><p>“text/plain”: “| my_sum <a href="#id171"><span class="problematic" id="id172">|\n==========\n|</span></a>     45 <a href="#id23"><span class="problematic" id="id24">|</span></a>”,
+“text/html”: “&lt;table&gt;nt&lt;tr&gt;ntt&lt;th&gt;my_sum&lt;/th&gt;nt&lt;/tr&gt;nt&lt;tr&gt;ntt&lt;td&gt;45&lt;/td&gt;nt&lt;/tr&gt;n&lt;/table&gt;”</p>
+</dd>
+</dl>
+<p>},
+“execution_count”: 13,
+“metadata”: {},
+“output_type”: “execute_result”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>],
+“source”: [</p>
+<blockquote>
+<div><p>“&#64;gp.create_aggregaten”,
+“def my_sum(result: int, val: int) -&gt; int:n”,
+”    if result is None:n”,
+”        return valn”,
+”    return result + valn”,
+“n”,
+“n”,
+“numbers.apply(lambda t: my_sum(t[&quot;val&quot;]))”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>}</p>
+</div></blockquote>
+<p>],
+“metadata”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“jupytext”: {</dt><dd><p>“formats”: “ipynb,md”</p>
+</dd>
+</dl>
+<p>},
+“kernelspec”: {</p>
+<blockquote>
+<div><p>“display_name”: “Python 3 (ipykernel)”,
+“language”: “python”,
+“name”: “python3”</p>
+</div></blockquote>
+<p>},
+“language_info”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“codemirror_mode”: {</dt><dd><p>“name”: “ipython”,
+“version”: 3</p>
+</dd>
+</dl>
+<p>},
+“file_extension”: “.py”,
+“mimetype”: “text/x-python”,
+“name”: “python”,
+“nbconvert_exporter”: “python”,
+“pygments_lexer”: “ipython3”,
+“version”: “3.9.5”</p>
+</div></blockquote>
+<p>}</p>
+</div></blockquote>
+<p>},
+“nbformat”: 4,
+“nbformat_minor”: 1</p>
+</dd>
+</dl>
+<p>}</p>
 
 
            </div>
