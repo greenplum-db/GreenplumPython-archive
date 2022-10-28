@@ -79,3 +79,12 @@ def test_group_union(db: gp.Database):
             or (row["is_even"] is None and row["is_multiple_of_3"] and row["count"] == 2)
             or (row["is_even"] is None and not row["is_multiple_of_3"] and row["count"] == 4)
         )
+
+
+def test_group_empty_assign_empty(db: gp.Database):
+    rows = [(i,) for i in range(10)]
+    t = gp.to_table(rows, db=db, column_names=["i"])
+    results = list(t.group_by().assign())
+    # NOTE: len(results) == 1 on PostgreSQL, while == 10 on Greenplum
+    for row in results:
+        assert len(row) == 0

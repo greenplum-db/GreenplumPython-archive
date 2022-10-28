@@ -13,7 +13,7 @@ from greenplumpython.db import Database
 from greenplumpython.expr import Expr
 from greenplumpython.group import TableGroupingSets
 from greenplumpython.table import Table
-from greenplumpython.type import primitive_type_map, to_pg_const, to_pg_type
+from greenplumpython.type import to_pg_const, to_pg_type
 
 
 class FunctionExpr(Expr):
@@ -31,6 +31,7 @@ class FunctionExpr(Expr):
         group_by: Optional[TableGroupingSets] = None,
         table: Optional[Table] = None,
         db: Optional[Database] = None,
+        distinct: bool = False,
     ) -> None:
         if table is None and group_by is not None:
             table = group_by.table
@@ -44,6 +45,7 @@ class FunctionExpr(Expr):
         self._func = func
         self._args = args
         self._group_by = group_by
+        self._distinct = distinct
 
     def bind(
         self,
@@ -57,10 +59,12 @@ class FunctionExpr(Expr):
             group_by=group_by,
             table=table,
             db=db if db is not None else self._db,
+            distinct=self._distinct,
         )
 
     def serialize(self) -> str:
         self.function.create_in_db(self._db)
+        distinct = "DISTINCT" if self._distinct else ""
         args_string = (
             ",".join(
                 [
@@ -72,7 +76,7 @@ class FunctionExpr(Expr):
             if any(self._args)
             else ""
         )
-        return f"{self._func.qualified_name}({args_string})"
+        return f"{self._func.qualified_name}({distinct} {args_string})"
 
     @property
     def function(self) -> "_AbstractFunction":
@@ -292,13 +296,24 @@ class AggregateFunction(_AbstractFunction):
             )
             self._created_in_dbs.add(db)
 
-    def __call__(
-        self,
-        *args: Any,
-        group_by: Optional[TableGroupingSets] = None,
-        db: Optional[Database] = None,
-    ) -> FunctionExpr:
-        return FunctionExpr(self, args, db=db, group_by=group_by)
+    def distinct(self, *args: Any) -> FunctionExpr:
+        """
+        Apply the current aggregate function to only each distinct set of the
+        arguments.
+
+        For example, `count.distinct(t['a'])` means applying the
+        `count()` function to each distinct value of :class:`Column` `t['a']`.
+
+        Args:
+            args: Argument of the aggregate function.
+
+        Returns:
+            FunctionExpr: An expression represents the function call.
+        """
+        return FunctionExpr(self, args, distinct=True)
+
+    def __call__(self, *args: Any) -> FunctionExpr:
+        return FunctionExpr(self, args)
 
 
 def aggregate_function(name: str, schema: Optional[str] = None) -> AggregateFunction:
@@ -392,13 +407,8 @@ def create_aggregate(
 
 
 class ArrayFunction(NormalFunction):
-    def __call__(
-        self,
-        *args: Any,
-        group_by: Optional[TableGroupingSets] = None,
-        db: Optional[Database] = None,
-    ) -> ArrayFunctionExpr:
-        return ArrayFunctionExpr(self, args=args, group_by=group_by, db=db)
+    def __call__(self, *args: Any) -> ArrayFunctionExpr:
+        return ArrayFunctionExpr(self, args=args)
 
 
 # FIXME: Add test cases for optional parameters
@@ -426,11 +436,7 @@ def create_array_function(
 
                 rows = [(1, i % 2 == 0) for i in range(10)]
                 numbers = gp.to_table(rows, db=db, column_names=["val", "is_even"])
-                results = list(
-                    my_sum(numbers["val"], group_by=numbers.group_by("is_even"))
-                    .rename=("result")
-
-                )
+                results = numbers.group_by("is_even").assign(result=lambda t: my_sum(t["val]))
     """
     # If user needs extra parameters when creating a function
     if wrapped_func is None:

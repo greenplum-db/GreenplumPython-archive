@@ -632,6 +632,20 @@ class Table:
         #    |------------------------- to_table() ---------------|
         return TableGroupingSets(self, [column_names])
 
+    def distinct_on(self, *column_names: str) -> "Table":
+        """
+        Deduplicate the current :class:`Table` with respect to the given columns.
+
+        Args:
+            column_names: name of column of the current :class:`Table`.
+
+        Returns:
+            :class:`Table`: Table containing only the distinct values of the
+                            given columns.
+        """
+        cols = [Column(name, self).serialize() for name in column_names]
+        return Table(f"SELECT DISTINCT ON ({','.join(cols)}) * FROM {self.name}", parents=[self])
+
 
 # table_name can be table/view name
 def table(name: str, db: db.Database) -> Table:
