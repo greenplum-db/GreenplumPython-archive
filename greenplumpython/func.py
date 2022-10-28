@@ -33,7 +33,6 @@ class FunctionExpr(Expr):
         db: Optional[Database] = None,
         distinct: bool = False,
         expand: Optional[bool] = None,
-        as_name: Optional[str] = None,
     ) -> None:
         if table is None and group_by is not None:
             table = group_by.table
@@ -49,7 +48,6 @@ class FunctionExpr(Expr):
         self._group_by = group_by
         self._distinct = distinct
         self._expand = expand
-        self._as_name = as_name
 
     def bind(
         self,
@@ -57,7 +55,6 @@ class FunctionExpr(Expr):
         table: Optional[Table] = None,
         db: Optional[Database] = None,
         expand: Optional[bool] = None,
-        as_name: Optional[str] = None,
     ):
         return FunctionExpr(
             self._func,
@@ -67,7 +64,6 @@ class FunctionExpr(Expr):
             db=db if db is not None else self._db,
             distinct=self._distinct,
             expand=expand if expand is not None else self._expand,
-            as_name=as_name if as_name is not None else self._as_name,
         )
 
     def serialize(self) -> str:
@@ -86,7 +82,7 @@ class FunctionExpr(Expr):
         )
         return f"{self._func.qualified_name}({distinct} {args_string})"
 
-    def apply(self) -> Table:
+    def apply(self, as_name: Optional[str] = None) -> Table:
         """
         :meta private:
         Returns the result table of the self function applied on args, with potential GROUP BY if
@@ -95,8 +91,8 @@ class FunctionExpr(Expr):
         self.function.create_in_db(self._db)
         from_clause = f"FROM {self.table.name}" if self.table is not None else ""
         group_by_clause = self._group_by.clause() if self._group_by is not None else ""
-        if self._expand and self._as_name is None:
-            self._as_name = "func_" + uuid4().hex
+        if self._expand and as_name is None:
+            as_name = "func_" + uuid4().hex
         parents = [self.table] if self.table is not None else []
         grouping_col_names = self._group_by.flatten() if self._group_by is not None else None
         # FIXME: The names of GROUP BY exprs can collide with names of fields in
@@ -111,7 +107,7 @@ class FunctionExpr(Expr):
         orig_func_table = Table(
             " ".join(
                 [
-                    f"SELECT {str(self)} {'AS ' + self._as_name if self._as_name is not None else ''}",
+                    f"SELECT {str(self)} {'AS ' + as_name if as_name is not None else ''}",
                     ("," + ",".join(grouping_cols)) if (grouping_cols is not None) else "",
                     from_clause,
                     group_by_clause,
@@ -141,11 +137,11 @@ class FunctionExpr(Expr):
         results = (
             "*"
             if not self._expand
-            else f"({self._as_name}).*"
+            else f"({as_name}).*"
             if rebased_grouping_cols is None or len(rebased_grouping_cols) == 0
             else f"({orig_func_table.name}).*"
             if not self._expand
-            else f"{','.join(rebased_grouping_cols)}, ({self._as_name}).*"
+            else f"{','.join(rebased_grouping_cols)}, ({as_name}).*"
         )
 
         return Table(
@@ -198,7 +194,6 @@ class ArrayFunctionExpr(FunctionExpr):
         table: Optional[Table] = None,
         db: Optional[Database] = None,
         expand: Optional[bool] = None,
-        as_name: Optional[str] = None,
     ):
         return ArrayFunctionExpr(
             self._func,
@@ -207,7 +202,6 @@ class ArrayFunctionExpr(FunctionExpr):
             table=table,
             db=db if db is not None else self._db,
             expand=expand if expand is not None else self._expand,
-            as_name=as_name if as_name is not None else self._as_name,
         )
 
 

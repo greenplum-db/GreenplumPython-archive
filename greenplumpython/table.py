@@ -281,7 +281,7 @@ class Table:
         #
         # To fix this, we need to pass the table to the resulting FunctionExpr
         # explicitly.
-        return func(self).bind(table=self, expand=expand, as_name=as_name).apply()
+        return func(self).bind(table=self, expand=expand).apply(as_name=as_name)
 
     def assign(self, **new_columns: Callable[["Table"], Any]) -> "Table":
         """
