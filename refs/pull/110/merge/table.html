@@ -455,6 +455,27 @@ by a different set of values of the columns in the arguments.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="table.Table.distinct_on">
+<span class="sig-name descname"><span class="pre">distinct_on</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">column_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></span><a class="headerlink" href="#table.Table.distinct_on" title="Permalink to this definition"></a></dt>
+<dd><p>Deduplicate the current <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> with respect to the given columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>column_names</strong> – name of column of the current <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Table containing only the distinct values of the</dt><dd><p>given columns.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
