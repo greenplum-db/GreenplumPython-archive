@@ -1,12 +1,22 @@
 """
 This module creates a Python object TableRowGroup for group by table.
 """
-from typing import TYPE_CHECKING, Any, Callable, Iterable, List, MutableSet, Set
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterable,
+    List,
+    MutableSet,
+    Optional,
+    Set,
+)
 
 from greenplumpython.expr import Expr
 from greenplumpython.type import to_pg_const
 
 if TYPE_CHECKING:
+    from greenplumpython.func import FunctionExpr
     from greenplumpython.table import Table
 
 
@@ -19,6 +29,26 @@ class TableGroupingSets:
     def __init__(self, table: "Table", grouping_sets: List[Iterable["Expr"]]) -> None:
         self._table = table
         self._grouping_sets = grouping_sets
+
+    def apply(
+        self,
+        func: Callable[["Table"], "FunctionExpr"],
+        expand: bool = False,
+        as_name: Optional[str] = None,
+    ) -> "Table":
+        """
+        Apply a function to the grouping set.
+        Args:
+            func: An aggregate function to be applied to
+            expand: bool: expand field of composite returning type
+            as_name: str: rename returning column
+        Returns:
+            Table: resulted Table
+        Example:
+            .. code-block::  python
+                numbers.group_by("is_even").apply(lambda row: count(row["*"]))
+        """
+        return func(self._table).bind(group_by=self).apply(expand=expand, as_name=as_name)
 
     def assign(self, **new_columns: Callable[["Table"], Any]) -> "Table":
         """
@@ -43,15 +73,12 @@ class TableGroupingSets:
         """
         from greenplumpython.table import Table
 
-        if len(new_columns) == 0:
-            return self
-        targets: List[str] = []
+        targets: List[str] = list(self.flatten())
         for k, f in new_columns.items():
             v: Any = f(self.table).bind(group_by=self)
             if isinstance(v, Expr) and not (v.table is None or v.table == self.table):
                 raise Exception("Newly included columns must be based on the current table")
             targets.append(f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)} AS {k}")
-        targets += list(self.flatten())
         return Table(
             f"SELECT {','.join(targets)} FROM {self.table.name} {self.clause()}",
             parents=[self.table],

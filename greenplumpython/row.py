@@ -24,6 +24,9 @@ class Row:
     def __iter__(self):
         return iter(self._contents)
 
+    def __len__(self):
+        return len(self._contents)
+
     def column_names(self) -> List[str]:
         """
         Return list of column names of row

@@ -66,7 +66,7 @@ def test_table_display_repr(db: gp.Database):
         "|  3 || Wolf   |\n"
         "|  4 || Fox    |\n"
     )
-    assert str(t.order_by("id").head(4)) == expected
+    assert str(t.order_by("id")[:]) == expected
 
 
 def test_table_display_repr_long_content(db: gp.Database):
@@ -82,7 +82,7 @@ def test_table_display_repr_long_content(db: gp.Database):
         "|                    3 || Wolf             |\n"
         "|                    4 || Fox              |\n"
     )
-    assert str(t.order_by("iddddddddddddddddddd").head(4)) == expected
+    assert str(t.order_by("iddddddddddddddddddd")[:]) == expected
 
 
 def test_table_display_repr_html(db: gp.Database):
@@ -114,7 +114,7 @@ def test_table_display_repr_html(db: gp.Database):
         "\t</tr>\n"
         "</table>"
     )
-    assert (t.order_by("id").head(4)._repr_html_()) == expected
+    assert (t.order_by("id")[:]._repr_html_()) == expected
 
 
 def test_table_display_repr_empty_result(db: gp.Database):
@@ -245,3 +245,18 @@ def test_table_refresh_add_columns(db: gp.Database):
     t.refresh()
     for row in t:
         assert row["num_copy"] is not None and row["num_copy"] == row["num"]
+
+
+def test_table_distinct(db: gp.Database):
+    rows = [(i, 1) for i in range(10)]
+    t = gp.to_table(rows, db=db, column_names=["i", "j"])
+
+    result = list(t.distinct_on("i", "j"))
+    assert len(result) == len(rows)
+    for row in result:
+        assert "i" in row and "j" in row
+
+    result = list(t.distinct_on("j"))
+    assert len(result) == 1
+    for row in result:
+        assert "i" in row and "j" in row

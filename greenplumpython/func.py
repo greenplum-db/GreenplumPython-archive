@@ -13,7 +13,7 @@ from greenplumpython.db import Database
 from greenplumpython.expr import Expr
 from greenplumpython.group import TableGroupingSets
 from greenplumpython.table import Table
-from greenplumpython.type import primitive_type_map, to_pg_const, to_pg_type
+from greenplumpython.type import to_pg_const, to_pg_type
 
 
 class FunctionExpr(Expr):
@@ -31,6 +31,7 @@ class FunctionExpr(Expr):
         group_by: Optional[TableGroupingSets] = None,
         table: Optional[Table] = None,
         db: Optional[Database] = None,
+        distinct: bool = False,
     ) -> None:
         if table is None and group_by is not None:
             table = group_by.table
@@ -44,6 +45,7 @@ class FunctionExpr(Expr):
         self._func = func
         self._args = args
         self._group_by = group_by
+        self._distinct = distinct
 
     def bind(
         self,
@@ -58,11 +60,13 @@ class FunctionExpr(Expr):
             group_by=group_by,
             table=table,
             db=db if db is not None else self._db,
+            distinct=self._distinct,
         )
 
     def serialize(self) -> str:
         """:meta private:"""
         self.function.create_in_db(self._db)
+        distinct = "DISTINCT" if self._distinct else ""
         args_string = (
             ",".join(
                 [
@@ -74,7 +78,75 @@ class FunctionExpr(Expr):
             if any(self._args)
             else ""
         )
-        return f"{self._func.qualified_name}({args_string})"
+        return f"{self._func.qualified_name}({distinct} {args_string})"
+
+    def apply(self, expand: Optional[bool] = None, as_name: Optional[str] = None) -> Table:
+        """
+        :meta private:
+        Returns the result table of the self function applied on args, with potential GROUP BY if
+        it is an Aggregation function.
+        """
+        self.function.create_in_db(self._db)
+        from_clause = f"FROM {self.table.name}" if self.table is not None else ""
+        group_by_clause = self._group_by.clause() if self._group_by is not None else ""
+        if expand and as_name is None:
+            as_name = "func_" + uuid4().hex
+        parents = [self.table] if self.table is not None else []
+        grouping_col_names = self._group_by.flatten() if self._group_by is not None else None
+        # FIXME: The names of GROUP BY exprs can collide with names of fields in
+        # the comosite type, making the column names of the resulting table not
+        # unique. This can be mitigated after we implement table column
+        # inference by raising an error when the function gets called.
+        grouping_cols = (
+            [Column(name, self._table).serialize() for name in grouping_col_names]
+            if grouping_col_names is not None and len(grouping_col_names) != 0
+            else None
+        )
+        orig_func_table = Table(
+            " ".join(
+                [
+                    f"SELECT {str(self)} {'AS ' + as_name if as_name is not None else ''}",
+                    ("," + ",".join(grouping_cols)) if (grouping_cols is not None) else "",
+                    from_clause,
+                    group_by_clause,
+                ]
+            ),
+            db=self._db,
+            parents=parents,
+        )
+        # We use 2 `Table`s here because on GPDB 6X and PostgreSQL <= 9.6, a
+        # function returning records that contains more than one attributes
+        # will be called multiple times if we do
+        # ```sql
+        # SELECT (func(a, b)).* FROM t;
+        # ```
+        # which might cause performance issue. To workaround we need to do
+        # ```sql
+        # WITH func_call AS (
+        #     SELECT func(a, b) AS result FROM t
+        # )
+        # SELECT (result).* FROM func_call;
+        # ```
+        rebased_grouping_cols = (
+            [Column(name, orig_func_table).serialize() for name in grouping_col_names]
+            if grouping_col_names is not None
+            else None
+        )
+        results = (
+            "*"
+            if not expand
+            else f"({as_name}).*"
+            if rebased_grouping_cols is None or len(rebased_grouping_cols) == 0
+            else f"({orig_func_table.name}).*"
+            if not expand
+            else f"{','.join(rebased_grouping_cols)}, ({as_name}).*"
+        )
+
+        return Table(
+            f"SELECT {str(results)} FROM {orig_func_table.name}",
+            db=self._db,
+            parents=[orig_func_table],
+        )
 
     @property
     def function(self) -> "_AbstractFunction":
@@ -313,14 +385,24 @@ class AggregateFunction(_AbstractFunction):
             )
             self._created_in_dbs.add(db)
 
-    def __call__(
-        self,
-        *args: Any,
-        group_by: Optional[TableGroupingSets] = None,
-        db: Optional[Database] = None,
-    ) -> FunctionExpr:
-        """:meta private:"""
-        return FunctionExpr(self, args, db=db, group_by=group_by)
+    def distinct(self, *args: Any) -> FunctionExpr:
+        """
+        Apply the current aggregate function to only each distinct set of the
+        arguments.
+
+        For example, `count.distinct(t['a'])` means applying the
+        `count()` function to each distinct value of :class:`Column` `t['a']`.
+
+        Args:
+            args: Argument of the aggregate function.
+
+        Returns:
+            FunctionExpr: An expression represents the function call.
+        """
+        return FunctionExpr(self, args, distinct=True)
+
+    def __call__(self, *args: Any) -> FunctionExpr:
+        return FunctionExpr(self, args)
 
 
 def aggregate_function(name: str, schema: Optional[str] = None) -> AggregateFunction:
@@ -414,19 +496,8 @@ def create_aggregate(
 
 
 class ArrayFunction(NormalFunction):
-    """
-    Inherited from :class:`NormalFunction`.
-
-    Specialized for array functions.
-    """
-
-    def __call__(
-        self,
-        *args: Any,
-        group_by: Optional[TableGroupingSets] = None,
-        db: Optional[Database] = None,
-    ) -> ArrayFunctionExpr:
-        return ArrayFunctionExpr(self, args=args, group_by=group_by, db=db)
+    def __call__(self, *args: Any) -> ArrayFunctionExpr:
+        return ArrayFunctionExpr(self, args=args)
 
 
 # FIXME: Add test cases for optional parameters
@@ -453,8 +524,8 @@ def create_array_function(
                     return sum(val_list)
 
                 rows = [(1, i % 2 == 0) for i in range(10)]
-                numbers = gp.to_table(rows, db=db, column_names=["val"])
-                results = numbers.group_by().assign(result=lambda t: my_sum_array(t["val"]))
+                numbers = gp.to_table(rows, db=db, column_names=["val", "is_even"])
+                results = numbers.group_by("is_even").assign(result=lambda t: my_sum(t["val]))
     """
     # If user needs extra parameters when creating a function
     if wrapped_func is None:
