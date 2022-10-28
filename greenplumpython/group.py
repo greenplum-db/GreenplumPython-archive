@@ -48,7 +48,7 @@ class TableGroupingSets:
             .. code-block::  python
                 numbers.group_by("is_even").apply(lambda row: count(row["*"]))
         """
-        return func(self._table).bind(group_by=self, expand=expand).apply(as_name=as_name)
+        return func(self._table).bind(group_by=self).apply(expand=expand, as_name=as_name)
 
     def assign(self, **new_columns: Callable[["Table"], Any]) -> "Table":
         """

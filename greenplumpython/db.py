@@ -104,7 +104,7 @@ class Database:
             .. code-block::  python
                 db.apply(lambda row: add(1, 2))
         """
-        return func().bind(db=self, expand=expand).apply(as_name=as_name)
+        return func().bind(db=self).apply(expand=expand, as_name=as_name)
 
     def assign(self, **new_columns: Callable[[], Any]) -> "Table":
         from greenplumpython.expr import Expr

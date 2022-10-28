@@ -32,7 +32,6 @@ class FunctionExpr(Expr):
         table: Optional[Table] = None,
         db: Optional[Database] = None,
         distinct: bool = False,
-        expand: Optional[bool] = None,
     ) -> None:
         if table is None and group_by is not None:
             table = group_by.table
@@ -47,14 +46,12 @@ class FunctionExpr(Expr):
         self._args = args
         self._group_by = group_by
         self._distinct = distinct
-        self._expand = expand
 
     def bind(
         self,
         group_by: Optional[TableGroupingSets] = None,
         table: Optional[Table] = None,
         db: Optional[Database] = None,
-        expand: Optional[bool] = None,
     ):
         return FunctionExpr(
             self._func,
@@ -63,7 +60,6 @@ class FunctionExpr(Expr):
             table=table,
             db=db if db is not None else self._db,
             distinct=self._distinct,
-            expand=expand if expand is not None else self._expand,
         )
 
     def serialize(self) -> str:
@@ -82,7 +78,7 @@ class FunctionExpr(Expr):
         )
         return f"{self._func.qualified_name}({distinct} {args_string})"
 
-    def apply(self, as_name: Optional[str] = None) -> Table:
+    def apply(self, expand: Optional[bool] = None, as_name: Optional[str] = None) -> Table:
         """
         :meta private:
         Returns the result table of the self function applied on args, with potential GROUP BY if
@@ -91,7 +87,7 @@ class FunctionExpr(Expr):
         self.function.create_in_db(self._db)
         from_clause = f"FROM {self.table.name}" if self.table is not None else ""
         group_by_clause = self._group_by.clause() if self._group_by is not None else ""
-        if self._expand and as_name is None:
+        if expand and as_name is None:
             as_name = "func_" + uuid4().hex
         parents = [self.table] if self.table is not None else []
         grouping_col_names = self._group_by.flatten() if self._group_by is not None else None
@@ -136,11 +132,11 @@ class FunctionExpr(Expr):
         )
         results = (
             "*"
-            if not self._expand
+            if not expand
             else f"({as_name}).*"
             if rebased_grouping_cols is None or len(rebased_grouping_cols) == 0
             else f"({orig_func_table.name}).*"
-            if not self._expand
+            if not expand
             else f"{','.join(rebased_grouping_cols)}, ({as_name}).*"
         )
 
@@ -193,7 +189,6 @@ class ArrayFunctionExpr(FunctionExpr):
         group_by: Optional[TableGroupingSets] = None,
         table: Optional[Table] = None,
         db: Optional[Database] = None,
-        expand: Optional[bool] = None,
     ):
         return ArrayFunctionExpr(
             self._func,
@@ -201,7 +196,6 @@ class ArrayFunctionExpr(FunctionExpr):
             group_by=group_by,
             table=table,
             db=db if db is not None else self._db,
-            expand=expand if expand is not None else self._expand,
         )
 
 

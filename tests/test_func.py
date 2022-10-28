@@ -639,6 +639,7 @@ def test_agg_returning_table(db: gp.Database):
 
     rows = [(i,) for i in range(10)]
     numbers = gp.to_table(rows, db=db, column_names=["val"])
+    # -- WITH ASSIGN FUNC
     with pytest.raises(Exception):  # state transition functions may not return table
         numbers.group_by().assign(result=lambda t: pass_agg(t["val"]))
 
@@ -648,6 +649,8 @@ def test_agg_distinct(db: gp.Database):
     numbers = gp.to_table(rows, db=db, column_names=["val"])
 
     count = gp.aggregate_function("count")
+
+    # -- WITH ASSIGN FUNC
     result = numbers.group_by().assign(
         count=lambda t: count(t["val"]), count_distinct=lambda t: count.distinct(t["val"])
     )
