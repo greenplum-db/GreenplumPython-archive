@@ -649,8 +649,6 @@ def test_agg_distinct(db: gp.Database):
     numbers = gp.to_table(rows, db=db, column_names=["val"])
 
     count = gp.aggregate_function("count")
-
-    # -- WITH ASSIGN FUNC
     result = numbers.group_by().assign(
         count=lambda t: count(t["val"]), count_distinct=lambda t: count.distinct(t["val"])
     )
