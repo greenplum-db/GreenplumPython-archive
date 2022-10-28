@@ -1,3 +1,6 @@
+"""
+This  module manage a Column and sub column
+"""
 from typing import TYPE_CHECKING, Optional
 
 from greenplumpython.db import Database
@@ -9,6 +12,13 @@ if TYPE_CHECKING:
 
 
 class ColumnField(Expr):
+    """
+    Inherited from :class:`Expr`.
+
+    Representation of sub-column of a :class:`.Column`.
+    When returning function with composite type, a column could contain multiple sub-columns, this type allows to access to these sub-columns.
+    """
+
     def __init__(
         self,
         column: "Column",
@@ -66,4 +76,14 @@ class Column(Expr):
         return self._table
 
     def __getitem__(self, field_name: str) -> ColumnField:
+        """
+        Returns :class:`ColumnField` of self by matching field_name
+
+        Args:
+            field_name: str
+
+        Returns:
+            ColumnField
+
+        """
         return ColumnField(self, field_name=field_name)

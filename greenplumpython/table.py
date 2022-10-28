@@ -3,8 +3,9 @@ This module creates a Python object :class:`Table` which keeps in memory all the
 on a table, in order to proceed with SQL query. It concatenates different pieces of queries
 together using CTEs.
 
-Table sends the aggregated SQL query to the database and returns the final result only when
-user calling `fetch()` function.
+Table sends the aggregated SQL query to the database and returns the final result only when `_fetch()` function is called.
+
+N.B: _fetch() function will be called when user wants to iterate through table contents.
 
 All modifications made by users are only saved to the database when calling the `save_as()`
 function.
@@ -137,7 +138,7 @@ class Table:
 
                 .. code-block::  python
 
-                   id_cond_table = tab[tab["id"] == 0]
+                   id_cond_table = tab[lambda t: t["id"] == 0]
 
                 - if key is a slice, then SELECT a portion of consecutive rows
 
@@ -150,6 +151,8 @@ class Table:
 
     def __repr__(self):
         """
+        :meta private:
+
         Return a string representation for a table
         """
         repr_string: str = ""
@@ -184,6 +187,7 @@ class Table:
         return repr_string
 
     def _repr_html_(self):
+        """:meta private:"""
         repr_html_str = ""
         if len(list(self)) != 0:
             repr_html_str = "<table>\n"
@@ -295,6 +299,16 @@ class Table:
 
         Returns:
             Table: New table including the new assigned columns
+
+
+        Example:
+            .. code-block::  python
+
+                rows = [(i,) for i in range(-10, 0)]
+                series = gp.to_table(rows, db=db, column_names=["id"])
+                abs = gp.function("abs")
+                results = series.assign(abs=lambda nums: abs(nums["id"]))
+
         """
 
         if len(new_columns) == 0:
@@ -368,7 +382,7 @@ class Table:
                 - `"CROSS"`: cross join, i.e. the Cartesian product
                 The default value `""` is equivalent to "INNER".
 
-            cond: :class:`Expr` as the join condition
+            cond: :class:`Callable` lambda function as the join condition
             using: a list of column names that exist in both tables to join on.
                 `cond` and `using` cannot be used together.
             self_columns: A :class:`dict` whose keys are the column names of
@@ -486,9 +500,11 @@ class Table:
     # Actually we cannot determine if a table is recorded in the system catalogs
     # without querying the db.
     def _in_catalog(self) -> bool:
+        """:meta private:"""
         return self._query.startswith("TABLE")
 
     def _list_lineage(self) -> List["Table"]:
+        """:meta private:"""
         lineage: List["Table"] = [self]
         tables_visited: Set[str] = set()
         current = 0
@@ -499,6 +515,7 @@ class Table:
         return lineage
 
     def _depth_first_search(self, t: "Table", visited: Set[str], lineage: List["Table"]):
+        """:meta private:"""
         visited.add(t.name)
         for i in t._parents:
             if i.name not in visited and not i._in_catalog():
@@ -506,6 +523,7 @@ class Table:
         lineage.append(t)
 
     def _build_full_query(self) -> str:
+        """:meta private:"""
         lineage = self._list_lineage()
         cte_list: List[str] = []
         for table in lineage:
@@ -516,6 +534,7 @@ class Table:
         return "WITH " + ",".join(cte_list) + self._query
 
     def __iter__(self) -> "Table":
+        """:meta private:"""
         if self._contents is not None:
             self._n = 0
             return self
@@ -527,6 +546,8 @@ class Table:
         return self
 
     def __next__(self):
+        """:meta private:"""
+
         def detect_duplicate_keys(json_pairs: List[tuple[str, Any]]):
             key_count = collections.Counter(k for k, _ in json_pairs)
             duplicate_keys = ", ".join(k for k, v in key_count.items() if v > 1)
@@ -542,14 +563,15 @@ class Table:
             row_contents: Dict[str, Union[str, List[str]]] = {}
             assert self._contents is not None
             for name in self._contents[0].keys():
-                if name == "to_json":
-                    to_json_dict = json.loads(
-                        self._contents[self._n][name], object_pairs_hook=validate_data
-                    )
-                    for sub_name in to_json_dict:
-                        row_contents[sub_name] = to_json_dict[sub_name]
-                else:
-                    row_contents[name] = self._contents[self._n][name]
+                # if name == "to_json":
+                to_json_dict = json.loads(
+                    self._contents[self._n][name], object_pairs_hook=validate_data
+                )
+                for sub_name in to_json_dict:
+                    row_contents[sub_name] = to_json_dict[sub_name]
+                # else:
+                #     # According our current _fetch(), name=="to_json" will be always true right?
+                #     row_contents[name] = self._contents[self._n][name]
             self._n += 1
             return Row(row_contents)
         raise StopIteration("StopIteration: Reached last row of table!")

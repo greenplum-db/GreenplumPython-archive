@@ -52,14 +52,24 @@ class TableGroupingSets:
 
     def assign(self, **new_columns: Callable[["Table"], Any]) -> "Table":
         """
-        Assigns new columns to the current grouping sets. Existing columns
-        cannot be reassigned.
+        Assigns new columns to the current grouping sets. **Existing columns
+        cannot be reassigned**.
 
         Args:
-            new_columns:
+            new_columns: a :class:`dict` whose keys are column names and values
+            are :class:`Callable`s returning column data when applied to the
+            current :class:`TableGroupingSets`.
 
         Returns:
             :class:`Table` with the new columns.
+
+
+        Example:
+            .. code-block::  python
+
+                count = gp.aggregate_function("count")
+                results = numbers.group_by().assign(count=lambda t: count(t["val"]))
+
         """
         from greenplumpython.table import Table
 
