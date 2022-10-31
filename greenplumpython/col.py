@@ -1,5 +1,5 @@
 """
-This  module manage a Column and sub column
+This module manage a Column and sub column
 """
 from typing import TYPE_CHECKING, Optional
 
