@@ -9,6 +9,7 @@ The **GreenplumPython** library contains 5 main modules:
    db
    table
    expr
+   col
    func
    op
    type
