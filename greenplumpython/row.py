@@ -1,5 +1,5 @@
 """
-This module creates a Python object Row for table iteration.
+This module creates a Python object :class:`Row` for table iteration.
 """
 from typing import Any, Dict, List, Union
 

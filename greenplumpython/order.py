@@ -66,12 +66,12 @@ class OrderedTable:
         )
 
     # FIXME : Not sure about return type
-    def head(self, num: int) -> "Table":
+    def __getitem__(self, rows: slice) -> "Table":
         """
-        Returns a :class:`~table.Table` that contains the first **num** rows in order.
+        Returns a :class:`~table.Table` that contains the slice of table in order.
 
         Args:
-            num: int: number of first rows
+            rows: slice: number of first rows
 
         Returns:
             Table: Ordered by table
@@ -83,12 +83,16 @@ class OrderedTable:
         """
         from greenplumpython.table import Table
 
+        if rows.step is not None:
+            raise NotImplementedError()
+        offset_clause = "" if rows.start is None else f"OFFSET {rows.start}"
+        limit_clause = (
+            ""
+            if rows.stop is None
+            else f"LIMIT {rows.stop if rows.start is None else rows.stop - rows.start}"
+        )
         return Table(
-            f"""
-                SELECT * FROM {self._table.name}
-                {self._clause()}
-                LIMIT {num}
-            """,
+            f"SELECT * FROM {self._table.name} {self._clause()} {limit_clause} {offset_clause}",
             parents=[self._table],
         )
 

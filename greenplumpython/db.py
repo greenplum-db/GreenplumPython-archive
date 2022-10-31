@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Optional,
 
 if TYPE_CHECKING:
     from greenplumpython.table import Table
+    from greenplumpython.func import FunctionExpr
 
 import psycopg2
 import psycopg2.extras
@@ -42,12 +43,6 @@ class Database:
         """
         with self._conn.cursor() as cursor:
             cursor.execute(query)
-            if has_results:
-                column_names = [desc[0] for desc in cursor.description]
-                if len(column_names) != len(set(column_names)):
-                    raise Exception(
-                        "Same column names for multiple columns in same table keeps only one of them!"
-                    )
             return cursor.fetchall() if has_results else None
 
     def close(self) -> None:
@@ -85,7 +80,49 @@ class Database:
 
         return table(name, self)
 
+    def apply(
+        self,
+        func: Callable[[], "FunctionExpr"],
+        expand: bool = False,
+        as_name: Optional[str] = None,
+    ) -> "Table":
+        """
+        Apply a function in database.
+
+        Args:
+            func: An aggregate function to be applied to
+            expand: bool: expand field of composite returning type
+            as_name: str: rename returning column
+
+        Returns:
+            Table: resulted Table
+
+        Example:
+            .. code-block::  python
+
+                db.apply(lambda: add(1, 2))
+        """
+        return func().bind(db=self).apply(expand=expand, as_name=as_name)
+
     def assign(self, **new_columns: Callable[[], Any]) -> "Table":
+        """
+        Assign new columns by calling functions in database
+
+        Args:
+            new_columns: a :class:`dict` whose keys are column names and values
+                are :class:`Callable` returning column data when applied to
+                constant value in database.
+
+        Returns:
+            Table: Table resulted with assigned columns
+
+        Example:
+            .. code-block::  python
+
+                version = gp.function("version")
+                db.assign(version=lambda: version())
+
+        """
         from greenplumpython.expr import Expr
         from greenplumpython.func import FunctionExpr
         from greenplumpython.table import Table
