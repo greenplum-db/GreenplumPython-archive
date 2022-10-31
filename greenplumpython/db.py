@@ -110,7 +110,7 @@ class Database:
 
         Args:
             new_columns: a :class:`dict` whose keys are column names and values
-                are :class:`Callable` returning column data when applied to
+                are :class:`Callable`\s returning column data when applied to
                 constant value in database.
 
         Returns:
