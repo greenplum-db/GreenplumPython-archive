@@ -367,7 +367,7 @@ div.rendered_html tbody tr:hover {
 <p><strong>Background:</strong></p>
 <p>Predicting the age of abalone from physical measurements. The age of abalone is determined by cutting the shell through the cone, staining it, and counting the number of rings through a microscope – a boring and time-consuming task. Other measurements, which are easier to obtain, are used to predict the age.</p>
 <p><strong>Problem:</strong></p>
-<p>Build regression models by ‘sex’ which can predict ‘the number of rings’.</p>
+<p>Build regression models by sex which can predict the number of rings.</p>
 <p><strong>Fetch data from ML data repository:</strong></p>
 <p>We can fetch data to Greenplum Using following steps.</p>
 <div class="nbinput nblast docutils container">
@@ -667,12 +667,12 @@ Done.
             <th>gp_segment_id</th>
     </tr>
     <tr>
-            <td>2870</td>
-            <td>1</td>
-    </tr>
-    <tr>
             <td>1307</td>
             <td>2</td>
+    </tr>
+    <tr>
+            <td>2870</td>
+            <td>1</td>
     </tr>
 </table></div>
 </div>
@@ -808,23 +808,23 @@ Done.
     <tr>
             <td>F</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[25.064476469020896, -7.971276893342533]</td>
-            <td>0.14402961193298403</td>
-            <td>2022-10-28 10:27:49.073549</td>
+            <td>[25.188774748161972, -8.200071961900768]</td>
+            <td>0.15968434540182486</td>
+            <td>2022-10-31 09:46:43.564576</td>
     </tr>
     <tr>
             <td>M</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[23.474589477353632, -6.486874929907139]</td>
-            <td>0.400537367442098</td>
-            <td>2022-10-28 10:27:49.073452</td>
+            <td>[23.44708817966348, -6.697807319354354]</td>
+            <td>0.40163063048914793</td>
+            <td>2022-10-31 09:46:43.564576</td>
     </tr>
     <tr>
             <td>I</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[15.60472937590157, 0.170324586295711]</td>
-            <td>1.1456532205072136</td>
-            <td>2022-10-28 10:27:49.079175</td>
+            <td>[15.72996247728071, -0.0045724796067781424]</td>
+            <td>1.161213296936272</td>
+            <td>2022-10-31 09:46:43.575035</td>
     </tr>
 </table></div>
 </div>
@@ -866,47 +866,47 @@ Done.
     <tr>
             <td>F</td>
             <td>length</td>
-            <td>25.064476469020896</td>
+            <td>25.188774748161972</td>
     </tr>
     <tr>
             <td>F</td>
             <td>shucked_weight</td>
-            <td>-7.971276893342533</td>
+            <td>-8.200071961900768</td>
     </tr>
     <tr>
             <td>F</td>
             <td>intercept</td>
-            <td>0.14402961193298403</td>
+            <td>0.15968434540182486</td>
     </tr>
     <tr>
             <td>M</td>
             <td>length</td>
-            <td>23.474589477353632</td>
+            <td>23.44708817966348</td>
     </tr>
     <tr>
             <td>M</td>
             <td>shucked_weight</td>
-            <td>-6.486874929907139</td>
+            <td>-6.697807319354354</td>
     </tr>
     <tr>
             <td>M</td>
             <td>intercept</td>
-            <td>0.400537367442098</td>
+            <td>0.40163063048914793</td>
     </tr>
     <tr>
             <td>I</td>
             <td>length</td>
-            <td>15.60472937590157</td>
+            <td>15.72996247728071</td>
     </tr>
     <tr>
             <td>I</td>
             <td>shucked_weight</td>
-            <td>0.170324586295711</td>
+            <td>-0.0045724796067781424</td>
     </tr>
     <tr>
             <td>I</td>
             <td>intercept</td>
-            <td>1.1456532205072136</td>
+            <td>1.161213296936272</td>
     </tr>
 </table></div>
 </div>
@@ -1005,34 +1005,34 @@ Done.
             <th>rings_pred</th>
     </tr>
     <tr>
-            <td>51</td>
-            <td>I</td>
-            <td>8</td>
-            <td>9.300734909807558</td>
-    </tr>
-    <tr>
-            <td>135</td>
+            <td>5</td>
             <td>I</td>
             <td>7</td>
-            <td>5.287719488572958</td>
+            <td>6.351691677514101</td>
     </tr>
     <tr>
-            <td>148</td>
-            <td>I</td>
-            <td>9</td>
-            <td>5.523834324247031</td>
-    </tr>
-    <tr>
-            <td>149</td>
+            <td>43</td>
             <td>I</td>
             <td>5</td>
-            <td>3.878269269446093</td>
+            <td>4.936260258376029</td>
     </tr>
     <tr>
-            <td>234</td>
+            <td>101</td>
             <td>I</td>
             <td>7</td>
-            <td>5.4452145413154875</td>
+            <td>6.823519678398616</td>
+    </tr>
+    <tr>
+            <td>125</td>
+            <td>I</td>
+            <td>6</td>
+            <td>6.823629417909179</td>
+    </tr>
+    <tr>
+            <td>134</td>
+            <td>I</td>
+            <td>7</td>
+            <td>6.666306930738337</td>
     </tr>
 </table></div>
 </div>
@@ -1121,24 +1121,24 @@ Done.
     </tr>
     <tr>
             <td>F</td>
-            <td>2.1684036058174128</td>
-            <td>19.81216897545126</td>
-            <td>7.876612765316872</td>
-            <td>0.08913495016372974</td>
+            <td>1.9917841591316146</td>
+            <td>19.13448116028751</td>
+            <td>6.860332265741937</td>
+            <td>0.047667812523580766</td>
     </tr>
     <tr>
             <td>M</td>
-            <td>2.0103204067022693</td>
-            <td>19.164943108519978</td>
-            <td>7.788626230610322</td>
-            <td>0.2140201106290267</td>
+            <td>2.1413591093139033</td>
+            <td>19.21972286176942</td>
+            <td>8.203248188385857</td>
+            <td>0.22391883597052353</td>
     </tr>
     <tr>
             <td>I</td>
-            <td>1.1442499649201459</td>
-            <td>14.423205839401918</td>
-            <td>2.665751060618734</td>
-            <td>0.5163806536192345</td>
+            <td>1.3111898981874257</td>
+            <td>15.642523776907217</td>
+            <td>3.8473051335156647</td>
+            <td>0.44814608785754817</td>
     </tr>
 </table></div>
 </div>
