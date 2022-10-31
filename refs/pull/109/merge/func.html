@@ -181,6 +181,9 @@ Greenplum data.</p>
 <span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">aggregate_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><span class="pre">AggregateFunction</span></a></span></span><a class="headerlink" href="#func.aggregate_function" title="Permalink to this definition"></a></dt>
 <dd><p>A wrap in order to call an aggregate function</p>
 <p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">count</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">aggregate_function</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -250,17 +253,12 @@ will also support plcontainer later.</p></li>
 function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>wrapped_func</strong> – the Python function to be wrapped into a database function</p></li>
-<li><p><strong>UDF</strong> (<em>language_handler language handler to run the</em>) – will also support plcontainer later.</p></li>
-<li><p><strong>plpython3u</strong> (<em>defaults to</em>) – will also support plcontainer later.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>wrapped_func</strong> – the Python function to be wrapped into a database function
+language_handler language handler to run the UDF, defaults to plpython3u,
+will also support plcontainer later.</p>
 </dd>
-</dl>
-<p>:param : will also support plcontainer later.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalFunction</span></code></a></p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalFunction</span></code></a></p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
@@ -278,6 +276,9 @@ function.</p>
 <span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><span class="pre">NormalFunction</span></a></span></span><a class="headerlink" href="#func.function" title="Permalink to this definition"></a></dt>
 <dd><p>A wrap in order to call function</p>
 <p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">generate_series</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;generate_series&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>

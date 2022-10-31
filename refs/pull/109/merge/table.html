@@ -224,12 +224,16 @@ function.</p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<p>If we want to give constant as attribute, it is also easy to use. Suppose <em>label</em> function
-takes a str and a int:
-.. code-block::  python</p>
-<blockquote>
-<div><p>result = series.apply(lambda t: label(“label”, t[“id”]))</p>
-</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
+<span class="n">series</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="nb">abs</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;abs&quot;</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]))</span>
+</pre></div>
+</div>
+<p>If we want to give constant as attribute, it is also easy to use. Suppose <em>label</em> function takes a str and a int:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">label</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]))</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -239,17 +243,15 @@ takes a str and a int:
 cannot be reassigned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>new_columns</strong> – a <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> whose keys are column names and values</p>
+<dd class="field-odd"><p><strong>new_columns</strong> – a <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> whose keys are column names and values
+are <code class="xref py py-class docutils literal notranslate"><span class="pre">Callable`s</span> <span class="pre">returning</span> <span class="pre">column</span> <span class="pre">data</span> <span class="pre">when</span> <span class="pre">applied</span> <span class="pre">to</span> <span class="pre">the</span>
+<span class="pre">current</span> <span class="pre">:class:`Table</span></code>.</p>
 </dd>
-</dl>
-<p>:param are <code class="xref py py-class docutils literal notranslate"><span class="pre">Callable`s</span> <span class="pre">returning</span> <span class="pre">column</span> <span class="pre">data</span> <span class="pre">when</span> <span class="pre">applied</span> <span class="pre">to</span> <span class="pre">the:</span>
-<span class="pre">:param</span> <span class="pre">current</span> <span class="pre">:class:`Table</span></code>.:</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>New table including the new assigned columns</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>New table including the new assigned columns</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
