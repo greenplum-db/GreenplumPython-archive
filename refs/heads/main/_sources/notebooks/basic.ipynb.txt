@@ -1,999 +1,971 @@
 {
-    "cells": [
-        {
-            "cell_type": "markdown",
-            "metadata": {},
-            "source": [
-                "### Selecting the Database of Your Data\n",
-                "\n",
-                "To begin with, we need to select the database that contains the data we want:"
-            ]
-        },
-        {
-            "cell_type": "code",
-            "execution_count": 1,
-            "metadata": {
-                "pycharm": {
-                    "name": "#%%\n"
-                }
+      "cells": [
+            {
+                  "cell_type": "markdown",
+                  "metadata": {},
+                  "source": [
+                        "### Selecting the Database of Your Data\n",
+                        "\n",
+                        "To begin with, we need to select the database that contains the data we want:"
+                  ]
             },
-            "outputs": [],
-            "source": [
-                "import greenplumpython as gp\n",
-                "\n",
-                "db = gp.database(host=\"localhost\", dbname=\"gpadmin\")"
-            ]
-        },
-        {
-            "cell_type": "markdown",
-            "metadata": {},
-            "source": [
-                "### Accessing a Table in the Database\n",
-                "\n",
-                "After selecting the database, we can access a table in the database by specifying its name:"
-            ]
-        },
-        {
-            "cell_type": "code",
-            "execution_count": 2,
-            "metadata": {
-                "pycharm": {
-                    "name": "#%%\n"
-                }
+            {
+                  "cell_type": "code",
+                  "execution_count": 1,
+                  "metadata": {},
+                  "outputs": [],
+                  "source": [
+                        "import greenplumpython as gp\n",
+                        "\n",
+                        "db = gp.database(host=\"localhost\", dbname=\"postgres\")"
+                  ]
             },
-            "outputs": [
-                {
-                    "data": {
-                        "text/html": [
-                            "<table>\n",
-                            "\t<tr>\n",
-                            "\t\t<th>i</th>\n",
-                            "\t\t<th>j</th>\n",
-                            "\t\t<th>k</th>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>6</td>\n",
-                            "\t\t<td>6</td>\n",
-                            "\t\t<td>6</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>9</td>\n",
-                            "\t\t<td>9</td>\n",
-                            "\t\t<td>9</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>1</td>\n",
-                            "\t\t<td>1</td>\n",
-                            "\t\t<td>1</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>2</td>\n",
-                            "\t\t<td>2</td>\n",
-                            "\t\t<td>2</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>3</td>\n",
-                            "\t\t<td>3</td>\n",
-                            "\t\t<td>3</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>7</td>\n",
-                            "\t\t<td>7</td>\n",
-                            "\t\t<td>7</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>4</td>\n",
-                            "\t\t<td>4</td>\n",
-                            "\t\t<td>4</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>5</td>\n",
-                            "\t\t<td>5</td>\n",
-                            "\t\t<td>5</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>8</td>\n",
-                            "\t\t<td>8</td>\n",
-                            "\t\t<td>8</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>10</td>\n",
-                            "\t\t<td>10</td>\n",
-                            "\t\t<td>10</td>\n",
-                            "\t</tr>\n",
-                            "</table>"
-                        ],
-                        "text/plain": [
-                            "| i          || j          || k          |\n",
-                            "==========================================\n",
-                            "|          1 ||          1 ||          1 |\n",
-                            "|          2 ||          2 ||          2 |\n",
-                            "|          3 ||          3 ||          3 |\n",
-                            "|          7 ||          7 ||          7 |\n",
-                            "|          6 ||          6 ||          6 |\n",
-                            "|          9 ||          9 ||          9 |\n",
-                            "|          4 ||          4 ||          4 |\n",
-                            "|          5 ||          5 ||          5 |\n",
-                            "|          8 ||          8 ||          8 |\n",
-                            "|         10 ||         10 ||         10 |"
-                        ]
-                    },
-                    "execution_count": 2,
-                    "metadata": {},
-                    "output_type": "execute_result"
-                }
-            ],
-            "source": [
-                "t = gp.table(\"demo\", db=db)\n",
-                "t"
-            ]
-        },
-        {
-            "cell_type": "markdown",
-            "metadata": {},
-            "source": [
-                "And of course, we can `SELECT` the first ordered N rows of a table, like this:"
-            ]
-        },
-        {
-            "cell_type": "code",
-            "execution_count": 3,
-            "metadata": {
-                "pycharm": {
-                    "name": "#%%\n"
-                }
+            {
+                  "cell_type": "markdown",
+                  "metadata": {},
+                  "source": [
+                        "### Accessing a Table in the Database\n",
+                        "\n",
+                        "After selecting the database, we can access a table in the database by specifying its name:"
+                  ]
             },
-            "outputs": [
-                {
-                    "data": {
-                        "text/html": [
-                            "<table>\n",
-                            "\t<tr>\n",
-                            "\t\t<th>i</th>\n",
-                            "\t\t<th>j</th>\n",
-                            "\t\t<th>k</th>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>1</td>\n",
-                            "\t\t<td>1</td>\n",
-                            "\t\t<td>1</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>2</td>\n",
-                            "\t\t<td>2</td>\n",
-                            "\t\t<td>2</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>3</td>\n",
-                            "\t\t<td>3</td>\n",
-                            "\t\t<td>3</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>4</td>\n",
-                            "\t\t<td>4</td>\n",
-                            "\t\t<td>4</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>5</td>\n",
-                            "\t\t<td>5</td>\n",
-                            "\t\t<td>5</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>6</td>\n",
-                            "\t\t<td>6</td>\n",
-                            "\t\t<td>6</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>7</td>\n",
-                            "\t\t<td>7</td>\n",
-                            "\t\t<td>7</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>8</td>\n",
-                            "\t\t<td>8</td>\n",
-                            "\t\t<td>8</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>9</td>\n",
-                            "\t\t<td>9</td>\n",
-                            "\t\t<td>9</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>10</td>\n",
-                            "\t\t<td>10</td>\n",
-                            "\t\t<td>10</td>\n",
-                            "\t</tr>\n",
-                            "</table>"
-                        ],
-                        "text/plain": [
-                            "| i          || j          || k          |\n",
-                            "==========================================\n",
-                            "|          1 ||          1 ||          1 |\n",
-                            "|          2 ||          2 ||          2 |\n",
-                            "|          3 ||          3 ||          3 |\n",
-                            "|          4 ||          4 ||          4 |\n",
-                            "|          5 ||          5 ||          5 |\n",
-                            "|          6 ||          6 ||          6 |\n",
-                            "|          7 ||          7 ||          7 |\n",
-                            "|          8 ||          8 ||          8 |\n",
-                            "|          9 ||          9 ||          9 |\n",
-                            "|         10 ||         10 ||         10 |"
-                        ]
-                    },
-                    "execution_count": 3,
-                    "metadata": {},
-                    "output_type": "execute_result"
-                }
-            ],
-            "source": [
-                "t.order_by(t[\"i\"]).head(10)"
-            ]
-        },
-        {
-            "cell_type": "markdown",
-            "metadata": {},
-            "source": [
-                "### Basic Data Manipulation\n",
-                "\n",
-                "Now we have a table. We can do basic data manipulation on it, just like in SQL.\n",
-                "\n",
-                "For example, we can `SELECT` a subset of its columns:"
-            ]
-        },
-        {
-            "cell_type": "code",
-            "execution_count": 4,
-            "metadata": {
-                "pycharm": {
-                    "name": "#%%\n"
-                }
+            {
+                  "cell_type": "code",
+                  "execution_count": 2,
+                  "metadata": {},
+                  "outputs": [
+                        {
+                              "data": {
+                                    "text/html": [
+                                          "<table>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<th>i</th>\n",
+                                          "\t\t<th>j</th>\n",
+                                          "\t\t<th>k</th>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>2</td>\n",
+                                          "\t\t<td>2</td>\n",
+                                          "\t\t<td>2</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>3</td>\n",
+                                          "\t\t<td>3</td>\n",
+                                          "\t\t<td>3</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>4</td>\n",
+                                          "\t\t<td>4</td>\n",
+                                          "\t\t<td>4</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>7</td>\n",
+                                          "\t\t<td>7</td>\n",
+                                          "\t\t<td>7</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>8</td>\n",
+                                          "\t\t<td>8</td>\n",
+                                          "\t\t<td>8</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>5</td>\n",
+                                          "\t\t<td>5</td>\n",
+                                          "\t\t<td>5</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>6</td>\n",
+                                          "\t\t<td>6</td>\n",
+                                          "\t\t<td>6</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>9</td>\n",
+                                          "\t\t<td>9</td>\n",
+                                          "\t\t<td>9</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>0</td>\n",
+                                          "\t\t<td>0</td>\n",
+                                          "\t\t<td>0</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>1</td>\n",
+                                          "\t\t<td>1</td>\n",
+                                          "\t\t<td>1</td>\n",
+                                          "\t</tr>\n",
+                                          "</table>"
+                                    ],
+                                    "text/plain": [
+                                          "| i || j || k |\n",
+                                          "===============\n",
+                                          "| 2 || 2 || 2 |\n",
+                                          "| 3 || 3 || 3 |\n",
+                                          "| 4 || 4 || 4 |\n",
+                                          "| 7 || 7 || 7 |\n",
+                                          "| 8 || 8 || 8 |\n",
+                                          "| 5 || 5 || 5 |\n",
+                                          "| 6 || 6 || 6 |\n",
+                                          "| 9 || 9 || 9 |\n",
+                                          "| 0 || 0 || 0 |\n",
+                                          "| 1 || 1 || 1 |"
+                                    ]
+                              },
+                              "execution_count": 2,
+                              "metadata": {},
+                              "output_type": "execute_result"
+                        }
+                  ],
+                  "source": [
+                        "t = db.table(\"demo\")\n",
+                        "t"
+                  ]
             },
-            "outputs": [
-                {
-                    "data": {
-                        "text/html": [
-                            "<table>\n",
-                            "\t<tr>\n",
-                            "\t\t<th>i</th>\n",
-                            "\t\t<th>j</th>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>6</td>\n",
-                            "\t\t<td>6</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>9</td>\n",
-                            "\t\t<td>9</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>1</td>\n",
-                            "\t\t<td>1</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>2</td>\n",
-                            "\t\t<td>2</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>3</td>\n",
-                            "\t\t<td>3</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>7</td>\n",
-                            "\t\t<td>7</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>4</td>\n",
-                            "\t\t<td>4</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>5</td>\n",
-                            "\t\t<td>5</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>8</td>\n",
-                            "\t\t<td>8</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>10</td>\n",
-                            "\t\t<td>10</td>\n",
-                            "\t</tr>\n",
-                            "</table>"
-                        ],
-                        "text/plain": [
-                            "| i          || j          |\n",
-                            "============================\n",
-                            "|          6 ||          6 |\n",
-                            "|          9 ||          9 |\n",
-                            "|          1 ||          1 |\n",
-                            "|          2 ||          2 |\n",
-                            "|          3 ||          3 |\n",
-                            "|          7 ||          7 |\n",
-                            "|          4 ||          4 |\n",
-                            "|          5 ||          5 |\n",
-                            "|          8 ||          8 |\n",
-                            "|         10 ||         10 |"
-                        ]
-                    },
-                    "execution_count": 4,
-                    "metadata": {},
-                    "output_type": "execute_result"
-                }
-            ],
-            "source": [
-                "t_ij = t[[\"i\", \"j\"]]\n",
-                "t_ij"
-            ]
-        },
-        {
-            "cell_type": "markdown",
-            "metadata": {},
-            "source": [
-                "And we can also `SELECT` a subset of its rows. Say we want all the even numbers:"
-            ]
-        },
-        {
-            "cell_type": "code",
-            "execution_count": 5,
-            "metadata": {
-                "pycharm": {
-                    "name": "#%%\n"
-                }
+            {
+                  "cell_type": "markdown",
+                  "metadata": {},
+                  "source": [
+                        "And of course, we can `SELECT` the first ordered N rows of a table, like this:"
+                  ]
             },
-            "outputs": [
-                {
-                    "data": {
-                        "text/html": [
-                            "<table>\n",
-                            "\t<tr>\n",
-                            "\t\t<th>i</th>\n",
-                            "\t\t<th>j</th>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>6</td>\n",
-                            "\t\t<td>6</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>2</td>\n",
-                            "\t\t<td>2</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>4</td>\n",
-                            "\t\t<td>4</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>8</td>\n",
-                            "\t\t<td>8</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>10</td>\n",
-                            "\t\t<td>10</td>\n",
-                            "\t</tr>\n",
-                            "</table>"
-                        ],
-                        "text/plain": [
-                            "| i          || j          |\n",
-                            "============================\n",
-                            "|          2 ||          2 |\n",
-                            "|          4 ||          4 |\n",
-                            "|          8 ||          8 |\n",
-                            "|         10 ||         10 |\n",
-                            "|          6 ||          6 |"
-                        ]
-                    },
-                    "execution_count": 5,
-                    "metadata": {},
-                    "output_type": "execute_result"
-                }
-            ],
-            "source": [
-                "t_even = t_ij[t_ij[\"i\"] % 2 == 0]\n",
-                "t_even"
-            ]
-        },
-        {
-            "cell_type": "markdown",
-            "metadata": {},
-            "source": [
-                "For a quick glance, we can `SELECT` the first unordered N rows of a table, like this:"
-            ]
-        },
-        {
-            "cell_type": "code",
-            "execution_count": 6,
-            "metadata": {
-                "pycharm": {
-                    "name": "#%%\n"
-                }
+            {
+                  "cell_type": "code",
+                  "execution_count": 3,
+                  "metadata": {},
+                  "outputs": [
+                        {
+                              "data": {
+                                    "text/html": [
+                                          "<table>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<th>i</th>\n",
+                                          "\t\t<th>j</th>\n",
+                                          "\t\t<th>k</th>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>0</td>\n",
+                                          "\t\t<td>0</td>\n",
+                                          "\t\t<td>0</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>1</td>\n",
+                                          "\t\t<td>1</td>\n",
+                                          "\t\t<td>1</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>2</td>\n",
+                                          "\t\t<td>2</td>\n",
+                                          "\t\t<td>2</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>3</td>\n",
+                                          "\t\t<td>3</td>\n",
+                                          "\t\t<td>3</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>4</td>\n",
+                                          "\t\t<td>4</td>\n",
+                                          "\t\t<td>4</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>5</td>\n",
+                                          "\t\t<td>5</td>\n",
+                                          "\t\t<td>5</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>6</td>\n",
+                                          "\t\t<td>6</td>\n",
+                                          "\t\t<td>6</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>7</td>\n",
+                                          "\t\t<td>7</td>\n",
+                                          "\t\t<td>7</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>8</td>\n",
+                                          "\t\t<td>8</td>\n",
+                                          "\t\t<td>8</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>9</td>\n",
+                                          "\t\t<td>9</td>\n",
+                                          "\t\t<td>9</td>\n",
+                                          "\t</tr>\n",
+                                          "</table>"
+                                    ],
+                                    "text/plain": [
+                                          "| i || j || k |\n",
+                                          "===============\n",
+                                          "| 0 || 0 || 0 |\n",
+                                          "| 1 || 1 || 1 |\n",
+                                          "| 2 || 2 || 2 |\n",
+                                          "| 3 || 3 || 3 |\n",
+                                          "| 4 || 4 || 4 |\n",
+                                          "| 5 || 5 || 5 |\n",
+                                          "| 6 || 6 || 6 |\n",
+                                          "| 7 || 7 || 7 |\n",
+                                          "| 8 || 8 || 8 |\n",
+                                          "| 9 || 9 || 9 |"
+                                    ]
+                              },
+                              "execution_count": 3,
+                              "metadata": {},
+                              "output_type": "execute_result"
+                        }
+                  ],
+                  "source": [
+                        "t.order_by(\"i\")[:10]"
+                  ]
             },
-            "outputs": [
-                {
-                    "data": {
-                        "text/html": [
-                            "<table>\n",
-                            "\t<tr>\n",
-                            "\t\t<th>i</th>\n",
-                            "\t\t<th>j</th>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>6</td>\n",
-                            "\t\t<td>6</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>4</td>\n",
-                            "\t\t<td>4</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>8</td>\n",
-                            "\t\t<td>8</td>\n",
-                            "\t</tr>\n",
-                            "</table>"
-                        ],
-                        "text/plain": [
-                            "| i          || j          |\n",
-                            "============================\n",
-                            "|          6 ||          6 |\n",
-                            "|          2 ||          2 |\n",
-                            "|          4 ||          4 |"
-                        ]
-                    },
-                    "execution_count": 6,
-                    "metadata": {},
-                    "output_type": "execute_result"
-                }
-            ],
-            "source": [
-                "t_n = t_even[:3]\n",
-                "t_n"
-            ]
-        },
-        {
-            "cell_type": "markdown",
-            "metadata": {},
-            "source": [
-                "Finally when we are done, we can save the resulting table to the database, either temporarily or persistently:"
-            ]
-        },
-        {
-            "cell_type": "code",
-            "execution_count": 7,
-            "metadata": {
-                "pycharm": {
-                    "name": "#%%\n"
-                }
+            {
+                  "cell_type": "markdown",
+                  "metadata": {},
+                  "source": [
+                        "### Basic Data Manipulation\n",
+                        "\n",
+                        "Now we have a table. We can do basic data manipulation on it, just like in SQL.\n",
+                        "\n",
+                        "For example, we can `SELECT` a subset of its columns:"
+                  ]
             },
-            "outputs": [
-                {
-                    "data": {
-                        "text/html": [
-                            "<table>\n",
-                            "\t<tr>\n",
-                            "\t\t<th>i</th>\n",
-                            "\t\t<th>j</th>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>4</td>\n",
-                            "\t\t<td>4</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>8</td>\n",
-                            "\t\t<td>8</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>10</td>\n",
-                            "\t\t<td>10</td>\n",
-                            "\t</tr>\n",
-                            "</table>"
-                        ],
-                        "text/plain": [
-                            "| i          || j          |\n",
-                            "============================\n",
-                            "|         10 ||         10 |\n",
-                            "|          4 ||          4 |\n",
-                            "|          8 ||          8 |"
-                        ]
-                    },
-                    "execution_count": 7,
-                    "metadata": {},
-                    "output_type": "execute_result"
-                }
-            ],
-            "source": [
-                "t_n.save_as(table_name=\"t_n\", temp=True)"
-            ]
-        },
-        {
-            "cell_type": "markdown",
-            "metadata": {
-                "pycharm": {
-                    "name": "#%% md\n"
-                }
+            {
+                  "cell_type": "code",
+                  "execution_count": 4,
+                  "metadata": {
+                        "pycharm": {
+                              "name": "#%%\n"
+                        }
+                  },
+                  "outputs": [
+                        {
+                              "data": {
+                                    "text/html": [
+                                          "<table>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<th>i</th>\n",
+                                          "\t\t<th>j</th>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>0</td>\n",
+                                          "\t\t<td>0</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>1</td>\n",
+                                          "\t\t<td>1</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>2</td>\n",
+                                          "\t\t<td>2</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>3</td>\n",
+                                          "\t\t<td>3</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>4</td>\n",
+                                          "\t\t<td>4</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>7</td>\n",
+                                          "\t\t<td>7</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>8</td>\n",
+                                          "\t\t<td>8</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>5</td>\n",
+                                          "\t\t<td>5</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>6</td>\n",
+                                          "\t\t<td>6</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>9</td>\n",
+                                          "\t\t<td>9</td>\n",
+                                          "\t</tr>\n",
+                                          "</table>"
+                                    ],
+                                    "text/plain": [
+                                          "| i || j |\n",
+                                          "==========\n",
+                                          "| 0 || 0 |\n",
+                                          "| 1 || 1 |\n",
+                                          "| 2 || 2 |\n",
+                                          "| 3 || 3 |\n",
+                                          "| 4 || 4 |\n",
+                                          "| 7 || 7 |\n",
+                                          "| 8 || 8 |\n",
+                                          "| 5 || 5 |\n",
+                                          "| 6 || 6 |\n",
+                                          "| 9 || 9 |"
+                                    ]
+                              },
+                              "execution_count": 4,
+                              "metadata": {},
+                              "output_type": "execute_result"
+                        }
+                  ],
+                  "source": [
+                        "t_ij = t[[\"i\", \"j\"]]\n",
+                        "t_ij"
+                  ]
             },
-            "source": [
-                "### `JOIN`-ing Two Tables\n",
-                "\n",
-                "We can also `JOIN` two tables with GreenplumPython. For example, suppose we have two tables like this:"
-            ]
-        },
-        {
-            "cell_type": "code",
-            "execution_count": 8,
-            "metadata": {
-                "pycharm": {
-                    "name": "#%%\n"
-                }
+            {
+                  "cell_type": "markdown",
+                  "metadata": {},
+                  "source": [
+                        "And we can also `SELECT` a subset of its rows. Say we want all the even numbers:"
+                  ]
             },
-            "outputs": [
-                {
-                    "data": {
-                        "text/html": [
-                            "<table>\n",
-                            "\t<tr>\n",
-                            "\t\t<th>id</th>\n",
-                            "\t\t<th>val</th>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>1</td>\n",
-                            "\t\t<td>'a'</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>2</td>\n",
-                            "\t\t<td>'b'</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>3</td>\n",
-                            "\t\t<td>'c'</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>4</td>\n",
-                            "\t\t<td>'d'</td>\n",
-                            "\t</tr>\n",
-                            "</table>"
-                        ],
-                        "text/plain": [
-                            "| id         || val        |\n",
-                            "============================\n",
-                            "|          1 || 'a'        |\n",
-                            "|          2 || 'b'        |\n",
-                            "|          3 || 'c'        |\n",
-                            "|          4 || 'd'        |"
-                        ]
-                    },
-                    "execution_count": 8,
-                    "metadata": {},
-                    "output_type": "execute_result"
-                }
-            ],
-            "source": [
-                "rows = [\n",
-                "    (\n",
-                "        1,\n",
-                "        \"'a'\",\n",
-                "    ),\n",
-                "    (\n",
-                "        2,\n",
-                "        \"'b'\",\n",
-                "    ),\n",
-                "    (\n",
-                "        3,\n",
-                "        \"'c'\",\n",
-                "    ),\n",
-                "    (4, \"'d'\"),\n",
-                "]\n",
-                "t1 = gp.to_table(rows, db=db, column_names=[\"id, val\"])\n",
-                "t1"
-            ]
-        },
-        {
-            "cell_type": "code",
-            "execution_count": 9,
-            "metadata": {
-                "pycharm": {
-                    "name": "#%%\n"
-                }
+            {
+                  "cell_type": "code",
+                  "execution_count": 5,
+                  "metadata": {},
+                  "outputs": [
+                        {
+                              "data": {
+                                    "text/html": [
+                                          "<table>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<th>i</th>\n",
+                                          "\t\t<th>j</th>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>6</td>\n",
+                                          "\t\t<td>6</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>2</td>\n",
+                                          "\t\t<td>2</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>4</td>\n",
+                                          "\t\t<td>4</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>8</td>\n",
+                                          "\t\t<td>8</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>0</td>\n",
+                                          "\t\t<td>0</td>\n",
+                                          "\t</tr>\n",
+                                          "</table>"
+                                    ],
+                                    "text/plain": [
+                                          "| i || j |\n",
+                                          "==========\n",
+                                          "| 6 || 6 |\n",
+                                          "| 2 || 2 |\n",
+                                          "| 4 || 4 |\n",
+                                          "| 8 || 8 |\n",
+                                          "| 0 || 0 |"
+                                    ]
+                              },
+                              "execution_count": 5,
+                              "metadata": {},
+                              "output_type": "execute_result"
+                        }
+                  ],
+                  "source": [
+                        "t_even = t_ij[lambda t: t[\"i\"] % 2 == 0]\n",
+                        "t_even"
+                  ]
             },
-            "outputs": [
-                {
-                    "data": {
-                        "text/html": [
-                            "<table>\n",
-                            "\t<tr>\n",
-                            "\t\t<th>id</th>\n",
-                            "\t\t<th>val</th>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>1</td>\n",
-                            "\t\t<td>'a'</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>2</td>\n",
-                            "\t\t<td>'b'</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>3</td>\n",
-                            "\t\t<td>'a'</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>4</td>\n",
-                            "\t\t<td>'b'</td>\n",
-                            "\t</tr>\n",
-                            "</table>"
-                        ],
-                        "text/plain": [
-                            "| id         || val        |\n",
-                            "============================\n",
-                            "|          1 || 'a'        |\n",
-                            "|          2 || 'b'        |\n",
-                            "|          3 || 'a'        |\n",
-                            "|          4 || 'b'        |"
-                        ]
-                    },
-                    "execution_count": 9,
-                    "metadata": {},
-                    "output_type": "execute_result"
-                }
-            ],
-            "source": [
-                "rows = [\n",
-                "    (\n",
-                "        1,\n",
-                "        \"'a'\",\n",
-                "    ),\n",
-                "    (\n",
-                "        2,\n",
-                "        \"'b'\",\n",
-                "    ),\n",
-                "    (\n",
-                "        3,\n",
-                "        \"'a'\",\n",
-                "    ),\n",
-                "    (4, \"'b'\"),\n",
-                "]\n",
-                "t2 = gp.to_table(rows, db=db, column_names=[\"id, val\"])\n",
-                "t2"
-            ]
-        },
-        {
-            "cell_type": "markdown",
-            "metadata": {
-                "pycharm": {
-                    "name": "#%% md\n"
-                }
+            {
+                  "cell_type": "markdown",
+                  "metadata": {},
+                  "source": [
+                        "For a quick glance, we can `SELECT` the first unordered N rows of a table, like this:"
+                  ]
             },
-            "source": [
-                "We can `JOIN` the two table like this:"
-            ]
-        },
-        {
-            "cell_type": "code",
-            "execution_count": 10,
-            "metadata": {
-                "pycharm": {
-                    "name": "#%%\n"
-                }
+            {
+                  "cell_type": "code",
+                  "execution_count": 6,
+                  "metadata": {
+                        "pycharm": {
+                              "name": "#%%\n"
+                        }
+                  },
+                  "outputs": [
+                        {
+                              "data": {
+                                    "text/html": [
+                                          "<table>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<th>i</th>\n",
+                                          "\t\t<th>j</th>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>2</td>\n",
+                                          "\t\t<td>2</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>4</td>\n",
+                                          "\t\t<td>4</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>8</td>\n",
+                                          "\t\t<td>8</td>\n",
+                                          "\t</tr>\n",
+                                          "</table>"
+                                    ],
+                                    "text/plain": [
+                                          "| i || j |\n",
+                                          "==========\n",
+                                          "| 2 || 2 |\n",
+                                          "| 4 || 4 |\n",
+                                          "| 8 || 8 |"
+                                    ]
+                              },
+                              "execution_count": 6,
+                              "metadata": {},
+                              "output_type": "execute_result"
+                        }
+                  ],
+                  "source": [
+                        "t_n = t_even[:3]\n",
+                        "t_n"
+                  ]
             },
-            "outputs": [
-                {
-                    "data": {
-                        "text/html": [
-                            "<table>\n",
-                            "\t<tr>\n",
-                            "\t\t<th>t1_id</th>\n",
-                            "\t\t<th>t1_val</th>\n",
-                            "\t\t<th>t2_id</th>\n",
-                            "\t\t<th>t2_val</th>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>1</td>\n",
-                            "\t\t<td>'a'</td>\n",
-                            "\t\t<td>3</td>\n",
-                            "\t\t<td>'a'</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>1</td>\n",
-                            "\t\t<td>'a'</td>\n",
-                            "\t\t<td>1</td>\n",
-                            "\t\t<td>'a'</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>2</td>\n",
-                            "\t\t<td>'b'</td>\n",
-                            "\t\t<td>4</td>\n",
-                            "\t\t<td>'b'</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>2</td>\n",
-                            "\t\t<td>'b'</td>\n",
-                            "\t\t<td>2</td>\n",
-                            "\t\t<td>'b'</td>\n",
-                            "\t</tr>\n",
-                            "</table>"
-                        ],
-                        "text/plain": [
-                            "| t1_id      || t1_val     || t2_id      || t2_val     |\n",
-                            "========================================================\n",
-                            "|          1 || 'a'        ||          3 || 'a'        |\n",
-                            "|          1 || 'a'        ||          1 || 'a'        |\n",
-                            "|          2 || 'b'        ||          4 || 'b'        |\n",
-                            "|          2 || 'b'        ||          2 || 'b'        |"
-                        ]
-                    },
-                    "execution_count": 10,
-                    "metadata": {},
-                    "output_type": "execute_result"
-                }
-            ],
-            "source": [
-                "t_join = t1.join(\n",
-                "    t2,\n",
-                "    cond=t1[\"val\"] == t2[\"val\"],\n",
-                "    self_columns = {\n",
-                "        \"id\": \"t1_id\",\n",
-                "        \"val\": \"t1_val\"\n",
-                "    },\n",
-                "    other_columns = {\n",
-                "        \"id\": \"t2_id\",\n",
-                "        \"val\": \"t2_val\"\n",
-                "    }\n",
-                ")\n",
-                "t_join"
-            ]
-        },
-        {
-            "cell_type": "markdown",
-            "metadata": {
-                "pycharm": {
-                    "name": "#%% md\n"
-                }
+            {
+                  "cell_type": "markdown",
+                  "metadata": {},
+                  "source": [
+                        "Finally when we are done, we can save the resulting table to the database, either temporarily or persistently:"
+                  ]
             },
-            "source": [
-                "### Creating and Calling Functions\n",
-                "\n",
-                "Calling functions is essential for data analytics. GreenplumPython supports creating Greenplum UDFs and UDAs from Python functions and calling them in Python.\n",
-                "\n",
-                "Suppose we have a table of numbers:"
-            ]
-        },
-        {
-            "cell_type": "code",
-            "execution_count": 11,
-            "metadata": {
-                "pycharm": {
-                    "name": "#%%\n"
-                }
+            {
+                  "cell_type": "code",
+                  "execution_count": 7,
+                  "metadata": {
+                        "pycharm": {
+                              "name": "#%%\n"
+                        }
+                  },
+                  "outputs": [
+                        {
+                              "data": {
+                                    "text/html": [
+                                          "<table>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<th>i</th>\n",
+                                          "\t\t<th>j</th>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>6</td>\n",
+                                          "\t\t<td>6</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>2</td>\n",
+                                          "\t\t<td>2</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>4</td>\n",
+                                          "\t\t<td>4</td>\n",
+                                          "\t</tr>\n",
+                                          "</table>"
+                                    ],
+                                    "text/plain": [
+                                          "| i || j |\n",
+                                          "==========\n",
+                                          "| 6 || 6 |\n",
+                                          "| 2 || 2 |\n",
+                                          "| 4 || 4 |"
+                                    ]
+                              },
+                              "execution_count": 7,
+                              "metadata": {},
+                              "output_type": "execute_result"
+                        }
+                  ],
+                  "source": [
+                        "t_n.save_as(table_name=\"t_n\", temp=True)"
+                  ]
             },
-            "outputs": [
-                {
-                    "data": {
-                        "text/html": [
-                            "<table>\n",
-                            "\t<tr>\n",
-                            "\t\t<th>val</th>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>0</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>1</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>2</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>3</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>4</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>5</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>6</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>7</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>8</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>9</td>\n",
-                            "\t</tr>\n",
-                            "</table>"
-                        ],
-                        "text/plain": [
-                            "| val        |\n",
-                            "==============\n",
-                            "|          0 |\n",
-                            "|          1 |\n",
-                            "|          2 |\n",
-                            "|          3 |\n",
-                            "|          4 |\n",
-                            "|          5 |\n",
-                            "|          6 |\n",
-                            "|          7 |\n",
-                            "|          8 |\n",
-                            "|          9 |"
-                        ]
-                    },
-                    "execution_count": 11,
-                    "metadata": {},
-                    "output_type": "execute_result"
-                }
-            ],
-            "source": [
-                "rows = [(i,) for i in range(10)]\n",
-                "numbers = gp.to_table(rows, db=db, column_names=[\"val\"])\n",
-                "numbers"
-            ]
-        },
-        {
-            "cell_type": "markdown",
-            "metadata": {
-                "pycharm": {
-                    "name": "#%% md\n"
-                }
+            {
+                  "cell_type": "markdown",
+                  "metadata": {
+                        "pycharm": {
+                              "name": "#%% md\n"
+                        }
+                  },
+                  "source": [
+                        "### `JOIN`-ing Two Tables\n",
+                        "\n",
+                        "We can also `JOIN` two tables with GreenplumPython. For example, suppose we have two tables like this:"
+                  ]
             },
-            "source": [
-                "If we want to get the square of each number, we can write a function to do that:"
-            ]
-        },
-        {
-            "cell_type": "code",
-            "execution_count": 12,
-            "metadata": {
-                "pycharm": {
-                    "name": "#%%\n"
-                }
+            {
+                  "cell_type": "code",
+                  "execution_count": 8,
+                  "metadata": {
+                        "pycharm": {
+                              "name": "#%%\n"
+                        }
+                  },
+                  "outputs": [
+                        {
+                              "data": {
+                                    "text/html": [
+                                          "<table>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<th>id</th>\n",
+                                          "\t\t<th>val</th>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>1</td>\n",
+                                          "\t\t<td>'a'</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>2</td>\n",
+                                          "\t\t<td>'b'</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>3</td>\n",
+                                          "\t\t<td>'c'</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>4</td>\n",
+                                          "\t\t<td>'d'</td>\n",
+                                          "\t</tr>\n",
+                                          "</table>"
+                                    ],
+                                    "text/plain": [
+                                          "| id || val |\n",
+                                          "=============\n",
+                                          "|  1 || 'a' |\n",
+                                          "|  2 || 'b' |\n",
+                                          "|  3 || 'c' |\n",
+                                          "|  4 || 'd' |"
+                                    ]
+                              },
+                              "execution_count": 8,
+                              "metadata": {},
+                              "output_type": "execute_result"
+                        }
+                  ],
+                  "source": [
+                        "rows = [\n",
+                        "    (\n",
+                        "        1,\n",
+                        "        \"'a'\",\n",
+                        "    ),\n",
+                        "    (\n",
+                        "        2,\n",
+                        "        \"'b'\",\n",
+                        "    ),\n",
+                        "    (\n",
+                        "        3,\n",
+                        "        \"'c'\",\n",
+                        "    ),\n",
+                        "    (4, \"'d'\"),\n",
+                        "]\n",
+                        "t1 = gp.to_table(rows, db=db, column_names=[\"id, val\"])\n",
+                        "t1"
+                  ]
             },
-            "outputs": [
-                {
-                    "data": {
-                        "text/html": [
-                            "<table>\n",
-                            "\t<tr>\n",
-                            "\t\t<th>result</th>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>0</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>1</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>4</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>9</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>16</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>25</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>36</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>49</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>64</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>81</td>\n",
-                            "\t</tr>\n",
-                            "</table>"
-                        ],
-                        "text/plain": [
-                            "| result     |\n",
-                            "==============\n",
-                            "|          0 |\n",
-                            "|          1 |\n",
-                            "|          4 |\n",
-                            "|          9 |\n",
-                            "|         16 |\n",
-                            "|         25 |\n",
-                            "|         36 |\n",
-                            "|         49 |\n",
-                            "|         64 |\n",
-                            "|         81 |"
-                        ]
-                    },
-                    "execution_count": 12,
-                    "metadata": {},
-                    "output_type": "execute_result"
-                }
-            ],
-            "source": [
-                "@gp.create_function\n",
-                "def square(a: int) -> int:\n",
-                "    return a**2\n",
-                "\n",
-                "\n",
-                "square(numbers[\"val\"], as_name=\"result\", db=db).to_table()"
-            ]
-        },
-        {
-            "cell_type": "markdown",
-            "metadata": {
-                "pycharm": {
-                    "name": "#%% md\n"
-                }
+            {
+                  "cell_type": "code",
+                  "execution_count": 9,
+                  "metadata": {
+                        "pycharm": {
+                              "name": "#%%\n"
+                        }
+                  },
+                  "outputs": [
+                        {
+                              "data": {
+                                    "text/html": [
+                                          "<table>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<th>id</th>\n",
+                                          "\t\t<th>val</th>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>1</td>\n",
+                                          "\t\t<td>'a'</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>2</td>\n",
+                                          "\t\t<td>'b'</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>3</td>\n",
+                                          "\t\t<td>'a'</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>4</td>\n",
+                                          "\t\t<td>'b'</td>\n",
+                                          "\t</tr>\n",
+                                          "</table>"
+                                    ],
+                                    "text/plain": [
+                                          "| id || val |\n",
+                                          "=============\n",
+                                          "|  1 || 'a' |\n",
+                                          "|  2 || 'b' |\n",
+                                          "|  3 || 'a' |\n",
+                                          "|  4 || 'b' |"
+                                    ]
+                              },
+                              "execution_count": 9,
+                              "metadata": {},
+                              "output_type": "execute_result"
+                        }
+                  ],
+                  "source": [
+                        "rows = [\n",
+                        "    (\n",
+                        "        1,\n",
+                        "        \"'a'\",\n",
+                        "    ),\n",
+                        "    (\n",
+                        "        2,\n",
+                        "        \"'b'\",\n",
+                        "    ),\n",
+                        "    (\n",
+                        "        3,\n",
+                        "        \"'a'\",\n",
+                        "    ),\n",
+                        "    (4, \"'b'\"),\n",
+                        "]\n",
+                        "t2 = gp.to_table(rows, db=db, column_names=[\"id, val\"])\n",
+                        "t2\n"
+                  ]
             },
-            "source": [
-                "Note that this function is called in exactly the same way as ordinary Python functions.\n",
-                "\n",
-                "If we also want to get the sum of these numbers, what we need is to write an aggregate function like this:"
-            ]
-        },
-        {
-            "cell_type": "code",
-            "execution_count": 13,
-            "metadata": {
-                "pycharm": {
-                    "name": "#%%\n"
-                }
+            {
+                  "cell_type": "markdown",
+                  "metadata": {
+                        "pycharm": {
+                              "name": "#%% md\n"
+                        }
+                  },
+                  "source": [
+                        "We can `JOIN` the two table like this:"
+                  ]
             },
-            "outputs": [
-                {
-                    "data": {
-                        "text/html": [
-                            "<table>\n",
-                            "\t<tr>\n",
-                            "\t\t<th>result</th>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>45</td>\n",
-                            "\t</tr>\n",
-                            "</table>"
-                        ],
-                        "text/plain": [
-                            "| result     |\n",
-                            "==============\n",
-                            "|         45 |"
-                        ]
-                    },
-                    "execution_count": 13,
-                    "metadata": {},
-                    "output_type": "execute_result"
-                }
-            ],
-            "source": [
-                "@gp.create_aggregate\n",
-                "def my_sum(result: int, val: int) -> int:\n",
-                "    if result is None:\n",
-                "        return val\n",
-                "    return result + val\n",
-                "\n",
-                "\n",
-                "my_sum(numbers[\"val\"], as_name=\"result\", db=db).to_table()"
-            ]
-        }
-    ],
-    "metadata": {
-        "jupytext": {
-            "formats": "ipynb,md"
-        },
-        "kernelspec": {
-            "display_name": "Python 3 (ipykernel)",
-            "language": "python",
-            "name": "python3"
-        },
-        "language_info": {
-            "codemirror_mode": {
-                "name": "ipython",
-                "version": 3
+            {
+                  "cell_type": "code",
+                  "execution_count": 10,
+                  "metadata": {},
+                  "outputs": [
+                        {
+                              "data": {
+                                    "text/html": [
+                                          "<table>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<th>t1_id</th>\n",
+                                          "\t\t<th>t1_val</th>\n",
+                                          "\t\t<th>t2_id</th>\n",
+                                          "\t\t<th>t2_val</th>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>1</td>\n",
+                                          "\t\t<td>'a'</td>\n",
+                                          "\t\t<td>3</td>\n",
+                                          "\t\t<td>'a'</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>1</td>\n",
+                                          "\t\t<td>'a'</td>\n",
+                                          "\t\t<td>1</td>\n",
+                                          "\t\t<td>'a'</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>2</td>\n",
+                                          "\t\t<td>'b'</td>\n",
+                                          "\t\t<td>4</td>\n",
+                                          "\t\t<td>'b'</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>2</td>\n",
+                                          "\t\t<td>'b'</td>\n",
+                                          "\t\t<td>2</td>\n",
+                                          "\t\t<td>'b'</td>\n",
+                                          "\t</tr>\n",
+                                          "</table>"
+                                    ],
+                                    "text/plain": [
+                                          "| t1_id || t1_val || t2_id || t2_val |\n",
+                                          "======================================\n",
+                                          "|     1 || 'a'    ||     3 || 'a'    |\n",
+                                          "|     1 || 'a'    ||     1 || 'a'    |\n",
+                                          "|     2 || 'b'    ||     4 || 'b'    |\n",
+                                          "|     2 || 'b'    ||     2 || 'b'    |"
+                                    ]
+                              },
+                              "execution_count": 10,
+                              "metadata": {},
+                              "output_type": "execute_result"
+                        }
+                  ],
+                  "source": [
+                        "t_join = t1.join(\n",
+                        "    t2,\n",
+                        "    using=[\"val\"],\n",
+                        "    self_columns = {\n",
+                        "        \"id\": \"t1_id\",\n",
+                        "        \"val\": \"t1_val\"\n",
+                        "    },\n",
+                        "    other_columns = {\n",
+                        "        \"id\": \"t2_id\",\n",
+                        "        \"val\": \"t2_val\"\n",
+                        "    }\n",
+                        ")\n",
+                        "t_join"
+                  ]
             },
-            "file_extension": ".py",
-            "mimetype": "text/x-python",
-            "name": "python",
-            "nbconvert_exporter": "python",
-            "pygments_lexer": "ipython3",
-            "version": "3.9.5"
-        }
-    },
-    "nbformat": 4,
-    "nbformat_minor": 1
+            {
+                  "cell_type": "markdown",
+                  "metadata": {
+                        "pycharm": {
+                              "name": "#%% md\n"
+                        }
+                  },
+                  "source": [
+                        "### Creating and Calling Functions\n",
+                        "\n",
+                        "Calling functions is essential for data analytics. GreenplumPython supports creating Greenplum UDFs and UDAs from Python functions and calling them in Python.\n",
+                        "\n",
+                        "Suppose we have a table of numbers:"
+                  ]
+            },
+            {
+                  "cell_type": "code",
+                  "execution_count": 11,
+                  "metadata": {
+                        "pycharm": {
+                              "name": "#%%\n"
+                        }
+                  },
+                  "outputs": [
+                        {
+                              "data": {
+                                    "text/html": [
+                                          "<table>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<th>val</th>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>0</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>1</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>2</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>3</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>4</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>5</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>6</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>7</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>8</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>9</td>\n",
+                                          "\t</tr>\n",
+                                          "</table>"
+                                    ],
+                                    "text/plain": [
+                                          "| val |\n",
+                                          "=======\n",
+                                          "|   0 |\n",
+                                          "|   1 |\n",
+                                          "|   2 |\n",
+                                          "|   3 |\n",
+                                          "|   4 |\n",
+                                          "|   5 |\n",
+                                          "|   6 |\n",
+                                          "|   7 |\n",
+                                          "|   8 |\n",
+                                          "|   9 |"
+                                    ]
+                              },
+                              "execution_count": 11,
+                              "metadata": {},
+                              "output_type": "execute_result"
+                        }
+                  ],
+                  "source": [
+                        "rows = [(i,) for i in range(10)]\n",
+                        "numbers = gp.to_table(rows, db=db, column_names=[\"val\"])\n",
+                        "numbers"
+                  ]
+            },
+            {
+                  "cell_type": "markdown",
+                  "metadata": {
+                        "pycharm": {
+                              "name": "#%% md\n"
+                        }
+                  },
+                  "source": [
+                        "If we want to get the square of each number, we can write a function to do that:"
+                  ]
+            },
+            {
+                  "cell_type": "code",
+                  "execution_count": 12,
+                  "metadata": {},
+                  "outputs": [
+                        {
+                              "data": {
+                                    "text/html": [
+                                          "<table>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<th>square</th>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>0</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>1</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>4</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>9</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>16</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>25</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>36</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>49</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>64</td>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>81</td>\n",
+                                          "\t</tr>\n",
+                                          "</table>"
+                                    ],
+                                    "text/plain": [
+                                          "| square |\n",
+                                          "==========\n",
+                                          "|      0 |\n",
+                                          "|      1 |\n",
+                                          "|      4 |\n",
+                                          "|      9 |\n",
+                                          "|     16 |\n",
+                                          "|     25 |\n",
+                                          "|     36 |\n",
+                                          "|     49 |\n",
+                                          "|     64 |\n",
+                                          "|     81 |"
+                                    ]
+                              },
+                              "execution_count": 12,
+                              "metadata": {},
+                              "output_type": "execute_result"
+                        }
+                  ],
+                  "source": [
+                        "@gp.create_function\n",
+                        "def square(a: int) -> int:\n",
+                        "    return a**2\n",
+                        "\n",
+                        "\n",
+                        "numbers.apply(lambda t: square(t[\"val\"]))"
+                  ]
+            },
+            {
+                  "cell_type": "markdown",
+                  "metadata": {
+                        "pycharm": {
+                              "name": "#%% md\n"
+                        }
+                  },
+                  "source": [
+                        "Note that this function is called in exactly the same way as ordinary Python functions.\n",
+                        "\n",
+                        "If we also want to get the sum of these numbers, what we need is to write an aggregate function like this:"
+                  ]
+            },
+            {
+                  "cell_type": "code",
+                  "execution_count": 13,
+                  "metadata": {},
+                  "outputs": [
+                        {
+                              "data": {
+                                    "text/html": [
+                                          "<table>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<th>my_sum</th>\n",
+                                          "\t</tr>\n",
+                                          "\t<tr>\n",
+                                          "\t\t<td>45</td>\n",
+                                          "\t</tr>\n",
+                                          "</table>"
+                                    ],
+                                    "text/plain": [
+                                          "| my_sum |\n",
+                                          "==========\n",
+                                          "|     45 |"
+                                    ]
+                              },
+                              "execution_count": 13,
+                              "metadata": {},
+                              "output_type": "execute_result"
+                        }
+                  ],
+                  "source": [
+                        "@gp.create_aggregate\n",
+                        "def my_sum(result: int, val: int) -> int:\n",
+                        "    if result is None:\n",
+                        "        return val\n",
+                        "    return result + val\n",
+                        "\n",
+                        "\n",
+                        "numbers.apply(lambda t: my_sum(t[\"val\"]))"
+                  ]
+            }
+      ],
+      "metadata": {
+            "jupytext": {
+                  "formats": "ipynb,md"
+            },
+            "kernelspec": {
+                  "display_name": "Python 3 (ipykernel)",
+                  "language": "python",
+                  "name": "python3"
+            },
+            "language_info": {
+                  "codemirror_mode": {
+                        "name": "ipython",
+                        "version": 3
+                  },
+                  "file_extension": ".py",
+                  "mimetype": "text/x-python",
+                  "name": "python",
+                  "nbconvert_exporter": "python",
+                  "pygments_lexer": "ipython3",
+                  "version": "3.9.5"
+            }
+      },
+      "nbformat": 4,
+      "nbformat_minor": 1
 }

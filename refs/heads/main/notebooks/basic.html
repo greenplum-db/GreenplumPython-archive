@@ -368,7 +368,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">greenplumpython</span> <span class="k">as</span> <span class="nn">gp</span>
 
-<span class="n">db</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">database</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="n">dbname</span><span class="o">=</span><span class="s2">&quot;gpadmin&quot;</span><span class="p">)</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">database</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="n">dbname</span><span class="o">=</span><span class="s2">&quot;postgres&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -380,7 +380,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;demo&quot;</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;demo&quot;</span><span class="p">)</span>
 <span class="n">t</span>
 </pre></div>
 </div>
@@ -397,21 +397,6 @@ div.rendered_html tbody tr:hover {
             <th>k</th>
     </tr>
     <tr>
-            <td>6</td>
-            <td>6</td>
-            <td>6</td>
-    </tr>
-    <tr>
-            <td>9</td>
-            <td>9</td>
-            <td>9</td>
-    </tr>
-    <tr>
-            <td>1</td>
-            <td>1</td>
-            <td>1</td>
-    </tr>
-    <tr>
             <td>2</td>
             <td>2</td>
             <td>2</td>
@@ -422,19 +407,14 @@ div.rendered_html tbody tr:hover {
             <td>3</td>
     </tr>
     <tr>
-            <td>7</td>
-            <td>7</td>
-            <td>7</td>
-    </tr>
-    <tr>
             <td>4</td>
             <td>4</td>
             <td>4</td>
     </tr>
     <tr>
-            <td>5</td>
-            <td>5</td>
-            <td>5</td>
+            <td>7</td>
+            <td>7</td>
+            <td>7</td>
     </tr>
     <tr>
             <td>8</td>
@@ -442,9 +422,29 @@ div.rendered_html tbody tr:hover {
             <td>8</td>
     </tr>
     <tr>
-            <td>10</td>
-            <td>10</td>
-            <td>10</td>
+            <td>5</td>
+            <td>5</td>
+            <td>5</td>
+    </tr>
+    <tr>
+            <td>6</td>
+            <td>6</td>
+            <td>6</td>
+    </tr>
+    <tr>
+            <td>9</td>
+            <td>9</td>
+            <td>9</td>
+    </tr>
+    <tr>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+    </tr>
+    <tr>
+            <td>1</td>
+            <td>1</td>
+            <td>1</td>
     </tr>
 </table></div>
 </div>
@@ -453,7 +453,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;i&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -469,6 +469,11 @@ div.rendered_html tbody tr:hover {
             <th>k</th>
     </tr>
     <tr>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+    </tr>
+    <tr>
             <td>1</td>
             <td>1</td>
             <td>1</td>
@@ -512,11 +517,6 @@ div.rendered_html tbody tr:hover {
             <td>9</td>
             <td>9</td>
             <td>9</td>
-    </tr>
-    <tr>
-            <td>10</td>
-            <td>10</td>
-            <td>10</td>
     </tr>
 </table></div>
 </div>
@@ -545,12 +545,8 @@ div.rendered_html tbody tr:hover {
             <th>j</th>
     </tr>
     <tr>
-            <td>6</td>
-            <td>6</td>
-    </tr>
-    <tr>
-            <td>9</td>
-            <td>9</td>
+            <td>0</td>
+            <td>0</td>
     </tr>
     <tr>
             <td>1</td>
@@ -565,24 +561,28 @@ div.rendered_html tbody tr:hover {
             <td>3</td>
     </tr>
     <tr>
-            <td>7</td>
-            <td>7</td>
-    </tr>
-    <tr>
             <td>4</td>
             <td>4</td>
     </tr>
     <tr>
-            <td>5</td>
-            <td>5</td>
+            <td>7</td>
+            <td>7</td>
     </tr>
     <tr>
             <td>8</td>
             <td>8</td>
     </tr>
     <tr>
-            <td>10</td>
-            <td>10</td>
+            <td>5</td>
+            <td>5</td>
+    </tr>
+    <tr>
+            <td>6</td>
+            <td>6</td>
+    </tr>
+    <tr>
+            <td>9</td>
+            <td>9</td>
     </tr>
 </table></div>
 </div>
@@ -591,7 +591,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_even</span> <span class="o">=</span> <span class="n">t_ij</span><span class="p">[</span><span class="n">t_ij</span><span class="p">[</span><span class="s2">&quot;i&quot;</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_even</span> <span class="o">=</span> <span class="n">t_ij</span><span class="p">[</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;i&quot;</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
 <span class="n">t_even</span>
 </pre></div>
 </div>
@@ -623,8 +623,8 @@ div.rendered_html tbody tr:hover {
             <td>8</td>
     </tr>
     <tr>
-            <td>10</td>
-            <td>10</td>
+            <td>0</td>
+            <td>0</td>
     </tr>
 </table></div>
 </div>
@@ -649,8 +649,8 @@ div.rendered_html tbody tr:hover {
             <th>j</th>
     </tr>
     <tr>
-            <td>6</td>
-            <td>6</td>
+            <td>2</td>
+            <td>2</td>
     </tr>
     <tr>
             <td>4</td>
@@ -682,16 +682,16 @@ div.rendered_html tbody tr:hover {
             <th>j</th>
     </tr>
     <tr>
-            <td>4</td>
-            <td>4</td>
+            <td>6</td>
+            <td>6</td>
     </tr>
     <tr>
-            <td>8</td>
-            <td>8</td>
+            <td>2</td>
+            <td>2</td>
     </tr>
     <tr>
-            <td>10</td>
-            <td>10</td>
+            <td>4</td>
+            <td>4</td>
     </tr>
 </table></div>
 </div>
@@ -772,7 +772,7 @@ div.rendered_html tbody tr:hover {
 <span class="p">]</span>
 <span class="n">t2</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">to_table</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id, val&quot;</span><span class="p">])</span>
 <span class="n">t2</span>
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -810,7 +810,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_join</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
     <span class="n">t2</span><span class="p">,</span>
-    <span class="n">cond</span><span class="o">=</span><span class="n">t1</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">t2</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">],</span>
+    <span class="n">using</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">],</span>
     <span class="n">self_columns</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;t1_id&quot;</span><span class="p">,</span>
         <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="s2">&quot;t1_val&quot;</span>
@@ -928,7 +928,7 @@ div.rendered_html tbody tr:hover {
     <span class="k">return</span> <span class="n">a</span><span class="o">**</span><span class="mi">2</span>
 
 
-<span class="n">square</span><span class="p">(</span><span class="n">numbers</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">],</span> <span class="n">as_name</span><span class="o">=</span><span class="s2">&quot;result&quot;</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span><span class="o">.</span><span class="n">to_table</span><span class="p">()</span>
+<span class="n">numbers</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">square</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]))</span>
 </pre></div>
 </div>
 </div>
@@ -939,7 +939,7 @@ div.rendered_html tbody tr:hover {
 <div class="output_area rendered_html docutils container">
 <table>
     <tr>
-            <th>result</th>
+            <th>square</th>
     </tr>
     <tr>
             <td>0</td>
@@ -986,7 +986,7 @@ div.rendered_html tbody tr:hover {
     <span class="k">return</span> <span class="n">result</span> <span class="o">+</span> <span class="n">val</span>
 
 
-<span class="n">my_sum</span><span class="p">(</span><span class="n">numbers</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">],</span> <span class="n">as_name</span><span class="o">=</span><span class="s2">&quot;result&quot;</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span><span class="o">.</span><span class="n">to_table</span><span class="p">()</span>
+<span class="n">numbers</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">my_sum</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]))</span>
 </pre></div>
 </div>
 </div>
@@ -997,7 +997,7 @@ div.rendered_html tbody tr:hover {
 <div class="output_area rendered_html docutils container">
 <table>
     <tr>
-            <th>result</th>
+            <th>my_sum</th>
     </tr>
     <tr>
             <td>45</td>

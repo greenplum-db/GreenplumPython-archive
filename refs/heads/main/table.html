@@ -111,8 +111,16 @@
 <p>This module creates a Python object <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> which keeps in memory all the user modifications
 on a table, in order to proceed with SQL query. It concatenates different pieces of queries
 together using CTEs.</p>
-<p>Table sends the aggregated SQL query to the database and returns the final result only when
-user calling <cite>fetch()</cite> function.</p>
+<p>Iterating over rows of a Table can be expensive, so is printing it, or converting it to other data structures
+like <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>, as well as <code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>. This is because the content need to
+be computed and fetched from a remote database system. That’s why <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> sends the aggregated SQL query
+to the database and returns the final result only when <cite>_fetch()</cite> function is called.</p>
+<p>Once the content of a <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> is fetched from the database system, it will be cached locally for later use.
+Therefore, re-iterating the same table again will be fast.</p>
+<p>Since the content is cached locally, it will become stale once the Table gets modified by someone else on the database system.
+Therefore, you might want to use refresh() to sync the latest update.
+<strong>Note that refresh() is also expensive.</strong></p>
+<p>N.B: _fetch() function will be called when user wants to iterate through table contents for the first time.</p>
 <p>All modifications made by users are only saved to the database when calling the <cite>save_as()</cite>
 function.</p>
 <dl class="py class">
@@ -150,7 +158,7 @@ function.</p>
 <ul class="simple">
 <li><p>if key is an <a class="reference internal" href="expr.html#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a>, then SELECT a subset of rows per the value of the Expr;</p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">id_cond_table</span> <span class="o">=</span> <span class="n">tab</span><span class="p">[</span><span class="n">tab</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">id_cond_table</span> <span class="o">=</span> <span class="n">tab</span><span class="p">[</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
 </pre></div>
 </div>
 <ul class="simple">
@@ -201,25 +209,58 @@ function.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="table.Table.apply">
+<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="func.html#func.FunctionExpr" title="func.FunctionExpr"><span class="pre">FunctionExpr</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></span><a class="headerlink" href="#table.Table.apply" title="Permalink to this definition"></a></dt>
+<dd><p>Apply a function to the <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a>
+:param func: Callable[[<a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a>], <a class="reference internal" href="func.html#func.FunctionExpr" title="func.FunctionExpr"><code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionExpr</span></code></a>]: a lambda function of a FunctionExpr
+:param expand: bool: expand field of composite returning type
+:param as_name: str: rename returning column</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>resulted Table</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
+<span class="n">series</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="nb">abs</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;abs&quot;</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]))</span>
+</pre></div>
+</div>
+<p>If we want to give constant as attribute, it is also easy to use. Suppose <em>label</em> function takes a str and a int:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">label</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="table.Table.assign">
 <span class="sig-name descname"><span class="pre">assign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">new_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#table.Table" title="table.Table"><span class="pre">Table</span></a></span></span><a class="headerlink" href="#table.Table.assign" title="Permalink to this definition"></a></dt>
 <dd><p>Assigns new columns to the current <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a>. Existing columns
 cannot be reassigned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>new_columns</strong> – a <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> whose keys are column names and values</p>
+<dd class="field-odd"><p><strong>new_columns</strong> – a <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> whose keys are column names and values
+are <code class="xref py py-class docutils literal notranslate"><span class="pre">Callable`s</span> <span class="pre">returning</span> <span class="pre">column</span> <span class="pre">data</span> <span class="pre">when</span> <span class="pre">applied</span> <span class="pre">to</span> <span class="pre">the</span>
+<span class="pre">current</span> <span class="pre">:class:`Table</span></code>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>New table including the new assigned columns</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
 </dd>
 </dl>
-<p>:param are <code class="xref py py-class docutils literal notranslate"><span class="pre">Callable`s</span> <span class="pre">returning</span> <span class="pre">column</span> <span class="pre">data</span> <span class="pre">when</span> <span class="pre">applied</span> <span class="pre">to</span> <span class="pre">the:</span>
-<span class="pre">:param</span> <span class="pre">current</span> <span class="pre">:class:`Table</span></code>.:</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>New table including the new assigned columns</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="#table.Table" title="table.Table">Table</a></p>
-</dd>
-</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
+<span class="n">series</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">to_table</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="nb">abs</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;abs&quot;</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="nb">abs</span><span class="o">=</span><span class="k">lambda</span> <span class="n">nums</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">nums</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]))</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -263,7 +304,7 @@ cannot be reassigned.</p>
 - <cite>“FULL”</cite>: full outer join, or
 - <cite>“CROSS”</cite>: cross join, i.e. the Cartesian product
 The default value <cite>“”</cite> is equivalent to “INNER”.</p></li>
-<li><p><strong>cond</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code> as the join condition</p></li>
+<li><p><strong>cond</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code> lambda function as the join condition</p></li>
 <li><p><strong>using</strong> – a list of column names that exist in both tables to join on.
 <cite>cond</cite> and <cite>using</cite> cannot be used together.</p></li>
 <li><p><strong>self_columns</strong> – A <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> whose keys are the column names of
