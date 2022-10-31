@@ -280,13 +280,16 @@ class Table:
             Table: resulted Table
         Example:
             .. code-block::  python
+
                 rows = [(i,) for i in range(-10, 0)]
                 series = gp.values(rows, db=db, column_names=["id"])
                 abs = gp.function("abs", db=db)
                 result = series.apply(lambda t: abs(t["id"]))
-            If we want to give constant as attribute, it is also easy to use. Suppose *label* function
-            takes a str and a int:
+
+            If we want to give constant as attribute, it is also easy to use. Suppose *label* function takes a str and a int:
+
             .. code-block::  python
+
                 result = series.apply(lambda t: label("label", t["id"]))
         """
         # We need to support calling functions with constant args or even no
@@ -305,12 +308,11 @@ class Table:
 
         Args:
             new_columns: a :class:`dict` whose keys are column names and values
-            are :class:`Callable`s returning column data when applied to the
-            current :class:`Table`.
+                are :class:`Callable`s returning column data when applied to the
+                current :class:`Table`.
 
         Returns:
             Table: New table including the new assigned columns
-
 
         Example:
             .. code-block::  python

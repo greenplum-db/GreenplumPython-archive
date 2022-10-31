@@ -88,15 +88,19 @@ class Database:
     ) -> "Table":
         """
         Apply a function in database.
+
         Args:
             func: An aggregate function to be applied to
             expand: bool: expand field of composite returning type
             as_name: str: rename returning column
+
         Returns:
             Table: resulted Table
+
         Example:
             .. code-block::  python
-                db.apply(lambda row: add(1, 2))
+
+                db.apply(lambda: add(1, 2))
         """
         return func().bind(db=self).apply(expand=expand, as_name=as_name)
 
@@ -105,16 +109,14 @@ class Database:
         Assign new columns by calling functions in database
 
         Args:
-            **new_columns: a :class:`dict` whose keys are column names and values
-            are :class:`Callable`s returning column data when applied to constant value
-            in database.
+            new_columns: a :class:`dict` whose keys are column names and values
+                are :class:`Callable`s returning column data when applied to
+                constant value in database.
 
         Returns:
             Table: Table resulted with assigned columns
 
-
         Example:
-
             .. code-block::  python
 
                 version = gp.function("version")

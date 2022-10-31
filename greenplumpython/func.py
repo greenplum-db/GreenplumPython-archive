@@ -316,6 +316,7 @@ def function(name: str, schema: Optional[str] = None) -> NormalFunction:
 
     Example:
         .. code-block::  Python
+
             generate_series = gp.function("generate_series")
 
     """
@@ -411,6 +412,7 @@ def aggregate_function(name: str, schema: Optional[str] = None) -> AggregateFunc
 
     Example:
         .. code-block::  Python
+
             count = gp.aggregate_function("count")
     """
     if name not in _global_scope:
@@ -430,7 +432,7 @@ def create_function(
 
     Args:
         wrapped_func : the Python function to be wrapped into a database function
-        language_handler language handler to run the UDF, defaults to plpython3u,
+            language_handler language handler to run the UDF, defaults to plpython3u,
             will also support plcontainer later.
 
     Returns:

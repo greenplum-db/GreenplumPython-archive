@@ -38,15 +38,19 @@ class TableGroupingSets:
     ) -> "Table":
         """
         Apply a function to the grouping set.
+
         Args:
             func: An aggregate function to be applied to
-            expand: bool: expand field of composite returning type
-            as_name: str: rename returning column
+            expand: expand field of composite returning type
+            as_name: rename returning column
+
         Returns:
             Table: resulted Table
+
         Example:
             .. code-block::  python
-                numbers.group_by("is_even").apply(lambda row: count(row["*"]))
+
+                numbers.group_by("is_even").apply(lambda _: count())
         """
         return func(self._table).bind(group_by=self).apply(expand=expand, as_name=as_name)
 
@@ -57,8 +61,8 @@ class TableGroupingSets:
 
         Args:
             new_columns: a :class:`dict` whose keys are column names and values
-            are :class:`Callable`s returning column data when applied to the
-            current :class:`TableGroupingSets`.
+                are :class:`Callable`s returning column data when applied to the
+                current :class:`TableGroupingSets`.
 
         Returns:
             :class:`Table` with the new columns.
@@ -92,7 +96,7 @@ class TableGroupingSets:
 
         Args:
             other: a :class:`Callable` returning the result of
-            :func:`Table.group_by()`when applied to the current :class:`Table`.
+                :func:`Table.group_by()`when applied to the current :class:`Table`.
         """
         return TableGroupingSets(
             self._table,
