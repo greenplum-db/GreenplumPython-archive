@@ -15,8 +15,8 @@ class ColumnField(Expr):
     """
     Inherited from :class:`Expr`.
 
-    Representation of sub-column of a :class:`.Column`.
-    When returning function with composite type, a column could contain multiple sub-columns, this type allows to access to these sub-columns.
+    Representation of a field of a :class:`.Column` of composite type. This type
+    allows to access to the fields in a dict-like manner.
     """
 
     def __init__(
