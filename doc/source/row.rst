@@ -3,6 +3,6 @@ Row
 
 .. automodule:: row
    :members:
-   :special-members: __getitem__
+   :special-members:
    :show-inheritance:
    :member-order: bysource
