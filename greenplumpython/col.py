@@ -15,7 +15,7 @@ class ColumnField(Expr):
     """
     Inherited from :class:`Expr`.
 
-    Representation of a field of a :class:`.Column`of composite type. This type
+    Representation of a field of a :class:`.Column` of composite type. This type
     allows to access to the fields in a dict-like manner.
     """
 
