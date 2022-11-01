@@ -10,6 +10,7 @@ The **GreenplumPython** library contains 5 main modules:
    table
    expr
    col
+   row
    func
    op
    type
