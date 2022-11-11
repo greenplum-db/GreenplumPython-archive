@@ -1,6 +1,7 @@
 """
 This module creates a Python object OrderedTable for order by table.
 """
+import sys
 from typing import TYPE_CHECKING, List, Optional
 
 from greenplumpython.col import Column
@@ -86,13 +87,15 @@ class OrderedTable:
         if rows.step is not None:
             raise NotImplementedError()
         offset_clause = "" if rows.start is None else f"OFFSET {rows.start}"
-        limit_clause = (
-            ""
+        limit = (
+            sys.maxsize
             if rows.stop is None
-            else f"LIMIT {rows.stop if rows.start is None else rows.stop - rows.start}"
+            else rows.stop
+            if rows.start is None
+            else rows.stop - rows.start
         )
         return Table(
-            f"SELECT * FROM {self._table.name} {self._clause()} {limit_clause} {offset_clause}",
+            f"SELECT * FROM {self._table.name} {self._clause()} LIMIT {limit} {offset_clause}",
             parents=[self._table],
         )
 
