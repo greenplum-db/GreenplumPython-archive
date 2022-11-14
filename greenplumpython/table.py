@@ -24,6 +24,7 @@ Due to the second difference, you might need to use
 In the database world, a `Table` is similar to a **materialized view** in a
 database system in that
 
+- They both result from a possibly complex query.
 - They both hold data, as oppose to views.
 - | The data can become stale due to concurrent modification. And the 
   | :meth:`~table.Table.refresh()` method is similar to the
