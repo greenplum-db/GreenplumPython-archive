@@ -22,7 +22,8 @@ There are explanations about the implementation and examples.
    install
    basic
    modules
-   examples
+   abalone
+   pandas
 
 
 Indices and tables
