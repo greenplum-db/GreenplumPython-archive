@@ -135,9 +135,8 @@ definition of “Table” on Wikipedia</a>.</p>
 </ul>
 <p>Due to the first difference, once the data of a <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> is fetched from
 the database system, it will be cached locally for later use.</p>
-<p>Due to the second difference, the data will become stale once the <cite>Table</cite> gets
-modified by someone else on the database system. Therefore, you might need to
-use <a class="reference internal" href="#table.Table.refresh" title="table.Table.refresh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">refresh()</span></code></a> to sync the updates.</p>
+<p>Due to the second difference, you might need to use
+<a class="reference internal" href="#table.Table.refresh" title="table.Table.refresh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">refresh()</span></code></a> to sync the updates if the data becomes stale.</p>
 <p>In the database world, a <cite>Table</cite> is similar to a <strong>materialized view</strong> in a
 database system in that</p>
 <ul>
