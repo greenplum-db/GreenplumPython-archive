@@ -18,9 +18,8 @@ In the data science world, a `Table` is similar to a `DataFrame` in `pandas
 Due to the first difference, once the data of a :class:`Table` is fetched from
 the database system, it will be cached locally for later use.
 
-Due to the second difference, the data will become stale once the `Table` gets
-modified by someone else on the database system. Therefore, you might need to
-use :meth:`~table.Table.refresh()` to sync the updates.
+Due to the second difference, you might need to use
+:meth:`~table.Table.refresh()` to sync the updates if the data becomes stale.
 
 In the database world, a `Table` is similar to a **materialized view** in a
 database system in that
