@@ -15,10 +15,10 @@ In the data science world, a `Table` is similar to a `DataFrame` in `pandas
     - Retrieving them from the database system can be expensive, and
     - They might be modified concurrently by other users of the database system.
 
-Due to the second difference, once the data of a :class:`Table` is fetched from
+Due to the first difference, once the data of a :class:`Table` is fetched from
 the database system, it will be cached locally for later use.
 
-Since the data is cached locally, it will become stale once the `Table` gets
+Due to the second difference, the data will become stale once the `Table` gets
 modified by someone else on the database system. Therefore, you might need to
 use :meth:`~table.Table.refresh()` to sync the updates.
 
