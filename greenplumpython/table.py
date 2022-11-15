@@ -12,23 +12,18 @@ In the data science world, a `Table` is similar to a `DataFrame` in `pandas
 - | Data in a `Table` is located and manipulated on a remote database system rather than locally. As
   | a consequence,
 
-    - Retrieving them from the database system can be expensive, and
-    - They might be modified concurrently by other users of the database system.
-
-  | Due to the first consequence, once the data of a :class:`Table` is fetched from
-  | the database system, it will be cached locally for later use.
-
-  | Due to the second consequence, you might need to use
-  | :meth:`~table.Table.refresh()` to sync the updates if the data becomes stale.
+    - | Retrieving them from the database system can be expensive. Therefore, once the data 
+      | of a :class:`Table` is fetched from the database system, it will be cached locally for later use.
+    - | They might be modified concurrently by other users of the database system. You might 
+      | need to use :meth:`~table.Table.refresh()` to sync the updates if the data becomes stale.
 
 In the database world, a `Table` is similar to a **materialized view** in a
 database system in that
 
 - They both result from a possibly complex query.
 - They both hold data, as oppose to views.
-- | The data can become stale due to concurrent modification. And the 
-  | :meth:`~table.Table.refresh()` method is similar to the
-  | :code:`REFRESH MATERIALIZED VIEW` command in SQL for syncing updates.
+- | The data can become stale due to concurrent modification. And the :meth:`~table.Table.refresh()` method
+  | is similar to the :code:`REFRESH MATERIALIZED VIEW` command in `PostgreSQL <https://www.postgresql.org/docs/current/sql-refreshmaterializedview.html>`_ for syncing updates.
 """
 import collections
 import json
