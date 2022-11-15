@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Getting Started &mdash; GreenplumPython 1.0.0-beta3 documentation</title>
+  <title>Example: Predicting the age of abalone &mdash; GreenplumPython 1.0.0-beta3 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -20,8 +20,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Selecting the Database of Your Data" href="notebooks/basic.html" />
-    <link rel="prev" title="Installation" href="install.html" /> 
+    <link rel="next" title="Context" href="notebooks/abalone.html" />
+    <link rel="prev" title="Ordering" href="order.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -42,16 +42,15 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/basic.html">Selecting the Database of Your Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/basic.html#Accessing-a-Table-in-the-Database">Accessing a Table in the Database</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/basic.html#Basic-Data-Manipulation">Basic Data Manipulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/basic.html#JOIN-ing-Two-Tables"><code class="docutils literal notranslate"><span class="pre">JOIN</span></code>-ing Two Tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/basic.html#Creating-and-Calling-Functions">Creating and Calling Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">GreenplumPython</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Example: Predicting the age of abalone</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/abalone.html">Context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/abalone.html#Import-preparation">Import preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/abalone.html#Data-Exploration">Data Exploration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/abalone.html#Execute-the-OLS-Linear-Regression-Function-by-‘sex’">Execute the OLS Linear Regression Function by ‘sex’</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">GreenplumPython</a></li>
-<li class="toctree-l1"><a class="reference internal" href="abalone.html">Example: Predicting the age of abalone</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pandas.html">Comparison with pandas</a></li>
 </ul>
 
@@ -69,9 +68,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Getting Started</li>
+      <li>Example: Predicting the age of abalone</li>
       <li class="wy-breadcrumbs-aside">
-              <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/basic.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/abalone.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -103,16 +102,20 @@
     text-align: unset;
 }
 </style>
-<section id="getting-started">
-<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h1>
+<section id="example-predicting-the-age-of-abalone">
+<h1>Example: Predicting the age of abalone<a class="headerlink" href="#example-predicting-the-age-of-abalone" title="Permalink to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/basic.html">Selecting the Database of Your Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/basic.html#Accessing-a-Table-in-the-Database">Accessing a Table in the Database</a></li>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/basic.html#Basic-Data-Manipulation">Basic Data Manipulation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/basic.html#JOIN-ing-Two-Tables"><code class="docutils literal notranslate"><span class="pre">JOIN</span></code>-ing Two Tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/basic.html#Creating-and-Calling-Functions">Creating and Calling Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/abalone.html">Context</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/abalone.html#Import-preparation">Import preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/abalone.html#Data-Exploration">Data Exploration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/abalone.html#Execute-the-OLS-Linear-Regression-Function-by-‘sex’">Execute the OLS Linear Regression Function by ‘sex’</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/abalone.html#Training-Process">Training Process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/abalone.html#Prediction">Prediction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/abalone.html#Evaluation-of-model">Evaluation of model</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>
@@ -121,8 +124,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="install.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="notebooks/basic.html" class="btn btn-neutral float-right" title="Selecting the Database of Your Data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="order.html" class="btn btn-neutral float-left" title="Ordering" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="notebooks/abalone.html" class="btn btn-neutral float-right" title="Context" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
