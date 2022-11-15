@@ -23,7 +23,7 @@ database system in that
 - They both result from a possibly complex query.
 - They both hold data, as oppose to views.
 - | The data can become stale due to concurrent modification. And the :meth:`~table.Table.refresh()` method
-  | is similar to the :code:`REFRESH MATERIALIZED VIEW` command in `PostgreSQL <https://www.postgresql.org/docs/current/sql-refreshmaterializedview.html>`_ for syncing updates.
+  | is similar to the :code:`REFRESH MATERIALIZED VIEW` `command in PostgreSQL <https://www.postgresql.org/docs/current/sql-refreshmaterializedview.html>`_ for syncing updates.
 """
 import collections
 import json
