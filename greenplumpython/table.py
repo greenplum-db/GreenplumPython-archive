@@ -1,25 +1,29 @@
 """
-This module creates a Python object :class:`Table` which keeps in memory all the user modifications
-on a table, in order to proceed with SQL query. It concatenates different pieces of queries
-together using CTEs.
+`Table` is the core data structure in GreenplumPython. Conceptually, a `Table`
+is a two-dimensional unordered structure containing data. This aligns with `the
+definition of "Table" on Wikipedia
+<https://en.wikipedia.org/wiki/Table_(information)>`_.
 
-Iterating over rows of a Table can be expensive, so is printing it, or converting it to other data structures
-like :class:`list`, :class:`tuple`, as well as :class:`pandas.DataFrame`. This is because the content need to
-be computed and fetched from a remote database system. That's why :class:`Table` sends the aggregated SQL query
-to the database and returns the final result only when `_fetch()` function is called.
+In the data science world, a `Table` is similar to a `DataFrame` in `pandas
+<https://pandas.pydata.org/>`_, except that
 
-Once the content of a :class:`Table` is fetched from the database system, it will be cached locally for later use.
-Therefore, re-iterating the same table again will be fast.
+- | Data in a `Table` is lazily evaluated rather than eagerly. That is, they are computed only when
+  | they are observed. This can improve efficiency in many cases.
+- | Data in a `Table` is located and manipulated on a remote database system rather than locally. As
+  | a consequence,
 
-Since the content is cached locally, it will become stale once the Table gets modified by someone else on the database system.
-Therefore, you might want to use refresh() to sync the latest update.
-**Note that refresh() is also expensive.**
+    - | Retrieving them from the database system can be expensive. Therefore, once the data 
+      | of a :class:`Table` is fetched from the database system, it will be cached locally for later use.
+    - | They might be modified concurrently by other users of the database system. You might 
+      | need to use :meth:`~table.Table.refresh()` to sync the updates if the data becomes stale.
 
+In the database world, a `Table` is similar to a **materialized view** in a
+database system in that
 
-N.B: _fetch() function will be called when user wants to iterate through table contents for the first time.
-
-All modifications made by users are only saved to the database when calling the `save_as()`
-function.
+- They both result from a possibly complex query.
+- They both hold data, as oppose to views.
+- | The data can become stale due to concurrent modification. And the :meth:`~table.Table.refresh()` method
+  | is similar to the :code:`REFRESH MATERIALIZED VIEW` `command in PostgreSQL <https://www.postgresql.org/docs/current/sql-refreshmaterializedview.html>`_ for syncing updates.
 """
 import collections
 import json
