@@ -1,4 +1,4 @@
-Exanple: Predicting the age of abalone
+Example: Predicting the age of abalone
 ======================================
 
 .. toctree::
