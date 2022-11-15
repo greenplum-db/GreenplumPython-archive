@@ -10,16 +10,16 @@ In the data science world, a `Table` is similar to a `DataFrame` in `pandas
 - | Data in a `Table` is lazily evaluated rather than eagerly. That is, they are computed only when
   | they are observed. This can improve efficiency in many cases.
 - | Data in a `Table` is located and manipulated on a remote database system rather than locally. As
-  | a result,
+  | a consequence,
 
     - Retrieving them from the database system can be expensive, and
     - They might be modified concurrently by other users of the database system.
 
-Due to the first difference, once the data of a :class:`Table` is fetched from
-the database system, it will be cached locally for later use.
+  | Due to the first consequence, once the data of a :class:`Table` is fetched from
+  | the database system, it will be cached locally for later use.
 
-Due to the second difference, you might need to use
-:meth:`~table.Table.refresh()` to sync the updates if the data becomes stale.
+  | Due to the second consequence, you might need to use
+  | :meth:`~table.Table.refresh()` to sync the updates if the data becomes stale.
 
 In the database world, a `Table` is similar to a **materialized view** in a
 database system in that
