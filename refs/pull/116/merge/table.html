@@ -123,7 +123,7 @@ definition of “Table” on Wikipedia</a>.</p>
 </li>
 <li><div class="line-block">
 <div class="line">Data in a <cite>Table</cite> is located and manipulated on a remote database system rather than locally. As</div>
-<div class="line">a result,</div>
+<div class="line">a consequence,</div>
 </div>
 <blockquote>
 <div><ul class="simple">
@@ -131,15 +131,20 @@ definition of “Table” on Wikipedia</a>.</p>
 <li><p>They might be modified concurrently by other users of the database system.</p></li>
 </ul>
 </div></blockquote>
+<div class="line-block">
+<div class="line">Due to the first consequence, once the data of a <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> is fetched from</div>
+<div class="line">the database system, it will be cached locally for later use.</div>
+</div>
+<div class="line-block">
+<div class="line">Due to the second consequence, you might need to use</div>
+<div class="line"><a class="reference internal" href="#table.Table.refresh" title="table.Table.refresh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">refresh()</span></code></a> to sync the updates if the data becomes stale.</div>
+</div>
 </li>
 </ul>
-<p>Due to the first difference, once the data of a <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> is fetched from
-the database system, it will be cached locally for later use.</p>
-<p>Due to the second difference, you might need to use
-<a class="reference internal" href="#table.Table.refresh" title="table.Table.refresh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">refresh()</span></code></a> to sync the updates if the data becomes stale.</p>
 <p>In the database world, a <cite>Table</cite> is similar to a <strong>materialized view</strong> in a
 database system in that</p>
 <ul>
+<li><p>They both result from a possibly complex query.</p></li>
 <li><p>They both hold data, as oppose to views.</p></li>
 <li><div class="line-block">
 <div class="line">The data can become stale due to concurrent modification. And the</div>
