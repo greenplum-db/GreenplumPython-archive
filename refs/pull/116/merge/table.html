@@ -126,19 +126,19 @@ definition of “Table” on Wikipedia</a>.</p>
 <div class="line">a consequence,</div>
 </div>
 <blockquote>
-<div><ul class="simple">
-<li><p>Retrieving them from the database system can be expensive, and</p></li>
-<li><p>They might be modified concurrently by other users of the database system.</p></li>
+<div><ul>
+<li><div class="line-block">
+<div class="line">Retrieving them from the database system can be expensive. Therefore, once the data</div>
+<div class="line">of a <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> is fetched from the database system, it will be cached locally for later use.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">They might be modified concurrently by other users of the database system. You might</div>
+<div class="line">need to use <a class="reference internal" href="#table.Table.refresh" title="table.Table.refresh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">refresh()</span></code></a> to sync the updates if the data becomes stale.</div>
+</div>
+</li>
 </ul>
 </div></blockquote>
-<div class="line-block">
-<div class="line">Due to the first consequence, once the data of a <a class="reference internal" href="#table.Table" title="table.Table"><code class="xref py py-class docutils literal notranslate"><span class="pre">Table</span></code></a> is fetched from</div>
-<div class="line">the database system, it will be cached locally for later use.</div>
-</div>
-<div class="line-block">
-<div class="line">Due to the second consequence, you might need to use</div>
-<div class="line"><a class="reference internal" href="#table.Table.refresh" title="table.Table.refresh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">refresh()</span></code></a> to sync the updates if the data becomes stale.</div>
-</div>
 </li>
 </ul>
 <p>In the database world, a <cite>Table</cite> is similar to a <strong>materialized view</strong> in a
@@ -147,9 +147,8 @@ database system in that</p>
 <li><p>They both result from a possibly complex query.</p></li>
 <li><p>They both hold data, as oppose to views.</p></li>
 <li><div class="line-block">
-<div class="line">The data can become stale due to concurrent modification. And the</div>
-<div class="line"><a class="reference internal" href="#table.Table.refresh" title="table.Table.refresh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">refresh()</span></code></a> method is similar to the</div>
-<div class="line"><code class="code docutils literal notranslate"><span class="pre">REFRESH</span> <span class="pre">MATERIALIZED</span> <span class="pre">VIEW</span></code> command in SQL for syncing updates.</div>
+<div class="line">The data can become stale due to concurrent modification. And the <a class="reference internal" href="#table.Table.refresh" title="table.Table.refresh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">refresh()</span></code></a> method</div>
+<div class="line">is similar to the <code class="code docutils literal notranslate"><span class="pre">REFRESH</span> <span class="pre">MATERIALIZED</span> <span class="pre">VIEW</span></code> command in <a class="reference external" href="https://www.postgresql.org/docs/current/sql-refreshmaterializedview.html">PostgreSQL</a> for syncing updates.</div>
 </div>
 </li>
 </ul>
