@@ -10,7 +10,7 @@ from tests import db
 def table(db: gp.Database):
     rows = [(1,), (2,), (3,)]
     t = db.make_table(rows)
-    t = t.save_as("const_table", temp=True, column_names=["id"])
+    t = t.save_into("const_table", temp=True, column_names=["id"])
     return t
 
 
