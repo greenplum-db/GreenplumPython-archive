@@ -12,8 +12,11 @@ In the data science world, a `Table` is similar to a `DataFrame` in `pandas
 - | Data in a `Table` is located and manipulated on a remote database system rather than locally. As
   | a consequence,
 
-    - | Retrieving them from the database system can be expensive. Therefore, once the data 
-      | of a :class:`Table` is fetched from the database system, it will be cached locally for later use.
+    - | Retrieving them from the database system can be expensive. Therefore, data are only retrieved locally
+      | for observation (display data locally). Since retrieving is expensive for large dataset, observation should be
+      | minimized.
+      | Once the data of a :class:`Table` is fetched from the database system, it will be cached locally and used
+      | only for later observation (display) but not manipulation (filter, computation, join, ...).
     - | They might be modified concurrently by other users of the database system. You might 
       | need to use :meth:`~table.Table.refresh()` to sync the updates if the data becomes stale.
 
@@ -630,9 +633,9 @@ class Table:
         result = self._db.execute(to_json_table._build_full_query())
         return result if result is not None else []
 
-    def save_as(self, table_name: str, temp: bool = False, column_names: List[str] = []) -> "Table":
+    def save_into(self, table_name: str, temp: bool = False, column_names: List[str] = []) -> "Table":
         """
-        Save the table to database as a real Greenplum Table
+        Save the **data** into a new :class:`Table`
 
         Args:
             table_name : str
@@ -640,7 +643,7 @@ class Table:
             column_names : List : list of column names
 
         Returns:
-            Table : table saved in database
+            Table : table
         """
         assert self._db is not None
         # When no column_names is not explicitly passed
@@ -734,30 +737,3 @@ def table(name: str, db: db.Database) -> Table:
         db: :class:`~db.Database`: database which contains the table
     """
     return Table(f"TABLE {name}", name=name, db=db)
-
-
-def to_table(
-    rows: Iterable[Tuple[Any]], db: db.Database, column_names: Iterable[str] = []
-) -> Table:
-    """
-    Returns a :class:`Table` using list of values given
-
-    Args:
-        rows: Iterable[Tuple[Any]]: List of values
-        db: :class:`~db.Database`: database which will be associated with table
-        column_names: Iterable[str]: List of given column names
-
-    Returns:
-        Table: table generated with given values
-
-    .. code-block::  python
-
-       rows = [(1,), (2,), (3,)]
-        t = gp.to_table(rows, db=db)
-
-    """
-    rows_string = ",".join(
-        ["(" + ",".join(to_pg_const(datum) for datum in row) + ")" for row in rows]
-    )
-    columns_string = f"({','.join(column_names)})" if any(column_names) else ""
-    return Table(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", db=db)

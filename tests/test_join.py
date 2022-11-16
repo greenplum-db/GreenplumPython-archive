@@ -11,7 +11,7 @@ def t1(db: gp.Database):
     # fmt: off
     rows1 = [(1, 0, "a1",), (2, 0, "a2",), (3, 0, "a3",)]
     # fmt: on
-    return gp.to_table(rows1, db=db, column_names=["id1", "idd1", "n1"])
+    return db.make_table(rows1, column_names=["id1", "idd1", "n1"])
 
 
 @pytest.fixture
@@ -19,7 +19,7 @@ def t2(db: gp.Database):
     # fmt: off
     rows2 = [(1, 0, "b1",), (2, 0, "b2",), (3, 0, "b3",)]
     # fmt: on
-    return gp.to_table(rows2, db=db, column_names=["id2", "idd2", "n2"])
+    return db.make_table(rows2, column_names=["id2", "idd2", "n2"])
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def zoo_1(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
-    return gp.to_table(rows, db=db, column_names=["id", "animal"])
+    return db.make_table(rows, column_names=["id", "animal"])
 
 
 @pytest.fixture
@@ -35,7 +35,7 @@ def zoo_2(db: gp.Database):
     # fmt: off
     rows = [(1, "Tiger",), (2, "Lion",), (3, "Rhino",), (4, "Panther")]
     # fmt: on
-    return gp.to_table(rows, db=db, column_names=["id", "animal"])
+    return db.make_table(rows, column_names=["id", "animal"])
 
 
 def test_join_all_and_all_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
@@ -99,8 +99,8 @@ def test_join_columns_from_list(db: gp.Database, t1: gp.Table, t2: gp.Table):
 
 def test_join_same_column_using(db: gp.Database):
     rows = [(1,), (2,), (3,)]
-    t1 = gp.to_table(rows, db=db, column_names=["id"])
-    t2 = gp.to_table(rows, db=db, column_names=["id"])
+    t1 = db.make_table(rows, column_names=["id"])
+    t2 = db.make_table(rows, column_names=["id"])
     ret = t1.join(t2, using=["id"], self_columns={"id": "t1_id"}, other_columns={"id": "t2_id"})
     for row in ret:
         assert "t1_id" in row and "t2_id" in row
@@ -108,8 +108,8 @@ def test_join_same_column_using(db: gp.Database):
 
 def test_join_same_column_names(db: gp.Database):
     rows = [(1, 1), (2, 1), (3, 1)]
-    t1 = gp.to_table(rows, db=db, column_names=["id", "n1"])
-    t2 = gp.to_table(rows, db=db, column_names=["id", "n2"])
+    t1 = db.make_table(rows, column_names=["id", "n1"])
+    t2 = db.make_table(rows, column_names=["id", "n2"])
     ret = t1.cross_join(
         t2,
         self_columns={"*"},
@@ -191,8 +191,8 @@ def test_join_natural(db: gp.Database):
     rows2 = [("iPhone", 1,), ("Samsung Galaxy", 1,), ("HP Elite", 2,),
              ("Lenovo Thinkpad", 2,), ("iPad", 3,), ("Kindle Fire", 3)]
     # fmt: on
-    categories = gp.to_table(rows1, db=db, column_names=["category_name", "category_id"])
-    products = gp.to_table(rows2, db=db, column_names=["product_name", "category_id"])
+    categories = db.make_table(rows1, column_names=["category_name", "category_id"])
+    products = db.make_table(rows2, column_names=["product_name", "category_id"])
 
     ret = categories.join(
         products,
@@ -253,7 +253,7 @@ def test_table_join_save(db: gp.Database, zoo_1: gp.Table):
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
         other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
     )
-    t_join.save_as("table_join", temp=True)
+    t_join.save_into("table_join", temp=True)
     t_join_reload = gp.table("table_join", db=db)
     for col in ["zoo1_id", "zoo1_animal", "zoo2_id", "zoo2_animal"]:
         assert col in next(iter(t_join_reload)).column_names()
@@ -264,8 +264,8 @@ def test_table_join_save(db: gp.Database, zoo_1: gp.Table):
 def test_table_join_ine(db: gp.Database):
     rows1 = [(1,), (2,), (3,)]
     rows2 = [(2,), (3,), (4,)]
-    t1 = gp.to_table(rows1, db=db, column_names=["a"])
-    t2 = gp.to_table(rows2, db=db, column_names=["b"])
+    t1 = db.make_table(rows1, column_names=["a"])
+    t2 = db.make_table(rows2, column_names=["b"])
     ret = t1.join(
         t2, cond=lambda t1, t2: t1["a"] < t2["b"], self_columns={"a"}, other_columns={"b"}
     )
@@ -301,7 +301,7 @@ def test_table_multiple_self_join(db: gp.Database, zoo_1: gp.Table):
 # direct parents of the final node must not be adjacent.
 def test_lineage_dfs_order(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    numbers = db.make_table(rows, column_names=["val"])
     mod = numbers.assign(mod=lambda t: t["val"] % 2)
     mod3 = mod.assign(mod3=lambda t: t["val"] % 3)
     results: gp.Table = mod3.join(numbers, using=["val"], self_columns={"val"})

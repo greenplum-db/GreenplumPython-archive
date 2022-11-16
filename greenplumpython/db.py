@@ -66,15 +66,15 @@ class Database:
         assert isinstance(key, str)
         self.execute(f"SET {key} TO {value}", has_results=False)
 
-    def table(self, name: str):
+    def open_table(self, name: str):
         """
-        Returns a :class:`~table.Table` using table name and self
+        Open a persisted :class:`~table.Table`
 
         Args:
             name: str : Table name
 
         Returns:
-            Table: Table in database named **name**
+            Table: table
         """
         from greenplumpython.table import table
 
@@ -137,6 +137,34 @@ class Database:
                 v = v.bind(db=self)
             targets.append(f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)} AS {k}")
         return Table(f"SELECT {','.join(targets)}", db=self)
+
+    def make_table(self,
+            rows: Iterable[Tuple[Any]], column_names: Iterable[str] = []
+    ) -> "Table":
+        """
+        Makes a new :class:`Table` with row-oriented data
+
+        Args:
+            rows: Iterable[Tuple[Any]]: List of values
+            column_names: Iterable[str]: List of given column names
+
+        Returns:
+            Table: table made
+
+        .. code-block::  python
+
+           rows = [(1,), (2,), (3,)]
+            t = db.make_table(rows)
+
+        """
+        from greenplumpython.table import Table
+        from greenplumpython.type import to_pg_const
+
+        rows_string = ",".join(
+            ["(" + ",".join(to_pg_const(datum) for datum in row) + ")" for row in rows]
+        )
+        columns_string = f"({','.join(column_names)})" if any(column_names) else ""
+        return Table(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", db=self)
 
 
 def database(

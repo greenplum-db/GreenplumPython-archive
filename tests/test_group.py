@@ -6,7 +6,7 @@ from tests import db
 
 def test_group_agg(db: gp.Database):
     rows = [(i, i % 2 == 0) for i in range(10)]
-    numbers = gp.to_table(rows, db=db, column_names=["val", "is_even"])
+    numbers = db.make_table(rows, column_names=["val", "is_even"])
     count = gp.aggregate_function("count")
 
     # -- WITH ASSIGN FUNC
@@ -24,7 +24,7 @@ def test_group_agg(db: gp.Database):
 
 def test_group_agg_multi_columns(db: gp.Database):
     rows = [(i, i, i % 2 == 0) for i in range(10)]
-    numbers = gp.to_table(rows, db=db, column_names=["val", "val_cp", "is_even"])
+    numbers = db.make_table(rows, column_names=["val", "val_cp", "is_even"])
 
     @gp.create_aggregate
     def my_sum_copy(result: int, val: int, val_cp: int) -> int:
@@ -55,7 +55,7 @@ def test_group_agg_multi_columns(db: gp.Database):
 
 def test_group_by_multi_columns(db: gp.Database):
     rows = [(i, i % 2 == 0, i % 3 == 0) for i in range(6)]  # 0, 1, 2, 3, 4, 5
-    numbers = gp.to_table(rows, db=db, column_names=["val", "is_even", "is_multiple_of_3"])
+    numbers = db.make_table(rows, column_names=["val", "is_even", "is_multiple_of_3"])
     count = gp.aggregate_function("count")
 
     # -- WITH ASSIGN FUNC
@@ -97,7 +97,7 @@ def test_group_by_multi_columns(db: gp.Database):
 
 def test_group_union(db: gp.Database):
     rows = [(i, i % 2 == 0, i % 3 == 0) for i in range(6)]  # 0, 1, 2, 3, 4, 5
-    numbers = gp.to_table(rows, db=db, column_names=["val", "is_even", "is_multiple_of_3"])
+    numbers = db.make_table(rows, column_names=["val", "is_even", "is_multiple_of_3"])
     count = gp.aggregate_function("count")
 
     # -- WITH ASSIGN FUNC
@@ -135,7 +135,7 @@ def test_group_union(db: gp.Database):
 
 def test_group_empty_assign_empty(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    t = gp.to_table(rows, db=db, column_names=["i"])
+    t = db.make_table(rows, column_names=["i"])
     results = list(t.group_by().assign())
     # NOTE: len(results) == 1 on PostgreSQL, while == 10 on Greenplum
     for row in results:

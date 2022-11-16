@@ -10,7 +10,7 @@ from tests import db
 
 def test_type_cast(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    series = gp.to_table(rows, db, column_names=["val"]).save_as("series", temp=True)
+    series = db.make_table(rows, column_names=["val"]).save_into("series", temp=True)
     regclass = gp.get_type("regclass", db)
     table_name = series.assign(table_name=lambda t: regclass(t["tableoid"]))
     for row in table_name:

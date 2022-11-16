@@ -19,6 +19,6 @@ def test_db():
 
 def test_dg_get_table(db: gp.Database):
     rows = [(1,) for _ in range(10)]
-    gp.to_table(rows, db=db, column_names=["val"]).save_as("numbers", temp=True)
-    numbers = db.table("numbers")
+    db.make_table(rows, column_names=["val"]).save_into("numbers", temp=True)
+    numbers = db.open_table("numbers")
     assert sum(row["val"] for row in numbers) == 10
