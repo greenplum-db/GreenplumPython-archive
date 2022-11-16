@@ -138,9 +138,7 @@ class Database:
             targets.append(f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)} AS {k}")
         return Table(f"SELECT {','.join(targets)}", db=self)
 
-    def make_table(self,
-            rows: Iterable[Tuple[Any]], column_names: Iterable[str] = []
-    ) -> "Table":
+    def make_table(self, rows: Iterable[Tuple[Any]], column_names: Iterable[str] = []) -> "Table":
         """
         Makes a new :class:`Table` with row-oriented data
 

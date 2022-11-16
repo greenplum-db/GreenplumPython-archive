@@ -633,7 +633,9 @@ class Table:
         result = self._db.execute(to_json_table._build_full_query())
         return result if result is not None else []
 
-    def save_into(self, table_name: str, temp: bool = False, column_names: List[str] = []) -> "Table":
+    def save_into(
+        self, table_name: str, temp: bool = False, column_names: List[str] = []
+    ) -> "Table":
         """
         Save the **data** into a new :class:`Table`
 
