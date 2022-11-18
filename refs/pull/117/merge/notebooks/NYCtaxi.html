@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NYC taxi time prediction &mdash; GreenplumPython 1.0.0-beta3 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Data Science Example with big dataset" href="../nyc.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> GreenplumPython
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basic.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">GreenplumPython</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../abalone.html">Example: Predicting the age of abalone</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pandas.html">Comparison with pandas</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../nyc.html">Data Science Example with big dataset</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">NYC taxi time prediction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Connection-to-database">Connection to database</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Data-Exploration">Data Exploration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Data-Preparation">Data Preparation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Train-Test-split">Train Test split</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Data-Modeling">Data Modeling</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Model-Training">Model Training</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Prediction">Prediction</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Model-Evaluation">Model Evaluation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">GreenplumPython</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../nyc.html">Data Science Example with big dataset</a> &raquo;</li>
+      <li>NYC taxi time prediction</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/notebooks/NYCtaxi.ipynb" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars and line breaks on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+    white-space: pre;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="NYC-taxi-time-prediction">
+<h1>NYC taxi time prediction<a class="headerlink" href="#NYC-taxi-time-prediction" title="Permalink to this heading"></a></h1>
+<p>This notebook use the NYC taxi time dataset from <a class="reference external" href="https://www.kaggle.com/competitions/nyc-taxi-trip-duration/data">https://www.kaggle.com/competitions/nyc-taxi-trip-duration/data</a>. The dataset contains 1 458 644 rows, which is a quite big dataset for manipulation. This dataset has 11 columns: * id: a unique identifier for each trip * vendor_id: a code indicating the provider associated with the trip record * pickup_datetime: data and time when the meter was engaged * dropoff_datetime: date and time when the meter was disengaged * passenger_count: the
+number of passengers in the vehicle (driver entered value) * pickup_longitude: the longitude where the meter was engaged * pickup_latitude: the latitude where the meter was engaged * dropoff_longitude: the longitude where the meter was disengaged * dropoff_latitude: the latitude where the meter was disengaged * store_and_fwd_flag: whether the trip record was held in vehicle memory before sending to the vendor because the vehicle did not have a connection to the server * trip_duration:
+duration of trip in seconds</p>
+<p>We will use greenplumpython and follow the data science cycle (Data Exploration - Data Preparation - Data Modeling - Model Evaluation - Model Deployment) to train a Linear Regression model to predict the taxi time using this dataset.</p>
+<section id="Connection-to-database">
+<h2>Connection to database<a class="headerlink" href="#Connection-to-database" title="Permalink to this heading"></a></h2>
+<p>The use of greenplumpython is quite easy, you just have to install it with pip install, and import it at the beginning of the notebook. Then, you can do <code class="docutils literal notranslate"><span class="pre">gp.database()</span></code> to connect to the database.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">greenplumpython</span> <span class="k">as</span> <span class="nn">gp</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">database</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="n">dbname</span><span class="o">=</span><span class="s2">&quot;postgres&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Data-Exploration">
+<h2>Data Exploration<a class="headerlink" href="#Data-Exploration" title="Permalink to this heading"></a></h2>
+<p>The dataset is stored in the greenplum table <code class="docutils literal notranslate"><span class="pre">nyc.train</span></code>, to access it, you can do <code class="docutils literal notranslate"><span class="pre">db.open_table(&quot;nyc.train&quot;)</span></code> to create a <code class="docutils literal notranslate"><span class="pre">Table</span></code> named nyc.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">nyc</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">open_table</span><span class="p">(</span><span class="s2">&quot;nyc.train&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>To view the first 5 rows of the <code class="docutils literal notranslate"><span class="pre">Table</span></code> nyc ordered by id,</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">nyc</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>id</th>
+            <th>vendor_id</th>
+            <th>pickup_datetime</th>
+            <th>dropoff_datetime</th>
+            <th>passenger_count</th>
+            <th>pickup_longitude</th>
+            <th>pickup_latitude</th>
+            <th>dropoff_longitude</th>
+            <th>dropoff_latitude</th>
+            <th>store_and_fwd_flag</th>
+            <th>trip_duration</th>
+            <th>trip_duration_log</th>
+    </tr>
+    <tr>
+            <td>id0000001</td>
+            <td>2</td>
+            <td>2016-06-14T10:43:10</td>
+            <td>2016-06-14T11:01:35</td>
+            <td>1</td>
+            <td>-74.01392364501953</td>
+            <td>40.713924407958984</td>
+            <td>-73.97164916992188</td>
+            <td>40.74640655517578</td>
+            <td>N</td>
+            <td>1105</td>
+            <td>3.0433622780211294</td>
+    </tr>
+    <tr>
+            <td>id0000003</td>
+            <td>2</td>
+            <td>2016-03-16T10:39:55</td>
+            <td>2016-03-16T10:57:21</td>
+            <td>5</td>
+            <td>-73.99075317382812</td>
+            <td>40.7547607421875</td>
+            <td>-74.00711822509766</td>
+            <td>40.74153137207031</td>
+            <td>N</td>
+            <td>1046</td>
+            <td>3.0195316845312554</td>
+    </tr>
+    <tr>
+            <td>id0000005</td>
+            <td>2</td>
+            <td>2016-04-25T09:50:48</td>
+            <td>2016-04-25T09:56:56</td>
+            <td>1</td>
+            <td>-73.95310974121094</td>
+            <td>40.798580169677734</td>
+            <td>-73.96817779541016</td>
+            <td>40.800270080566406</td>
+            <td>N</td>
+            <td>368</td>
+            <td>2.5658478186735176</td>
+    </tr>
+    <tr>
+            <td>id0000008</td>
+            <td>1</td>
+            <td>2016-06-15T09:57:05</td>
+            <td>2016-06-15T10:02:08</td>
+            <td>1</td>
+            <td>-74.00962829589844</td>
+            <td>40.724761962890625</td>
+            <td>-74.015869140625</td>
+            <td>40.715484619140625</td>
+            <td>N</td>
+            <td>303</td>
+            <td>2.481442628502305</td>
+    </tr>
+    <tr>
+            <td>id0000009</td>
+            <td>1</td>
+            <td>2016-05-08T01:43:11</td>
+            <td>2016-05-08T01:52:18</td>
+            <td>1</td>
+            <td>-73.98799133300781</td>
+            <td>40.7598991394043</td>
+            <td>-73.95968627929688</td>
+            <td>40.79850387573242</td>
+            <td>N</td>
+            <td>547</td>
+            <td>2.737987326333431</td>
+    </tr>
+</table></div>
+</div>
+</section>
+<section id="Data-Preparation">
+<h2>Data Preparation<a class="headerlink" href="#Data-Preparation" title="Permalink to this heading"></a></h2>
+<p>Create a new <code class="docutils literal notranslate"><span class="pre">Table</span></code> nyc_clean which contains rows of nyc where passenger_count &lt;&gt; 0</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">nyc_clean</span> <span class="o">=</span> <span class="n">nyc</span><span class="p">[</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;passenger_count&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span> <span class="c1"># Eliminate record with 0 passenger on board</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">nyc_clean</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>id</th>
+            <th>vendor_id</th>
+            <th>pickup_datetime</th>
+            <th>dropoff_datetime</th>
+            <th>passenger_count</th>
+            <th>pickup_longitude</th>
+            <th>pickup_latitude</th>
+            <th>dropoff_longitude</th>
+            <th>dropoff_latitude</th>
+            <th>store_and_fwd_flag</th>
+            <th>trip_duration</th>
+            <th>trip_duration_log</th>
+    </tr>
+    <tr>
+            <td>id3504673</td>
+            <td>2</td>
+            <td>2016-04-06T19:32:31</td>
+            <td>2016-04-06T19:39:40</td>
+            <td>1</td>
+            <td>-74.01004028320312</td>
+            <td>40.719970703125</td>
+            <td>-74.01226806640625</td>
+            <td>40.70671844482422</td>
+            <td>N</td>
+            <td>429</td>
+            <td>2.6324572921847245</td>
+    </tr>
+    <tr>
+            <td>id1324603</td>
+            <td>2</td>
+            <td>2016-05-21T07:54:58</td>
+            <td>2016-05-21T08:20:49</td>
+            <td>1</td>
+            <td>-73.96927642822266</td>
+            <td>40.79777908325195</td>
+            <td>-73.92247009277344</td>
+            <td>40.76055908203125</td>
+            <td>N</td>
+            <td>1551</td>
+            <td>3.190611797813605</td>
+    </tr>
+    <tr>
+            <td>id0012891</td>
+            <td>2</td>
+            <td>2016-03-10T21:45:01</td>
+            <td>2016-03-10T22:05:26</td>
+            <td>1</td>
+            <td>-73.98104858398438</td>
+            <td>40.74433898925781</td>
+            <td>-73.9729995727539</td>
+            <td>40.78998947143555</td>
+            <td>N</td>
+            <td>1225</td>
+            <td>3.0881360887005513</td>
+    </tr>
+    <tr>
+            <td>id1436371</td>
+            <td>2</td>
+            <td>2016-05-10T22:08:41</td>
+            <td>2016-05-10T22:29:55</td>
+            <td>1</td>
+            <td>-73.98265075683594</td>
+            <td>40.76383972167969</td>
+            <td>-74.00222778320312</td>
+            <td>40.73299026489258</td>
+            <td>N</td>
+            <td>1274</td>
+            <td>3.1051694279993316</td>
+    </tr>
+    <tr>
+            <td>id1187965</td>
+            <td>2</td>
+            <td>2016-02-19T09:52:46</td>
+            <td>2016-02-19T10:11:20</td>
+            <td>2</td>
+            <td>-73.96298217773438</td>
+            <td>40.75667953491211</td>
+            <td>-73.98440551757812</td>
+            <td>40.760719299316406</td>
+            <td>N</td>
+            <td>1114</td>
+            <td>3.04688519083771</td>
+    </tr>
+</table></div>
+</div>
+<p>Get access to two defined functions in Greenplum to help us extract the day of week, the hour and the month from column pickuo_datetime and add these three new columns calling <code class="docutils literal notranslate"><span class="pre">assign()</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">to_char</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;To_Char&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">date_part</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;date_part&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">nyc_clean</span> <span class="o">=</span> <span class="n">nyc_clean</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+    <span class="n">day_of_week</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">to_char</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;pickup_datetime&quot;</span><span class="p">],</span> <span class="s1">&#39;Day&#39;</span><span class="p">),</span> <span class="c1"># Extract Day of week from pickup_datetime</span>
+    <span class="n">hour_of_the_day</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">date_part</span><span class="p">(</span><span class="s1">&#39;hour&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;pickup_datetime&quot;</span><span class="p">]),</span> <span class="c1"># Extract hour from pickup_datetime</span>
+    <span class="n">month</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">date_part</span><span class="p">(</span><span class="s1">&#39;month&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;pickup_datetime&quot;</span><span class="p">])</span> <span class="c1"># Extract month from pickup_datetime</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">nyc_clean</span><span class="p">[[</span><span class="s2">&quot;pickup_datetime&quot;</span><span class="p">,</span> <span class="s2">&quot;day_of_week&quot;</span><span class="p">,</span> <span class="s2">&quot;hour_of_the_day&quot;</span><span class="p">,</span> <span class="s2">&quot;month&quot;</span><span class="p">]][:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>pickup_datetime</th>
+            <th>day_of_week</th>
+            <th>hour_of_the_day</th>
+            <th>month</th>
+    </tr>
+    <tr>
+            <td>2016-06-12T00:43:35</td>
+            <td>Sunday   </td>
+            <td>0</td>
+            <td>6</td>
+    </tr>
+    <tr>
+            <td>2016-01-19T11:35:24</td>
+            <td>Tuesday  </td>
+            <td>11</td>
+            <td>1</td>
+    </tr>
+    <tr>
+            <td>2016-03-26T13:30:55</td>
+            <td>Saturday </td>
+            <td>13</td>
+            <td>3</td>
+    </tr>
+    <tr>
+            <td>2016-05-27T23:12:23</td>
+            <td>Friday   </td>
+            <td>23</td>
+            <td>5</td>
+    </tr>
+    <tr>
+            <td>2016-06-01T20:58:29</td>
+            <td>Wednesday</td>
+            <td>20</td>
+            <td>6</td>
+    </tr>
+</table></div>
+</div>
+<p>We can not only use defined function in database, but also combine python user defined function with our table. Here, we create two functions: one to convert store_switch_flag to integer and the other convert day of week to int.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_function</span>
+<span class="k">def</span> <span class="nf">switch_flag_int</span><span class="p">(</span><span class="n">flag</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="s1">&#39;N&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="mi">1</span>
+
+<span class="nd">@gp</span><span class="o">.</span><span class="n">create_function</span>
+<span class="k">def</span> <span class="nf">switch_day_int</span><span class="p">(</span><span class="n">day</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">day_d</span> <span class="o">=</span> <span class="n">day</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">day_d</span> <span class="o">==</span> <span class="s1">&#39;Monday&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">day_d</span> <span class="o">==</span> <span class="s1">&#39;Tuesday&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">2</span>
+    <span class="k">elif</span> <span class="n">day_d</span> <span class="o">==</span> <span class="s1">&#39;Wednesday&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">3</span>
+    <span class="k">elif</span> <span class="n">day_d</span> <span class="o">==</span> <span class="s1">&#39;Thursday&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">4</span>
+    <span class="k">elif</span> <span class="n">day_d</span> <span class="o">==</span> <span class="s1">&#39;Friday&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">5</span>
+    <span class="k">elif</span> <span class="n">day_d</span> <span class="o">==</span> <span class="s1">&#39;Saturday&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">6</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">7</span>
+</pre></div>
+</div>
+</div>
+<p>Let’s call assign() with these two functions above to extend the table nyc_clean with two new columns.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">nyc_clean</span> <span class="o">=</span> <span class="n">nyc_clean</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+    <span class="n">store_and_fwd_flag_int</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">switch_flag_int</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;store_and_fwd_flag&quot;</span><span class="p">]),</span> <span class="c1"># Transform store_and_flag to binary int</span>
+    <span class="n">day_of_week_int</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">switch_day_int</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;day_of_week&quot;</span><span class="p">]))</span> <span class="c1"># Transform day_of_week to int</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">nyc_clean</span><span class="p">[[</span><span class="s2">&quot;store_and_fwd_flag&quot;</span><span class="p">,</span> <span class="s2">&quot;store_and_fwd_flag_int&quot;</span><span class="p">,</span> <span class="s2">&quot;day_of_week&quot;</span><span class="p">,</span> <span class="s2">&quot;day_of_week_int&quot;</span><span class="p">]][:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>store_and_fwd_flag</th>
+            <th>store_and_fwd_flag_int</th>
+            <th>day_of_week</th>
+            <th>day_of_week_int</th>
+    </tr>
+    <tr>
+            <td>N</td>
+            <td>0</td>
+            <td>Monday   </td>
+            <td>1</td>
+    </tr>
+    <tr>
+            <td>N</td>
+            <td>0</td>
+            <td>Saturday </td>
+            <td>6</td>
+    </tr>
+    <tr>
+            <td>N</td>
+            <td>0</td>
+            <td>Friday   </td>
+            <td>5</td>
+    </tr>
+    <tr>
+            <td>N</td>
+            <td>0</td>
+            <td>Sunday   </td>
+            <td>7</td>
+    </tr>
+    <tr>
+            <td>N</td>
+            <td>0</td>
+            <td>Monday   </td>
+            <td>1</td>
+    </tr>
+</table></div>
+</div>
+<p>The distance of trip influence a lot the time of duration, so here we create a function to compute the haversine distance between two geological glopes.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_function</span>
+<span class="k">def</span> <span class="nf">haversine</span><span class="p">(</span><span class="n">lat1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lat2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon2</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">math</span>
+
+    <span class="c1"># distance between latitudes</span>
+    <span class="c1"># and longitudes</span>
+    <span class="n">dLat</span> <span class="o">=</span> <span class="p">(</span><span class="n">lat2</span> <span class="o">-</span> <span class="n">lat1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">180.0</span>
+    <span class="n">dLon</span> <span class="o">=</span> <span class="p">(</span><span class="n">lon2</span> <span class="o">-</span> <span class="n">lon1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">180.0</span>
+
+    <span class="c1"># convert to radians</span>
+    <span class="n">llat1</span> <span class="o">=</span> <span class="p">(</span><span class="n">lat1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">180.0</span>
+    <span class="n">llat2</span> <span class="o">=</span> <span class="p">(</span><span class="n">lat2</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">180.0</span>
+
+    <span class="c1"># apply formulae</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">dLat</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span>
+         <span class="nb">pow</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">dLon</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span>
+             <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">llat1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">llat2</span><span class="p">));</span>
+    <span class="n">rad</span> <span class="o">=</span> <span class="mi">6371</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">asin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">rad</span> <span class="o">*</span> <span class="n">c</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">nyc_clean</span> <span class="o">=</span> <span class="n">nyc_clean</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+    <span class="n">distance</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">haversine</span><span class="p">(</span>
+                        <span class="n">t</span><span class="p">[</span><span class="s2">&quot;pickup_latitude&quot;</span><span class="p">],</span>
+                        <span class="n">t</span><span class="p">[</span><span class="s2">&quot;pickup_longitude&quot;</span><span class="p">],</span>
+                        <span class="n">t</span><span class="p">[</span><span class="s2">&quot;dropoff_latitude&quot;</span><span class="p">],</span>
+                        <span class="n">t</span><span class="p">[</span><span class="s2">&quot;dropoff_longitude&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+<span class="p">)</span> <span class="c1"># Compute distance between start and end of trip</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">nyc_clean</span><span class="p">[[</span><span class="s2">&quot;distance&quot;</span><span class="p">]][:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>distance</th>
+    </tr>
+    <tr>
+            <td>1.485498422771006</td>
+    </tr>
+    <tr>
+            <td>5.71498063078935</td>
+    </tr>
+    <tr>
+            <td>5.121161562140607</td>
+    </tr>
+    <tr>
+            <td>3.80613939487619</td>
+    </tr>
+    <tr>
+            <td>1.8594830202295125</td>
+    </tr>
+</table></div>
+</div>
+<p>nyc_clean = nyc_clean[[ “vendor_id”, “passenger_count”, “store_and_fwd_flag_int”, “trip_duration”, “day_of_week_int”, “hour_of_the_day”, “month”, “distance”,]</p>
+<p>After obtained our prepared data, let’t save the data of <code class="docutils literal notranslate"><span class="pre">Table</span></code> nyc_clean into a new <code class="docutils literal notranslate"><span class="pre">Table</span></code></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;DROP TABLE IF EXISTS nyc_clean&quot;</span><span class="p">,</span> <span class="n">has_results</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">nyc_clean</span> <span class="o">=</span> <span class="n">nyc_clean</span><span class="o">.</span><span class="n">save_into</span><span class="p">(</span><span class="s2">&quot;nyc_clean&quot;</span><span class="p">)</span> <span class="c1"># Save the clean prepared dataset to Greenplum</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">nyc_clean</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>vendor_id</th>
+            <th>passenger_count</th>
+            <th>store_and_fwd_flag_int</th>
+            <th>trip_duration</th>
+            <th>day_of_week_int</th>
+            <th>hour_of_the_day</th>
+            <th>month</th>
+            <th>distance</th>
+    </tr>
+    <tr>
+            <td>2</td>
+            <td>1</td>
+            <td>0</td>
+            <td>429</td>
+            <td>3</td>
+            <td>19</td>
+            <td>4</td>
+            <td>1.485498422771006</td>
+    </tr>
+    <tr>
+            <td>2</td>
+            <td>1</td>
+            <td>0</td>
+            <td>1551</td>
+            <td>6</td>
+            <td>7</td>
+            <td>5</td>
+            <td>5.71498063078935</td>
+    </tr>
+    <tr>
+            <td>2</td>
+            <td>1</td>
+            <td>0</td>
+            <td>1225</td>
+            <td>4</td>
+            <td>21</td>
+            <td>3</td>
+            <td>5.121161562140607</td>
+    </tr>
+    <tr>
+            <td>2</td>
+            <td>1</td>
+            <td>0</td>
+            <td>1274</td>
+            <td>2</td>
+            <td>22</td>
+            <td>5</td>
+            <td>3.80613939487619</td>
+    </tr>
+    <tr>
+            <td>2</td>
+            <td>2</td>
+            <td>0</td>
+            <td>1114</td>
+            <td>5</td>
+            <td>9</td>
+            <td>2</td>
+            <td>1.8594830202295125</td>
+    </tr>
+</table></div>
+</div>
+<section id="Train-Test-split">
+<h3>Train Test split<a class="headerlink" href="#Train-Test-split" title="Permalink to this heading"></a></h3>
+<p>Let’s split our cleaned data to train and test set.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    DROP TABLE IF EXISTS temp_nyc_label;</span>
+<span class="s2">    CREATE TEMP TABLE temp_nyc_label AS</span>
+<span class="s2">        (SELECT *, random() AS __samp_out_label FROM nyc_clean);</span>
+
+<span class="s2">    DROP TABLE IF EXISTS train_percentile_disc;</span>
+<span class="s2">    CREATE TEMP TABLE train_percentile_disc AS</span>
+<span class="s2">        (SELECT percentile_disc(0.8) within GROUP (ORDER BY __samp_out_label) AS __samp_out_label</span>
+<span class="s2">        FROM temp_nyc_label);</span>
+<span class="s2">    DROP TABLE IF EXISTS test_percentile_disc;</span>
+<span class="s2">    CREATE TEMP TABLE test_percentile_disc AS</span>
+<span class="s2">        (SELECT percentile_disc(0.2) within GROUP (ORDER BY __samp_out_label) AS __samp_out_label</span>
+<span class="s2">        FROM temp_nyc_label);</span>
+
+<span class="s2">    DROP TABLE IF EXISTS nyc_train;</span>
+<span class="s2">    CREATE TABLE nyc_train AS</span>
+<span class="s2">        (SELECT temp_nyc_label.*</span>
+<span class="s2">            FROM temp_nyc_label</span>
+<span class="s2">            INNER JOIN train_percentile_disc</span>
+<span class="s2">            ON temp_nyc_label.__samp_out_label &lt;= train_percentile_disc.__samp_out_label</span>
+<span class="s2">        );</span>
+<span class="s2">    DROP TABLE IF EXISTS nyc_test;</span>
+<span class="s2">    CREATE TABLE nyc_test AS</span>
+<span class="s2">        (SELECT temp_nyc_label.*</span>
+<span class="s2">            FROM temp_nyc_label</span>
+<span class="s2">            INNER JOIN test_percentile_disc</span>
+<span class="s2">            ON temp_nyc_label.__samp_out_label &lt;= test_percentile_disc.__samp_out_label</span>
+<span class="s2">        );&quot;&quot;&quot;</span><span class="p">,</span> <span class="n">has_results</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">nyc_train</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">open_table</span><span class="p">(</span><span class="s2">&quot;nyc_train&quot;</span><span class="p">)</span>
+<span class="n">nyc_test</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">open_table</span><span class="p">(</span><span class="s2">&quot;nyc_test&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Data-Modeling">
+<h2>Data Modeling<a class="headerlink" href="#Data-Modeling" title="Permalink to this heading"></a></h2>
+<section id="Model-Training">
+<h3>Model Training<a class="headerlink" href="#Model-Training" title="Permalink to this heading"></a></h3>
+<p>To begin, we want to build a linear regression model to predict the trip duration of NYC taxi using data <code class="docutils literal notranslate"><span class="pre">Table</span></code> in nyc_train.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="c1"># CREATE TYPE linreg_type AS (</span>
+<span class="c1">#    col_nm text[]</span>
+<span class="c1">#    , coef float8[]</span>
+<span class="c1">#    , intercept float8</span>
+<span class="c1">#    , serialized_linreg_model bytea</span>
+<span class="c1"># );</span>
+
+
+<span class="k">class</span> <span class="nc">LinregType</span><span class="p">:</span>
+    <span class="n">col_nm</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">coef</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+    <span class="n">intercept</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">serialized_linreg_model</span><span class="p">:</span> <span class="nb">bytes</span>
+
+
+<span class="c1"># -- Create function</span>
+<span class="c1"># -- Need to specify the return type -&gt; API will create the corresponding type in Greenplum to return a row</span>
+<span class="c1"># -- Will add argument to change language extensions, currently plpython3u by default</span>
+
+<span class="nd">@gp</span><span class="o">.</span><span class="n">create_array_function</span>
+<span class="k">def</span> <span class="nf">linreg_func</span><span class="p">(</span><span class="n">vendor_id</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">passenger_count</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">store_and_fwd_flag</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">day_of_week</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span><span class="n">hour_of_the_day</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">month</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">distance</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">trip_duration</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">LinregType</span><span class="p">:</span>
+
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    <span class="n">col_nm</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;vendor_id&quot;</span><span class="p">,</span> <span class="s2">&quot;passenger_count&quot;</span><span class="p">,</span> <span class="s2">&quot;store_and_fwd_flag&quot;</span><span class="p">,</span> <span class="s2">&quot;day_of_week&quot;</span><span class="p">,</span> <span class="s2">&quot;hour_of_the_day&quot;</span><span class="p">,</span> <span class="s2">&quot;month&quot;</span><span class="p">,</span> <span class="s2">&quot;distance&quot;</span><span class="p">]</span>
+    <span class="n">X</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">vendor_id</span><span class="p">,</span> <span class="n">passenger_count</span><span class="p">,</span> <span class="n">store_and_fwd_flag</span><span class="p">,</span> <span class="n">day_of_week</span><span class="p">,</span> <span class="n">hour_of_the_day</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">distance</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">trip_duration</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+
+    <span class="c1"># Fit the logistic regression model</span>
+    <span class="n">lr_fit</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+    <span class="n">lr_coef</span> <span class="o">=</span> <span class="n">lr_fit</span><span class="o">.</span><span class="n">coef_</span>
+    <span class="n">lr_intercept</span> <span class="o">=</span> <span class="n">lr_fit</span><span class="o">.</span><span class="n">intercept_</span>
+
+    <span class="c1"># Serialization of the fitted model</span>
+    <span class="kn">import</span> <span class="nn">six</span>
+    <span class="n">pickle</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">moves</span><span class="o">.</span><span class="n">cPickle</span>
+    <span class="n">lr_fit_model</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">lr_fit</span><span class="p">,</span> <span class="n">protocol</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;col_nm&#39;</span><span class="p">:</span> <span class="n">col_nm</span><span class="p">,</span>
+        <span class="s1">&#39;coef&#39;</span> <span class="p">:</span> <span class="n">lr_coef</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="s1">&#39;intercept&#39;</span> <span class="p">:</span> <span class="n">lr_intercept</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="s1">&#39;serialized_linreg_model&#39;</span> <span class="p">:</span> <span class="n">lr_fit_model</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>We apply our training function on our training data and obtain a new `Table’ named linreg_fitted where stocked trained model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">linreg_fitted</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">nyc_train</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">linreg_func</span><span class="p">(</span>
+                                <span class="n">t</span><span class="p">[</span><span class="s2">&quot;vendor_id&quot;</span><span class="p">],</span>
+                                <span class="n">t</span><span class="p">[</span><span class="s2">&quot;passenger_count&quot;</span><span class="p">],</span>
+                                <span class="n">t</span><span class="p">[</span><span class="s2">&quot;store_and_fwd_flag_int&quot;</span><span class="p">],</span>
+                                <span class="n">t</span><span class="p">[</span><span class="s2">&quot;day_of_week_int&quot;</span><span class="p">],</span>
+                                <span class="n">t</span><span class="p">[</span><span class="s2">&quot;hour_of_the_day&quot;</span><span class="p">],</span>
+                                <span class="n">t</span><span class="p">[</span><span class="s2">&quot;month&quot;</span><span class="p">],</span>
+                                <span class="n">t</span><span class="p">[</span><span class="s2">&quot;distance&quot;</span><span class="p">],</span>
+                                <span class="n">t</span><span class="p">[</span><span class="s2">&quot;trip_duration&quot;</span><span class="p">]</span>
+                                <span class="p">),</span>
+    <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span> <span class="c1"># Obtain the trained Linear Regression Model</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">linreg_fitted</span><span class="p">[[</span><span class="s2">&quot;col_nm&quot;</span><span class="p">,</span> <span class="s2">&quot;coef&quot;</span><span class="p">,</span> <span class="s2">&quot;intercept&quot;</span><span class="p">]]</span> <span class="c1"># Observe the model</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>col_nm</th>
+            <th>coef</th>
+            <th>intercept</th>
+    </tr>
+    <tr>
+            <td>['vendor_id', 'passenger_count', 'store_and_fwd_flag', 'day_of_week', 'hour_of_the_day', 'month', 'distance']</td>
+            <td>[192.0847403027395, 7.822347337390298, 53.68572350116058, -2.3280204868372127, 4.602986436408932, 16.094583774740485, 116.43566563401572]</td>
+            <td>136.98037611697077</td>
+    </tr>
+</table></div>
+</div>
+</section>
+<section id="Prediction">
+<h3>Prediction<a class="headerlink" href="#Prediction" title="Permalink to this heading"></a></h3>
+<p>After training, we want to predict our test set, that’s why we will need a predict function,depending on the inout values, it will return the trip duration computed by the trained model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_function</span>
+<span class="k">def</span> <span class="nf">linreg_pred_func</span><span class="p">(</span><span class="n">serialized_model</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">vendor_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">passenger_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">store_and_fwd_flag</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">day_of_week</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span><span class="n">hour_of_the_day</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">month</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">distance</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="c1"># Deserialize the serialized model</span>
+    <span class="kn">import</span> <span class="nn">six</span>
+
+    <span class="n">pickle</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">moves</span><span class="o">.</span><span class="n">cPickle</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">serialized_model</span><span class="p">)</span>
+
+    <span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="n">vendor_id</span><span class="p">,</span> <span class="n">passenger_count</span><span class="p">,</span> <span class="n">store_and_fwd_flag</span><span class="p">,</span> <span class="n">day_of_week</span><span class="p">,</span>
+                <span class="n">hour_of_the_day</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">distance</span><span class="p">]</span>
+
+    <span class="c1"># Predict the target variable</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="n">features</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">y_pred</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>But before apply it on our test set, since test set and model are saving in two different <code class="docutils literal notranslate"><span class="pre">Table</span></code>, we need firstly join two table together.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">linreg_test_fit</span> <span class="o">=</span> <span class="n">linreg_fitted</span><span class="o">.</span><span class="n">cross_join</span><span class="p">(</span>
+    <span class="n">nyc_test</span><span class="p">,</span>
+    <span class="n">self_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;col_nm&quot;</span><span class="p">,</span> <span class="s2">&quot;coef&quot;</span><span class="p">,</span> <span class="s2">&quot;intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;serialized_linreg_model&quot;</span><span class="p">],</span>
+    <span class="n">other_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
+<span class="p">)</span> <span class="c1"># Since GreenplumPython can apply function on one table, we need to join model table and test set table</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">linreg_test_fit</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>col_nm</th>
+            <th>coef</th>
+            <th>intercept</th>
+            <th>serialized_linreg_model</th>
+            <th>vendor_id</th>
+            <th>passenger_count</th>
+            <th>store_and_fwd_flag_int</th>
+            <th>trip_duration</th>
+            <th>day_of_week_int</th>
+            <th>hour_of_the_day</th>
+            <th>month</th>
+            <th>distance</th>
+            <th>__samp_out_label</th>
+    </tr>
+    <tr>
+            <td>['vendor_id', 'passenger_count', 'store_and_fwd_flag', 'day_of_week', 'hour_of_the_day', 'month', 'distance']</td>
+            <td>[192.08474030924384, 7.822347337344347, 53.68572349958539, -2.328020486832102, 4.602986436420854, 16.09458377474276, 116.43566563401335]</td>
+            <td>136.98037610688687</td>
+            <td>\x800363736b6c6561726e2e6c696e6561725f6d6f64656c2e5f626173650a4c696e65617252656772657373696f6e0a7100298171017d710228580d0000006669745f696e7465726365707471038858090000006e6f726d616c697a657104580a0000006465707265636174656471055806000000636f70795f5871068858060000006e5f6a6f627371074e5808000000706f736974697665710889580e0000006e5f66656174757265735f696e5f71094b075805000000636f65665f710a636e756d70792e636f72652e6d756c746961727261790a5f7265636f6e7374727563740a710b636e756d70790a6e6461727261790a710c4b0085710d430162710e87710f527110284b014b014b07867111636e756d70790a64747970650a71125802000000663871138988877114527115284b0358010000003c71164e4e4e4affffffff4affffffff4b00747117628943385e1b4f31b6026840f8629f6b154a1f40b268a2c9c5d74a4020e57a34c99f02c0c56fc146756912409c406ba43618304005851cf2e11b5d40711874711962580500000072616e6b5f711a4b07580900000073696e67756c61725f711b680b680c4b0085711c680e87711d52711e284b014b0785711f6815894338e251371cc102bb4099c48bf9cb00b2405107d5453670a0405397880b245b9c408f4637b7dc539640697299c71d048040ef49be6c62e35340712074712162580a000000696e746572636570745f7122680b680c4b00857123680e877124527125284b014b0185712668158943087c9bb63d5f1f614071277471286258100000005f736b6c6561726e5f76657273696f6e71295805000000312e312e32712a75622e</td>
+            <td>2</td>
+            <td>1</td>
+            <td>0</td>
+            <td>1274</td>
+            <td>2</td>
+            <td>22</td>
+            <td>5</td>
+            <td>3.80613939487619</td>
+            <td>0.10143846247242294</td>
+    </tr>
+    <tr>
+            <td>['vendor_id', 'passenger_count', 'store_and_fwd_flag', 'day_of_week', 'hour_of_the_day', 'month', 'distance']</td>
+            <td>[192.08474030924384, 7.822347337344347, 53.68572349958539, -2.328020486832102, 4.602986436420854, 16.09458377474276, 116.43566563401335]</td>
+            <td>136.98037610688687</td>
+            <td>\x800363736b6c6561726e2e6c696e6561725f6d6f64656c2e5f626173650a4c696e65617252656772657373696f6e0a7100298171017d710228580d0000006669745f696e7465726365707471038858090000006e6f726d616c697a657104580a0000006465707265636174656471055806000000636f70795f5871068858060000006e5f6a6f627371074e5808000000706f736974697665710889580e0000006e5f66656174757265735f696e5f71094b075805000000636f65665f710a636e756d70792e636f72652e6d756c746961727261790a5f7265636f6e7374727563740a710b636e756d70790a6e6461727261790a710c4b0085710d430162710e87710f527110284b014b014b07867111636e756d70790a64747970650a71125802000000663871138988877114527115284b0358010000003c71164e4e4e4affffffff4affffffff4b00747117628943385e1b4f31b6026840f8629f6b154a1f40b268a2c9c5d74a4020e57a34c99f02c0c56fc146756912409c406ba43618304005851cf2e11b5d40711874711962580500000072616e6b5f711a4b07580900000073696e67756c61725f711b680b680c4b0085711c680e87711d52711e284b014b0785711f6815894338e251371cc102bb4099c48bf9cb00b2405107d5453670a0405397880b245b9c408f4637b7dc539640697299c71d048040ef49be6c62e35340712074712162580a000000696e746572636570745f7122680b680c4b00857123680e877124527125284b014b0185712668158943087c9bb63d5f1f614071277471286258100000005f736b6c6561726e5f76657273696f6e71295805000000312e312e32712a75622e</td>
+            <td>2</td>
+            <td>2</td>
+            <td>0</td>
+            <td>900</td>
+            <td>6</td>
+            <td>15</td>
+            <td>1</td>
+            <td>3.3173723813679055</td>
+            <td>0.032740062705734374</td>
+    </tr>
+    <tr>
+            <td>['vendor_id', 'passenger_count', 'store_and_fwd_flag', 'day_of_week', 'hour_of_the_day', 'month', 'distance']</td>
+            <td>[192.08474030924384, 7.822347337344347, 53.68572349958539, -2.328020486832102, 4.602986436420854, 16.09458377474276, 116.43566563401335]</td>
+            <td>136.98037610688687</td>
+            <td>\x800363736b6c6561726e2e6c696e6561725f6d6f64656c2e5f626173650a4c696e65617252656772657373696f6e0a7100298171017d710228580d0000006669745f696e7465726365707471038858090000006e6f726d616c697a657104580a0000006465707265636174656471055806000000636f70795f5871068858060000006e5f6a6f627371074e5808000000706f736974697665710889580e0000006e5f66656174757265735f696e5f71094b075805000000636f65665f710a636e756d70792e636f72652e6d756c746961727261790a5f7265636f6e7374727563740a710b636e756d70790a6e6461727261790a710c4b0085710d430162710e87710f527110284b014b014b07867111636e756d70790a64747970650a71125802000000663871138988877114527115284b0358010000003c71164e4e4e4affffffff4affffffff4b00747117628943385e1b4f31b6026840f8629f6b154a1f40b268a2c9c5d74a4020e57a34c99f02c0c56fc146756912409c406ba43618304005851cf2e11b5d40711874711962580500000072616e6b5f711a4b07580900000073696e67756c61725f711b680b680c4b0085711c680e87711d52711e284b014b0785711f6815894338e251371cc102bb4099c48bf9cb00b2405107d5453670a0405397880b245b9c408f4637b7dc539640697299c71d048040ef49be6c62e35340712074712162580a000000696e746572636570745f7122680b680c4b00857123680e877124527125284b014b0185712668158943087c9bb63d5f1f614071277471286258100000005f736b6c6561726e5f76657273696f6e71295805000000312e312e32712a75622e</td>
+            <td>2</td>
+            <td>3</td>
+            <td>0</td>
+            <td>337</td>
+            <td>5</td>
+            <td>17</td>
+            <td>1</td>
+            <td>1.3369823795887859</td>
+            <td>0.044952262747788296</td>
+    </tr>
+</table></div>
+</div>
+<p>Now, we can begin the prediction</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">linreg_pred</span> <span class="o">=</span> <span class="n">linreg_test_fit</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+    <span class="n">pred</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">linreg_pred_func</span><span class="p">(</span>
+            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;serialized_linreg_model&quot;</span><span class="p">],</span>
+            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;vendor_id&quot;</span><span class="p">],</span>
+            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;passenger_count&quot;</span><span class="p">],</span>
+            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;store_and_fwd_flag_int&quot;</span><span class="p">],</span>
+            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;day_of_week_int&quot;</span><span class="p">],</span>
+            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;hour_of_the_day&quot;</span><span class="p">],</span>
+            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;month&quot;</span><span class="p">],</span>
+            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;distance&quot;</span><span class="p">],</span>
+        <span class="p">),</span>
+<span class="p">)[[</span><span class="s2">&quot;trip_duration&quot;</span><span class="p">,</span> <span class="s2">&quot;pred&quot;</span><span class="p">]]</span> <span class="c1"># Predict test set</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">linreg_pred</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>trip_duration</th>
+            <th>pred</th>
+    </tr>
+    <tr>
+            <td>1274</td>
+            <td>1149.2251575022772</td>
+    </tr>
+    <tr>
+            <td>900</td>
+            <td>994.2262701805902</td>
+    </tr>
+    <tr>
+            <td>337</td>
+            <td>782.9945828055118</td>
+    </tr>
+    <tr>
+            <td>913</td>
+            <td>1175.0894969524852</td>
+    </tr>
+    <tr>
+            <td>138</td>
+            <td>700.7955972495773</td>
+    </tr>
+</table></div>
+</div>
+</section>
+</section>
+<section id="Model-Evaluation">
+<h2>Model Evaluation<a class="headerlink" href="#Model-Evaluation" title="Permalink to this heading"></a></h2>
+<p>It will be difficult to evaluate performance of our model by observing data one by one, so we need to create a function to compare the real trip duration and trip duration computed by model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">linreg_eval_type</span><span class="p">:</span>
+    <span class="n">mae</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">mape</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">mse</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">r2_score</span><span class="p">:</span> <span class="nb">float</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_array_function</span>
+<span class="k">def</span> <span class="nf">linreg_eval</span><span class="p">(</span><span class="n">y_actual</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">y_pred</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">linreg_eval_type</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span><span class="p">,</span> <span class="n">mean_squared_error</span><span class="p">,</span> <span class="n">r2_score</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+    <span class="n">mae</span> <span class="o">=</span> <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_actual</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+    <span class="n">mse</span> <span class="o">=</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_actual</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+    <span class="n">r2_score</span> <span class="o">=</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">y_actual</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+
+    <span class="n">y_pred_f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">mape</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">y_actual</span> <span class="o">-</span> <span class="n">y_pred_f</span><span class="p">)</span> <span class="o">/</span> <span class="n">y_actual</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_actual</span><span class="p">)</span>
+
+    <span class="c1"># eval_score = [mae, mape, mse, r2_score]</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;mae&quot;</span><span class="p">:</span> <span class="n">mae</span><span class="p">,</span> <span class="s2">&quot;mape&quot;</span><span class="p">:</span> <span class="n">mape</span><span class="p">,</span> <span class="s2">&quot;mse&quot;</span><span class="p">:</span> <span class="n">mse</span><span class="p">,</span> <span class="s2">&quot;r2_score&quot;</span><span class="p">:</span> <span class="n">r2_score</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">linreg_pred</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">linreg_eval</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;trip_duration&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;pred&quot;</span><span class="p">]),</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>mae</th>
+            <th>mape</th>
+            <th>mse</th>
+            <th>r2_score</th>
+    </tr>
+    <tr>
+            <td>470.2574016869885</td>
+            <td>96.6737826759858</td>
+            <td>66430955.50738679</td>
+            <td>0.004744146807444949</td>
+    </tr>
+</table></div>
+</div>
+<p>Our model is not very good in terms of accuracy and error, need to find another model which can improve accuracy, for example XGboost.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../nyc.html" class="btn btn-neutral float-left" title="Data Science Example with big dataset" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, VMware.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

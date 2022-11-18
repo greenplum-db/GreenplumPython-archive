@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GreenplumPython &mdash; GreenplumPython 1.0.0-beta3 documentation</title>
+  <title>Data Science Example with big dataset &mdash; GreenplumPython 1.0.0-beta3 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -20,8 +20,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Database" href="db.html" />
-    <link rel="prev" title="Selecting the Database of Your Data" href="notebooks/basic.html" /> 
+    <link rel="next" title="NYC taxi time prediction" href="notebooks/NYCtaxi.html" />
+    <link rel="prev" title="Comparison with pandas" href="notebooks/pandas.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -43,22 +43,13 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">GreenplumPython</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="db.html">Database</a></li>
-<li class="toctree-l2"><a class="reference internal" href="table.html">Table</a></li>
-<li class="toctree-l2"><a class="reference internal" href="expr.html">Expression</a></li>
-<li class="toctree-l2"><a class="reference internal" href="col.html">Column</a></li>
-<li class="toctree-l2"><a class="reference internal" href="row.html">Row</a></li>
-<li class="toctree-l2"><a class="reference internal" href="func.html">Function</a></li>
-<li class="toctree-l2"><a class="reference internal" href="op.html">Operator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="type.html">Type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="group.html">Grouping</a></li>
-<li class="toctree-l2"><a class="reference internal" href="order.html">Ordering</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">GreenplumPython</a></li>
 <li class="toctree-l1"><a class="reference internal" href="abalone.html">Example: Predicting the age of abalone</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pandas.html">Comparison with pandas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nyc.html">Data Science Example with big dataset</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data Science Example with big dataset</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/NYCtaxi.html">NYC taxi time prediction</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -75,9 +66,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>GreenplumPython</li>
+      <li>Data Science Example with big dataset</li>
       <li class="wy-breadcrumbs-aside">
-              <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/modules.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/nyc.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -109,21 +100,19 @@
     text-align: unset;
 }
 </style>
-<section id="greenplumpython">
-<h1>GreenplumPython<a class="headerlink" href="#greenplumpython" title="Permalink to this heading"></a></h1>
-<p>The <strong>GreenplumPython</strong> library contains 5 main modules:</p>
+<section id="data-science-example-with-big-dataset">
+<h1>Data Science Example with big dataset<a class="headerlink" href="#data-science-example-with-big-dataset" title="Permalink to this heading"></a></h1>
 <div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="db.html">Database</a></li>
-<li class="toctree-l1"><a class="reference internal" href="table.html">Table</a></li>
-<li class="toctree-l1"><a class="reference internal" href="expr.html">Expression</a></li>
-<li class="toctree-l1"><a class="reference internal" href="col.html">Column</a></li>
-<li class="toctree-l1"><a class="reference internal" href="row.html">Row</a></li>
-<li class="toctree-l1"><a class="reference internal" href="func.html">Function</a></li>
-<li class="toctree-l1"><a class="reference internal" href="op.html">Operator</a></li>
-<li class="toctree-l1"><a class="reference internal" href="type.html">Type</a></li>
-<li class="toctree-l1"><a class="reference internal" href="group.html">Grouping</a></li>
-<li class="toctree-l1"><a class="reference internal" href="order.html">Ordering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/NYCtaxi.html">NYC taxi time prediction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/NYCtaxi.html#Connection-to-database">Connection to database</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/NYCtaxi.html#Data-Exploration">Data Exploration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/NYCtaxi.html#Data-Preparation">Data Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/NYCtaxi.html#Data-Modeling">Data Modeling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/NYCtaxi.html#Model-Evaluation">Model Evaluation</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>
@@ -132,8 +121,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="notebooks/basic.html" class="btn btn-neutral float-left" title="Selecting the Database of Your Data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="db.html" class="btn btn-neutral float-right" title="Database" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="notebooks/pandas.html" class="btn btn-neutral float-left" title="Comparison with pandas" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="notebooks/NYCtaxi.html" class="btn btn-neutral float-right" title="NYC taxi time prediction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
