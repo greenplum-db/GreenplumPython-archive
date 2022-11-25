@@ -1,4 +1,4 @@
-from greenplumpython.db import Database, database
+from greenplumpython.db import Database, database, options_dict, set_option
 from greenplumpython.expr import Expr
 from greenplumpython.func import create_aggregate  # type: ignore
 from greenplumpython.func import create_array_function  # type: ignore
