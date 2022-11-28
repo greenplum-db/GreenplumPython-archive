@@ -3,14 +3,14 @@ This  module can create a connection to a Greenplum database
 """
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Optional, Tuple
 
+import greenplumpython.config as config
+
 if TYPE_CHECKING:
     from greenplumpython.table import Table
     from greenplumpython.func import FunctionExpr
 
 import psycopg2
 import psycopg2.extras
-
-options_dict = {"sql_on": False}
 
 
 class Database:
@@ -44,7 +44,7 @@ class Database:
 
         """
         with self._conn.cursor() as cursor:
-            if options_dict["sql_on"]:
+            if config.print_sql:
                 print(query)
             cursor.execute(query)
             return cursor.fetchall() if has_results else None
@@ -54,21 +54,6 @@ class Database:
         Close the self database connection
         """
         self._conn.close()
-
-    # FIXME: How to get other "global" variables, e.g. CURRENT_ROLE, CURRENT_TIMETAMP, etc.?
-    def set_config(self, key: str, value: Any):
-        """
-        Set Database parameters
-
-        Args:
-            key: str : database parameter name
-            value: undefined : value to set up
-
-        Returns:
-            void
-        """
-        assert isinstance(key, str)
-        self.execute(f"SET {key} TO {value}", has_results=False)
 
     def table(self, name: str):
         """
@@ -193,19 +178,3 @@ def database(
     if password is not None:
         params["password"] = password
     return Database(params)
-
-
-def set_option(option: str, value: Any):
-    """
-    Set option when using GreenplumPython. List of options:
-        sql_on: determine whether to show or not the SQL query executed in database
-
-    Args:
-        option: str: name of the option
-        value: undefined: value to set up
-
-    Returns:
-        void
-    """
-    assert option in options_dict, f'Option named "{option}" not exists.'
-    options_dict[option] = value

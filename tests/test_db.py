@@ -26,12 +26,9 @@ def test_db_get_table(db: gp.Database):
     assert sum(row["val"] for row in numbers) == 10
 
 
-def test_set_option():
-    assert gp.options_dict["sql_on"] is False
-    gp.set_option("sql_on", True)
-    assert gp.options_dict["sql_on"] is True
-    gp.set_option("sql_on", False)
-    assert gp.options_dict["sql_on"] is False
-    with pytest.raises(Exception) as exc_info:
-        gp.set_option("mode", 0)
-    assert str(exc_info.value) == 'Option named "mode" not exists.'
+def test_print_sql():
+    assert gp.config.print_sql is False
+    gp.config.print_sql = True
+    assert gp.config.print_sql is True
+    gp.config.print_sql = False
+    assert gp.config.print_sql is False
