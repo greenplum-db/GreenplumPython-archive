@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, get_type_hints
+from typing import Any, Generic, List, Optional, Tuple, get_type_hints
 from uuid import uuid4
 
 from greenplumpython.db import Database
@@ -135,10 +135,11 @@ def to_pg_type(
         # The `or` here is to make the function work on Python 3.6.
         # Python 3.6 is the default Python version on CentOS 7 and Ubuntu 18.04
         if annotation.__origin__ == list or annotation.__origin__ == List:
+            args: Tuple[type, ...] = annotation.__args__
             if for_return:
-                return f"SETOF {to_pg_type(annotation.__args__[0], db)}"
+                return f"SETOF {to_pg_type(args[0], db)}"
             if annotation.__args__[0] in primitive_type_map:
-                return f"{to_pg_type(annotation.__args__[0], db)}[]"
+                return f"{to_pg_type(args[0], db)}[]"
         raise NotImplementedError()
     else:
         if annotation in primitive_type_map:
