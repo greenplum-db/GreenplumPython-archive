@@ -52,10 +52,10 @@ from psycopg2.extras import RealDictRow
 
 from greenplumpython import db
 from greenplumpython.col import Column, Expr
+from greenplumpython.expr import serialize
 from greenplumpython.group import TableGroupingSets
 from greenplumpython.order import OrderedTable
 from greenplumpython.row import Row
-from greenplumpython.type import to_pg_const
 
 
 class Table:
@@ -66,7 +66,7 @@ class Table:
     def __init__(
         self,
         query: str,
-        parents: Iterable["Table"] = [],
+        parents: List["Table"] = [],
         name: Optional[str] = None,
         db: Optional[db.Database] = None,
         columns: Optional[Iterable[Column]] = None,
@@ -91,7 +91,14 @@ class Table:
 
     @_getitem.register(list)
     def _(self, column_names: List[str]) -> "Table":
-        return self._select(lambda t: [t[col_name] for col_name in column_names])
+        targets_str = [serialize(self[col]) for col in column_names]
+        return Table(
+            f"""
+                SELECT {','.join(targets_str)} 
+                FROM {self._name}
+            """,
+            parents=[self],
+        )
 
     @_getitem.register(str)
     def _(self, column_name: str) -> "Table":
@@ -242,31 +249,13 @@ class Table:
         Returns:
             Table : Table filtered according **expr** passed in argument
         """
-        return Table(f"SELECT * FROM {self._name} WHERE {str(predicate(self))}", parents=[self])
-
-    def _select(self, targets: Callable[["Table"], Union[Any, Iterable[Any]]]) -> "Table":
-        """
-        :meta private:
-
-        Returns :class:`Table` with list of targeted :class:`~expr.Column`
-
-        Args:
-            target_list: Iterable : list of targeted columns
-
-        Returns:
-            Table : Table selected only with targeted columns
-        """
-        targets_str = [
-            str(target) if isinstance(target, Expr) else to_pg_const(target)
-            for target in targets(self)
-        ]
-        return Table(
-            f"""
-                SELECT {','.join(targets_str)} 
-                FROM {self._name}
-            """,
-            parents=[self],
-        )
+        v = predicate(self)
+        assert v.table == self, "Predicate must based on current table"
+        parents = [self]
+        if v.other_table is not None and self.name != v.other_table.name:
+            parents.append(v.other_table)
+        print("parents =", [t.name for t in parents])
+        return Table(f"SELECT * FROM {self._name} WHERE {v.serialize()}", parents=parents)
 
     def apply(
         self,
@@ -331,13 +320,22 @@ class Table:
         if len(new_columns) == 0:
             return self
         targets: List[str] = []
+        other_parents: Dict[str, Table] = {}
         if len(new_columns):
             for k, f in new_columns.items():
                 v: Any = f(self)
-                if isinstance(v, Expr) and not (v.table is None or v.table == self):
-                    raise Exception("Newly included columns must be based on the current table")
-                targets.append(f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)} AS {k}")
-            return Table(f"SELECT *, {','.join(targets)} FROM {self.name}", parents=[self])
+                if isinstance(v, Expr):
+                    assert (
+                        v.table is None or v.table == self
+                    ), "Newly included columns must be based on the current table"
+                    if v.other_table is not None and v.other_table.name != self.name:
+                        if v.other_table.name not in other_parents:
+                            other_parents[v.other_table.name] = v.other_table
+                targets.append(f"{serialize(v)} AS {k}")
+            return Table(
+                f"SELECT *, {','.join(targets)} FROM {self.name}",
+                parents=[self] + list(other_parents.values()),
+            )
 
     def order_by(
         self,
@@ -757,7 +755,7 @@ def to_table(
 
     """
     rows_string = ",".join(
-        ["(" + ",".join(to_pg_const(datum) for datum in row) + ")" for row in rows]
+        ["(" + ",".join(serialize(datum) for datum in row) + ")" for row in rows]
     )
     columns_string = f"({','.join(column_names)})" if any(column_names) else ""
     return Table(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", db=db)

@@ -166,3 +166,22 @@ def test_table_true_div_zero(db: gp.Database):
     with pytest.raises(Exception) as exc_info:
         nums.assign(div=lambda t: t["num"] / t["num"])._fetch()
     assert "division by zero\n" == str(exc_info.value)
+
+
+def test_column_in_column(db: gp.Database):
+    rows = [(i,) for i in range(10)]
+    t = gp.to_table(rows, column_names=["x"], db=db)
+
+    rows2 = [(1,), (2,), (3,)]
+    t2 = gp.to_table(rows2, column_names=["x"], db=db)
+
+    assert len(list(t[lambda t: t["x"].in_(t2["x"])])) == 3
+    assert len(list(t[lambda t: ~t["x"].in_(t2["x"])])) == 7
+
+
+def test_column_in_list(db: gp.Database):
+    rows = [(i,) for i in range(10)]
+    t = gp.to_table(rows, column_names=["x"], db=db)
+
+    assert len(list(t[lambda t: t["x"].in_([1, 2, 3])])) == 3
+    assert len(list(t[lambda t: ~t["x"].in_([1, 2, 3])])) == 7
