@@ -131,7 +131,7 @@ def to_pg_type(
     Returns:
         str: name of type in SQL
     """
-    if hasattr(annotation, "__origin__"):
+    if annotation is not None and hasattr(annotation, "__origin__"):
         # The `or` here is to make the function work on Python 3.6.
         # Python 3.6 is the default Python version on CentOS 7 and Ubuntu 18.04
         if annotation.__origin__ == list or annotation.__origin__ == List:
