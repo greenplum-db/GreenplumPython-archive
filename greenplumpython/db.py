@@ -3,6 +3,8 @@ This  module can create a connection to a Greenplum database
 """
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Optional, Tuple
 
+import greenplumpython.config
+
 if TYPE_CHECKING:
     from greenplumpython.table import Table
     from greenplumpython.func import FunctionExpr
@@ -41,10 +43,9 @@ class Database:
                 result = db.execute("SELECT version()")
 
         """
-        import greenplumpython.config as gp_config
 
         with self._conn.cursor() as cursor:
-            if gp_config.print_sql:
+            if greenplumpython.config.print_sql:
                 print(query)
             cursor.execute(query)
             return cursor.fetchall() if has_results else None
