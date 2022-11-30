@@ -21,10 +21,10 @@ class TypeCast(Expr):
     """
 
     def __init__(
-        self,
-        obj: object,
-        type_name: str,
-        db: Optional[Database] = None,
+            self,
+            obj: object,
+            type_name: str,
+            db: Optional[Database] = None,
     ) -> None:
         """
 
@@ -120,8 +120,11 @@ def get_type(name: str) -> Type:
     return Type(name)
 
 
+# FIXME: Annotate the argument type for this function
 def to_pg_type(
-    annotation: Optional[type], db: Optional[Database] = None, for_return: bool = False
+    annotation: type,
+    db: Optional[Database] = None,
+    for_return: bool = False,
 ) -> str:
     """
     :meta private:
@@ -142,9 +145,9 @@ def to_pg_type(
         if annotation.__origin__ == list or annotation.__origin__ == List:
             args: Tuple[type, ...] = annotation.__args__
             if for_return:
-                return f"SETOF {to_pg_type(annotation.__args__[0], db)}"  # type: ignore
-            if annotation.__args__[0] in _defined_types:
-                return f"{to_pg_type(annotation.__args__[0], db)}[]"  # type: ignore
+                return f"SETOF {to_pg_type(args[0], db)}"  # type: ignore
+            if args[0] in _defined_types:
+                return f"{to_pg_type(args[0], db)}[]"  # type: ignore
         raise NotImplementedError()
     else:
         assert db is not None, "Database is required to create type"
