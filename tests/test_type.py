@@ -38,5 +38,6 @@ def test_create_type_recursive(db: gp.Database):
     def create_couple() -> Couple:
         return Couple()
 
+    # FIXME: how to test if the type is created only once?
     func_sig = inspect.signature(create_couple)
     to_pg_type(func_sig.return_annotation, db)
