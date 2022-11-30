@@ -21,10 +21,10 @@ class TypeCast(Expr):
     """
 
     def __init__(
-            self,
-            obj: object,
-            type_name: str,
-            db: Optional[Database] = None,
+        self,
+        obj: object,
+        type_name: str,
+        db: Optional[Database] = None,
     ) -> None:
         """
 
