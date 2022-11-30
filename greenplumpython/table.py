@@ -254,7 +254,6 @@ class Table:
         parents = [self]
         if v.other_table is not None and self.name != v.other_table.name:
             parents.append(v.other_table)
-        print("parents =", [t.name for t in parents])
         return Table(f"SELECT * FROM {self._name} WHERE {v.serialize()}", parents=parents)
 
     def apply(
