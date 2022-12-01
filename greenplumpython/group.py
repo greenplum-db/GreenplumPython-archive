@@ -12,8 +12,7 @@ from typing import (
     Set,
 )
 
-from greenplumpython.expr import Expr
-from greenplumpython.type import to_pg_const
+from greenplumpython.expr import Expr, serialize
 
 if TYPE_CHECKING:
     from greenplumpython.func import FunctionExpr
@@ -82,7 +81,7 @@ class TableGroupingSets:
             v: Any = f(self.table).bind(group_by=self)
             if isinstance(v, Expr) and not (v.table is None or v.table == self.table):
                 raise Exception("Newly included columns must be based on the current table")
-            targets.append(f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)} AS {k}")
+            targets.append(f"{serialize(v)} AS {k}")
         return Table(
             f"SELECT {','.join(targets)} FROM {self.table.name} {self.clause()}",
             parents=[self.table],

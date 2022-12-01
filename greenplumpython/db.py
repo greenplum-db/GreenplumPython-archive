@@ -123,10 +123,9 @@ class Database:
                 db.assign(version=lambda: version())
 
         """
-        from greenplumpython.expr import Expr
+        from greenplumpython.expr import Expr, serialize
         from greenplumpython.func import FunctionExpr
         from greenplumpython.table import Table
-        from greenplumpython.type import to_pg_const
 
         targets: List[str] = []
         for k, f in new_columns.items():
@@ -135,7 +134,7 @@ class Database:
                 assert v.table is None, "New column should not depend on any table."
             if isinstance(v, FunctionExpr):
                 v = v.bind(db=self)
-            targets.append(f"{v.serialize() if isinstance(v, Expr) else to_pg_const(v)} AS {k}")
+            targets.append(f"{serialize(v)} AS {k}")
         return Table(f"SELECT {','.join(targets)}", db=self)
 
 

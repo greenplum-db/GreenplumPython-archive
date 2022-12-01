@@ -1,10 +1,8 @@
-from typing import List, Optional, Set, get_type_hints
+from typing import List, Optional, Set, Tuple, get_type_hints
 from uuid import uuid4
 
-from psycopg2.extensions import adapt  # type: ignore
-
 from greenplumpython.db import Database
-from greenplumpython.expr import Expr
+from greenplumpython.expr import Expr, serialize
 
 
 class TypeCast(Expr):
@@ -35,13 +33,13 @@ class TypeCast(Expr):
             type_name : str : name of type which object will be cast
         """
         table = obj.table if isinstance(obj, Expr) else None
-        super().__init__(table, db)
+        super().__init__(table, db=db)
         self._obj = obj
         self._type_name = type_name
 
     def serialize(self) -> str:
-        obj_str = self._obj.serialize() if isinstance(self._obj, Expr) else to_pg_const(self._obj)
-        return f"{obj_str}::{self._type_name}"
+        obj_str = serialize(self._obj)
+        return f"({obj_str}::{self._type_name})"
 
 
 class Type:
@@ -122,11 +120,8 @@ def get_type(name: str) -> Type:
     return Type(name)
 
 
-# FIXME: Annotate the argument type for this function
 def to_pg_type(
-    annotation: type,
-    db: Optional[Database] = None,
-    for_return: bool = False,
+    annotation: Optional[type], db: Optional[Database] = None, for_return: bool = False
 ) -> str:
     """
     :meta private:
@@ -141,10 +136,11 @@ def to_pg_type(
     Returns:
         str: name of type in SQL
     """
-    if hasattr(annotation, "__origin__"):
+    if annotation is not None and hasattr(annotation, "__origin__"):
         # The `or` here is to make the function work on Python 3.6.
         # Python 3.6 is the default Python version on CentOS 7 and Ubuntu 18.04
         if annotation.__origin__ == list or annotation.__origin__ == List:
+            args: Tuple[type, ...] = annotation.__args__
             if for_return:
                 return f"SETOF {to_pg_type(annotation.__args__[0], db)}"  # type: ignore
             if annotation.__args__[0] in _defined_types:
@@ -157,20 +153,3 @@ def to_pg_type(
             _defined_types[annotation] = Type(name=type_name, annotation=annotation)
         _defined_types[annotation].create_in_db(db)
         return _defined_types[annotation].name
-
-
-def to_pg_const(obj: object) -> str:
-    """
-    :meta private:
-
-    Converts a Python object to UTF-8 encoded str to be used as SQL constant
-
-    Note:
-        It is OK to consider UTF-8 only since all `strs` are encoded in UTF-8
-        in Python 3 and Python 2 is EOL officially.
-    """
-    from greenplumpython.expr import Expr
-
-    if isinstance(obj, Expr):
-        return str(obj)
-    return adapt(obj).getquoted().decode("utf-8")  # type: ignore

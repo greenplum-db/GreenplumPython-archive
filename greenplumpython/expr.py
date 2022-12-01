@@ -2,7 +2,7 @@
 This module creates a Python object Expr.
 """
 from functools import singledispatchmethod
-from typing import TYPE_CHECKING, Any, Optional, overload
+from typing import TYPE_CHECKING, Any, List, Optional, Union, overload
 
 from greenplumpython.db import Database
 
@@ -22,9 +22,11 @@ class Expr:
     def __init__(
         self,
         table: Optional["Table"] = None,
+        other_table: Optional["Table"] = None,
         db: Optional[Database] = None,
     ) -> None:
         self._table = table
+        self._other_table = other_table
         self._db = db if db is not None else (table.db if table is not None else None)
 
     def __hash__(self) -> int:
@@ -302,9 +304,55 @@ class Expr:
         Returns Expr associated :class:`~table.Table`
 
         Returns:
-        Optional[:class:`~table.Table`]: Table associated with :class:`Expr`
+            Optional[:class:`~table.Table`]: Table associated with :class:`Expr`
         """
         return self._table
+
+    @property
+    def other_table(self) -> Optional["Table"]:
+        return self._other_table
+
+    # NOTE: We cannot use __contains__() because the return value will always
+    # be converted to bool.
+    #
+    # NOTE: Nested IN expression, e.g. `t["a"].in_(t2.["b"].in_(t3["c"]))`
+    # is not supported yet. We probably should not encourge user to write
+    # nested IN expressions.
+    def in_(self, container: Union["Expr", List[Any]]) -> "InExpr":
+        """
+        Tests whether each value of current :class:`Expr` is in the container.
+
+        It is analogous to the built-in `in` operator of Python and SQL.
+
+        Args:
+            container: A collection of values. It can either be another
+                :class:`Expr` representing a transformed column of
+                :class:`Table`, or   a `list` of values of the same type as the
+                current `Expr`.
+
+        Returns:
+            :class:`InExpr`: A boolean :class:`Expr` whose values are of the
+                same length as the current :class:`Expr`.
+        """
+        return InExpr(self, container, self.table, self.db)
+
+
+from psycopg2.extensions import adapt  # type: ignore
+
+
+def serialize(value: Any) -> str:
+    """
+    :meta private:
+
+    Converts a value to UTF-8 encoded str to be used in a SQL statement
+
+    Note:
+        It is OK to consider UTF-8 only since all `strs` are encoded in UTF-8
+        in Python 3 and Python 2 is EOL officially.
+    """
+    if isinstance(value, Expr):
+        return value.serialize()
+    return adapt(value).getquoted().decode("utf-8")  # type: ignore
 
 
 class BinaryExpr(Expr):
@@ -323,12 +371,13 @@ class BinaryExpr(Expr):
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ):
-        table: Optional[Table] = None
-        if isinstance(left, Expr) and left.table is not None:
-            table = left.table
-        if isinstance(right, Expr) and right.table is not None:
+        table = left.table if isinstance(left, Expr) else None
+        if table is not None and isinstance(right, Expr):
             table = right.table
-        super().__init__(table=table, db=db)
+        other_table = left.other_table if isinstance(left, Expr) else None
+        if other_table is not None and isinstance(right, Expr):
+            other_table = right.other_table
+        super().__init__(table=table, other_table=other_table, db=db)
         self.operator = operator
         self.left = left
         self.right = right
@@ -383,10 +432,10 @@ class BinaryExpr(Expr):
         self._init(operator, left, right, as_name, db)
 
     def serialize(self) -> str:
-        from greenplumpython.type import to_pg_const
+        from greenplumpython.expr import serialize
 
-        left_str = str(self.left) if isinstance(self.left, Expr) else to_pg_const(self.left)
-        right_str = str(self.right) if isinstance(self.right, Expr) else to_pg_const(self.right)
+        left_str = serialize(self.left)
+        right_str = serialize(self.right)
         return f"({left_str} {self.operator} {right_str})"
 
 
@@ -400,7 +449,7 @@ class UnaryExpr(Expr):
     def __init__(
         self,
         operator: str,
-        right: Expr,
+        right: Any,
         db: Optional[Database] = None,
     ):
         """
@@ -408,11 +457,38 @@ class UnaryExpr(Expr):
         Args:
             right: :class:`Expr`
         """
-        table = right.table
-        super().__init__(table=table, db=db)
+        table, other_table = (
+            (right.table, right.other_table) if isinstance(right, Expr) else (None, None)
+        )
+        super().__init__(table=table, other_table=other_table, db=db)
         self.operator = operator
         self.right = right
 
     def serialize(self) -> str:
         right_str = str(self.right)
         return f"{self.operator}({right_str})"
+
+
+class InExpr(Expr):
+    def __init__(
+        self,
+        item: "Expr",
+        container: Union["Expr", List[Any]],
+        table: Optional["Table"] = None,
+        db: Optional[Database] = None,
+    ) -> None:
+        super().__init__(
+            table, other_table=container.table if isinstance(container, Expr) else None, db=db
+        )
+        self._item = item
+        self._container = container
+
+    def serialize(self) -> str:
+        if isinstance(self._container, Expr):
+            assert self.other_table is not None, "Table of container is unknown."
+        container_str = (
+            f"SELECT {self._container.serialize()} FROM {self.other_table.name}"
+            if isinstance(self._container, Expr) and self.other_table is not None
+            else serialize(self._container)
+        )
+        return f"{self._item.serialize()} = ANY({container_str})"
