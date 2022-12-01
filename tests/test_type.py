@@ -24,20 +24,3 @@ def test_type_create(db: gp.Database):
 
     type_name = to_pg_type(Person, db)
     assert isinstance(type_name, str)
-
-
-def test_create_type_recursive(db: gp.Database):
-    class Person:
-        _first_name: str
-        _last_name: str
-
-    class Couple:
-        _first_person: Person
-        _second_person: Person
-
-    def create_couple() -> Couple:
-        return Couple()
-
-    # FIXME: how to test if the type is created only once?
-    func_sig = inspect.signature(create_couple)
-    to_pg_type(func_sig.return_annotation, db)
