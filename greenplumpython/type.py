@@ -120,9 +120,8 @@ def get_type(name: str) -> Type:
     return Type(name)
 
 
-# FIXME: Annotate the argument type for this function
 def to_pg_type(
-    annotation: type,
+    annotation: Optional[type],
     db: Optional[Database] = None,
     for_return: bool = False,
 ) -> str:
