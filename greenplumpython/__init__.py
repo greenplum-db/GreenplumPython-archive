@@ -1,3 +1,4 @@
+import greenplumpython.config
 from greenplumpython.db import Database, database
 from greenplumpython.expr import Expr
 from greenplumpython.func import create_aggregate  # type: ignore

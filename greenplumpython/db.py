@@ -3,6 +3,8 @@ This  module can create a connection to a Greenplum database
 """
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Optional, Tuple
 
+from greenplumpython import config
+
 if TYPE_CHECKING:
     from greenplumpython.table import Table
     from greenplumpython.func import FunctionExpr
@@ -41,7 +43,10 @@ class Database:
                 result = db.execute("SELECT version()")
 
         """
+
         with self._conn.cursor() as cursor:
+            if config.print_sql:
+                print(query)
             cursor.execute(query)
             return cursor.fetchall() if has_results else None
 
@@ -50,21 +55,6 @@ class Database:
         Close the self database connection
         """
         self._conn.close()
-
-    # FIXME: How to get other "global" variables, e.g. CURRENT_ROLE, CURRENT_TIMETAMP, etc.?
-    def set_config(self, key: str, value: Any):
-        """
-        Set Database parameters
-
-        Args:
-            key: str : database parameter name
-            value: undefined : value to set up
-
-        Returns:
-            void
-        """
-        assert isinstance(key, str)
-        self.execute(f"SET {key} TO {value}", has_results=False)
 
     def table(self, name: str):
         """
