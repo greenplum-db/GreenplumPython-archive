@@ -154,7 +154,7 @@ def test_table_true_div_integers(db: gp.Database):
 
 def test_table_true_div_integer_float(db: gp.Database):
     nums = gp.to_table([(i,) for i in range(5, 8, 2)], db, column_names=["num"])
-    float_type = gp.get_type("float", db)
+    float_type = gp.get_type("float")
     results = nums.assign(div=lambda t: float_type(t["num"]) / 2)
 
     for row in results:

@@ -1,18 +1,8 @@
-from typing import Any, Generic, List, Optional, Tuple, get_type_hints
+from typing import List, Optional, Set, Tuple, get_type_hints
 from uuid import uuid4
 
 from greenplumpython.db import Database
 from greenplumpython.expr import Expr, serialize
-
-# -- Map between Python and Greenplum primitive types
-primitive_type_map = {
-    None: "void",
-    int: "integer",
-    float: "double precision",
-    bool: "boolean",
-    str: "text",
-    bytes: "bytea",
-}
 
 
 class TypeCast(Expr):
@@ -57,18 +47,65 @@ class Type:
     A Type object in Greenplum database.
     """
 
-    def __init__(self, name: str, db: Database) -> None:
+    def __init__(self, name: str, annotation: Optional[type] = None) -> None:
         self._name = name
-        self._db = db
+        self._annotation = annotation
+        self._created_in_dbs: Optional[Set[Database]] = set() if annotation is not None else None
+
+    # -- Creation of a composite type in Greenplum corresponding to the class_type given
+    def create_in_db(self, db: Database):
+        """
+        :meta private:
+
+        Creates a new composite type in database and returns its name
+
+        Args:
+            class_type : object : class which user want to reproduce in Greenplum
+            db : :class:`~db.Database` : where the type will be created
+
+        Returns:
+            str: name of the created composite type
+
+        """
+        if self._created_in_dbs is None or db in self._created_in_dbs:
+            return
+        schema = "pg_temp"
+        att_type_str = ",".join(
+            [
+                f"{name} {to_pg_type(type_t, db)}"
+                for name, type_t in get_type_hints(self._annotation).items()
+            ]
+        )
+        db.execute(
+            f"""
+                CREATE TYPE {schema}.{self._name} AS (
+                    {att_type_str}
+                )
+            """,
+            has_results=False,
+        )
+        self._created_in_dbs.add(db)
 
     def __call__(self, obj: object) -> TypeCast:
-        return TypeCast(obj, self._name, db=self._db)
+        return TypeCast(obj, self._name)
+
+    @property
+    def name(self) -> str:
+        return self._name
 
 
-# FIXME: Rename gp.table(), gp.function(), etc. to get_table(), get_function(), etc.
-# FIXME: Make these functions methods of a Database,
-#  e.g. from gp.get_type("int", db) to db.get_type("int")
-def get_type(name: str, db: Database) -> Type:
+# -- Map between Python and Greenplum primitive types
+_defined_types: dict[Optional[type], Type] = {
+    None: Type(name="void"),
+    int: Type(name="integer"),
+    float: Type(name="double precision"),
+    bool: Type(name="boolean"),
+    str: Type(name="text"),
+    bytes: Type(name="bytea"),
+}
+
+
+def get_type(name: str) -> Type:
     """
     Returns the type corresponding to the name in the :class:`~db.Database` given.
 
@@ -80,43 +117,13 @@ def get_type(name: str, db: Database) -> Type:
         Type: :class:`Type`
     """
 
-    return Type(name, db=db)
-
-
-# -- Creation of a composite type in Greenplum corresponding to the class_type given
-# TODO : Add tests for all function
-def create_type(class_type: object, db: Database) -> str:
-    """
-    :meta private:
-
-    Creates a new composite type in database and returns its name
-
-    Args:
-        class_type : object : class which user want to reproduce in Greenplum
-        db : :class:`~db.Database` : where the type will be created
-
-    Returns:
-        str: name of the created composite type
-
-    """
-    type_name = "type_" + uuid4().hex
-    schema = "pg_temp"
-    att_type_str = ",".join(
-        [f"{name} {to_pg_type(type_t, db)}" for name, type_t in get_type_hints(class_type).items()]
-    )
-    db.execute(
-        f"""
-            CREATE TYPE {schema}.{type_name} AS (
-                {att_type_str}
-            )
-        """,
-        has_results=False,
-    )
-    return type_name
+    return Type(name)
 
 
 def to_pg_type(
-    annotation: Optional[type], db: Optional[Database] = None, for_return: bool = False
+    annotation: Optional[type],
+    db: Optional[Database] = None,
+    for_return: bool = False,
 ) -> str:
     """
     :meta private:
@@ -137,13 +144,14 @@ def to_pg_type(
         if annotation.__origin__ == list or annotation.__origin__ == List:
             args: Tuple[type, ...] = annotation.__args__
             if for_return:
-                return f"SETOF {to_pg_type(args[0], db)}"
-            if annotation.__args__[0] in primitive_type_map:
-                return f"{to_pg_type(args[0], db)}[]"
+                return f"SETOF {to_pg_type(args[0], db)}"  # type: ignore
+            if args[0] in _defined_types:
+                return f"{to_pg_type(args[0], db)}[]"  # type: ignore
         raise NotImplementedError()
     else:
-        if annotation in primitive_type_map:
-            return primitive_type_map[annotation]
-        else:
-            assert db is not None, "Database is required to create type"
-            return create_type(annotation, db)
+        assert db is not None, "Database is required to create type"
+        if annotation not in _defined_types:
+            type_name = "type_" + uuid4().hex
+            _defined_types[annotation] = Type(name=type_name, annotation=annotation)
+        _defined_types[annotation].create_in_db(db)
+        return _defined_types[annotation].name

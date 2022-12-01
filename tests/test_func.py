@@ -654,3 +654,21 @@ def test_agg_distinct(db: gp.Database):
     )
     for row in result:
         assert row["count"] == len(rows) and row["count_distinct"] == len(set(rows)) == 1
+
+
+def test_agg_composite_type(db: gp.Database):
+    class sum_count_type:
+        sum: int
+        count: int
+
+    @gp.create_aggregate
+    def sum_count(result: sum_count_type, val: int) -> sum_count_type:
+        if result is None:
+            return {"sum": val, "count": 1}
+        return {"sum": result["sum"] + val, "count": result["count"] + 1}
+
+    rows = [(1,) for _ in range(10)]
+    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    result = numbers.group_by().apply(lambda t: sum_count(t["val"]), expand=True)
+    for row in result:
+        assert row["count"] == len(rows) and row["sum"] == 10
