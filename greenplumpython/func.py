@@ -10,10 +10,10 @@ from uuid import uuid4
 
 from greenplumpython.col import Column
 from greenplumpython.db import Database
-from greenplumpython.expr import Expr
+from greenplumpython.expr import Expr, serialize
 from greenplumpython.group import TableGroupingSets
 from greenplumpython.table import Table
-from greenplumpython.type import to_pg_const, to_pg_type
+from greenplumpython.type import to_pg_type
 
 
 class FunctionExpr(Expr):
@@ -68,13 +68,7 @@ class FunctionExpr(Expr):
         self.function.create_in_db(self._db)
         distinct = "DISTINCT" if self._distinct else ""
         args_string = (
-            ",".join(
-                [
-                    str(arg) if isinstance(arg, Expr) else to_pg_const(arg)
-                    for arg in self._args
-                    if arg is not None
-                ]
-            )
+            ",".join([serialize(arg) for arg in self._args if arg is not None])
             if any(self._args)
             else ""
         )
@@ -182,7 +176,7 @@ class ArrayFunctionExpr(FunctionExpr):
                     else:
                         s = str(self._args[i])  # type: ignore
                 else:
-                    s = to_pg_const(self._args[i])  # type: ignore
+                    s = serialize(self._args[i])  # type: ignore
                 args_string_list.append(s)
             args_string = ",".join(args_string_list)
         return f"{self._func.qualified_name}({args_string})"
