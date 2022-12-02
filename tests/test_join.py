@@ -300,5 +300,5 @@ def test_lineage_dfs_order(db: gp.Database):
     numbers = gp.to_table(rows, db=db, column_names=["val"])
     mod = numbers.assign(mod=lambda t: t["val"] % 2)
     mod3 = mod.assign(mod3=lambda t: t["val"] % 3)
-    results: gp.Table = mod3.join(numbers, using=["val"], self_columns={"val"}, other_columns={})
+    results: gp.Table = mod3.semi_join(numbers, using=["val"])
     assert len(list(results)) == 10

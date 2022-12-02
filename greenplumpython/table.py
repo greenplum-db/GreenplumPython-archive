@@ -477,6 +477,14 @@ class Table:
     Equivalent to calling :meth:`Table.join` with `how="CROSS"`.
     """
 
+    semi_join = partialmethod(join, how="INNER", other_columns={})
+    """
+    Semi joins the current :class:`Table` with another :class:`Table`,
+    returns only columns of self.
+
+    Equivalent to calling :meth:`Table.join` with `other_columns={}`.
+    """
+
     @property
     def name(self) -> str:
         """
