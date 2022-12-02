@@ -55,7 +55,7 @@ def test_join_all_and_all_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
 
 def test_join_no_and_no_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
     ret = next(iter(t1.join(t2, cond=lambda t1, t2: t1["id1"] == t2["id2"])))
-    assert "id1" not in ret and "id2" not in ret  # NOTE: The row is not empty with psycopg2
+    assert "id1" in ret and "id2" in ret
 
 
 def test_join_all_and_no_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
@@ -233,9 +233,8 @@ def test_table_cross_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
 
 
 def test_table_self_join(db: gp.Database, zoo_1: gp.Table):
-    zoo_2 = zoo_1.rename("zoo2")
     ret: gp.Table = zoo_1.join(
-        zoo_2,
+        zoo_1,
         using=["animal"],
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
         other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
@@ -246,9 +245,8 @@ def test_table_self_join(db: gp.Database, zoo_1: gp.Table):
 
 
 def test_table_join_save(db: gp.Database, zoo_1: gp.Table):
-    zoo_2 = zoo_1.rename("zoo2")
     t_join: gp.Table = zoo_1.join(
-        zoo_2,
+        zoo_1,
         using=["animal"],
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
         other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
@@ -275,16 +273,14 @@ def test_table_join_ine(db: gp.Database):
 
 
 def test_table_multiple_self_join(db: gp.Database, zoo_1: gp.Table):
-    zoo_2 = zoo_1.rename("zoo2")
-    zoo_3 = zoo_2.rename("zoo3")
     t_join = zoo_1.join(
-        zoo_2,
+        zoo_1,
         using=["animal"],
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
         other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
     )
     ret = t_join.join(
-        zoo_3,
+        zoo_1,
         cond=lambda s, o: s["zoo1_animal"] == o["animal"],
         self_columns={"*"},
         other_columns={"*"},
@@ -304,5 +300,5 @@ def test_lineage_dfs_order(db: gp.Database):
     numbers = gp.to_table(rows, db=db, column_names=["val"])
     mod = numbers.assign(mod=lambda t: t["val"] % 2)
     mod3 = mod.assign(mod3=lambda t: t["val"] % 3)
-    results: gp.Table = mod3.join(numbers, using=["val"], self_columns={"val"})
+    results: gp.Table = mod3.join(numbers, using=["val"], self_columns={"val"}, other_columns={})
     assert len(list(results)) == 10

@@ -37,7 +37,7 @@ def test_expr_bin_equal_2expr(db: gp.Database):
     t2 = gp.to_table(rows, db=db).save_as("temp5", temp=True, column_names=["id"])
     b4: Callable[[gp.Table, gp.Table], gp.Expr] = lambda t1, t2: t1["id"] == t2["id"]
     assert str(b4(t1, t2)) == "(temp4.id = temp5.id)"
-    assert len(list(t1.join(t2, using=["id"]))) == 3
+    assert len(list(t1.join(t2, using=["id"], self_columns={"id"}, other_columns={}))) == 3
 
 
 def test_expr_bin_equal_bool(db: gp.Database):

@@ -226,18 +226,6 @@ class Table:
             repr_html_str += "</table>"
         return repr_html_str
 
-    def rename(self, name: str) -> "Table":
-        """
-        Returns a copy of the :class:`Table` with a new name.
-
-        Args:
-            name_as: str : Table's new name
-
-        Returns:
-            Table: a new Object Table named **name_as** with same content
-        """
-        return Table(f"SELECT * FROM {self.name}", parents=[self], name=name, db=self._db)
-
     # FIXME: Add test
     def where(self, predicate: Callable[["Table"], "Expr"]) -> "Table":
         """
@@ -380,8 +368,8 @@ class Table:
         how: str = "",
         cond: Optional[Callable[["Table", "Table"], Expr]] = None,
         using: Optional[Iterable[str]] = None,
-        self_columns: Union[Dict[str, Optional[str]], Set[str]] = {},
-        other_columns: Union[Dict[str, Optional[str]], Set[str]] = {},
+        self_columns: Union[Dict[str, Optional[str]], Set[str]] = {"*"},
+        other_columns: Union[Dict[str, Optional[str]], Set[str]] = {"*"},
     ) -> "Table":
         """
         Joins the current :class:`Table` with another :class:`Table`.
@@ -424,7 +412,7 @@ class Table:
         ], "Unsupported join type"
         assert cond is None or using is None, 'Cannot specify "cond" and "using" together'
 
-        def qualify(t: Table, columns: Union[Dict[str, Optional[str]], Set[str]]) -> List[str]:
+        def bind(t: Table, columns: Union[Dict[str, Optional[str]], Set[str]]) -> List[str]:
             target_list: List[str] = []
             for k in columns:
                 col: Column = t[k]
@@ -432,7 +420,17 @@ class Table:
                 target_list.append(col.serialize() + (f" AS {v}" if v is not None else ""))
             return target_list
 
-        target_list = qualify(self, self_columns) + qualify(other, other_columns)
+        other = (
+            other
+            if self.name != other.name
+            else Table(
+                f"SELECT * FROM {other.name}",
+                parents=[other],
+                name="cte_" + uuid4().hex,
+                db=other._db,
+            )
+        )
+        target_list = bind(self, self_columns) + bind(other, other_columns)
         on_clause = f"ON {cond(self, other).serialize()}" if cond is not None else ""
         using_clause = f"USING ({','.join(using)})" if using is not None else ""
         return Table(
