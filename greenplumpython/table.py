@@ -420,23 +420,17 @@ class Table:
                 target_list.append(col.serialize() + (f" AS {v}" if v is not None else ""))
             return target_list
 
-        other = (
-            other
-            if self.name != other.name
-            else Table(
-                f"SELECT * FROM {other.name}",
-                parents=[other],
-                name="cte_" + uuid4().hex,
-                db=other._db,
-            )
+        other_name = other.name if self.name != other.name else "cte_" + uuid4().hex
+        other_clause = other.name if self.name != other.name else self.name + " AS " + other_name
+        target_list = bind(self, self_columns) + bind(
+            Table(query="", name=other_name), other_columns
         )
-        target_list = bind(self, self_columns) + bind(other, other_columns)
         on_clause = f"ON {cond(self, other).serialize()}" if cond is not None else ""
         using_clause = f"USING ({','.join(using)})" if using is not None else ""
         return Table(
             f"""
                 SELECT {",".join(target_list)}
-                FROM {self.name} {how} JOIN {other.name} {on_clause} {using_clause}
+                FROM {self.name} {how} JOIN {other_clause} {on_clause} {using_clause}
             """,
             parents=[self, other],
         )
@@ -475,14 +469,6 @@ class Table:
     i.e. the Cartesian product.
 
     Equivalent to calling :meth:`Table.join` with `how="CROSS"`.
-    """
-
-    semi_join = partialmethod(join, how="INNER", other_columns={})
-    """
-    Semi joins the current :class:`Table` with another :class:`Table`,
-    returns only columns of self.
-
-    Equivalent to calling :meth:`Table.join` with `other_columns={}`.
     """
 
     @property
