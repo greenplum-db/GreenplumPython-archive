@@ -49,18 +49,23 @@ def test_join_all_and_all_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
             )
         )
     )
-    for col in ["id1", "idd1", "n1", "id2", "idd2", "n2"]:
-        assert col in row
+    assert sorted(row.column_names()) == sorted(["id1", "idd1", "n1", "id2", "idd2", "n2"])
 
 
 def test_join_no_and_no_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
     ret = next(iter(t1.join(t2, cond=lambda t1, t2: t1["id1"] == t2["id2"])))
-    assert ret.column_names() == ['id1', 'idd1', 'n1', 'id2', 'idd2', 'n2']
+    assert sorted(ret.column_names()) == sorted(["id1", "idd1", "n1", "id2", "idd2", "n2"])
 
 
 def test_join_all_and_no_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
-    ret = next(iter(t1.join(t2, cond=lambda t1, t2: t1["id1"] == t2["id2"], self_columns={}, other_columns={"*"})))
-    assert ret.column_names() == ["id2", "idd2", "n2"]
+    ret = next(
+        iter(
+            t1.join(
+                t2, cond=lambda t1, t2: t1["id1"] == t2["id2"], self_columns={}, other_columns={"*"}
+            )
+        )
+    )
+    assert sorted(ret.column_names()) == sorted(["id2", "idd2", "n2"])
 
 
 def test_join_all_and_one_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
@@ -74,7 +79,7 @@ def test_join_all_and_one_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
             )
         )
     )
-    assert ret.column_names() == ["id1", "id2", "idd2", "n2"]
+    assert sorted(ret.column_names()) == sorted(["id1", "id2", "idd2", "n2"])
 
 
 def test_join_columns_from_list(db: gp.Database, t1: gp.Table, t2: gp.Table):
@@ -88,7 +93,7 @@ def test_join_columns_from_list(db: gp.Database, t1: gp.Table, t2: gp.Table):
             )
         )
     )
-    assert ret.column_names() == ["id1", "n1", "idd2"]
+    assert sorted(ret.column_names()) == sorted(["id1", "n1", "idd2"])
 
 
 # FIXME : Test for no exist target column
@@ -99,7 +104,7 @@ def test_join_same_column_using(db: gp.Database):
     t1 = gp.to_table(rows, db=db, column_names=["id"])
     t2 = gp.to_table(rows, db=db, column_names=["id"])
     ret = t1.join(t2, using=["id"], self_columns={"id": "t1_id"}, other_columns={"id": "t2_id"})
-    assert next(iter(ret)).column_names() == ["t1_id", "t2_id"]
+    assert sorted(next(iter(ret)).column_names()) == sorted(["t1_id", "t2_id"])
 
 
 def test_join_same_column_names(db: gp.Database):
@@ -197,7 +202,9 @@ def test_join_natural(db: gp.Database):
         other_columns={"product_name"},
     )
     assert len(list(ret)) == 6
-    assert next(iter(ret)).column_names() == ["category_id", "category_name", "product_name"]
+    assert sorted(next(iter(ret)).column_names()) == sorted(
+        ["category_id", "category_name", "product_name"]
+    )
     for row in ret:
         if row["category_name"] == "Smart Phone":
             assert row["category_id"] == 1
@@ -248,7 +255,14 @@ def test_table_join_save(db: gp.Database, zoo_1: gp.Table):
     )
     t_join.save_as("table_join", temp=True)
     t_join_reload = gp.table("table_join", db=db)
-    assert next(iter(t_join_reload)).column_names() == ["zoo1_animal", "zoo1_id", "zoo2_animal", "zoo2_id"]
+    assert sorted(next(iter(t_join_reload)).column_names()) == sorted(
+        [
+            "zoo1_animal",
+            "zoo1_id",
+            "zoo2_animal",
+            "zoo2_id",
+        ]
+    )
     for row in t_join_reload:
         assert row["zoo1_animal"] == row["zoo2_animal"]
 
