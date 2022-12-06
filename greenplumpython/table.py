@@ -286,7 +286,7 @@ class Table:
         """
         # We need to support calling functions with constant args or even no
         # arg. For example: SELECT count(*) FROM t; In that case, the
-        # arguments do not conain information on any table or any database.
+        # arguments do not contain information on any table or any database.
         # As a result, the generated SQL cannot be executed.
         #
         # To fix this, we need to pass the table to the resulting FunctionExpr
