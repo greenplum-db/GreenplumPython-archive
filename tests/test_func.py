@@ -616,18 +616,20 @@ def test_func_return_list_composite(db: gp.Database):
         assert row["customer"] == "alice" and row["items"] == ["apple"]
 
 
-def test_create_func_same_name_throws(db: gp.Database):
+def test_create_func_same_name(db: gp.Database):
     @gp.create_function
     def dup_name(a: int, b: int) -> int:
         return a + b
 
-    with pytest.raises(Exception) as e:
+    func_name = dup_name.qualified_name
 
-        @gp.create_function
-        def dup_name(a: int, b: int) -> int:
-            return a + 1
+    @gp.create_function
+    def dup_name(a: int, b: int) -> int:
+        return a + 1
 
-    assert "has been defined before" in str(e.value)
+    new_func_name = dup_name.qualified_name
+
+    assert func_name != new_func_name
 
 
 def test_agg_returning_table(db: gp.Database):
