@@ -745,7 +745,9 @@ class Table:
         )
         cols = ["summary"] + cols
         columns_string = f"({','.join(cols)})" if any(cols) else ""
-
+        print('\n')
+        print(cols)
+        print(summary_rows)
         #return Table(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", db=self.db)
         return Table(summary_rows)
 
