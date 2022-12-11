@@ -727,6 +727,7 @@ class Table:
             F.avg: "avg",
             F.min: "min",
             F.max: "max"
+
         }
 
         summary_rows = []
