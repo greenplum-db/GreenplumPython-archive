@@ -713,15 +713,42 @@ class Table:
         return Table(f"SELECT DISTINCT ON ({','.join(cols)}) * FROM {self.name}", parents=[self])
 
     def describe(self, include=None):
-
-        cols = [col for col in self.columns if col.type.is_numeric()] # TODO: handle include
-
         import greenplumpython.builtin.function as F
 
-        for col in cols:
-            tbl = self.group_by().assign(count=lambda t: F.count(self[col.name]))
+        if include is None:
+            cols = next(iter(self)).column_names()
+        else:
+            cols = include
 
-        pass
+        # Dictionary of summary functions
+        summary_functions = {
+            F.count: "count",
+            F.sum: "sum",
+            F.avg: "avg",
+            F.min: "min",
+            F.max: "max"
+        }
+
+        summary_rows = []
+        for function_obj, function_name in summary_functions.items():
+            tmp_summary_function = [function_name]
+            for col in cols:
+                try:
+                    tbl = list(self.group_by().assign(count=lambda t: function_obj(self[col])))[0][function_name]
+                except:
+                    tbl = None
+                tmp_summary_function.append(tbl)
+            summary_rows.append(tuple(tmp_summary_function))
+
+        rows_string = ",".join(
+            ["(" + ",".join(serialize(datum) for datum in row) + ")" for row in summary_rows]
+        )
+        cols = ["summary"] + cols
+        columns_string = f"({','.join(cols)})" if any(cols) else ""
+
+        #return Table(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", db=self.db)
+        return Table(summary_rows)
+
 
 # table_name can be table/view name
 def table(name: str, db: db.Database) -> Table:
