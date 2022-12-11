@@ -21,10 +21,10 @@ class TypeCast(Expr):
     """
 
     def __init__(
-        self,
-        obj: object,
-        type_name: str,
-        db: Optional[Database] = None,
+            self,
+            obj: object,
+            type_name: str,
+            db: Optional[Database] = None,
     ) -> None:
         """
 
@@ -93,6 +93,9 @@ class Type:
     def name(self) -> str:
         return self._name
 
+    def is_numeric(self) -> bool:
+        return self.name in ["integer", "float", "double precision"]
+
 
 # -- Map between Python and Greenplum primitive types
 _defined_types: dict[Optional[type], Type] = {
@@ -121,9 +124,9 @@ def get_type(name: str) -> Type:
 
 
 def to_pg_type(
-    annotation: Optional[type],
-    db: Optional[Database] = None,
-    for_return: bool = False,
+        annotation: Optional[type],
+        db: Optional[Database] = None,
+        for_return: bool = False,
 ) -> str:
     """
     :meta private:

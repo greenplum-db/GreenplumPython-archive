@@ -66,6 +66,16 @@ class Column(Expr):
         return self._name
 
     @property
+    def type(self) -> Type:
+        """
+        Returns :class:`Type` type
+
+        Returns:
+            str: column type
+        """
+        return self._type
+
+    @property
     def table(self) -> Optional["Table"]:
         """
         Returns :class:`Column` associated :class:`~table.Table`

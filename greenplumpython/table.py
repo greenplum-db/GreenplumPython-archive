@@ -712,6 +712,16 @@ class Table:
         cols = [Column(name, self).serialize() for name in column_names]
         return Table(f"SELECT DISTINCT ON ({','.join(cols)}) * FROM {self.name}", parents=[self])
 
+    def describe(self, include=None):
+
+        cols = [col for col in self.columns if col.type.is_numeric()] # TODO: handle include
+
+        import greenplumpython.builtin.function as F
+
+        for col in cols:
+            tbl = self.group_by().assign(count=lambda t: F.count(self[col.name]))
+
+        pass
 
 # table_name can be table/view name
 def table(name: str, db: db.Database) -> Table:
