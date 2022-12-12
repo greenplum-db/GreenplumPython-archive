@@ -710,6 +710,7 @@ class Table:
                             given columns.
         """
         cols = [Column(name, self).serialize() for name in column_names]
+        print(cols)
         return Table(f"SELECT DISTINCT ON ({','.join(cols)}) * FROM {self.name}", parents=[self])
 
     def describe(self, include=None):
@@ -735,9 +736,9 @@ class Table:
             tmp_summary_function = [function_name]
             for col in cols:
                 try:
-                    tbl = list(self.group_by().assign(count=lambda t: function_obj(self[col])))[0][function_name]
+                    tbl = list(self.group_by().apply(lambda t: function_obj(self[col])))[0][function_name]
                 except:
-                    tbl = None
+                    tbl = 0
                 tmp_summary_function.append(tbl)
             summary_rows.append(tuple(tmp_summary_function))
 
@@ -747,10 +748,10 @@ class Table:
         cols = ["summary"] + cols
         columns_string = f"({','.join(cols)})" if any(cols) else ""
         print('\n')
-        print(cols)
-        print(summary_rows)
-        #return Table(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", db=self.db)
-        return Table(summary_rows)
+        print(rows_string)
+        print(columns_string)
+        return Table(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", parents=[self])
+
 
 
 # table_name can be table/view name

@@ -14,4 +14,5 @@ def table(db: gp.Database):
 
 def test_describe_all_columns(db: gp.Database, table: gp.Table):
     t = table.describe()
+    print(t)
     assert 1 == 1
