@@ -85,6 +85,8 @@ class FunctionExpr(Expr):
         group_by_clause = self._group_by.clause() if self._group_by is not None else ""
         if expand and as_name is None:
             as_name = "func_" + uuid4().hex
+        if not expand and as_name is None:
+            as_name = self.function.unwrap().__name__
         parents = [self.table] if self.table is not None else []
         grouping_col_names = self._group_by.flatten() if self._group_by is not None else None
         # FIXME: The names of GROUP BY exprs can collide with names of fields in
