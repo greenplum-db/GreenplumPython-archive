@@ -202,9 +202,9 @@ class Table:
                 content = [row[c] for c in row]
                 for idx, c in enumerate(content):
                     if isinstance(c, list):
-                        repr_string += ("| {:{}} |").format("{}".format(c), width[idx])  # type: ignore
+                        repr_string += ("| {:{}} |").format("{}".format(c if c else 'None'), width[idx])  # type: ignore
                     else:
-                        repr_string += ("| {:{}} |").format(c, width[idx])
+                        repr_string += ("| {:{}} |").format(c if c else 'None', width[idx])
                 repr_string += "\n"
         return repr_string
 
