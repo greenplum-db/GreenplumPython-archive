@@ -134,9 +134,9 @@ def test_table_display_result_null(db: gp.Database):
     expected = (
         "| id     || animal |\n"
         "====================\n"
-        "| [1]    || None   |\n"
+        "| [1]    ||        |\n"
         "| [2]    || Tiger  |\n"
-        "| [3]    || None   |\n"
+        "| [3]    ||        |\n"
         "| [None] || Fox    |\n"
     )
     assert str(t.order_by("id")[:]) == expected
