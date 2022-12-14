@@ -230,21 +230,6 @@ def test_create_agg_multi_args(db: gp.Database):
     assert len(list(results)) == 1 and next(iter(results))["result"] == 10
 
 
-def test_func_long_name(db: gp.Database):
-    def loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong() -> None:
-        return
-
-    with pytest.raises(Exception) as e:
-        gp.create_function(
-            loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong
-        )
-    # FIXME: Create more specific exception classes and remove this
-    assert (
-        "Function name 'loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong' should be shorter than 64 bytes."
-        == str(e.value)
-    )
-
-
 def test_create_func_with_optional_param(db: gp.Database):
     @gp.create_function(language_handler="plcontainer")
     def func_opt_param() -> None:

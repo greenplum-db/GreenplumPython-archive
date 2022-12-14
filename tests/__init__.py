@@ -16,5 +16,3 @@ def db():
     )
     yield db
     db.close()
-
-gp.config.print_sql = True
