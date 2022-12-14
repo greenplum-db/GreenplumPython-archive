@@ -221,7 +221,7 @@ class Table:
             for row in self:
                 content = [row[c] for c in row]
                 repr_html_str += "\t<tr>\n"
-                for idx, c in enumerate(content):
+                for c in content:
                     if isinstance(c, list):
                         repr_html_str += ("\t\t<td>{:}</td>\n").format("{}".format(c))  # type: ignore
                     else:
