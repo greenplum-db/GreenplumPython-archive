@@ -204,7 +204,7 @@ class Table:
                     if isinstance(c, list):
                         repr_string += ("| {:{}} |").format("{}".format(c), width[idx])  # type: ignore
                     else:
-                        repr_string += ("| {:{}} |").format(c, width[idx])
+                        repr_string += ("| {:{}} |").format(c if c else "", width[idx])
                 repr_string += "\n"
         return repr_string
 
@@ -219,9 +219,13 @@ class Table:
             )
             repr_html_str += "\t</tr>\n"
             for row in self:
-                repr_html_str += "\t<tr>\n"
                 content = [row[c] for c in row]
-                repr_html_str += ("\t\t<td>{:}</td>\n" * len(list(row))).format(*content)
+                repr_html_str += "\t<tr>\n"
+                for c in content:
+                    if isinstance(c, list):
+                        repr_html_str += ("\t\t<td>{:}</td>\n").format("{}".format(c))  # type: ignore
+                    else:
+                        repr_html_str += ("\t\t<td>{:}</td>\n").format(c if c else "")
                 repr_html_str += "\t</tr>\n"
             repr_html_str += "</table>"
         return repr_html_str
