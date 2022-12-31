@@ -1,25 +1,23 @@
+
+
+
 """
 `Table` is the core data structure in GreenplumPython. Conceptually, a `Table`
 is a two-dimensional unordered structure containing data. This aligns with `the
 definition of "Table" on Wikipedia
 <https://en.wikipedia.org/wiki/Table_(information)>`_.
-
 In the data science world, a `Table` is similar to a `DataFrame` in `pandas
 <https://pandas.pydata.org/>`_, except that
-
 - | Data in a `Table` is lazily evaluated rather than eagerly. That is, they are computed only when
   | they are observed. This can improve efficiency in many cases.
 - | Data in a `Table` is located and manipulated on a remote database system rather than locally. As
   | a consequence,
-
-    - | Retrieving them from the database system can be expensive. Therefore, once the data 
+    - | Retrieving them from the database system can be expensive. Therefore, once the data
       | of a :class:`Table` is fetched from the database system, it will be cached locally for later use.
-    - | They might be modified concurrently by other users of the database system. You might 
+    - | They might be modified concurrently by other users of the database system. You might
       | need to use :meth:`~table.Table.refresh()` to sync the updates if the data becomes stale.
-
 In the database world, a `Table` is similar to a **materialized view** in a
 database system in that
-
 - They both result from a possibly complex query.
 - They both hold data, as oppose to views.
 - | The data can become stale due to concurrent modification. And the :meth:`~table.Table.refresh()` method
@@ -57,6 +55,10 @@ from greenplumpython.group import TableGroupingSets
 from greenplumpython.order import OrderedTable
 from greenplumpython.row import Row
 
+try:
+    import pandas  # type: ignore
+except ImportError:  # pragma: NO COVER
+    pandas = None
 
 class Table:
     """
@@ -143,38 +145,24 @@ class Table:
         """
         Returns
             - a :class:`~expr.Column` of the current Table if key is string
-
             .. code-block::  python
-
                id_col = tab["id"]
-
             - a new :class:`Table` from the current Table per the type of key:
-
                 - if key is a list, then SELECT a subset of columns, a.k.a. targets;
-
                 .. code-block::  python
-
                    id_table = tab[["id"]]
-
                 - if key is an :class:`~expr.Expr`, then SELECT a subset of rows per the value of the Expr;
-
                 .. code-block::  python
-
                    id_cond_table = tab[lambda t: t["id"] == 0]
-
                 - if key is a slice, then SELECT a portion of consecutive rows
-
                 .. code-block::  python
-
                    slice_table = tab[2:5]
-
         """
         return self._getitem(_)
 
     def __repr__(self):
         """
         :meta private:
-
         Return a string representation for a table
         """
         repr_string: str = ""
@@ -204,7 +192,7 @@ class Table:
                     if isinstance(c, list):
                         repr_string += ("| {:{}} |").format("{}".format(c), width[idx])  # type: ignore
                     else:
-                        repr_string += ("| {:{}} |").format(c, width[idx])
+                        repr_string += ("| {:{}} |").format(c if c is not None else "", width[idx])
                 repr_string += "\n"
         return repr_string
 
@@ -219,9 +207,13 @@ class Table:
             )
             repr_html_str += "\t</tr>\n"
             for row in self:
-                repr_html_str += "\t<tr>\n"
                 content = [row[c] for c in row]
-                repr_html_str += ("\t\t<td>{:}</td>\n" * len(list(row))).format(*content)
+                repr_html_str += "\t<tr>\n"
+                for c in content:
+                    if isinstance(c, list):
+                        repr_html_str += ("\t\t<td>{:}</td>\n").format("{}".format(c))  # type: ignore
+                    else:
+                        repr_html_str += ("\t\t<td>{:}</td>\n").format(c if c else "")
                 repr_html_str += "\t</tr>\n"
             repr_html_str += "</table>"
         return repr_html_str
@@ -230,10 +222,8 @@ class Table:
     def where(self, predicate: Callable[["Table"], "Expr"]) -> "Table":
         """
         Returns the :class:`Table` filtered by Expression.
-
         Args:
             predicate: :class:`~expr.Expr` : where condition statement
-
         Returns:
             Table : Table filtered according **expr** passed in argument
         """
@@ -260,16 +250,12 @@ class Table:
             Table: resulted Table
         Example:
             .. code-block::  python
-
                 rows = [(i,) for i in range(-10, 0)]
                 series = gp.values(rows, db=db, column_names=["id"])
                 abs = gp.function("abs", db=db)
                 result = series.apply(lambda t: abs(t["id"]))
-
             If we want to give constant as attribute, it is also easy to use. Suppose *label* function takes a str and a int:
-
             .. code-block::  python
-
                 result = series.apply(lambda t: label("label", t["id"]))
         """
         # We need to support calling functions with constant args or even no
@@ -285,23 +271,18 @@ class Table:
         """
         Assigns new columns to the current :class:`Table`. Existing columns
         cannot be reassigned.
-
         Args:
             new_columns: a :class:`dict` whose keys are column names and values
                 are :class:`Callable`s returning column data when applied to the
                 current :class:`Table`.
-
         Returns:
             Table: New table including the new assigned columns
-
         Example:
             .. code-block::  python
-
                 rows = [(i,) for i in range(-10, 0)]
                 series = gp.to_table(rows, db=db, column_names=["id"])
                 abs = gp.function("abs")
                 results = series.assign(abs=lambda nums: abs(nums["id"]))
-
         """
 
         if len(new_columns) == 0:
@@ -333,19 +314,15 @@ class Table:
     ) -> OrderedTable:
         """
         Returns :class:`Table` order by the given arguments.
-
         Args:
             column_name: name of column to order the table by
             ascending: Optional[Bool]: Define ascending of order, True = ASC / False = DESC
             nulls_first: Optional[bool]: Define if nulls will be ordered first or last, True = First / False = Last
             operator: Optional[str]: Define order by using operator. **Can't combine with ascending.**
-
         Returns:
             OrderedTable : Table ordered by the given arguments
-
         Example:
             .. code-block::  Python
-
                 t.order_by("id")
         """
         # State transition diagram:
@@ -373,7 +350,6 @@ class Table:
     ) -> "Table":
         """
         Joins the current :class:`Table` with another :class:`Table`.
-
         Args:
             other: :class:`Table` to join with
             how: How the two tables are joined. The value can be one of
@@ -383,7 +359,6 @@ class Table:
                 - `"FULL"`: full outer join, or
                 - `"CROSS"`: cross join, i.e. the Cartesian product
                 The default value `""` is equivalent to "INNER".
-
             cond: :class:`Callable` lambda function as the join condition
             using: a list of column names that exist in both tables to join on.
                 `cond` and `using` cannot be used together.
@@ -394,7 +369,6 @@ class Table:
                 can be used as a key to indicate all columns.
             other_columns: Same as `self_columns`, but for the `other`
                 table.
-
         Note:
             When using `"*"` as key in `self_columns` or `other_columns`,
             please ensure that there will not be more than one column with the
@@ -438,28 +412,24 @@ class Table:
     inner_join = partialmethod(join, how="INNER")
     """
     Inner joins the current :class:`Table` with another :class:`Table`.
-
     Equivalent to calling :meth:`Table.join` with `how="INNER"`.
     """
 
     left_join = partialmethod(join, how="LEFT")
     """
     Left-outer joins the current :class:`Table` with another :class:`Table`.
-
     Equivalent to calling :meth:`Table.join` with `how="LEFT"`.
     """
 
     right_join = partialmethod(join, how="RIGHT")
     """
     Right-outer joins the current :class:`Table` with another :class:`Table`.
-
     Equivalent to calling :meth:`Table.join` with `how="RIGHT"`.
     """
 
     full_join = partialmethod(join, how="FULL")
     """
     Full-outer joins the current :class:`Table` with another :class:`Table`.
-
     Equivalent to calling :meth:`Table.join` with argutment `how="FULL"`.
     """
 
@@ -467,7 +437,6 @@ class Table:
     """
     Cross joins the current :class:`Table` with another :class:`Table`,
     i.e. the Cartesian product.
-
     Equivalent to calling :meth:`Table.join` with `how="CROSS"`.
     """
 
@@ -475,7 +444,6 @@ class Table:
     def name(self) -> str:
         """
         Returns name of :class:`Table`
-
         Returns:
             str: Table name
         """
@@ -485,7 +453,6 @@ class Table:
     def db(self) -> Optional[db.Database]:
         """
         Returns :class:`~db.Database` associated with :class:`Table`
-
         Returns:
             Optional[Database]: database associated with table
         """
@@ -495,7 +462,6 @@ class Table:
     def columns(self) -> Optional[Iterable[Column]]:
         """
         Returns its :class:`~expr.Column` name of :class:`Table`, has results only for selected table and joined table with targets.
-
         Returns:
             Optional[Iterable[str]]: None or List of its columns names of table
         """
@@ -585,7 +551,6 @@ class Table:
     def refresh(self) -> "Table":
         """
         Refresh self._contents
-
         Returns:
             self
         """
@@ -602,10 +567,8 @@ class Table:
         Fetch rows of this :class:`Table`.
         - if is_all is True, fetch all rows at once
         - otherwise, open a CURSOR and FETCH one row at a time
-
         Args:
             is_all: bool: Define if fetch all rows at once
-
         Returns:
             Iterable[Tuple[Any]]: results of query received from database
         """
@@ -622,12 +585,10 @@ class Table:
     def save_as(self, table_name: str, temp: bool = False, column_names: List[str] = []) -> "Table":
         """
         Save the table to database as a real Greenplum Table
-
         Args:
             table_name : str
             temp : bool : if table is temporary
             column_names : List : list of column names
-
         Returns:
             Table : table saved in database
         """
@@ -668,10 +629,8 @@ class Table:
     def explain(self, format: str = "TEXT") -> Iterable[Tuple[str]]:
         """
         Explained the table's query
-
         Args:
             format: str: format of explain
-
         Returns:
             Iterable[Tuple[str]]: EXPLAIN query answer
         """
@@ -684,10 +643,8 @@ class Table:
         """
         Group the current :class:`~table.Table` by columns specified by
         `column_names`.
-
         Args:
             column_names: one or more column names of the table
-
         Returns:
             TableGroupingSets: a list of grouping sets. Each group is identified
             by a different set of values of the columns in the arguments.
@@ -701,26 +658,23 @@ class Table:
     def distinct_on(self, *column_names: str) -> "Table":
         """
         Deduplicate the current :class:`Table` with respect to the given columns.
-
         Args:
             column_names: name of column of the current :class:`Table`.
-
         Returns:
             :class:`Table`: Table containing only the distinct values of the
                             given columns.
         """
         cols = [Column(name, self).serialize() for name in column_names]
-        print(cols)
         return Table(f"SELECT DISTINCT ON ({','.join(cols)}) * FROM {self.name}", parents=[self])
 
-    def describe(self, include=None):
+    def describe(self, include = None):
         import greenplumpython.builtin.function as F
-
         if include is None:
             cols = next(iter(self)).column_names()
+        elif isinstance(include,str):
+            cols = [include]
         else:
-            cols = include
-
+            cols = [col for col in include]
         # Dictionary of summary functions
         summary_functions = {
             F.count: "count",
@@ -736,21 +690,57 @@ class Table:
             tmp_summary_function = [function_name]
             for col in cols:
                 try:
-                    tbl = list(self.group_by().apply(lambda t: function_obj(self[col])))[0][function_name]
+                    #tbl = list(self.group_by().apply(lambda t: function_obj(self[col])))[0][function_name]
+                    tbl = list(self.group_by().assign(function = lambda row: function_obj(self[col])))[0]["function"]
+                    if isinstance(tbl, str):
+                        tbl = None
                 except:
-                    tbl = 0
+                    tbl = None
                 tmp_summary_function.append(tbl)
             summary_rows.append(tuple(tmp_summary_function))
 
         rows_string = ",".join(
             ["(" + ",".join(serialize(datum) for datum in row) + ")" for row in summary_rows]
         )
-        cols = ["summary"] + cols
+        cols = ["__summary__"] + cols
         columns_string = f"({','.join(cols)})" if any(cols) else ""
-        print('\n')
-        print(rows_string)
-        print(columns_string)
         return Table(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", parents=[self])
+
+    def to_dataframe(
+        self,
+    ) -> "pandas.DataFrame":
+
+        result_set = self._fetch()
+        df = pandas.DataFrame()
+
+        if len(result_set) > 0:
+            rows = [eval(list(row.values())[0]) for row in result_set]
+            df = pandas.DataFrame.from_dict(rows)
+
+        return df
+
+    def head(self, n : int = 5) -> "Table":
+        return Table(
+            f"SELECT * FROM {self.name} LIMIT {n}",
+            parents=[self],
+        )
+
+    def tail(self, n : int = 5) -> "Table":
+        if (n < len(list(self))):
+            return Table(
+                f"SELECT * FROM {self.name} OFFSET (SELECT COUNT(*) FROM {self.name}) - {n}",
+                parents=[self],
+            )
+        return Table(
+            f"SELECT * FROM {self.name}",
+            parents=[self],
+        )
+
+    def size(self):
+        return len(list(self))
+
+    def shape(self):
+        return (len(list(self)), len(next(iter(self)).column_names()))
 
 
 
@@ -758,7 +748,6 @@ class Table:
 def table(name: str, db: db.Database) -> Table:
     """
     Returns a :class:`Table` using table name and associated :class:`~db.Database`
-
     Args:
         name: str: Table name
         db: :class:`~db.Database`: database which contains the table
@@ -771,23 +760,34 @@ def to_table(
 ) -> Table:
     """
     Returns a :class:`Table` using list of values given
-
     Args:
         rows: Iterable[Tuple[Any]]: List of values
         db: :class:`~db.Database`: database which will be associated with table
         column_names: Iterable[str]: List of given column names
-
     Returns:
         Table: table generated with given values
-
     .. code-block::  python
-
        rows = [(1,), (2,), (3,)]
         t = gp.to_table(rows, db=db)
-
     """
     rows_string = ",".join(
         ["(" + ",".join(serialize(datum) for datum in row) + ")" for row in rows]
     )
     columns_string = f"({','.join(column_names)})" if any(column_names) else ""
     return Table(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", db=db)
+
+def from_dataframe1(df: pandas.DataFrame, db: db.Database):
+    rows = [tuple(row)[1:] for row in df.to_records()]
+    columns = list(df.columns)
+    print(rows)
+    print(columns)
+    return to_table(rows = rows, db = db, column_names= columns)
+
+def from_dataframe(df: pandas.DataFrame, db: db.Database):
+
+    dicts = df.reset_index().to_dict('split')
+    columns = dicts['columns']
+    rows = [tuple(row) for row in dicts['data']]
+
+    return to_table(rows = rows, db = db, column_names= columns)
+
