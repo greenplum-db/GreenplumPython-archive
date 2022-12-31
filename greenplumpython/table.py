@@ -213,7 +213,7 @@ class Table:
                     if isinstance(c, list):
                         repr_html_str += ("\t\t<td>{:}</td>\n").format("{}".format(c))  # type: ignore
                     else:
-                        repr_html_str += ("\t\t<td>{:}</td>\n").format(c if c else "")
+                        repr_html_str += ("\t\t<td>{:}</td>\n").format(c if c is not None else "")
                 repr_html_str += "\t</tr>\n"
             repr_html_str += "</table>"
         return repr_html_str
