@@ -54,6 +54,7 @@ from greenplumpython.expr import serialize
 from greenplumpython.group import TableGroupingSets
 from greenplumpython.order import OrderedTable
 from greenplumpython.row import Row
+import json
 
 try:
     import pandas  # type: ignore
@@ -714,8 +715,8 @@ class Table:
         df = pandas.DataFrame()
 
         if len(result_set) > 0:
-            rows = [eval(list(row.values())[0]) for row in result_set]
-            df = pandas.DataFrame.from_dict(rows)
+            rows = [json.loads(dict(row)["to_json"]) for row in result_set]
+            df = pandas.DataFrame(rows)
 
         return df
 

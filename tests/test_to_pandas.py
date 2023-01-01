@@ -18,3 +18,4 @@ def test_to_pandas(db: gp.Database, table: gp.Table):
     df2 = pd.DataFrame({"categorical":["a", "c", "e"],"numeric":[0, 60, 13],"text":["b","d", "f"]})
     assert df.shape == (3, 3)
     assert df.equals(df2)
+

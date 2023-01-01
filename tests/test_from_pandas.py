@@ -9,3 +9,4 @@ def test_from_pandas(db: gp.Database):
     assert next(iter(t))["a"] == 1
     assert next(iter(t))["b"] == 2
     assert next(iter(t))["c"] == "A"
+
