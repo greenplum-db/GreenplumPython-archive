@@ -776,13 +776,6 @@ def to_table(
     columns_string = f"({','.join(column_names)})" if any(column_names) else ""
     return Table(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", db=db)
 
-def from_dataframe1(df: pandas.DataFrame, db: db.Database):
-    rows = [tuple(row)[1:] for row in df.to_records()]
-    columns = list(df.columns)
-    print(rows)
-    print(columns)
-    return to_table(rows = rows, db = db, column_names= columns)
-
 def from_dataframe(df: pandas.DataFrame, db: db.Database):
 
     dicts = df.reset_index().to_dict('split')
