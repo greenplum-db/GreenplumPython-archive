@@ -1,6 +1,4 @@
-import pandas as pd
 import pytest
-
 import greenplumpython as gp
 from tests import db
 
@@ -15,54 +13,23 @@ def table(db: gp.Database):
 
 
 def test_describe_one_column(db: gp.Database, table: gp.Table):
-    t = table.describe("numeric")
-    print('\n', t)
-    assert 1 == 1
+    t = table.describe("text")
+    assert len(list(t)) == 5
+    assert next(iter(t))['text'] == 3
+    assert next(t)['text'] is None
+
 def test_describe_few_columns(db: gp.Database, table: gp.Table):
     t = table.describe(["numeric","text"])
-    print('\n', t)
-    assert 1 == 1
+    assert len(list(t)) == 5
+    for row in t:
+        keys = row.column_names()
+        assert len(keys) == 3
 
 def test_describe_all_columns(db: gp.Database, table: gp.Table):
     t = table.describe()
-    print('\n', t)
-    assert 1 == 1
-
-def test_to_pandas(db: gp.Database, table: gp.Table):
-    t = table.to_dataframe()
-    print('\n', t)
-    assert 1 == 1
-
-def test_from_pandas(db: gp.Database, table: gp.Table):
-    t = gp.from_dataframe(pd.DataFrame({"A": [1, 2, 3, 1], "B": [2, 2, 2, 2], "C": ["A", "B", "C", "B"]}),db)
-    print('\n', t)
-    assert 1 == 1
-def test_head(db: gp.Database, table: gp.Table):
-    t = table.head(1)
-    print('\n', t)
-    assert 1 == 1
-
-def test_tail_one(db: gp.Database, table: gp.Table):
-    t = table.tail(4)
-    print('\n', t)
-    assert 1 == 1
-
-def test_tail_two(db: gp.Database, table: gp.Table):
-    t = table.tail(1)
-    print('\n', t)
-    assert 1 == 1
-
-def test_size(db: gp.Database, table: gp.Table):
-    t = table.size()
-    print('\n', t)
-    assert t == 3
-def test_shape(db: gp.Database, table: gp.Table):
-    t = table.shape()
-    print('\n', t)
-    assert t == (3,3)
+    assert len(list(t)) == 5
+    for row in t:
+        keys = row.column_names()
+        assert len(keys) == 4
 
 
-def test_values(db: gp.Database, table: gp.Table):
-    t = table.values()
-    print('\n', t)
-    assert t == (3,3)
