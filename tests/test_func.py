@@ -37,7 +37,7 @@ def test_create_func(db: gp.Database):
         assert row["result"] == add.unwrap()(1, 2)
 
     # -- WITH APPLY FUNC
-    for row in db.apply(lambda: add(1, 2)):
+    for row in db.apply(lambda: add(1, 2), as_name="add"):
         assert row["add"] == 1 + 2
         assert row["add"] == add.unwrap()(1, 2)
 
@@ -56,7 +56,7 @@ def test_create_func_multiline(db: gp.Database):
         assert row["result"] == my_max.unwrap()(1, 2)
 
     # -- WITH APPLY FUNC
-    for row in db.apply(lambda: my_max(1, 2)):
+    for row in db.apply(lambda: my_max(1, 2), as_name="my_max"):
         assert row["my_max"] == max(1, 2)
         assert row["my_max"] == my_max.unwrap()(1, 2)
 
@@ -205,7 +205,7 @@ def test_create_agg(db: gp.Database):
     assert len(list(results)) == 1 and next(iter(results))["result"] == 10
 
     # -- WITH APPLY FUNC
-    results = numbers.group_by().apply(lambda t: my_sum(t["val"]))
+    results = numbers.group_by().apply(lambda t: my_sum(t["val"]), as_name="my_sum")
     assert len(list(results)) == 1 and next(iter(results))["my_sum"] == 10
 
 
@@ -461,7 +461,7 @@ def test_func_apply_const_and_column(db: gp.Database):
         assert row["label"].startswith("label")
 
     # -- WITH APPLY FUNC
-    result = numbers.apply(lambda t: label("label", t["val"]))
+    result = numbers.apply(lambda t: label("label", t["val"]), as_name="label")
     assert len(list(result)) == 10
     for row in result:
         assert row["label"].startswith("label")
@@ -484,7 +484,7 @@ def test_func_apply_join(db: gp.Database):
         assert row["label"][1] == row["label"][2]
 
     # -- WITH APPLY FUNC
-    result = ret.apply(lambda t: label(t["n2"], t["id1"]))
+    result = ret.apply(lambda t: label(t["n2"], t["id1"]), as_name="label")
     for row in result:
         assert row["label"][1] == row["label"][2]
 
@@ -513,7 +513,7 @@ def test_array_func_apply(db: gp.Database):
     assert len(list(results)) == 1 and next(iter(results))["my_sum"] == 10
 
     # -- WITH APPLY FUNC
-    results = numbers.group_by().apply(lambda t: my_sum_array(t["val"]))
+    results = numbers.group_by().apply(lambda t: my_sum_array(t["val"]), as_name="my_sum_array")
     assert len(list(results)) == 1 and next(iter(results))["my_sum_array"] == 10
 
 
@@ -556,7 +556,9 @@ def test_array_func_const_apply(db: gp.Database):
     assert len(list(results)) == 1 and next(iter(results))["my_sum"] == "sum : 15"
 
     # -- WITH APPLY FUNC
-    results = numbers.group_by().apply(lambda tab: my_sum_const("sum", tab["val"], 5))
+    results = numbers.group_by().apply(
+        lambda tab: my_sum_const("sum", tab["val"], 5), as_name="my_sum_const"
+    )
     assert len(list(results)) == 1 and next(iter(results))["my_sum_const"] == "sum : 15"
 
 
@@ -574,7 +576,8 @@ def test_array_func_group_by_attribute(db: gp.Database):
 
     # -- WITH APPLY FUNC
     results = numbers.group_by("label", "initial").apply(
-        lambda tab: my_sum_const(tab["label"], tab["val"], tab["initial"])
+        lambda tab: my_sum_const(tab["label"], tab["val"], tab["initial"]),
+        as_name="my_sum_const",
     )
     assert len(list(results)) == 1 and next(iter(results))["my_sum_const"] == "a : 50"
 
