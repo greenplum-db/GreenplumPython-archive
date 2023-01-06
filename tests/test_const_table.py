@@ -68,7 +68,7 @@ def test_table_display_repr(db: gp.Database):
     )
     assert str(t.order_by("id")[:]) == expected
 
-    
+
 def test_table_display_repr_zero(db: gp.Database):
     # fmt: off
     rows = [(0, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
@@ -84,7 +84,7 @@ def test_table_display_repr_zero(db: gp.Database):
     )
     assert str(t.order_by("id")[:]) == expected
 
-    
+
 def test_table_display_repr_long_content(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tigerrrrrrrrrrrr",), (3, "Wolf",), (4, "Fox")]
@@ -99,22 +99,6 @@ def test_table_display_repr_long_content(db: gp.Database):
         "|                    4 || Fox              |\n"
     )
     assert str(t.order_by("iddddddddddddddddddd")[:]) == expected
-
-    
-def test_table_display_result_null(db: gp.Database):
-    # fmt: off
-    rows = [([1,], None,), ([2,], "Tiger",), ([3,], None,), ([None,], "Fox")]
-    # fmt: on
-    t = gp.to_table(rows, db=db, column_names=["id", "animal"])
-    expected = (
-        "| id     || animal |\n"
-        "====================\n"
-        "| [1]    ||        |\n"
-        "| [2]    || Tiger  |\n"
-        "| [3]    ||        |\n"
-        "| [None] || Fox    |\n"
-    )
-    assert str(t.order_by("id")[:]) == expected
 
 
 def test_table_display_repr_html(db: gp.Database):
@@ -156,6 +140,22 @@ def test_table_display_repr_empty_result(db: gp.Database):
     t = gp.to_table(rows, db=db, column_names=["id", "animal"])
     assert str(t[lambda t: t["id"] == 0]) == ""
     assert (t[lambda t: t["id"] == 0]._repr_html_()) == ""
+
+
+def test_table_display_result_null(db: gp.Database):
+    # fmt: off
+    rows = [([1,], None,), ([2,], "Tiger",), ([3,], None,), ([None,], "Fox")]
+    # fmt: on
+    t = gp.to_table(rows, db=db, column_names=["id", "animal"])
+    expected = (
+        "| id     || animal |\n"
+        "====================\n"
+        "| [1]    ||        |\n"
+        "| [2]    || Tiger  |\n"
+        "| [3]    ||        |\n"
+        "| [None] || Fox    |\n"
+    )
+    assert str(t.order_by("id")[:]) == expected
 
 
 def test_table_assign_const(db: gp.Database):
@@ -292,4 +292,3 @@ def test_table_distinct(db: gp.Database):
     assert len(result) == 1
     for row in result:
         assert "i" in row and "j" in row
-
