@@ -68,7 +68,21 @@ def test_table_display_repr(db: gp.Database):
     )
     assert str(t.order_by("id")[:]) == expected
 
-
+def test_table_display_repr_zero(db: gp.Database):
+    # fmt: off
+    rows = [(0, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
+    # fmt: on
+    t = gp.to_table(rows, db=db, column_names=["id", "animal"])
+    expected = (
+        "| id || animal |\n"
+        "================\n"
+        "|  0 || Lion   |\n"
+        "|  2 || Tiger  |\n"
+        "|  3 || Wolf   |\n"
+        "|  4 || Fox    |\n"
+    )
+    assert str(t.order_by("id")[:]) == expected
+    
 def test_table_display_repr_long_content(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tigerrrrrrrrrrrr",), (3, "Wolf",), (4, "Fox")]
