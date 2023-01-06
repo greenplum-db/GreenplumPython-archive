@@ -116,6 +116,7 @@ def test_table_display_result_null(db: gp.Database):
     )
     assert str(t.order_by("id")[:]) == expected
 
+
 def test_table_display_repr_html(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
