@@ -616,7 +616,7 @@ class Table:
         if not is_all:
             raise NotImplementedError()
         assert self._db is not None
-        output_name = "result"
+        output_name = "cte_" + uuid4().hex
         to_json_table = Table(
             f"SELECT to_json({output_name})::TEXT FROM {self.name} AS {output_name}",
             parents=[self],
