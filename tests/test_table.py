@@ -292,3 +292,8 @@ def test_table_distinct(db: gp.Database):
     assert len(result) == 1
     for row in result:
         assert "i" in row and "j" in row
+
+
+def test_table_non_default_schema(db: gp.Database):
+    pg_class = db.table("pg_catalog.pg_class")
+    assert len(list(pg_class)) > 0

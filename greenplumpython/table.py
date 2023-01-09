@@ -616,8 +616,9 @@ class Table:
         if not is_all:
             raise NotImplementedError()
         assert self._db is not None
+        output_name = "out"
         to_json_table = Table(
-            f"SELECT to_json({self.name})::TEXT FROM {self.name}",
+            f"SELECT to_json({output_name})::TEXT FROM {self.name} AS {output_name}",
             parents=[self],
         )
         result = self._db.execute(to_json_table._build_full_query())
