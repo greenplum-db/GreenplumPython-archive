@@ -85,6 +85,7 @@ class FunctionExpr(Expr):
         group_by_clause = self._group_by.clause() if self._group_by is not None else ""
         if expand and as_name is None:
             as_name = "func_" + uuid4().hex
+
         parents = [self.table] if self.table is not None else []
         grouping_col_names = self._group_by.flatten() if self._group_by is not None else None
         # FIXME: The names of GROUP BY exprs can collide with names of fields in
@@ -206,27 +207,19 @@ class _AbstractFunction:
         name: Optional[str],
         schema: Optional[str],
     ) -> None:
-        NAMEDATALEN = 64  # See definition in PostgreSQL
         # if wrapped_func is None, the function object is obtained by
         # gp.function() rather than gp.create_function(). Otherwise a
         # Python function will be passed to wrapped_func.
-        _name = wrapped_func.__name__ if wrapped_func is not None else name
+        _name = "func_" + uuid4().hex if wrapped_func is not None else name
         assert _name is not None
-        assert (
-            len(_name) < NAMEDATALEN
-        ), f"Function name '{_name}' should be shorter than {NAMEDATALEN} bytes."
         qualified_name = (
-            (name if schema is None else f"{schema}.{name}")
-            if name is not None
-            else f"pg_temp.{wrapped_func.__name__}"
+            f"pg_temp.{_name}"
             if wrapped_func is not None
-            else None
+            else _name
+            if schema is None
+            else f"{schema}.{_name}"
         )
-        assert (
-            qualified_name not in _global_scope
-        ), f'Function named "{qualified_name}" has been defined before.'
         self._qualified_name = qualified_name
-        _global_scope[qualified_name] = self
 
     @property
     def qualified_name(self) -> str:
@@ -235,9 +228,6 @@ class _AbstractFunction:
     def create_in_db(self, _: Database) -> None:
         """:meta private:"""
         raise NotImplementedError("Cannot create abstract function in database")
-
-
-_global_scope: Dict[str, _AbstractFunction] = {}
 
 
 class NormalFunction(_AbstractFunction):
@@ -314,11 +304,7 @@ def function(name: str, schema: Optional[str] = None) -> NormalFunction:
             generate_series = gp.function("generate_series")
 
     """
-    if name not in _global_scope:
-        return NormalFunction(name=name, schema=schema)
-    func = _global_scope[name]
-    assert isinstance(func, NormalFunction), f'"{name}" is not a normal function'
-    return func
+    return NormalFunction(name=name, schema=schema)
 
 
 class AggregateFunction(_AbstractFunction):
@@ -409,11 +395,7 @@ def aggregate_function(name: str, schema: Optional[str] = None) -> AggregateFunc
 
             count = gp.aggregate_function("count")
     """
-    if name not in _global_scope:
-        return AggregateFunction(name=name, schema=schema)
-    func = _global_scope[name]
-    assert isinstance(func, AggregateFunction), f'"{name}" is not an aggregate function'
-    return func
+    return AggregateFunction(name=name, schema=schema)
 
 
 # FIXME: Add test cases for optional parameters
