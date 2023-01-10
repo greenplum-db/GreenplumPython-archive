@@ -13,10 +13,20 @@ def t(db: gp.Database):
     return t
 
 
-def test_const_table(db: gp.Database):
+def test_const_dataframe_columns(db: gp.Database):
+    columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
+    t = db.create_dataframe(columns)
+    t = t.save_as("const_dataframe", column_names=["a", "b"], temp=True)
+    assert sorted([tuple(row.values()) for row in t]) == [(1, 1), (2, 2), (3, 3)]
+
+    assert len(next(iter(t)).column_names()) == 2
+    assert next(iter(t)).column_names() == ["a", "b"]
+
+
+def test_const_dataframe_rows(db: gp.Database):
     rows = [(1,), (2,), (3,)]
-    t = gp.to_table(rows, db=db, column_names=["id"])
-    t = t.save_as("const_table", column_names=["id"], temp=True)
+    t = db.create_dataframe(rows, column_names=["id"])
+    t = t.save_as("const_dataframe", column_names=["id"], temp=True)
     assert sorted([tuple(row.values()) for row in t]) == sorted(rows)
 
     assert len(next(iter(t)).column_names()) == 1
@@ -24,40 +34,40 @@ def test_const_table(db: gp.Database):
         assert row == "id"
 
 
-def test_table_getitem_str(db: gp.Database):
+def test_dataframe_getitem_str(db: gp.Database):
     rows = [(1,), (2,), (3,)]
-    t = gp.to_table(rows, db=db, column_names=["id"])
+    t = db.create_dataframe(rows, column_names=["id"])
     c = t["id"]
     assert str(c) == (t.name + ".id")
 
 
-def test_table_getitem_sub_columns(db: gp.Database):
+def test_dataframe_getitem_sub_columns(db: gp.Database):
     # fmt: off
     rows = [(1, 2,), (1, 3,), (2, 2,), (3, 1,), (3, 4,)]
     # fmt: on
-    t = gp.to_table(rows, db=db, column_names=["id", "num"])
+    t = db.create_dataframe(rows, column_names=["id", "num"])
     t_sub = t[["id", "num"]]
     for row in t_sub:
         assert "id" in row and "num" in row
 
 
-def test_table_getitem_slice_limit(db: gp.Database, t: gp.Table):
+def test_dataframe_getitem_slice_limit(db: gp.Database, t: gp.DataFrame):
     assert len(list(t[:2])) == 2
 
 
-def test_table_getitem_slice_offset(db: gp.Database, t: gp.Table):
+def test_dataframe_getitem_slice_offset(db: gp.Database, t: gp.DataFrame):
     assert len(list(t[7:])) == 3
 
 
-def test_table_getitem_slice_off_limit(db: gp.Database, t: gp.Table):
+def test_dataframe_getitem_slice_off_limit(db: gp.Database, t: gp.DataFrame):
     assert len(list(t[2:5])) == 3
 
 
-def test_table_display_repr(db: gp.Database):
+def test_dataframe_display_repr(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
-    t = gp.to_table(rows, db=db, column_names=["id", "animal"])
+    t = db.create_dataframe(rows, column_names=["id", "animal"])
     expected = (
         "| id || animal |\n"
         "================\n"
@@ -69,11 +79,11 @@ def test_table_display_repr(db: gp.Database):
     assert str(t.order_by("id")[:]) == expected
 
 
-def test_table_display_repr_zero(db: gp.Database):
+def test_dataframe_display_repr_zero(db: gp.Database):
     # fmt: off
     rows = [(0, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
-    t = gp.to_table(rows, db=db, column_names=["id", "animal"])
+    t = db.create_dataframe(rows, column_names=["id", "animal"])
     expected = (
         "| id || animal |\n"
         "================\n"
@@ -85,11 +95,11 @@ def test_table_display_repr_zero(db: gp.Database):
     assert str(t.order_by("id")[:]) == expected
 
 
-def test_table_display_repr_long_content(db: gp.Database):
+def test_dataframe_display_repr_long_content(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tigerrrrrrrrrrrr",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
-    t = gp.to_table(rows, db=db, column_names=["iddddddddddddddddddd", "animal"])
+    t = db.create_dataframe(rows, column_names=["iddddddddddddddddddd", "animal"])
     expected = (
         "| iddddddddddddddddddd || animal           |\n"
         "============================================\n"
@@ -101,11 +111,11 @@ def test_table_display_repr_long_content(db: gp.Database):
     assert str(t.order_by("iddddddddddddddddddd")[:]) == expected
 
 
-def test_table_display_repr_html(db: gp.Database):
+def test_dataframe_display_repr_html(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
-    t = gp.to_table(rows, db=db, column_names=["id", "animal"])
+    t = db.create_dataframe(rows, column_names=["id", "animal"])
     expected = (
         "<table>\n"
         "\t<tr>\n"
@@ -133,20 +143,20 @@ def test_table_display_repr_html(db: gp.Database):
     assert (t.order_by("id")[:]._repr_html_()) == expected
 
 
-def test_table_display_repr_empty_result(db: gp.Database):
+def test_dataframe_display_repr_empty_result(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
-    t = gp.to_table(rows, db=db, column_names=["id", "animal"])
+    t = db.create_dataframe(rows, column_names=["id", "animal"])
     assert str(t[lambda t: t["id"] == 0]) == ""
     assert (t[lambda t: t["id"] == 0]._repr_html_()) == ""
 
 
-def test_table_display_result_null(db: gp.Database):
+def test_dataframe_display_result_null(db: gp.Database):
     # fmt: off
     rows = [([1,], None,), ([2,], "Tiger",), ([3,], None,), ([None,], "Fox")]
     # fmt: on
-    t = gp.to_table(rows, db=db, column_names=["id", "animal"])
+    t = db.create_dataframe(rows, column_names=["id", "animal"])
     expected = (
         "| id     || animal |\n"
         "====================\n"
@@ -158,8 +168,8 @@ def test_table_display_result_null(db: gp.Database):
     assert str(t.order_by("id")[:]) == expected
 
 
-def test_table_assign_const(db: gp.Database):
-    nums = gp.to_table([(i,) for i in range(10)], db, column_names=["num"])
+def test_dataframe_assign_const(db: gp.Database):
+    nums = db.create_dataframe([(i,) for i in range(10)], column_names=["num"])
     results = nums.assign(x=lambda _: "hello")
     for row in results:
         assert "num" in row and "x" in row and row["x"] == "hello"
@@ -170,9 +180,9 @@ def add_one(num: int) -> int:
     return num + 1
 
 
-def test_table_assign_expr(db: gp.Database):
+def test_dataframe_assign_expr(db: gp.Database):
 
-    nums = gp.to_table([(i,) for i in range(10)], db, column_names=["num"])
+    nums = db.create_dataframe([(i,) for i in range(10)], column_names=["num"])
     # FIXME: How to remove the intermdeiate variable `nums`?
     # FIXME: How to support functions returning more than one column?
     results = nums.assign(result=lambda nums: add_one(nums["num"]))
@@ -180,9 +190,9 @@ def test_table_assign_expr(db: gp.Database):
         assert row["result"] == row["num"] + 1
 
 
-def test_table_assign_same_column_name(db: gp.Database):
+def test_dataframe_assign_same_column_name(db: gp.Database):
 
-    nums = gp.to_table([(i,) for i in range(10)], db, column_names=["num"])
+    nums = db.create_dataframe([(i,) for i in range(10)], column_names=["num"])
     with pytest.raises(Exception) as exc_info:
         results = nums.assign(num=lambda nums: add_one(nums["num"]))
         next(iter(results))
@@ -198,7 +208,7 @@ def test_table_assign_composite_type(db: gp.Database):
     def my_rank_label(val: int) -> rank_label:
         return {"val": val, "label": "label"}
 
-    nums = gp.to_table([(i,) for i in range(10)], db, column_names=["num"])
+    nums = db.create_dataframe([(i,) for i in range(10)], column_names=["num"])
     results = nums.assign(result=lambda nums: my_rank_label(nums["num"]))
     results = results.assign(result2=lambda nums: my_rank_label(nums["num"]))
     results = results.assign(next_val=lambda nums: add_one(nums["num"]))
@@ -212,22 +222,22 @@ def test_table_assign_composite_type(db: gp.Database):
 
 
 def test_table_assign_same_base(db: gp.Database):
-    nums = gp.to_table([(i,) for i in range(10)], db, column_names=["num"])
-    nums2 = gp.to_table([(i,) for i in range(10)], db, column_names=["num"])
+    nums = db.create_dataframe([(i,) for i in range(10)], column_names=["num"])
+    nums2 = db.create_dataframe([(i,) for i in range(10)], column_names=["num"])
     with pytest.raises(Exception) as exc_info:
         nums.assign(num2=lambda _: nums2["num"])
-    assert str(exc_info.value) == "Newly included columns must be based on the current table"
+    assert str(exc_info.value) == "Newly included columns must be based on the current dataframe"
 
 
 def test_table_assign_multiple_col(db: gp.Database):
-    nums = gp.to_table([(i,) for i in range(10)], db, column_names=["num"])
+    nums = db.create_dataframe([(i,) for i in range(10)], column_names=["num"])
     results = nums.assign(a=lambda t: t["num"], b=lambda t: t["num"])
     for row in results:
         assert row["num"] == row["a"] == row["b"]
 
 
 def test_iter_break(db: gp.Database):
-    nums = gp.to_table([(i,) for i in range(3)], db, column_names=["num"])
+    nums = db.create_dataframe([(i,) for i in range(3)], column_names=["num"])
     results = []
     for row in nums:
         results.append(row["num"])
@@ -238,7 +248,7 @@ def test_iter_break(db: gp.Database):
 
 
 def test_table_refresh_add_rows(db: gp.Database):
-    nums = gp.to_table([(i,) for i in range(10)], db, column_names=["num"])
+    nums = db.create_dataframe([(i,) for i in range(10)], column_names=["num"])
     t = nums.save_as("const_table", column_names=["num"], temp=True)
     assert len(list(t)) == 10
 
@@ -250,8 +260,8 @@ def test_table_refresh_add_rows(db: gp.Database):
 
 
 def test_table_refresh_add_columns(db: gp.Database):
-    # Initial Table
-    nums = gp.to_table([(i,) for i in range(10)], db, column_names=["num"])
+    # Initial DataFrame
+    nums = db.create_dataframe([(i,) for i in range(10)], column_names=["num"])
     t = nums.save_as("const_table", column_names=["num"], temp=True)
     assert len(next(iter(t)).column_names()) == 1
     assert next(iter(t)).column_names() == ["num"]
@@ -262,7 +272,7 @@ def test_table_refresh_add_columns(db: gp.Database):
     assert len(next(iter(t)).column_names()) == 1
     for row in next(iter(t)).column_names():
         assert row == "num"
-    # Refresh Table contents
+    # Refresh DataFrame contents
     t.refresh()
     assert len(next(iter(t)).column_names()) == 2
     assert next(iter(t)).column_names() == ["num", "num_copy"]
@@ -273,7 +283,7 @@ def test_table_refresh_add_columns(db: gp.Database):
     db.execute("UPDATE const_table SET num_copy=num;", has_results=False)
     for row in t:
         assert row["num_copy"] is None
-    # Refresh Table contents
+    # Refresh DataFrame contents
     t.refresh()
     for row in t:
         assert row["num_copy"] is not None and row["num_copy"] == row["num"]
@@ -281,7 +291,7 @@ def test_table_refresh_add_columns(db: gp.Database):
 
 def test_table_distinct(db: gp.Database):
     rows = [(i, 1) for i in range(10)]
-    t = gp.to_table(rows, db=db, column_names=["i", "j"])
+    t = db.create_dataframe(rows, column_names=["i", "j"])
 
     result = list(t.distinct_on("i", "j"))
     assert len(result) == len(rows)

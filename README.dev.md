@@ -53,7 +53,7 @@ Run a specified test case(s):
 ```
 tox -e test -- -k <EXPRESSION>
 # e.g.
-tox -e test -- -k table
+tox -e test -- -k dataframe
 ```
 
 ### VirtualEnv

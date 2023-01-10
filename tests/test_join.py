@@ -11,7 +11,7 @@ def t1(db: gp.Database):
     # fmt: off
     rows1 = [(1, 0, "a1",), (2, 0, "a2",), (3, 0, "a3",)]
     # fmt: on
-    return gp.to_table(rows1, db=db, column_names=["id1", "idd1", "n1"])
+    return db.create_dataframe(rows1, column_names=["id1", "idd1", "n1"])
 
 
 @pytest.fixture
@@ -19,7 +19,7 @@ def t2(db: gp.Database):
     # fmt: off
     rows2 = [(1, 0, "b1",), (2, 0, "b2",), (3, 0, "b3",)]
     # fmt: on
-    return gp.to_table(rows2, db=db, column_names=["id2", "idd2", "n2"])
+    return db.create_dataframe(rows2, column_names=["id2", "idd2", "n2"])
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def zoo_1(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
-    return gp.to_table(rows, db=db, column_names=["id", "animal"])
+    return db.create_dataframe(rows, column_names=["id", "animal"])
 
 
 @pytest.fixture
@@ -35,10 +35,10 @@ def zoo_2(db: gp.Database):
     # fmt: off
     rows = [(1, "Tiger",), (2, "Lion",), (3, "Rhino",), (4, "Panther")]
     # fmt: on
-    return gp.to_table(rows, db=db, column_names=["id", "animal"])
+    return db.create_dataframe(rows, column_names=["id", "animal"])
 
 
-def test_join_all_and_all_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
+def test_join_all_and_all_columns(db: gp.Database, t1: gp.DataFrame, t2: gp.DataFrame):
     row = next(
         iter(
             t1.join(
@@ -52,12 +52,12 @@ def test_join_all_and_all_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
     assert sorted(row.column_names()) == sorted(["id1", "idd1", "n1", "id2", "idd2", "n2"])
 
 
-def test_join_no_and_no_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
+def test_join_no_and_no_columns(db: gp.Database, t1: gp.DataFrame, t2: gp.DataFrame):
     ret = next(iter(t1.join(t2, cond=lambda t1, t2: t1["id1"] == t2["id2"])))
     assert sorted(ret.column_names()) == sorted(["id1", "idd1", "n1", "id2", "idd2", "n2"])
 
 
-def test_join_all_and_no_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
+def test_join_all_and_no_columns(db: gp.Database, t1: gp.DataFrame, t2: gp.DataFrame):
     ret = next(
         iter(
             t1.join(
@@ -68,7 +68,7 @@ def test_join_all_and_no_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
     assert sorted(ret.column_names()) == sorted(["id2", "idd2", "n2"])
 
 
-def test_join_all_and_one_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
+def test_join_all_and_one_columns(db: gp.Database, t1: gp.DataFrame, t2: gp.DataFrame):
     ret = next(
         iter(
             t1.join(
@@ -82,7 +82,7 @@ def test_join_all_and_one_columns(db: gp.Database, t1: gp.Table, t2: gp.Table):
     assert sorted(ret.column_names()) == sorted(["id1", "id2", "idd2", "n2"])
 
 
-def test_join_columns_from_list(db: gp.Database, t1: gp.Table, t2: gp.Table):
+def test_join_columns_from_list(db: gp.Database, t1: gp.DataFrame, t2: gp.DataFrame):
     ret = next(
         iter(
             t1.join(
@@ -101,16 +101,16 @@ def test_join_columns_from_list(db: gp.Database, t1: gp.Table, t2: gp.Table):
 
 def test_join_same_column_using(db: gp.Database):
     rows = [(1,), (2,), (3,)]
-    t1 = gp.to_table(rows, db=db, column_names=["id"])
-    t2 = gp.to_table(rows, db=db, column_names=["id"])
+    t1 = db.create_dataframe(rows, column_names=["id"])
+    t2 = db.create_dataframe(rows, column_names=["id"])
     ret = t1.join(t2, using=["id"], self_columns={"id": "t1_id"}, other_columns={"id": "t2_id"})
     assert sorted(next(iter(ret)).column_names()) == sorted(["t1_id", "t2_id"])
 
 
 def test_join_same_column_names(db: gp.Database):
     rows = [(1, 1), (2, 1), (3, 1)]
-    t1 = gp.to_table(rows, db=db, column_names=["id", "n1"])
-    t2 = gp.to_table(rows, db=db, column_names=["id", "n2"])
+    t1 = db.create_dataframe(rows, column_names=["id", "n1"])
+    t2 = db.create_dataframe(rows, column_names=["id", "n2"])
     ret = t1.cross_join(
         t2,
         self_columns={"*"},
@@ -121,8 +121,8 @@ def test_join_same_column_names(db: gp.Database):
     assert str(e.value) == ("Duplicate column_name(s) found: id")
 
 
-def test_table_inner_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
-    ret: gp.Table = zoo_1.join(
+def test_dataframe_inner_join(db: gp.Database, zoo_1: gp.DataFrame, zoo_2: gp.DataFrame):
+    ret: gp.DataFrame = zoo_1.join(
         zoo_2,
         using=["animal"],
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
@@ -134,7 +134,7 @@ def test_table_inner_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
         assert row["zoo1_animal"] == "Lion" or row["zoo1_animal"] == "Tiger"
 
 
-def test_table_left_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
+def test_dataframe_left_join(db: gp.Database, zoo_1: gp.DataFrame, zoo_2: gp.DataFrame):
     ret = zoo_1.left_join(
         zoo_2,
         using=["animal"],
@@ -150,7 +150,7 @@ def test_table_left_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
             assert row["zoo2_id"] is None
 
 
-def test_table_right_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
+def test_dataframe_right_join(db: gp.Database, zoo_1: gp.DataFrame, zoo_2: gp.DataFrame):
     ret = zoo_1.right_join(
         zoo_2,
         using=["animal"],
@@ -166,7 +166,7 @@ def test_table_right_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
             assert row["zoo1_id"] is None
 
 
-def test_table_full_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
+def test_dataframe_full_join(db: gp.Database, zoo_1: gp.DataFrame, zoo_2: gp.DataFrame):
     ret = zoo_1.full_join(
         zoo_2,
         using=["animal"],
@@ -188,12 +188,12 @@ def test_table_full_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
 
 def test_join_natural(db: gp.Database):
     # fmt: off
-    rows1 = [("Smart Phone", 1,), ("Laptop", 2,), ("Tablet", 3,)]
+    rows1 = [("Smart Phone", 1,), ("Laptop", 2,), ("DataFramet", 3,)]
     rows2 = [("iPhone", 1,), ("Samsung Galaxy", 1,), ("HP Elite", 2,),
              ("Lenovo Thinkpad", 2,), ("iPad", 3,), ("Kindle Fire", 3)]
     # fmt: on
-    categories = gp.to_table(rows1, db=db, column_names=["category_name", "category_id"])
-    products = gp.to_table(rows2, db=db, column_names=["product_name", "category_id"])
+    categories = db.create_dataframe(rows1, column_names=["category_name", "category_id"])
+    products = db.create_dataframe(rows2, column_names=["product_name", "category_id"])
 
     ret = categories.join(
         products,
@@ -210,11 +210,11 @@ def test_join_natural(db: gp.Database):
             assert row["category_id"] == 1
         elif row["category_name"] == "Laptop":
             assert row["category_id"] == 2
-        elif row["category_name"] == "Tablet":
+        elif row["category_name"] == "DataFramet":
             assert row["category_id"] == 3
 
 
-def test_table_cross_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
+def test_dataframe_cross_join(db: gp.Database, zoo_1: gp.DataFrame, zoo_2: gp.DataFrame):
     ret = zoo_1.cross_join(
         zoo_2,
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
@@ -234,8 +234,8 @@ def test_table_cross_join(db: gp.Database, zoo_1: gp.Table, zoo_2: gp.Table):
         assert values == {"Tiger": 4, "Lion": 4, "Rhino": 4, "Panther": 4}
 
 
-def test_table_self_join(db: gp.Database, zoo_1: gp.Table):
-    ret: gp.Table = zoo_1.join(
+def test_dataframe_self_join(db: gp.Database, zoo_1: gp.DataFrame):
+    ret: gp.DataFrame = zoo_1.join(
         zoo_1,
         using=["animal"],
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
@@ -246,15 +246,15 @@ def test_table_self_join(db: gp.Database, zoo_1: gp.Table):
         assert row["zoo1_animal"] == row["zoo2_animal"]
 
 
-def test_table_join_save(db: gp.Database, zoo_1: gp.Table):
-    t_join: gp.Table = zoo_1.join(
+def test_dataframe_join_save(db: gp.Database, zoo_1: gp.DataFrame):
+    t_join: gp.DataFrame = zoo_1.join(
         zoo_1,
         using=["animal"],
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
         other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
     )
-    t_join.save_as("table_join", temp=True)
-    t_join_reload = gp.table("table_join", db=db)
+    t_join.save_as("dataframe_join", temp=True)
+    t_join_reload = gp.DataFrame.from_table("dataframe_join", db=db)
     assert sorted(next(iter(t_join_reload)).column_names()) == sorted(
         [
             "zoo1_animal",
@@ -267,18 +267,18 @@ def test_table_join_save(db: gp.Database, zoo_1: gp.Table):
         assert row["zoo1_animal"] == row["zoo2_animal"]
 
 
-def test_table_join_ine(db: gp.Database):
+def test_dataframe_join_ine(db: gp.Database):
     rows1 = [(1,), (2,), (3,)]
     rows2 = [(2,), (3,), (4,)]
-    t1 = gp.to_table(rows1, db=db, column_names=["a"])
-    t2 = gp.to_table(rows2, db=db, column_names=["b"])
+    t1 = db.create_dataframe(rows1, column_names=["a"])
+    t2 = db.create_dataframe(rows2, column_names=["b"])
     ret = t1.join(t2, cond=lambda t1, t2: t1["a"] < t2["b"])
     assert len(list(ret)) == 6
     for row in ret:
         assert row["a"] < row["b"]
 
 
-def test_table_multiple_self_join(db: gp.Database, zoo_1: gp.Table):
+def test_dataframe_multiple_self_join(db: gp.Database, zoo_1: gp.DataFrame):
     t_join = zoo_1.join(
         zoo_1,
         using=["animal"],
@@ -301,8 +301,8 @@ def test_table_multiple_self_join(db: gp.Database, zoo_1: gp.Table):
 # direct parents of the final node must not be adjacent.
 def test_lineage_dfs_order(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    numbers = db.create_dataframe(rows, column_names=["val"])
     mod = numbers.assign(mod=lambda t: t["val"] % 2)
     mod3 = mod.assign(mod3=lambda t: t["val"] % 3)
-    results: gp.Table = mod3.join(numbers, using=["val"], other_columns={})
+    results: gp.DataFrame = mod3.join(numbers, using=["val"], other_columns={})
     assert len(list(results)) == 10
