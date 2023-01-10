@@ -11,7 +11,7 @@ from tests import db
 @pytest.fixture
 def series(db: gp.Database):
     rows = [(i, i) for i in range(10)]
-    return gp.to_table(rows, db=db, column_names=["a", "b"])
+    return db.create_dataframe(rows, column_names=["a", "b"])
 
 
 def test_plain_func(db: gp.Database):
@@ -78,7 +78,7 @@ def test_create_func_tab_indent(db: gp.Database):
 
 def test_func_on_one_column(db: gp.Database):
     rows = [(i,) for i in range(-10, 0)]
-    series = gp.to_table(rows, db=db, column_names=["id"])
+    series = db.create_dataframe(rows, column_names=["id"])
     abs = gp.function("abs")
 
     # -- WITH ASSIGN FUNC
@@ -90,7 +90,7 @@ def test_func_on_one_column(db: gp.Database):
     assert sorted([row["abs"] for row in results2]) == list(range(1, 11))
 
 
-def test_func_on_multi_columns(db: gp.Database, series: gp.Table):
+def test_func_on_multi_columns(db: gp.Database, series: gp.DataFrame):
     @gp.create_function
     def multiply(a: int, b: int) -> int:
         return a * b
@@ -104,20 +104,20 @@ def test_func_on_multi_columns(db: gp.Database, series: gp.Table):
     assert sorted([row["result"] for row in results]) == [i * i for i in range(10)]
 
 
-def test_func_on_more_than_one_table(db: gp.Database):
+def test_func_on_more_than_one_dataframe(db: gp.Database):
     div = gp.function("div")
     rows = [(1,) for _ in range(10)]
-    t1 = gp.to_table(rows, db=db, column_names=["i"])
-    t2 = gp.to_table(rows, db=db, column_names=["i"])
+    t1 = db.create_dataframe(rows, column_names=["i"])
+    t2 = db.create_dataframe(rows, column_names=["i"])
     with pytest.raises(Exception) as exc_info:
         div(t1["i"], t2["i"], db=db)
     # FIXME: Create more specific exception classes and remove this
-    assert "Cannot pass arguments from more than one tables" == str(exc_info.value)
+    assert "Cannot pass arguments from more than one dataframes" == str(exc_info.value)
 
 
 def test_simple_agg(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    numbers = db.create_dataframe(rows, column_names=["val"])
     count = gp.aggregate_function("count")
 
     # -- WITH ASSIGN FUNC
@@ -131,7 +131,7 @@ def test_simple_agg(db: gp.Database):
 
 def test_agg_group_by(db: gp.Database):
     rows = [(i, i % 2 == 0) for i in range(10)]
-    numbers = gp.to_table(rows, db=db, column_names=["val", "is_even"])
+    numbers = db.create_dataframe(rows, column_names=["val", "is_even"])
     count = gp.aggregate_function("count")
 
     # -- WITH ASSIGN FUNC
@@ -149,7 +149,7 @@ def test_agg_group_by(db: gp.Database):
 
 def test_agg_group_by_multi_columns(db: gp.Database):
     rows = [(i, i % 2 == 0, i % 3 == 0) for i in range(6)]  # 0, 1, 2, 3, 4, 5
-    numbers = gp.to_table(rows, db=db, column_names=["val", "is_even", "is_multiple_of_3"])
+    numbers = db.create_dataframe(rows, column_names=["val", "is_even", "is_multiple_of_3"])
     count = gp.aggregate_function("count")
 
     # -- WITH ASSIGN FUNC
@@ -198,7 +198,7 @@ def my_sum(result: int, val: int) -> int:
 
 def test_create_agg(db: gp.Database):
     rows = [(1,) for _ in range(10)]
-    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    numbers = db.create_dataframe(rows, column_names=["val"])
 
     # -- WITH ASSIGN FUNC
     results = numbers.group_by().assign(result=lambda t: my_sum(t["val"]))
@@ -217,7 +217,7 @@ def test_create_agg_multi_args(db: gp.Database):
         return result + abs(a - b)
 
     rows = [(1, 2) for _ in range(10)]
-    vectors = gp.to_table(rows, db=db, column_names=["a", "b"])
+    vectors = db.create_dataframe(rows, column_names=["a", "b"])
 
     # -- WITH ASSIGN FUNC
     results = vectors.group_by().assign(result=lambda t: manhattan_distance(t["a"], t["b"]))
@@ -253,7 +253,7 @@ def my_sum_array(val_list: List[int]) -> int:
 
 def test_array_func(db: gp.Database):
     rows = [(1,) for _ in range(10)]
-    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    numbers = db.create_dataframe(rows, column_names=["val"])
 
     # -- WITH ASSIGN FUNC
     results = numbers.group_by().assign(result=lambda t: my_sum_array(t["val"]))
@@ -266,7 +266,7 @@ def test_array_func(db: gp.Database):
 
 def test_array_func_group_by(db: gp.Database):
     rows = [(1, i % 2 == 0) for i in range(10)]
-    numbers = gp.to_table(rows, db=db, column_names=["val", "is_even"])
+    numbers = db.create_dataframe(rows, column_names=["val", "is_even"])
 
     # -- WITH ASSIGN FUNC
     results = numbers.group_by("is_even").assign(result=lambda t: my_sum_array(t["val"]))
@@ -297,7 +297,7 @@ def test_array_func_group_by_return_composite(db: gp.Database):
     # fmt: off
     rows = [(1, "a",), (1, "a",), (1, "b",), (1, "a",), (1, "b",), (1, "b",)]
     # fmt: on
-    numbers = gp.to_table(rows, db=db, column_names=["val", "lab"])
+    numbers = db.create_dataframe(rows, column_names=["val", "lab"])
 
     # -- WITH ASSIGN FUNC
     ret = (
@@ -350,7 +350,7 @@ def create_pair(num: int) -> Pair:
 
 def test_func_composite_type_column(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    numbers = db.create_dataframe(rows, column_names=["val"])
 
     # -- WITH ASSIGN FUNC
     for row in numbers.assign(result=lambda t: create_pair(t["val"])).assign(
@@ -373,7 +373,7 @@ def test_func_composite_type_setof(db: gp.Database):
         return [(num, num + 1) for _ in range(5)]
 
     rows = [(i,) for i in range(10)]
-    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    numbers = db.create_dataframe(rows, column_names=["val"])
 
     # -- WITH ASSIGN FUNC
     ret = numbers.assign(result=lambda t: create_pair_tuple(t["val"])).assign(
@@ -410,7 +410,7 @@ def my_stat(val_list: List[int]) -> Stat:
 
 def test_array_func_composite_type(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    numbers = db.create_dataframe(rows, column_names=["val"])
 
     # -- WITH ASSIGN FUNC
     ret = (
@@ -429,7 +429,7 @@ def test_array_func_composite_type(db: gp.Database):
 
 def test_func_apply_single_column(db: gp.Database):
     rows = [(i,) for i in range(-10, 0)]
-    series = gp.to_table(rows, db=db, column_names=["id"])
+    series = db.create_dataframe(rows, column_names=["id"])
     abs = gp.function("abs")
 
     # -- WITH ASSIGN FUNC
@@ -452,7 +452,7 @@ def label(type_or_type: str, num: int) -> str:
 
 def test_func_apply_const_and_column(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    numbers = db.create_dataframe(rows, column_names=["val"])
 
     # -- WITH ASSIGN FUNC
     result = numbers.assign(label=lambda t: label("label", t["val"]))
@@ -472,8 +472,8 @@ def test_func_apply_join(db: gp.Database):
     rows1 = [(1, "a1",), (2, "a2",), (3, "a3",)]
     rows2 = [(1, "b1",), (2, "b2",), (3, "b3",)]
     # fmt: on
-    t1 = gp.to_table(rows1, db=db, column_names=["id1", "n1"])
-    t2 = gp.to_table(rows2, db=db, column_names=["id2", "n2"])
+    t1 = db.create_dataframe(rows1, column_names=["id1", "n1"])
+    t2 = db.create_dataframe(rows2, column_names=["id2", "n2"])
     ret = t1.join(
         t2, cond=lambda t1, t2: t1["id1"] == t2["id2"], self_columns={"id1"}, other_columns={"n2"}
     )
@@ -491,7 +491,7 @@ def test_func_apply_join(db: gp.Database):
 
 def test_func_composite_type_column_apply(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    numbers = db.create_dataframe(rows, column_names=["val"])
 
     # -- WITH ASSIGN FUNC
     for row in numbers.assign(result=lambda tab: create_pair(tab["val"])).assign(
@@ -506,7 +506,7 @@ def test_func_composite_type_column_apply(db: gp.Database):
 
 def test_array_func_apply(db: gp.Database):
     rows = [(1,) for _ in range(10)]
-    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    numbers = db.create_dataframe(rows, column_names=["val"])
 
     # -- WITH ASSIGN FUNC
     results = numbers.group_by().assign(my_sum=lambda t: my_sum_array(t["val"]))
@@ -519,7 +519,7 @@ def test_array_func_apply(db: gp.Database):
 
 def test_array_func_group_by_composite_apply(db: gp.Database):
     rows = [(1, i % 2 == 0) for i in range(10)]
-    numbers = gp.to_table(rows, db=db, column_names=["val", "is_even"])
+    numbers = db.create_dataframe(rows, column_names=["val", "is_even"])
 
     # -- WITH ASSIGN FUNC
     results = (
@@ -549,7 +549,7 @@ def my_sum_const(label: str, val_list: List[int], initial: int) -> str:
 
 def test_array_func_const_apply(db: gp.Database):
     rows = [(1,) for _ in range(10)]
-    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    numbers = db.create_dataframe(rows, column_names=["val"])
 
     # -- WITH ASSIGN FUNC
     results = numbers.group_by().assign(my_sum=lambda tab: my_sum_const("sum", tab["val"], 5))
@@ -566,7 +566,7 @@ def test_array_func_group_by_attribute(db: gp.Database):
     # fmt: off
     rows = [("a", i, 5,) for i in range(10)]
     # fmt: on
-    numbers = gp.to_table(rows, db=db, column_names=["label", "val", "initial"])
+    numbers = db.create_dataframe(rows, column_names=["label", "val", "initial"])
 
     # -- WITH ASSIGN FUNC
     results = numbers.group_by("label", "initial").assign(
@@ -620,7 +620,7 @@ def test_create_func_same_name(db: gp.Database):
     assert func_name != new_func_name
 
 
-def test_agg_returning_table(db: gp.Database):
+def test_agg_returning_dataframe(db: gp.Database):
     @gp.create_aggregate
     def pass_agg(result: List[int], val: int) -> List[int]:
         if result is None:
@@ -628,7 +628,7 @@ def test_agg_returning_table(db: gp.Database):
         return result + [val]
 
     rows = [(i,) for i in range(10)]
-    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    numbers = db.create_dataframe(rows, column_names=["val"])
     # -- WITH ASSIGN FUNC
     with pytest.raises(Exception):  # state transition functions may not return table
         numbers.group_by().assign(result=lambda t: pass_agg(t["val"]))
@@ -636,7 +636,7 @@ def test_agg_returning_table(db: gp.Database):
 
 def test_agg_distinct(db: gp.Database):
     rows = [(1,) for _ in range(10)]
-    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    numbers = db.create_dataframe(rows, column_names=["val"])
 
     count = gp.aggregate_function("count")
     result = numbers.group_by().assign(
@@ -658,7 +658,7 @@ def test_agg_composite_type(db: gp.Database):
         return {"sum": result["sum"] + val, "count": result["count"] + 1}
 
     rows = [(1,) for _ in range(10)]
-    numbers = gp.to_table(rows, db=db, column_names=["val"])
+    numbers = db.create_dataframe(rows, column_names=["val"])
     result = numbers.group_by().apply(lambda t: sum_count(t["val"]), expand=True)
     for row in result:
         assert row["count"] == len(rows) and row["sum"] == 10

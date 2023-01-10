@@ -1,28 +1,28 @@
 """
-`Table` is the core data structure in GreenplumPython. Conceptually, a `Table`
+`DataFrame` is the core data structure in GreenplumPython. Conceptually, a `DataFrame`
 is a two-dimensional unordered structure containing data. This aligns with `the
-definition of "Table" on Wikipedia
-<https://en.wikipedia.org/wiki/Table_(information)>`_.
+definition of "DataFrame" on Wikipedia
+<https://en.wikipedia.org/wiki/DataFrame_(information)>`_.
 
-In the data science world, a `Table` is similar to a `DataFrame` in `pandas
+In the data science world, a `DataFrame` is similar to a `DataFrame` in `pandas
 <https://pandas.pydata.org/>`_, except that
 
-- | Data in a `Table` is lazily evaluated rather than eagerly. That is, they are computed only when
+- | Data in a `DataFrame` is lazily evaluated rather than eagerly. That is, they are computed only when
   | they are observed. This can improve efficiency in many cases.
-- | Data in a `Table` is located and manipulated on a remote database system rather than locally. As
+- | Data in a `DataFrame` is located and manipulated on a remote database system rather than locally. As
   | a consequence,
 
     - | Retrieving them from the database system can be expensive. Therefore, once the data 
-      | of a :class:`Table` is fetched from the database system, it will be cached locally for later use.
+      | of a :class:`DataFrame` is fetched from the database system, it will be cached locally for later use.
     - | They might be modified concurrently by other users of the database system. You might 
-      | need to use :meth:`~table.Table.refresh()` to sync the updates if the data becomes stale.
+      | need to use :meth:`~dataframe.DataFrame.refresh()` to sync the updates if the data becomes stale.
 
-In the database world, a `Table` is similar to a **materialized view** in a
+In the database world, a `DataFrame` is similar to a **materialized view** in a
 database system in that
 
 - They both result from a possibly complex query.
 - They both hold data, as oppose to views.
-- | The data can become stale due to concurrent modification. And the :meth:`~table.Table.refresh()` method
+- | The data can become stale due to concurrent modification. And the :meth:`~dataframe.DataFrame.refresh()` method
   | is similar to the :code:`REFRESH MATERIALIZED VIEW` `command in PostgreSQL <https://www.postgresql.org/docs/current/sql-refreshmaterializedview.html>`_ for syncing updates.
 """
 import collections
@@ -50,25 +50,25 @@ from uuid import uuid4
 
 from psycopg2.extras import RealDictRow
 
-from greenplumpython import db
 from greenplumpython.col import Column, Expr
+from greenplumpython.db import Database
 from greenplumpython.expr import serialize
-from greenplumpython.group import TableGroupingSets
-from greenplumpython.order import OrderedTable
+from greenplumpython.group import DataFrameGroupingSets
+from greenplumpython.order import OrderedDataFrame
 from greenplumpython.row import Row
 
 
-class Table:
+class DataFrame:
     """
-    Representation of Table object.
+    Representation of DataFrame object.
     """
 
     def __init__(
         self,
         query: str,
-        parents: List["Table"] = [],
+        parents: List["DataFrame"] = [],
         name: Optional[str] = None,
-        db: Optional[db.Database] = None,
+        db: Optional[Database] = None,
         columns: Optional[Iterable[Column]] = None,
     ) -> None:
         self._query = query
@@ -82,17 +82,17 @@ class Table:
             self._db = db
 
     @singledispatchmethod
-    def _getitem(self, _) -> "Table":
+    def _getitem(self, _) -> "DataFrame":
         raise NotImplementedError()
 
     @_getitem.register(abc.Callable)  # type: ignore reportMissingTypeArgument
-    def _(self, predicate: Callable[["Table"], Expr]):
+    def _(self, predicate: Callable[["DataFrame"], Expr]):
         return self.where(predicate)
 
     @_getitem.register(list)
-    def _(self, column_names: List[str]) -> "Table":
+    def _(self, column_names: List[str]) -> "DataFrame":
         targets_str = [serialize(self[col]) for col in column_names]
-        return Table(
+        return DataFrame(
             f"""
                 SELECT {','.join(targets_str)} 
                 FROM {self._name}
@@ -101,11 +101,11 @@ class Table:
         )
 
     @_getitem.register(str)
-    def _(self, column_name: str) -> "Table":
+    def _(self, column_name: str) -> "DataFrame":
         return Column(column_name, self)
 
     @_getitem.register(slice)
-    def _(self, rows: slice) -> "Table":
+    def _(self, rows: slice) -> "DataFrame":
         if rows.step is not None:
             raise NotImplementedError()
         offset_clause = "" if rows.start is None else f"OFFSET {rows.start}"
@@ -114,21 +114,21 @@ class Table:
             if rows.stop is None
             else f"LIMIT {rows.stop if rows.start is None else rows.stop - rows.start}"
         )
-        return Table(
+        return DataFrame(
             f"SELECT * FROM {self.name} {limit_clause} {offset_clause}",
             parents=[self],
         )
 
     @overload
-    def __getitem__(self, _) -> "Table":
+    def __getitem__(self, _) -> "DataFrame":
         ...
 
     @overload
-    def __getitem__(self, column_names: List[str]) -> "Table":
+    def __getitem__(self, column_names: List[str]) -> "DataFrame":
         ...
 
     @overload
-    def __getitem__(self, predicate: Callable[["Table"], Expr]) -> "Table":
+    def __getitem__(self, predicate: Callable[["DataFrame"], Expr]) -> "DataFrame":
         ...
 
     @overload
@@ -136,37 +136,37 @@ class Table:
         ...
 
     @overload
-    def __getitem__(self, rows: slice) -> "Table":
+    def __getitem__(self, rows: slice) -> "DataFrame":
         ...
 
     def __getitem__(self, _):
         """
         Returns
-            - a :class:`~expr.Column` of the current Table if key is string
+            - a :class:`~expr.Column` of the current DataFrame if key is string
 
             .. code-block::  python
 
                id_col = tab["id"]
 
-            - a new :class:`Table` from the current Table per the type of key:
+            - a new :class:`DataFrame` from the current DataFrame per the type of key:
 
                 - if key is a list, then SELECT a subset of columns, a.k.a. targets;
 
                 .. code-block::  python
 
-                   id_table = tab[["id"]]
+                   id_dataframe = tab[["id"]]
 
                 - if key is an :class:`~expr.Expr`, then SELECT a subset of rows per the value of the Expr;
 
                 .. code-block::  python
 
-                   id_cond_table = tab[lambda t: t["id"] == 0]
+                   id_cond_dataframe = tab[lambda t: t["id"] == 0]
 
                 - if key is a slice, then SELECT a portion of consecutive rows
 
                 .. code-block::  python
 
-                   slice_table = tab[2:5]
+                   slice_dataframe = tab[2:5]
 
         """
         return self._getitem(_)
@@ -175,7 +175,7 @@ class Table:
         """
         :meta private:
 
-        Return a string representation for a table
+        Return a string representation for a dataframe
         """
         repr_string: str = ""
         if len(list(self)) != 0:
@@ -185,7 +185,7 @@ class Table:
             for row in self:
                 for col_idx, col in enumerate(row):
                     width[col_idx] = max(width[col_idx], len(col), len(str(row[col])))
-            # Table header.
+            # DataFrame header.
             repr_string += (
                 "".join(
                     [
@@ -202,7 +202,7 @@ class Table:
                 )
                 + "\n"
             )
-            # Table contents.
+            # DataFrame contents.
             for row in self:
                 content = [row[c] for c in row]
                 for idx, c in enumerate(content):
@@ -238,37 +238,37 @@ class Table:
         return repr_html_str
 
     # FIXME: Add test
-    def where(self, predicate: Callable[["Table"], "Expr"]) -> "Table":
+    def where(self, predicate: Callable[["DataFrame"], "Expr"]) -> "DataFrame":
         """
-        Returns the :class:`Table` filtered by Expression.
+        Returns the :class:`DataFrame` filtered by Expression.
 
         Args:
             predicate: :class:`~expr.Expr` : where condition statement
 
         Returns:
-            Table : Table filtered according **expr** passed in argument
+            DataFrame : DataFrame filtered according **expr** passed in argument
         """
         v = predicate(self)
-        assert v.table == self, "Predicate must based on current table"
+        assert v.dataframe == self, "Predicate must based on current dataframe"
         parents = [self]
-        if v.other_table is not None and self.name != v.other_table.name:
-            parents.append(v.other_table)
-        return Table(f"SELECT * FROM {self._name} WHERE {v.serialize()}", parents=parents)
+        if v.other_dataframe is not None and self.name != v.other_dataframe.name:
+            parents.append(v.other_dataframe)
+        return DataFrame(f"SELECT * FROM {self._name} WHERE {v.serialize()}", parents=parents)
 
     def apply(
         self,
-        func: Callable[["Table"], "FunctionExpr"],
+        func: Callable[["DataFrame"], "FunctionExpr"],
         expand: bool = False,
         as_name: Optional[str] = None,
-    ) -> "Table":
+    ) -> "DataFrame":
         """
-        Apply a function to the :class:`Table`
+        Apply a function to the :class:`DataFrame`
         Args:
-            func: Callable[[:class:`Table`], :class:`~func.FunctionExpr`]: a lambda function of a FunctionExpr
+            func: Callable[[:class:`DataFrame`], :class:`~func.FunctionExpr`]: a lambda function of a FunctionExpr
             expand: bool: expand field of composite returning type
             as_name: str: rename returning column
         Returns:
-            Table: resulted Table
+            DataFrame: resulted DataFrame
         Example:
             .. code-block::  python
 
@@ -285,31 +285,31 @@ class Table:
         """
         # We need to support calling functions with constant args or even no
         # arg. For example: SELECT count(*) FROM t; In that case, the
-        # arguments do not contain information on any table or any database.
+        # arguments do not contain information on any dataframe or any database.
         # As a result, the generated SQL cannot be executed.
         #
-        # To fix this, we need to pass the table to the resulting FunctionExpr
+        # To fix this, we need to pass the dataframe to the resulting FunctionExpr
         # explicitly.
-        return func(self).bind(table=self).apply(expand=expand, as_name=as_name)
+        return func(self).bind(dataframe=self).apply(expand=expand, as_name=as_name)
 
-    def assign(self, **new_columns: Callable[["Table"], Any]) -> "Table":
+    def assign(self, **new_columns: Callable[["DataFrame"], Any]) -> "DataFrame":
         """
-        Assigns new columns to the current :class:`Table`. Existing columns
+        Assigns new columns to the current :class:`DataFrame`. Existing columns
         cannot be reassigned.
 
         Args:
             new_columns: a :class:`dict` whose keys are column names and values
                 are :class:`Callable`s returning column data when applied to the
-                current :class:`Table`.
+                current :class:`DataFrame`.
 
         Returns:
-            Table: New table including the new assigned columns
+            DataFrame: New dataframe including the new assigned columns
 
         Example:
             .. code-block::  python
 
                 rows = [(i,) for i in range(-10, 0)]
-                series = gp.to_table(rows, db=db, column_names=["id"])
+                series = gp.to_dataframe(rows, db=db, column_names=["id"])
                 abs = gp.function("abs")
                 results = series.assign(abs=lambda nums: abs(nums["id"]))
 
@@ -318,19 +318,19 @@ class Table:
         if len(new_columns) == 0:
             return self
         targets: List[str] = []
-        other_parents: Dict[str, Table] = {}
+        other_parents: Dict[str, DataFrame] = {}
         if len(new_columns):
             for k, f in new_columns.items():
                 v: Any = f(self)
                 if isinstance(v, Expr):
                     assert (
-                        v.table is None or v.table == self
-                    ), "Newly included columns must be based on the current table"
-                    if v.other_table is not None and v.other_table.name != self.name:
-                        if v.other_table.name not in other_parents:
-                            other_parents[v.other_table.name] = v.other_table
+                        v.dataframe is None or v.dataframe == self
+                    ), "Newly included columns must be based on the current dataframe"
+                    if v.other_dataframe is not None and v.other_dataframe.name != self.name:
+                        if v.other_dataframe.name not in other_parents:
+                            other_parents[v.other_dataframe.name] = v.other_dataframe
                 targets.append(f"{serialize(v)} AS {k}")
-            return Table(
+            return DataFrame(
                 f"SELECT *, {','.join(targets)} FROM {self.name}",
                 parents=[self] + list(other_parents.values()),
             )
@@ -341,18 +341,18 @@ class Table:
         ascending: Optional[bool] = None,
         nulls_first: Optional[bool] = None,
         operator: Optional[str] = None,
-    ) -> OrderedTable:
+    ) -> OrderedDataFrame:
         """
-        Returns :class:`Table` order by the given arguments.
+        Returns :class:`DataFrame` order by the given arguments.
 
         Args:
-            column_name: name of column to order the table by
+            column_name: name of column to order the dataframe by
             ascending: Optional[Bool]: Define ascending of order, True = ASC / False = DESC
             nulls_first: Optional[bool]: Define if nulls will be ordered first or last, True = First / False = Last
             operator: Optional[str]: Define order by using operator. **Can't combine with ascending.**
 
         Returns:
-            OrderedTable : Table ordered by the given arguments
+            OrderedDataFrame : DataFrame ordered by the given arguments
 
         Example:
             .. code-block::  Python
@@ -360,12 +360,12 @@ class Table:
                 t.order_by("id")
         """
         # State transition diagram:
-        # Table --order_by()-> OrderedTable --head()-> Table
+        # DataFrame --order_by()-> OrderedDataFrame --head()-> DataFrame
         if ascending is not None and operator is not None:
             raise Exception(
                 "Could not use 'ascending' and 'operator' at the same time to order by one column"
             )
-        return OrderedTable(
+        return OrderedDataFrame(
             self,
             [column_name],
             [ascending],
@@ -375,19 +375,19 @@ class Table:
 
     def join(
         self,
-        other: "Table",
+        other: "DataFrame",
         how: str = "",
-        cond: Optional[Callable[["Table", "Table"], Expr]] = None,
+        cond: Optional[Callable[["DataFrame", "DataFrame"], Expr]] = None,
         using: Optional[Iterable[str]] = None,
         self_columns: Union[Dict[str, Optional[str]], Set[str]] = {"*"},
         other_columns: Union[Dict[str, Optional[str]], Set[str]] = {"*"},
-    ) -> "Table":
+    ) -> "DataFrame":
         """
-        Joins the current :class:`Table` with another :class:`Table`.
+        Joins the current :class:`DataFrame` with another :class:`DataFrame`.
 
         Args:
-            other: :class:`Table` to join with
-            how: How the two tables are joined. The value can be one of
+            other: :class:`DataFrame` to join with
+            how: How the two dataframes are joined. The value can be one of
                 - `"INNER"`: inner join,
                 - `"LEFT"`: left outer join,
                 - `"LEFT"`: right outer join,
@@ -396,15 +396,15 @@ class Table:
                 The default value `""` is equivalent to "INNER".
 
             cond: :class:`Callable` lambda function as the join condition
-            using: a list of column names that exist in both tables to join on.
+            using: a list of column names that exist in both dataframes to join on.
                 `cond` and `using` cannot be used together.
             self_columns: A :class:`dict` whose keys are the column names of
-                the current table to be included in the resulting
-                table. The value, if not `None`, is used for renaming
+                the current dataframe to be included in the resulting
+                dataframe. The value, if not `None`, is used for renaming
                 the corresponding key to avoid name conflicts. Asterisk `"*"`
                 can be used as a key to indicate all columns.
             other_columns: Same as `self_columns`, but for the `other`
-                table.
+                dataframe.
 
         Note:
             When using `"*"` as key in `self_columns` or `other_columns`,
@@ -423,7 +423,7 @@ class Table:
         ], "Unsupported join type"
         assert cond is None or using is None, 'Cannot specify "cond" and "using" together'
 
-        def bind(t: Table, columns: Union[Dict[str, Optional[str]], Set[str]]) -> List[str]:
+        def bind(t: DataFrame, columns: Union[Dict[str, Optional[str]], Set[str]]) -> List[str]:
             target_list: List[str] = []
             for k in columns:
                 col: Column = t[k]
@@ -434,11 +434,11 @@ class Table:
         other_name = other.name if self.name != other.name else "cte_" + uuid4().hex
         other_clause = other.name if self.name != other.name else self.name + " AS " + other_name
         target_list = bind(self, self_columns) + bind(
-            Table(query="", name=other_name), other_columns
+            DataFrame(query="", name=other_name), other_columns
         )
         on_clause = f"ON {cond(self, other).serialize()}" if cond is not None else ""
         using_clause = f"USING ({','.join(using)})" if using is not None else ""
-        return Table(
+        return DataFrame(
             f"""
                 SELECT {",".join(target_list)}
                 FROM {self.name} {how} JOIN {other_clause} {on_clause} {using_clause}
@@ -448,90 +448,93 @@ class Table:
 
     inner_join = partialmethod(join, how="INNER")
     """
-    Inner joins the current :class:`Table` with another :class:`Table`.
+    Inner joins the current :class:`DataFrame` with another :class:`DataFrame`.
 
-    Equivalent to calling :meth:`Table.join` with `how="INNER"`.
+    Equivalent to calling :meth:`DataFrame.join` with `how="INNER"`.
     """
 
     left_join = partialmethod(join, how="LEFT")
     """
-    Left-outer joins the current :class:`Table` with another :class:`Table`.
+    Left-outer joins the current :class:`DataFrame` with another :class:`DataFrame`.
 
-    Equivalent to calling :meth:`Table.join` with `how="LEFT"`.
+    Equivalent to calling :meth:`DataFrame.join` with `how="LEFT"`.
     """
 
     right_join = partialmethod(join, how="RIGHT")
     """
-    Right-outer joins the current :class:`Table` with another :class:`Table`.
+    Right-outer joins the current :class:`DataFrame` with another :class:`DataFrame`.
 
-    Equivalent to calling :meth:`Table.join` with `how="RIGHT"`.
+    Equivalent to calling :meth:`DataFrame.join` with `how="RIGHT"`.
     """
 
     full_join = partialmethod(join, how="FULL")
     """
-    Full-outer joins the current :class:`Table` with another :class:`Table`.
+    Full-outer joins the current :class:`DataFrame` with another :class:`DataFrame`.
 
-    Equivalent to calling :meth:`Table.join` with argutment `how="FULL"`.
+    Equivalent to calling :meth:`DataFrame.join` with argutment `how="FULL"`.
     """
 
     cross_join = partialmethod(join, how="CROSS", cond=None, using=None)
     """
-    Cross joins the current :class:`Table` with another :class:`Table`,
+    Cross joins the current :class:`DataFrame` with another :class:`DataFrame`,
     i.e. the Cartesian product.
 
-    Equivalent to calling :meth:`Table.join` with `how="CROSS"`.
+    Equivalent to calling :meth:`DataFrame.join` with `how="CROSS"`.
     """
 
     @property
     def name(self) -> str:
         """
-        Returns name of :class:`Table`
+        Returns name of :class:`DataFrame`
 
         Returns:
-            str: Table name
+            str: DataFrame name
         """
         return self._name
 
     @property
-    def db(self) -> Optional[db.Database]:
+    def db(self) -> Optional[Database]:
         """
-        Returns :class:`~db.Database` associated with :class:`Table`
+        Returns :class:`~Database` associated with :class:`DataFrame`
 
         Returns:
-            Optional[Database]: database associated with table
+            Optional[Database]: database associated with dataframe
         """
         return self._db
 
     @property
     def columns(self) -> Optional[Iterable[Column]]:
         """
-        Returns its :class:`~expr.Column` name of :class:`Table`, has results only for selected table and joined table with targets.
+        Returns its :class:`~expr.Column` name of :class:`DataFrame`, has results only for selected dataframe and joined dataframe with targets.
 
         Returns:
-            Optional[Iterable[str]]: None or List of its columns names of table
+            Optional[Iterable[str]]: None or List of its columns names of dataframe
         """
         return self._columns
 
-    # This is used to filter out tables that are derived from other tables.
+    # This is used to filter out dataframes that are derived from other dataframes.
     #
-    # Actually we cannot determine if a table is recorded in the system catalogs
+    # Actually we cannot determine if a dataframe is recorded in the system catalogs
     # without querying the db.
     def _in_catalog(self) -> bool:
         """:meta private:"""
         return self._query.startswith("TABLE")
 
-    def _list_lineage(self) -> List["Table"]:
+    def _list_lineage(self) -> List["DataFrame"]:
         """:meta private:"""
-        lineage: List["Table"] = [self]
-        tables_visited: Set[str] = set()
+        lineage: List["DataFrame"] = [self]
+        dataframes_visited: Set[str] = set()
         current = 0
         while current < len(lineage):
-            if lineage[current].name not in tables_visited and not lineage[current]._in_catalog():
-                self._depth_first_search(lineage[current], tables_visited, lineage)
+            if (
+                lineage[current].name not in dataframes_visited
+                and not lineage[current]._in_catalog()
+            ):
+                self._depth_first_search(lineage[current], dataframes_visited, lineage)
             current += 1
         return lineage
 
-    def _depth_first_search(self, t: "Table", visited: Set[str], lineage: List["Table"]):
+    def _depth_first_search(self, t: "DataFrame", visited: Set[str], lineage: List["DataFrame"]):
         """:meta private:"""
         visited.add(t.name)
         for i in t._parents:
@@ -543,14 +546,14 @@ class Table:
         """:meta private:"""
         lineage = self._list_lineage()
         cte_list: List[str] = []
-        for table in lineage:
-            if table._name != self._name:
-                cte_list.append(f"{table._name} AS ({table._query})")
+        for dataframe in lineage:
+            if dataframe._name != self._name:
+                cte_list.append(f"{dataframe._name} AS ({dataframe._query})")
         if len(cte_list) == 0:
             return self._query
         return "WITH " + ",".join(cte_list) + self._query
 
-    def __iter__(self) -> "Table":
+    def __iter__(self) -> "DataFrame":
         """:meta private:"""
         if self._contents is not None:
             self._n = 0
@@ -585,7 +588,7 @@ class Table:
                 return Row(to_json_dict)
         raise StopIteration("StopIteration: Reached last row of table!")
 
-    def refresh(self) -> "Table":
+    def refresh(self) -> "DataFrame":
         """
         Refresh self._contents
 
@@ -602,7 +605,7 @@ class Table:
 
     def _fetch(self, is_all: bool = True) -> Iterable[Tuple[Any]]:
         """
-        Fetch rows of this :class:`Table`.
+        Fetch rows of this :class:`DataFrame`.
         - if is_all is True, fetch all rows at once
         - otherwise, open a CURSOR and FETCH one row at a time
 
@@ -620,20 +623,22 @@ class Table:
             f"SELECT to_json({output_name})::TEXT FROM {self.name} AS {output_name}",
             parents=[self],
         )
-        result = self._db.execute(to_json_table._build_full_query())
+        result = self._db.execute(to_json_dataframe._build_full_query())
         return result if result is not None else []
 
-    def save_as(self, table_name: str, temp: bool = False, column_names: List[str] = []) -> "Table":
+    def save_as(
+        self, dataframe_name: str, temp: bool = False, column_names: List[str] = []
+    ) -> "DataFrame":
         """
-        Save the table to database as a real Greenplum Table
+        Save the dataframe to database as a real Greenplum DataFrame
 
         Args:
-            table_name : str
-            temp : bool : if table is temporary
+            dataframe_name : str
+            temp : bool : if dataframe is temporary
             column_names : List : list of column names
 
         Returns:
-            Table : table saved in database
+            DataFrame : dataframe saved in database
         """
         assert self._db is not None
         # When no column_names is not explicitly passed
@@ -643,12 +648,12 @@ class Table:
             column_names = next(iter(self)).column_names()  # type: ignore
         self._db.execute(
             f"""
-            CREATE {'TEMP' if temp else ''} TABLE {table_name} ({','.join(column_names)}) 
+            CREATE {'TEMP' if temp else ''} TABLE {dataframe_name} ({','.join(column_names)}) 
             AS {self._build_full_query()}
             """,
             has_results=False,
         )
-        return table(table_name, self._db)
+        return DataFrame.from_table(dataframe_name, self._db)
 
     # TODO: Uncomment or remove this.
     #
@@ -659,7 +664,7 @@ class Table:
     #     name: Optional[str] = None,
     # ) -> None:
     #     if not self._in_catalog():
-    #         raise Exception("Cannot create index on tables not in the system catalog.")
+    #         raise Exception("Cannot create index on dataframes not in the system catalog.")
     #     index_name: str = name if name is not None else "idx_" + uuid4().hex
     #     indexed_cols = ",".join([str(col) for col in columns])
     #     assert self._db is not None
@@ -671,7 +676,7 @@ class Table:
     # FIXME: Should we choose JSON as the default format?
     def explain(self, format: str = "TEXT") -> Iterable[Tuple[str]]:
         """
-        Explained the table's query
+        Explained the dataframe's query
 
         Args:
             format: str: format of explain
@@ -684,73 +689,99 @@ class Table:
         assert results is not None
         return results
 
-    def group_by(self, *column_names: str) -> TableGroupingSets:
+    def group_by(self, *column_names: str) -> DataFrameGroupingSets:
         """
-        Group the current :class:`~table.Table` by columns specified by
+        Group the current :class:`~dataframe.DataFrame` by columns specified by
         `column_names`.
 
         Args:
-            column_names: one or more column names of the table
+            column_names: one or more column names of the dataframe
 
         Returns:
-            TableGroupingSets: a list of grouping sets. Each group is identified
+            DataFrameGroupingSets: a list of grouping sets. Each group is identified
             by a different set of values of the columns in the arguments.
         """
         #  State transition diagram:
-        #  Table --group_by()-> TableRowGroup --aggregate()-> FunctionExpr
+        #  DataFrame --group_by()-> DataFrameRowGroup --aggregate()-> FunctionExpr
         #    ^                                                    |
-        #    |------------------------- to_table() ---------------|
-        return TableGroupingSets(self, [column_names])
+        #    |------------------------- to_dataframe() ---------------|
+        return DataFrameGroupingSets(self, [column_names])
 
-    def distinct_on(self, *column_names: str) -> "Table":
+    def distinct_on(self, *column_names: str) -> "DataFrame":
         """
-        Deduplicate the current :class:`Table` with respect to the given columns.
+        Deduplicate the current :class:`DataFrame` with respect to the given columns.
 
         Args:
-            column_names: name of column of the current :class:`Table`.
+            column_names: name of column of the current :class:`DataFrame`.
 
         Returns:
-            :class:`Table`: Table containing only the distinct values of the
+            :class:`DataFrame`: DataFrame containing only the distinct values of the
                             given columns.
         """
         cols = [Column(name, self).serialize() for name in column_names]
-        return Table(f"SELECT DISTINCT ON ({','.join(cols)}) * FROM {self.name}", parents=[self])
+        return DataFrame(
+            f"SELECT DISTINCT ON ({','.join(cols)}) * FROM {self.name}", parents=[self]
+        )
 
+    # dataframe_name can be table/view name
+    @classmethod
+    def from_table(cls, name: str, db: Database) -> "DataFrame":
+        """
+        Returns a :class:`DataFrame` using dataframe name and associated :class:`~Database`
 
-# table_name can be table/view name
-def table(name: str, db: db.Database) -> Table:
-    """
-    Returns a :class:`Table` using table name and associated :class:`~db.Database`
+        Args:
+            name: str: DataFrame name
+            db: :class:`~Database`: database which contains the dataframe
+        """
+        return DataFrame(f"TABLE {name}", name=name, db=db)
 
-    Args:
-        name: str: Table name
-        db: :class:`~db.Database`: database which contains the table
-    """
-    return Table(f"TABLE {name}", name=name, db=db)
+    @classmethod
+    def from_rows(
+        cls, rows: List[Tuple[Any]], db: Database, column_names: Iterable[str] = []
+    ) -> "DataFrame":
+        """
+        Returns a :class:`DataFrame` using list of values given
 
+        Args:
+            rows: Iterable[Tuple[Any]]: List of values
+            db: :class:`~Database`: database which will be associated with dataframe
+            column_names: Iterable[str]: List of given column names
 
-def to_table(
-    rows: Iterable[Tuple[Any]], db: db.Database, column_names: Iterable[str] = []
-) -> Table:
-    """
-    Returns a :class:`Table` using list of values given
+        Returns:
+            DataFrame: dataframe generated with given values
 
-    Args:
-        rows: Iterable[Tuple[Any]]: List of values
-        db: :class:`~db.Database`: database which will be associated with table
-        column_names: Iterable[str]: List of given column names
+        .. code-block::  python
 
-    Returns:
-        Table: table generated with given values
+           rows = [(1,), (2,), (3,)]
+            t = gp.create_dataframe(rows, db=db)
 
-    .. code-block::  python
+        """
+        rows_string = ",".join(
+            ["(" + ",".join(serialize(datum) for datum in row) + ")" for row in rows]
+        )
+        columns_string = f"({','.join(column_names)})" if any(column_names) else ""
+        return DataFrame(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", db=db)
 
-       rows = [(1,), (2,), (3,)]
-        t = gp.to_table(rows, db=db)
+    @classmethod
+    def from_columns(cls, columns: Dict[str, List[Any]], db: Database) -> "DataFrame":
+        """
+        Returns a :class:`DataFrame` using list of columns values given
 
-    """
-    rows_string = ",".join(
-        ["(" + ",".join(serialize(datum) for datum in row) + ")" for row in rows]
-    )
-    columns_string = f"({','.join(column_names)})" if any(column_names) else ""
-    return Table(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", db=db)
+        Args:
+            columns: Dict[str, List[Any]]: List of column values
+            db: :class:`~Database`: database which will be associated with dataframe
+            column_names: Iterable[str]: List of given column names
+
+        Returns:
+            DataFrame: dataframe generated with given values
+
+        .. code-block::  python
+
+           columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
+            t = gp.create_dataframe(columns, db=db)
+
+        """
+        columns_string = ",".join(
+            ["unnest(" + serialize(v) + ") AS " + k for k, v in columns.items()]
+        )
+        return DataFrame(f"SELECT {columns_string}", db=db)

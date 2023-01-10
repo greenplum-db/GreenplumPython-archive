@@ -7,7 +7,7 @@ The **GreenplumPython** library contains 5 main modules:
    :maxdepth: 5
 
    db
-   table
+   dataframe
    expr
    col
    row

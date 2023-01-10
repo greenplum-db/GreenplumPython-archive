@@ -1,7 +1,7 @@
-Table
+DataFrame
 ========
 
-.. automodule:: table
+.. automodule:: dataframe
    :members:
    :special-members: __getitem__
    :show-inheritance:

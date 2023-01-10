@@ -1,12 +1,22 @@
 """
 This  module can create a connection to a Greenplum database
 """
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Optional, Tuple
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 
 from greenplumpython import config
 
 if TYPE_CHECKING:
-    from greenplumpython.table import Table
+    from greenplumpython.dataframe import DataFrame
     from greenplumpython.func import FunctionExpr
 
 import psycopg2
@@ -58,24 +68,47 @@ class Database:
 
     def table(self, name: str):
         """
-        Returns a :class:`~table.Table` using table name and self
+        Returns a :class:`~dataframe.DataFrame` using dataframe name and self
 
         Args:
-            name: str : Table name
+            name: str : DataFrame name
 
         Returns:
-            Table: Table in database named **name**
+            DataFrame: DataFrame in database named **name**
         """
-        from greenplumpython.table import table
+        from greenplumpython.dataframe import DataFrame
 
-        return table(name, self)
+        return DataFrame.from_table(name, self)
+
+    def create_dataframe(
+        self,
+        content: Union[List[Tuple[Any]], Dict[str, List[Any]]],
+        column_names: Optional[Iterable[str]] = [],
+    ):
+        """
+        Returns a :class:`~dataframe.DataFrame` using list of values given by rows or columns
+
+        Args:
+            content:
+                - a List of rows: List[Tuple[Any]]
+                - a dict of columns: Dict[str, List[Any]]
+            column_names: Iterable[str]: List of given column names
+
+        Returns:
+
+        """
+        from greenplumpython.dataframe import DataFrame
+
+        if isinstance(content, List):
+            return DataFrame.from_rows(content, self, column_names)
+        return DataFrame.from_columns(content, self)
 
     def apply(
         self,
         func: Callable[[], "FunctionExpr"],
         expand: bool = False,
         as_name: Optional[str] = None,
-    ) -> "Table":
+    ) -> "DataFrame":
         """
         Apply a function in database.
 
@@ -85,7 +118,7 @@ class Database:
             as_name: str: rename returning column
 
         Returns:
-            Table: resulted Table
+            DataFrame: resulted DataFrame
 
         Example:
             .. code-block::  python
@@ -94,7 +127,7 @@ class Database:
         """
         return func().bind(db=self).apply(expand=expand, as_name=as_name)
 
-    def assign(self, **new_columns: Callable[[], Any]) -> "Table":
+    def assign(self, **new_columns: Callable[[], Any]) -> "DataFrame":
         """
         Assign new columns by calling functions in database
 
@@ -104,7 +137,7 @@ class Database:
                 constant value in database.
 
         Returns:
-            Table: Table resulted with assigned columns
+            DataFrame: DataFrame resulted with assigned columns
 
         Example:
             .. code-block::  python
@@ -113,19 +146,19 @@ class Database:
                 db.assign(version=lambda: version())
 
         """
+        from greenplumpython.dataframe import DataFrame
         from greenplumpython.expr import Expr, serialize
         from greenplumpython.func import FunctionExpr
-        from greenplumpython.table import Table
 
         targets: List[str] = []
         for k, f in new_columns.items():
             v: Any = f()
             if isinstance(v, Expr):
-                assert v.table is None, "New column should not depend on any table."
+                assert v.dataframe is None, "New column should not depend on any dataframe."
             if isinstance(v, FunctionExpr):
                 v = v.bind(db=self)
             targets.append(f"{serialize(v)} AS {k}")
-        return Table(f"SELECT {','.join(targets)}", db=self)
+        return DataFrame(f"SELECT {','.join(targets)}", db=self)
 
 
 def database(
