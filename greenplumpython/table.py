@@ -185,16 +185,23 @@ class Table:
             for row in self:
                 for col_idx, col in enumerate(row):
                     width[col_idx] = max(width[col_idx], len(col), len(str(row[col])))
-
             # Table header.
+            repr_string += (
+                "".join(
+                    [
+                        " {:{}} ".format(col, width[idx]) + ("|" if idx < col_number - 1 else "")
+                        for idx, col in enumerate(next(iter(self)))
+                    ]
+                )
+                + "\n"
+            )
+            # Dividing line below table header.
             repr_string += (
                 "+".join(
                     [" {:{}} ".format("-" * width[idx], width[idx]) for idx in range(col_number)]
                 )
                 + "\n"
             )
-            # Dividing line below table header.
-            repr_string += ("=" * (sum(width) + 4 * len(width))) + "\n"
             # Table contents.
             for row in self:
                 content = [row[c] for c in row]
