@@ -22,7 +22,9 @@ def test_op_index(db: gp.Database):
     john = Student("john", 9, ["math", "english"])
     jsonb = gp.get_type("jsonb")
     rows = [(jsonb(json.dumps(john.__dict__)),)]
-    student = db.create_dataframe(rows, column_names=["info"]).save_as("student", temp=True)
+    student = db.create_dataframe(rows=rows, column_names=["info"]).save_as(
+        "student", temp=True, column_names=["info"]
+    )
     db.execute("CREATE INDEX student_name ON student USING gin (info)", has_results=False)
 
     db.execute("SET enable_seqscan TO False", has_results=False)

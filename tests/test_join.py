@@ -11,7 +11,7 @@ def t1(db: gp.Database):
     # fmt: off
     rows1 = [(1, 0, "a1",), (2, 0, "a2",), (3, 0, "a3",)]
     # fmt: on
-    return db.create_dataframe(rows1, column_names=["id1", "idd1", "n1"])
+    return db.create_dataframe(rows=rows1, column_names=["id1", "idd1", "n1"])
 
 
 @pytest.fixture
@@ -19,7 +19,7 @@ def t2(db: gp.Database):
     # fmt: off
     rows2 = [(1, 0, "b1",), (2, 0, "b2",), (3, 0, "b3",)]
     # fmt: on
-    return db.create_dataframe(rows2, column_names=["id2", "idd2", "n2"])
+    return db.create_dataframe(rows=rows2, column_names=["id2", "idd2", "n2"])
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def zoo_1(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
-    return db.create_dataframe(rows, column_names=["id", "animal"])
+    return db.create_dataframe(rows=rows, column_names=["id", "animal"])
 
 
 @pytest.fixture
@@ -35,7 +35,7 @@ def zoo_2(db: gp.Database):
     # fmt: off
     rows = [(1, "Tiger",), (2, "Lion",), (3, "Rhino",), (4, "Panther")]
     # fmt: on
-    return db.create_dataframe(rows, column_names=["id", "animal"])
+    return db.create_dataframe(rows=rows, column_names=["id", "animal"])
 
 
 def test_join_all_and_all_columns(db: gp.Database, t1: gp.DataFrame, t2: gp.DataFrame):
@@ -101,16 +101,16 @@ def test_join_columns_from_list(db: gp.Database, t1: gp.DataFrame, t2: gp.DataFr
 
 def test_join_same_column_using(db: gp.Database):
     rows = [(1,), (2,), (3,)]
-    t1 = db.create_dataframe(rows, column_names=["id"])
-    t2 = db.create_dataframe(rows, column_names=["id"])
+    t1 = db.create_dataframe(rows=rows, column_names=["id"])
+    t2 = db.create_dataframe(rows=rows, column_names=["id"])
     ret = t1.join(t2, using=["id"], self_columns={"id": "t1_id"}, other_columns={"id": "t2_id"})
     assert sorted(next(iter(ret)).column_names()) == sorted(["t1_id", "t2_id"])
 
 
 def test_join_same_column_names(db: gp.Database):
     rows = [(1, 1), (2, 1), (3, 1)]
-    t1 = db.create_dataframe(rows, column_names=["id", "n1"])
-    t2 = db.create_dataframe(rows, column_names=["id", "n2"])
+    t1 = db.create_dataframe(rows=rows, column_names=["id", "n1"])
+    t2 = db.create_dataframe(rows=rows, column_names=["id", "n2"])
     ret = t1.cross_join(
         t2,
         self_columns={"*"},
@@ -192,8 +192,8 @@ def test_join_natural(db: gp.Database):
     rows2 = [("iPhone", 1,), ("Samsung Galaxy", 1,), ("HP Elite", 2,),
              ("Lenovo Thinkpad", 2,), ("iPad", 3,), ("Kindle Fire", 3)]
     # fmt: on
-    categories = db.create_dataframe(rows1, column_names=["category_name", "category_id"])
-    products = db.create_dataframe(rows2, column_names=["product_name", "category_id"])
+    categories = db.create_dataframe(rows=rows1, column_names=["category_name", "category_id"])
+    products = db.create_dataframe(rows=rows2, column_names=["product_name", "category_id"])
 
     ret = categories.join(
         products,
@@ -253,7 +253,11 @@ def test_dataframe_join_save(db: gp.Database, zoo_1: gp.DataFrame):
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
         other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
     )
-    t_join.save_as("dataframe_join", temp=True)
+    t_join.save_as(
+        "dataframe_join",
+        column_names=["zoo1_animal", "zoo1_id", "zoo2_animal", "zoo2_id"],
+        temp=True,
+    )
     t_join_reload = gp.DataFrame.from_table("dataframe_join", db=db)
     assert sorted(next(iter(t_join_reload)).column_names()) == sorted(
         [
@@ -270,8 +274,8 @@ def test_dataframe_join_save(db: gp.Database, zoo_1: gp.DataFrame):
 def test_dataframe_join_ine(db: gp.Database):
     rows1 = [(1,), (2,), (3,)]
     rows2 = [(2,), (3,), (4,)]
-    t1 = db.create_dataframe(rows1, column_names=["a"])
-    t2 = db.create_dataframe(rows2, column_names=["b"])
+    t1 = db.create_dataframe(rows=rows1, column_names=["a"])
+    t2 = db.create_dataframe(rows=rows2, column_names=["b"])
     ret = t1.join(t2, cond=lambda t1, t2: t1["a"] < t2["b"])
     assert len(list(ret)) == 6
     for row in ret:
@@ -301,7 +305,7 @@ def test_dataframe_multiple_self_join(db: gp.Database, zoo_1: gp.DataFrame):
 # direct parents of the final node must not be adjacent.
 def test_lineage_dfs_order(db: gp.Database):
     rows = [(i,) for i in range(10)]
-    numbers = db.create_dataframe(rows, column_names=["val"])
+    numbers = db.create_dataframe(rows=rows, column_names=["val"])
     mod = numbers.assign(mod=lambda t: t["val"] % 2)
     mod3 = mod.assign(mod3=lambda t: t["val"] % 3)
     results: gp.DataFrame = mod3.join(numbers, using=["val"], other_columns={})

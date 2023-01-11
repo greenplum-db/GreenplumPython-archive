@@ -21,8 +21,10 @@ def test_db():
 
 def test_db_get_dataframe(db: gp.Database):
     rows = [(1,) for _ in range(10)]
-    db.create_dataframe(rows, column_names=["val"]).save_as("numbers", temp=True)
-    numbers = db.table("numbers")
+    db.create_dataframe(rows=rows, column_names=["val"]).save_as(
+        "numbers", temp=True, column_names=["val"]
+    )
+    numbers = db.create_dataframe(table_name="numbers")
     assert sum(row["val"] for row in numbers) == 10
 
 

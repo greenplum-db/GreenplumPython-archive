@@ -36,7 +36,7 @@ class ColumnField(Expr):
         return self._column
 
     def serialize(self) -> str:
-        return f"({self.column.serialize()}).{self._field_name}"
+        return f'({self.column.serialize()})."{self._field_name}"'
 
 
 class Column(Expr):
@@ -53,7 +53,12 @@ class Column(Expr):
 
     def serialize(self) -> str:
         assert self.dataframe is not None
-        return f'"{self.dataframe.name}"."{self.name}"'
+        # Quote both dataframe name and column name to avoid SQL injection.
+        return (
+            f'"{self.dataframe.name}"."{self.name}"'
+            if self.name != "*"
+            else f'"{self.dataframe.name}".*'
+        )
 
     @property
     def name(self) -> str:

@@ -627,7 +627,7 @@ class DataFrame:
         return result if result is not None else []
 
     def save_as(
-        self, dataframe_name: str, temp: bool = False, column_names: List[str] = []
+        self, dataframe_name: str, column_names: List[str] = [], temp: bool = False
     ) -> "DataFrame":
         """
         Save the dataframe to database as a real Greenplum DataFrame
@@ -641,11 +641,8 @@ class DataFrame:
             DataFrame : dataframe saved in database
         """
         assert self._db is not None
-        # When no column_names is not explicitly passed
-        # TODO : USE SLICE 1 ROW TO MANIPULATE LESS DATA
-        #        OR USING column_names() FUNCTION WITH RESULT ORDERED
-        if len(column_names) == 0:
-            column_names = next(iter(self)).column_names()  # type: ignore
+        # TODO: Remove assertion below after implementing schema inference.
+        assert len(column_names) > 0, "Column names of new dataframe are unknown."
         self._db.execute(
             f"""
             CREATE {'TEMP' if temp else ''} TABLE {dataframe_name} ({','.join(column_names)}) 
