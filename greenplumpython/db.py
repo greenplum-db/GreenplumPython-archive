@@ -66,24 +66,12 @@ class Database:
         """
         self._conn.close()
 
-    def table(self, name: str):
-        """
-        Returns a :class:`~dataframe.DataFrame` using dataframe name and self
-
-        Args:
-            name: str : DataFrame name
-
-        Returns:
-            DataFrame: DataFrame in database named **name**
-        """
-        from greenplumpython.dataframe import DataFrame
-
-        return DataFrame.from_table(name, self)
-
     def create_dataframe(
         self,
-        content: Union[List[Tuple[Any]], Dict[str, List[Any]]],
-        column_names: Optional[Iterable[str]] = [],
+        table_name: Optional[str] = None,
+        rows: Optional[List[Union[Tuple[Any], Dict[str, Any]]]] = None,
+        columns: Optional[Dict[str, List[Any]]] = None,
+        column_names: Optional[Iterable[str]] = None,
     ):
         """
         Returns a :class:`~dataframe.DataFrame` using list of values given by rows or columns
@@ -99,9 +87,15 @@ class Database:
         """
         from greenplumpython.dataframe import DataFrame
 
-        if isinstance(content, List):
-            return DataFrame.from_rows(content, self, column_names)
-        return DataFrame.from_columns(content, self)
+        if table_name is not None:
+            assert (
+                rows is None and columns is None
+            ), "Provisioning data is not allowed when opening existing table."
+            return DataFrame.from_table(table_name=table_name, db=self)
+        assert rows is None or columns is None, "Only one data format is allowed."
+        if rows is not None:
+            return DataFrame.from_rows(rows=rows, db=self, column_names=column_names)
+        return DataFrame.from_columns(columns=columns, db=self)
 
     def apply(
         self,
