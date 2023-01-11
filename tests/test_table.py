@@ -317,3 +317,13 @@ def test_table_to_pandas_dataframe(db: gp.Database):
 
     df = pd.DataFrame.from_records(iter(pg_class))
     assert len(df) > 0
+
+
+def test_table_from_pandas_dataframe(db: gp.Database):
+    df = pd.DataFrame({"x": [1, 2, 3], "y": [4, 5, 6]})
+
+    gp_df = db.create_dataframe(columns=df.to_dict("list"))
+    assert len(list(gp_df)) == 3
+
+    gp_df = db.create_dataframe(rows=df.to_dict("records"))
+    assert len(list(gp_df)) == 3
