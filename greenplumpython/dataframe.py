@@ -725,7 +725,7 @@ class DataFrame:
 
     # dataframe_name can be table/view name
     @classmethod
-    def from_table(cls, name: str, db: Database) -> "DataFrame":
+    def from_table(cls, table_name: str, db: Database) -> "DataFrame":
         """
         Returns a :class:`DataFrame` using dataframe name and associated :class:`~Database`
 
@@ -733,11 +733,14 @@ class DataFrame:
             name: str: DataFrame name
             db: :class:`~Database`: database which contains the dataframe
         """
-        return DataFrame(f"TABLE {name}", name=name, db=db)
+        return DataFrame(f'TABLE "{table_name}"', name=table_name, db=db)
 
     @classmethod
     def from_rows(
-        cls, rows: List[Tuple[Any]], db: Database, column_names: Iterable[str] = []
+        cls,
+        rows: Iterable[Union[Tuple[Any], Dict[str, Any]]],
+        db: Database,
+        column_names: Optional[List[str]] = None,
     ) -> "DataFrame":
         """
         Returns a :class:`DataFrame` using list of values given
@@ -756,11 +759,21 @@ class DataFrame:
             t = gp.create_dataframe(rows, db=db)
 
         """
+        row_tuples = [row.values() if isinstance(row, dict) else row for row in rows]
+        if column_names is None:
+            first_row = next(iter(rows))
+            if isinstance(first_row, dict):
+                column_names = first_row.keys()
+        assert column_names is not None, "Column names of the DataFrame is unknown."
         rows_string = ",".join(
-            ["(" + ",".join(serialize(datum) for datum in row) + ")" for row in rows]
+            [f"({','.join(serialize(datum) for datum in row)})" for row in row_tuples]
         )
-        columns_string = f"({','.join(column_names)})" if any(column_names) else ""
-        return DataFrame(f"SELECT * FROM (VALUES {rows_string}) AS vals {columns_string}", db=db)
+        column_names = [f'"{name}"' for name in column_names]
+        columns_string = f"({','.join(column_names)})"
+        table_name = "cte_" + uuid4().hex
+        return DataFrame(
+            f"SELECT * FROM (VALUES {rows_string}) AS {table_name} {columns_string}", db=db
+        )
 
     @classmethod
     def from_columns(cls, columns: Dict[str, List[Any]], db: Database) -> "DataFrame":
@@ -770,7 +783,6 @@ class DataFrame:
         Args:
             columns: Dict[str, List[Any]]: List of column values
             db: :class:`~Database`: database which will be associated with dataframe
-            column_names: Iterable[str]: List of given column names
 
         Returns:
             DataFrame: dataframe generated with given values
@@ -781,7 +793,5 @@ class DataFrame:
             t = gp.create_dataframe(columns, db=db)
 
         """
-        columns_string = ",".join(
-            ["unnest(" + serialize(v) + ") AS " + k for k, v in columns.items()]
-        )
+        columns_string = ",".join([f'unnest({serialize(v)}) AS "{k}"' for k, v in columns.items()])
         return DataFrame(f"SELECT {columns_string}", db=db)

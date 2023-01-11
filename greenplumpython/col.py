@@ -53,7 +53,7 @@ class Column(Expr):
 
     def serialize(self) -> str:
         assert self.dataframe is not None
-        return self.dataframe.name + "." + self.name
+        return f'"{self.dataframe.name}"."{self.name}"'
 
     @property
     def name(self) -> str:
