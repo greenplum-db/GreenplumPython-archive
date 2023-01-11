@@ -9,7 +9,7 @@ from tests import db
 @pytest.fixture
 def dataframe(db: gp.Database):
     rows = [(1,), (2,), (3,)]
-    t = db.create_dataframe(rows)
+    t = db.create_dataframe(rows=rows, column_names=["id"])
     t = t.save_as("const_dataframe", temp=True, column_names=["id"])
     return t
 
@@ -21,7 +21,7 @@ def test_expr_column_name(db: gp.Database, dataframe: gp.DataFrame):
 
 def test_expr_column_str(db: gp.Database, dataframe: gp.DataFrame):
     c = gp.col.Column("id", dataframe)
-    assert str(c) == "const_dataframe.id"
+    assert str(c) == '"const_dataframe"."id"'
 
 
 def test_expr_column_str_in_query(db: gp.Database, dataframe: gp.DataFrame):

@@ -88,6 +88,7 @@ class Database:
         from greenplumpython.dataframe import DataFrame
 
         if table_name is not None:
+            assert isinstance(table_name, str), "Table name is expected to be a str."
             assert (
                 rows is None and columns is None
             ), "Provisioning data is not allowed when opening existing table."
