@@ -302,3 +302,18 @@ def test_table_distinct(db: gp.Database):
     assert len(result) == 1
     for row in result:
         assert "i" in row and "j" in row
+
+
+def test_table_non_default_schema(db: gp.Database):
+    pg_class = db.create_dataframe(table_name="pg_catalog.pg_class")
+    assert len(list(pg_class)) > 0
+
+
+import pandas as pd
+
+
+def test_table_to_pandas_dataframe(db: gp.Database):
+    pg_class = db.create_dataframe(table_name="pg_catalog.pg_class")
+
+    df = pd.DataFrame.from_records(iter(pg_class))
+    assert len(df) > 0
