@@ -216,7 +216,6 @@ class Table:
         return repr_string
 
     def _repr_html_(self):
-        """:meta private:"""
         repr_html_str = ""
         if len(list(self)) != 0:
             repr_html_str = "<table>\n"
