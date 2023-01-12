@@ -621,7 +621,7 @@ class DataFrame:
             raise NotImplementedError()
         assert self._db is not None
         output_name = "cte_" + uuid4().hex
-        to_json_table = Table(
+        to_json_dataframe = DataFrame(
             f"SELECT to_json({output_name})::TEXT FROM {self.name} AS {output_name}",
             parents=[self],
         )
