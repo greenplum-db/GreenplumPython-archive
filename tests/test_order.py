@@ -43,7 +43,7 @@ def test_order_by_slice_asc_operator(db: gp.Database, t: gp.DataFrame):
     with pytest.raises(Exception) as exc_info:
         t.order_by("id", ascending=True, operator="<")
     assert str(exc_info.value).startswith(
-        "Could not use 'ascending' and 'operator' at the same time to order by one column"
+        "Could not use 'ascending' and 'operator' together to order by one column"
     )
 
 
