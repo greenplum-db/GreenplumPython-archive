@@ -304,7 +304,7 @@ class Expr:
         Returns Expr associated :class:`~dataframe.DataFrame`
 
         Returns:
-            Optional[:class:`~dataframe.DataFrame`]: GreenplumPython DataFrame associated with :class:`Expr`
+            Optional[:class:`~dataframe.DataFrame`]: DataFrame associated with :class:`Expr`
         """
         return self._dataframe
 
@@ -327,7 +327,7 @@ class Expr:
         Args:
             container: A collection of values. It can either be another
                 :class:`Expr` representing a transformed column of
-                GreenplumPython :class:`DataFrame`, or a `list` of values of the same type as the
+                :class:`DataFrame`, or   a `list` of values of the same type as the
                 current `Expr`.
 
         Returns:

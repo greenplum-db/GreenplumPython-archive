@@ -1,12 +1,12 @@
 """
-This module creates a Python object :class:`Row` for GreenplumPython DataFrame iteration.
+This module creates a Python object :class:`Row` for dataframe iteration.
 """
 from typing import Any, Dict, List, Union
 
 
 class Row:
     """
-    Represents a row of GreenplumPython :class:`~table.DataFrame`.
+    Represents a row of :class:`~table.DataFrame`.
     """
 
     def __init__(self, contents: Dict[str, Union[str, List[str]]]):
