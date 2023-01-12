@@ -21,11 +21,12 @@ def test_builtin_func_assign_stop_iteration(db: gp.Database):
     t = db.create_dataframe(rows=rows, column_names=["a"])
     result = t.group_by().assign(count=lambda t: F.count(t["a"]))
     assert (len(list(result))) == 1
-    assert next(iter(result))["count"] == 10
-    with pytest.raises(Exception) as exc_info:
-        next(result)
+    df_iter = iter(result)
+    assert next(df_iter)["count"] == 10
 
-    assert str(exc_info.value) == "StopIteration: Reached last row of dataframe!"
+    with pytest.raises(StopIteration) as exc_info:
+        next(df_iter)
+    assert exc_info.errisinstance(StopIteration)
 
 
 def test_builtin_func_no_arg(db: gp.Database):

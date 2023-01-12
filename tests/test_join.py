@@ -118,7 +118,7 @@ def test_join_same_column_names(db: gp.Database):
     )
     with pytest.raises(Exception) as e:
         print(ret)
-    assert str(e.value) == ("Duplicate column_name(s) found: id")
+    assert "Duplicate column name(s) found" in str(e.value)
 
 
 def test_dataframe_inner_join(db: gp.Database, zoo_1: gp.DataFrame, zoo_2: gp.DataFrame):

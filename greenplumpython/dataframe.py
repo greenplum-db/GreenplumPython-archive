@@ -35,6 +35,7 @@ from typing import (
     Callable,
     Dict,
     Iterable,
+    Iterator,
     List,
     Optional,
     Set,
@@ -54,7 +55,7 @@ from greenplumpython.col import Column, Expr
 from greenplumpython.db import Database
 from greenplumpython.expr import serialize
 from greenplumpython.group import DataFrameGroupingSets
-from greenplumpython.order import OrderedDataFrame
+from greenplumpython.order import DataFrameOrdering
 from greenplumpython.row import Row
 
 
@@ -75,7 +76,7 @@ class DataFrame:
         self._parents = parents
         self._name = "cte_" + uuid4().hex if name is None else name
         self._columns = columns
-        self._contents = None
+        self._contents: Optional[Iterable[RealDictRow]] = None
         if any(parents):
             self._db = next(iter(parents))._db
         else:
@@ -341,7 +342,7 @@ class DataFrame:
         ascending: Optional[bool] = None,
         nulls_first: Optional[bool] = None,
         operator: Optional[str] = None,
-    ) -> OrderedDataFrame:
+    ) -> DataFrameOrdering:
         """
         Returns :class:`DataFrame` order by the given arguments.
 
@@ -365,7 +366,7 @@ class DataFrame:
             raise Exception(
                 "Could not use 'ascending' and 'operator' at the same time to order by one column"
             )
-        return OrderedDataFrame(
+        return DataFrameOrdering(
             self,
             [column_name],
             [ascending],
@@ -502,15 +503,16 @@ class DataFrame:
         """
         return self._db
 
-    @property
-    def columns(self) -> Optional[Iterable[Column]]:
-        """
-        Returns its :class:`~expr.Column` name of :class:`DataFrame`, has results only for selected dataframe and joined dataframe with targets.
+    # @property
+    # def columns(self) -> Optional[Iterable[Column]]:
+    #     """
+    #     Returns its :class:`~expr.Column` name of :class:`DataFrame`, has
+    #     results only for selected dataframe and joined dataframe with targets.
 
-        Returns:
-            Optional[Iterable[str]]: None or List of its columns names of dataframe
-        """
-        return self._columns
+    #     Returns:
+    #         Optional[Iterable[str]]: None or List of its columns names of dataframe
+    #     """
+    #     return self._columns
 
     # This is used to filter out dataframes that are derived from other dataframes.
     #
@@ -553,40 +555,42 @@ class DataFrame:
             return self._query
         return "WITH " + ",".join(cte_list) + self._query
 
-    def __iter__(self) -> "DataFrame":
+    def __iter__(self) -> "DataFrame.DictIterator":
         """:meta private:"""
         if self._contents is not None:
-            self._n = 0
-            return self
+            return DataFrame.DictIterator(self._contents)
         assert self._db is not None
-        result = self._fetch()
-        assert result is not None
-        self._contents: List[RealDictRow] = list(result)
-        self._n = 0
-        return self
+        self._contents = self._fetch()
+        assert self._contents is not None
+        return DataFrame.DictIterator(self._contents)
 
-    def __next__(self):
+    class DictIterator:
         """:meta private:"""
 
-        def tuple_to_dict(json_pairs: List[tuple[str, Any]]):
-            key_count = collections.Counter(k for k, _ in json_pairs)
-            duplicate_keys = ", ".join(k for k, v in key_count.items() if v > 1)
+        def __init__(self, contents: Iterable[RealDictRow]) -> None:
+            """:meta private:"""
+            self._proxy_iter: Iterator[RealDictRow] = iter(contents)
 
-            if len(duplicate_keys) > 0:
-                raise Exception("Duplicate column_name(s) found: {}".format(duplicate_keys))
-            return dict(json_pairs)
+        def __iter__(self):
+            return self
 
-        if self._n < len(self._contents):
-            assert self._contents is not None
-            for name in self._contents[0].keys():
+        def __next__(self):
+            """:meta private:"""
+
+            def tuple_to_dict(json_pairs: List[tuple[str, Any]]):
+                json_dict = dict(json_pairs)
+                if len(json_dict) != len(json_pairs):
+                    raise Exception("Duplicate column name(s) found: {}".format(json_dict.keys()))
+                return json_dict
+
+            current_row = next(self._proxy_iter)
+            for name in current_row.keys():
                 # According our current _fetch(), name == "to_json" will be always True
-                to_json_dict: Dict[str, Union[str, List[str]]] = json.loads(
-                    self._contents[self._n][name], object_pairs_hook=tuple_to_dict
+                json_dict: Dict[str, Union[Any, List[Any]]] = json.loads(
+                    current_row[name], object_pairs_hook=tuple_to_dict
                 )
-                assert isinstance(to_json_dict, dict), "Failed to fetch the entire row of Table."
-                self._n += 1
-                return Row(to_json_dict)
-        raise StopIteration("StopIteration: Reached last row of table!")
+                assert isinstance(json_dict, dict), "Failed to fetch the entire row of dataframe."
+                return Row(json_dict)
 
     def refresh(self) -> "DataFrame":
         """
@@ -597,10 +601,8 @@ class DataFrame:
         """
 
         assert self._db is not None
-        result = self._fetch()
-        assert result is not None
-        self._contents = list(result)
-        self._n = 0
+        self._contents = self._fetch()
+        assert self._contents is not None
         return self
 
     def _fetch(self, is_all: bool = True) -> Iterable[Tuple[Any]]:

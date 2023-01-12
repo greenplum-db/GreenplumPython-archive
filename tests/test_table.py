@@ -191,12 +191,11 @@ def test_dataframe_assign_expr(db: gp.Database):
 
 
 def test_dataframe_assign_same_column_name(db: gp.Database):
-
     nums = db.create_dataframe(rows=[(i,) for i in range(10)], column_names=["num"])
+    results = nums.assign(num=lambda nums: add_one(nums["num"]))
     with pytest.raises(Exception) as exc_info:
-        results = nums.assign(num=lambda nums: add_one(nums["num"]))
         next(iter(results))
-    assert str(exc_info.value) == "Duplicate column_name(s) found: num"
+    assert "Duplicate column name(s) found" in str(exc_info.value)
 
 
 def test_table_assign_composite_type(db: gp.Database):
@@ -322,6 +321,8 @@ def test_table_to_pandas_dataframe(db: gp.Database):
 def test_table_from_pandas_dataframe(db: gp.Database):
     df = pd.DataFrame({"x": [1, 2, 3], "y": [4, 5, 6]})
 
+    # TODO: support db.create_dataframe(columns=df) after introduce numpy as
+    # a dependency
     gp_df = db.create_dataframe(columns=df.to_dict("list"))
     assert len(list(gp_df)) == 3
 
