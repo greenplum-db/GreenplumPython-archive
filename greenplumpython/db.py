@@ -69,7 +69,7 @@ class Database:
     def create_dataframe(
         self,
         table_name: Optional[str] = None,
-        rows: Optional[List[Union[Tuple[Any], Dict[str, Any]]]] = None,
+        rows: Optional[List[Union[Tuple[Any, ...], Dict[str, Any]]]] = None,
         columns: Optional[Dict[str, List[Any]]] = None,
         column_names: Optional[Iterable[str]] = None,
     ):
