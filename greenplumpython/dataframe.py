@@ -353,7 +353,7 @@ class DataFrame:
             operator: Optional[str]: Define order by using operator. **Can't combine with ascending.**
 
         Returns:
-            OrderedDataFrame : DataFrame ordered by the given arguments
+            DataFrameOrdering : DataFrame ordered by the given arguments
 
         Example:
             .. code-block::  Python
@@ -361,10 +361,10 @@ class DataFrame:
                 t.order_by("id")
         """
         # State transition diagram:
-        # DataFrame --order_by()-> OrderedDataFrame --head()-> DataFrame
+        # DataFrame --order_by()-> DataFrameOrdering --head()-> DataFrame
         if ascending is not None and operator is not None:
             raise Exception(
-                "Could not use 'ascending' and 'operator' at the same time to order by one column"
+                "Could not use 'ascending' and 'operator' together to order by one column"
             )
         return DataFrameOrdering(
             self,
