@@ -1,23 +1,21 @@
 """
 `DataFrame` is the core data structure in GreenplumPython. Conceptually, a `DataFrame`
-is a two-dimensional unordered structure containing data. This aligns with `the
-definition of "DataFrame" on Wikipedia
-<https://en.wikipedia.org/wiki/DataFrame_(information)>`_.
+is a two-dimensional unordered structure containing data.
 
-In the data science world, a `DataFrame` is similar to a `DataFrame` in `pandas
+In the data science world, a `DataFrame` in GreenplumPython is similar to a `DataFrame` in `pandas
 <https://pandas.pydata.org/>`_, except that
 
-- | Data in a `DataFrame` is lazily evaluated rather than eagerly. That is, they are computed only when
+- | Data in a GreenplumPython `DataFrame` is lazily evaluated rather than eagerly. That is, they are computed only when
   | they are observed. This can improve efficiency in many cases.
-- | Data in a `DataFrame` is located and manipulated on a remote database system rather than locally. As
+- | Data in a GreenplumPython `DataFrame` is located and manipulated on a remote database system rather than locally. As
   | a consequence,
 
     - | Retrieving them from the database system can be expensive. Therefore, once the data 
-      | of a :class:`DataFrame` is fetched from the database system, it will be cached locally for later use.
+      | of a GreenplumPython :class:`DataFrame` is fetched from the database system, it will be cached locally for later use.
     - | They might be modified concurrently by other users of the database system. You might 
       | need to use :meth:`~dataframe.DataFrame.refresh()` to sync the updates if the data becomes stale.
 
-In the database world, a `DataFrame` is similar to a **materialized view** in a
+In the database world, a GreenplumPython `DataFrame` is similar to a **materialized view** in a
 database system in that
 
 - They both result from a possibly complex query.
@@ -61,7 +59,7 @@ from greenplumpython.row import Row
 
 class DataFrame:
     """
-    Representation of DataFrame object.
+    Representation of GreenplumPython DataFrame object.
     """
 
     def __init__(
@@ -179,19 +177,20 @@ class DataFrame:
         Return a string representation for a dataframe
         """
         repr_string: str = ""
-        if len(list(self)) != 0:
+        ret = list(self)
+        if len(ret) != 0:
             # Iterate over the given table to calculate the column width for its ASCII representation.
-            col_number = len(next(iter(self)).column_names())
+            col_number = len(ret[0])
             width = [0] * col_number
-            for row in self:
-                for col_idx, col in enumerate(row):
-                    width[col_idx] = max(width[col_idx], len(col), len(str(row[col])))
+            for row in ret:
+                for col_idx, col in enumerate(row):  # type: ignore
+                    width[col_idx] = max(width[col_idx], len(col), len(str(row[col])))  # type: ignore
             # DataFrame header.
             repr_string += (
                 "".join(
                     [
-                        " {:{}} ".format(col, width[idx]) + ("|" if idx < col_number - 1 else "")
-                        for idx, col in enumerate(next(iter(self)))
+                        " {:{}} ".format(col, width[idx]) + ("|" if idx < col_number - 1 else "")  # type: ignore
+                        for idx, col in enumerate(ret[0])  # type: ignore
                     ]
                 )
                 + "\n"
@@ -204,14 +203,14 @@ class DataFrame:
                 + "\n"
             )
             # DataFrame contents.
-            for row in self:
-                content = [row[c] for c in row]
-                for idx, c in enumerate(content):
+            for row in ret:
+                content = [row[c] for c in row]  # type: ignore
+                for idx, c in enumerate(content):  # type: ignore
                     if isinstance(c, list):
                         repr_string += (" {:{}} ").format("{}".format(c), width[idx])  # type: ignore
                         repr_string += "|" if idx < col_number - 1 else ""
                     else:
-                        repr_string += (" {:{}} ").format(c if c is not None else "", width[idx])
+                        repr_string += (" {:{}} ").format(c if c is not None else "", width[idx])  # type: ignore
                         repr_string += "|" if idx < col_number - 1 else ""
                 repr_string += "\n"
         return repr_string
@@ -219,21 +218,22 @@ class DataFrame:
     def _repr_html_(self):
         """:meta private:"""
         repr_html_str = ""
-        if len(list(self)) != 0:
+        ret = list(self)
+        if len(ret) != 0:
             repr_html_str = "<table>\n"
             repr_html_str += "\t<tr>\n"
-            repr_html_str += ("\t\t<th>{:}</th>\n" * len(list(next(iter(self))))).format(
-                *((next(iter(self))))
+            repr_html_str += ("\t\t<th>{:}</th>\n" * len(ret[0])).format(
+                *((ret[0]))  # type: ignore
             )
             repr_html_str += "\t</tr>\n"
-            for row in self:
-                content = [row[c] for c in row]
+            for row in ret:
+                content = [row[c] for c in row]  # type: ignore
                 repr_html_str += "\t<tr>\n"
-                for c in content:
+                for c in content:  # type: ignore
                     if isinstance(c, list):
                         repr_html_str += ("\t\t<td>{:}</td>\n").format("{}".format(c))  # type: ignore
                     else:
-                        repr_html_str += ("\t\t<td>{:}</td>\n").format(c if c is not None else "")
+                        repr_html_str += ("\t\t<td>{:}</td>\n").format(c if c is not None else "")  # type: ignore
                 repr_html_str += "\t</tr>\n"
             repr_html_str += "</table>"
         return repr_html_str
@@ -241,13 +241,13 @@ class DataFrame:
     # FIXME: Add test
     def where(self, predicate: Callable[["DataFrame"], "Expr"]) -> "DataFrame":
         """
-        Returns the :class:`DataFrame` filtered by Expression.
+        Returns the GreenplumPython :class:`DataFrame` filtered by Expression.
 
         Args:
             predicate: :class:`~expr.Expr` : where condition statement
 
         Returns:
-            DataFrame : DataFrame filtered according **expr** passed in argument
+            DataFrame : GreenplumPython DataFrame filtered according **expr** passed in argument
         """
         v = predicate(self)
         assert v.dataframe == self, "Predicate must based on current dataframe"
@@ -263,13 +263,13 @@ class DataFrame:
         as_name: Optional[str] = None,
     ) -> "DataFrame":
         """
-        Apply a function to the :class:`DataFrame`
+        Apply a function to the GreenplumPython :class:`DataFrame`
         Args:
             func: Callable[[:class:`DataFrame`], :class:`~func.FunctionExpr`]: a lambda function of a FunctionExpr
             expand: bool: expand field of composite returning type
             as_name: str: rename returning column
         Returns:
-            DataFrame: resulted DataFrame
+            DataFrame: resulted GreenplumPython DataFrame
         Example:
             .. code-block::  python
 
@@ -295,22 +295,22 @@ class DataFrame:
 
     def assign(self, **new_columns: Callable[["DataFrame"], Any]) -> "DataFrame":
         """
-        Assigns new columns to the current :class:`DataFrame`. Existing columns
+        Assigns new columns to the current GreenplumPython :class:`DataFrame`. Existing columns
         cannot be reassigned.
 
         Args:
             new_columns: a :class:`dict` whose keys are column names and values
                 are :class:`Callable`s returning column data when applied to the
-                current :class:`DataFrame`.
+                current GreenplumPython :class:`DataFrame`.
 
         Returns:
-            DataFrame: New dataframe including the new assigned columns
+            DataFrame: New GreenplumPython DataFrame including the new assigned columns
 
         Example:
             .. code-block::  python
 
                 rows = [(i,) for i in range(-10, 0)]
-                series = gp.to_dataframe(rows, db=db, column_names=["id"])
+                series = db.create_dataframe(rows=rows, column_names=["id"])
                 abs = gp.function("abs")
                 results = series.assign(abs=lambda nums: abs(nums["id"]))
 
@@ -344,7 +344,7 @@ class DataFrame:
         operator: Optional[str] = None,
     ) -> DataFrameOrdering:
         """
-        Returns :class:`DataFrame` order by the given arguments.
+        Returns :class: GreenplumPython `DataFrame` order by the given arguments.
 
         Args:
             column_name: name of column to order the dataframe by
@@ -353,7 +353,7 @@ class DataFrame:
             operator: Optional[str]: Define order by using operator. **Can't combine with ascending.**
 
         Returns:
-            DataFrameOrdering : DataFrame ordered by the given arguments
+            DataFrameOrdering : GreenplumPython DataFrame ordered by the given arguments
 
         Example:
             .. code-block::  Python
@@ -384,11 +384,11 @@ class DataFrame:
         other_columns: Union[Dict[str, Optional[str]], Set[str]] = {"*"},
     ) -> "DataFrame":
         """
-        Joins the current :class:`DataFrame` with another :class:`DataFrame`.
+        Joins the current GreenplumPython :class:`DataFrame` with another GreenplumPython :class:`DataFrame`.
 
         Args:
-            other: :class:`DataFrame` to join with
-            how: How the two dataframes are joined. The value can be one of
+            other: GreenplumPython :class:`DataFrame` to join with
+            how: How the two GreenplumPython DataFrames are joined. The value can be one of
                 - `"INNER"`: inner join,
                 - `"LEFT"`: left outer join,
                 - `"LEFT"`: right outer join,
@@ -397,7 +397,7 @@ class DataFrame:
                 The default value `""` is equivalent to "INNER".
 
             cond: :class:`Callable` lambda function as the join condition
-            using: a list of column names that exist in both dataframes to join on.
+            using: a list of column names that exist in both GreenplumPython DataFrames to join on.
                 `cond` and `using` cannot be used together.
             self_columns: A :class:`dict` whose keys are the column names of
                 the current dataframe to be included in the resulting
@@ -405,7 +405,7 @@ class DataFrame:
                 the corresponding key to avoid name conflicts. Asterisk `"*"`
                 can be used as a key to indicate all columns.
             other_columns: Same as `self_columns`, but for the `other`
-                dataframe.
+                GreenplumPython DataFrame.
 
         Note:
             When using `"*"` as key in `self_columns` or `other_columns`,
@@ -486,20 +486,20 @@ class DataFrame:
     @property
     def name(self) -> str:
         """
-        Returns name of :class:`DataFrame`
+        Returns name of GreenplumPython :class:`DataFrame`
 
         Returns:
-            str: DataFrame name
+            str: GreenplumPython DataFrame name
         """
         return self._name
 
     @property
     def db(self) -> Optional[Database]:
         """
-        Returns :class:`~Database` associated with :class:`DataFrame`
+        Returns :class:`~Database` associated with GreenplumPython :class:`DataFrame`
 
         Returns:
-            Optional[Database]: database associated with dataframe
+            Optional[Database]: database associated with GreenplumPython dataframe
         """
         return self._db
 
@@ -607,7 +607,7 @@ class DataFrame:
 
     def _fetch(self, is_all: bool = True) -> Iterable[Tuple[Any]]:
         """
-        Fetch rows of this :class:`DataFrame`.
+        Fetch rows of this GreenplumPython :class:`DataFrame`.
         - if is_all is True, fetch all rows at once
         - otherwise, open a CURSOR and FETCH one row at a time
 
@@ -632,15 +632,15 @@ class DataFrame:
         self, dataframe_name: str, column_names: List[str] = [], temp: bool = False
     ) -> "DataFrame":
         """
-        Save the dataframe to database as a real Greenplum DataFrame
+        Save the GreenplumPython Dataframe to database as a Table (Temp or not) in Database
 
         Args:
             dataframe_name : str
-            temp : bool : if dataframe is temporary
+            temp : bool : if table is temporary
             column_names : List : list of column names
 
         Returns:
-            DataFrame : dataframe saved in database
+            DataFrame : GreenplumPython DataFrame saved in database
         """
         assert self._db is not None
         # TODO: Remove assertion below after implementing schema inference.
@@ -675,7 +675,7 @@ class DataFrame:
     # FIXME: Should we choose JSON as the default format?
     def explain(self, format: str = "TEXT") -> Iterable[Tuple[str]]:
         """
-        Explained the dataframe's query
+        Explained the GreenplumPython DatFrame's query
 
         Args:
             format: str: format of explain
@@ -690,7 +690,7 @@ class DataFrame:
 
     def group_by(self, *column_names: str) -> DataFrameGroupingSets:
         """
-        Group the current :class:`~dataframe.DataFrame` by columns specified by
+        Group the current GreenplumPython :class:`~dataframe.DataFrame` by columns specified by
         `column_names`.
 
         Args:
@@ -708,13 +708,13 @@ class DataFrame:
 
     def distinct_on(self, *column_names: str) -> "DataFrame":
         """
-        Deduplicate the current :class:`DataFrame` with respect to the given columns.
+        Deduplicate the current GreenplumPython :class:`DataFrame` with respect to the given columns.
 
         Args:
             column_names: name of column of the current :class:`DataFrame`.
 
         Returns:
-            :class:`DataFrame`: DataFrame containing only the distinct values of the
+            :class:`DataFrame`: GreenplumPython DataFrame containing only the distinct values of the
                             given columns.
         """
         cols = [Column(name, self).serialize() for name in column_names]
@@ -726,11 +726,16 @@ class DataFrame:
     @classmethod
     def from_table(cls, table_name: str, db: Database) -> "DataFrame":
         """
-        Returns a :class:`DataFrame` using dataframe name and associated :class:`~Database`
+        Returns a GreenplumPython :class:`DataFrame` using table name and associated :class:`~Database`
 
         Args:
-            name: str: DataFrame name
+            table_name: str: table name
             db: :class:`~Database`: database which contains the dataframe
+
+        .. code-block::  python
+
+            t = gp.DataFrame.from_table("pg_class", db=db)
+
         """
         return DataFrame(f'TABLE "{table_name}"', name=table_name, db=db)
 
@@ -742,20 +747,20 @@ class DataFrame:
         column_names: Optional[List[str]] = None,
     ) -> "DataFrame":
         """
-        Returns a :class:`DataFrame` using list of values given
+        Returns a GreenplumPython :class:`DataFrame` using list of values given
 
         Args:
             rows: Iterable[Tuple[Any]]: List of values
-            db: :class:`~Database`: database which will be associated with dataframe
+            db: :class:`~Database`: database which will be associated with GreenplumPython dataframe
             column_names: Iterable[str]: List of given column names
 
         Returns:
-            DataFrame: dataframe generated with given values
+            DataFrame: GreenplumPython dataframe generated with given values
 
         .. code-block::  python
 
            rows = [(1,), (2,), (3,)]
-            t = gp.create_dataframe(rows, db=db)
+            t = gp.DataFrame.from_rows(rows, db=db)
 
         """
         row_tuples = [row.values() if isinstance(row, dict) else row for row in rows]
@@ -777,7 +782,7 @@ class DataFrame:
     @classmethod
     def from_columns(cls, columns: Dict[str, List[Any]], db: Database) -> "DataFrame":
         """
-        Returns a :class:`DataFrame` using list of columns values given
+        Returns a GreenplumPython :class:`DataFrame` using list of columns values given
 
         Args:
             columns: Dict[str, List[Any]]: List of column values
@@ -789,7 +794,7 @@ class DataFrame:
         .. code-block::  python
 
            columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
-            t = gp.create_dataframe(columns, db=db)
+            t = gp.DataFrame.from_columns(columns, db=db)
 
         """
         columns_string = ",".join([f'unnest({serialize(v)}) AS "{k}"' for k, v in columns.items()])

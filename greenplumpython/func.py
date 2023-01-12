@@ -77,7 +77,7 @@ class FunctionExpr(Expr):
     def apply(self, expand: Optional[bool] = None, as_name: Optional[str] = None) -> DataFrame:
         """
         :meta private:
-        Returns the result dataframe of the self function applied on args, with potential GROUP BY if
+        Returns the result GreenplumPython dataframe of the self function applied on args, with potential GROUP BY if
         it is an Aggregation function.
         """
         self.function.create_in_db(self._db)
@@ -455,7 +455,7 @@ def create_aggregate(
                 return result + val
 
             rows = [(1,) for _ in range(10)]
-            numbers = gp.to_dataframe(rows, db=db, column_names=["val"])
+            numbers = db.create_dataframe(rows=rows, column_names=["val"])
             results = numbers.group_by().assign(result=lambda t: my_sum(t["val"]))
 
     """
@@ -501,7 +501,7 @@ def create_array_function(
                     return sum(val_list)
 
                 rows = [(1, i % 2 == 0) for i in range(10)]
-                numbers = gp.to_dataframe(rows, db=db, column_names=["val", "is_even"])
+                numbers = db.create_dataframe(rows=rows, column_names=["val", "is_even"])
                 results = numbers.group_by("is_even").assign(result=lambda t: my_sum(t["val]))
     """
     # If user needs extra parameters when creating a function
