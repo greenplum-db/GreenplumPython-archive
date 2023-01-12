@@ -196,7 +196,7 @@ class DataFrame:
                 )
                 + "\n"
             )
-            # Dividing line below table header.
+            # Dividing line below DataFrame header.
             repr_string += (
                 "+".join(
                     [" {:{}} ".format("-" * width[idx], width[idx]) for idx in range(col_number)]
