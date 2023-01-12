@@ -180,32 +180,39 @@ class DataFrame:
         """
         repr_string: str = ""
         if len(list(self)) != 0:
-            # Iterate over the given dataframe to calculate the column width for its ASCII representation.
-            width = [0] * len(next(iter(self)).column_names())
+            # Iterate over the given table to calculate the column width for its ASCII representation.
+            col_number = len(next(iter(self)).column_names())
+            width = [0] * col_number
             for row in self:
                 for col_idx, col in enumerate(row):
                     width[col_idx] = max(width[col_idx], len(col), len(str(row[col])))
-
             # DataFrame header.
             repr_string += (
                 "".join(
                     [
-                        "| {:{}} |".format(col, width[idx])
+                        " {:{}} ".format(col, width[idx]) + ("|" if idx < col_number - 1 else "")
                         for idx, col in enumerate(next(iter(self)))
                     ]
                 )
                 + "\n"
             )
             # Dividing line below dataframe header.
-            repr_string += ("=" * (sum(width) + 4 * len(width))) + "\n"
+            repr_string += (
+                "+".join(
+                    [" {:{}} ".format("-" * width[idx], width[idx]) for idx in range(col_number)]
+                )
+                + "\n"
+            )
             # DataFrame contents.
             for row in self:
                 content = [row[c] for c in row]
                 for idx, c in enumerate(content):
                     if isinstance(c, list):
-                        repr_string += ("| {:{}} |").format("{}".format(c), width[idx])  # type: ignore
+                        repr_string += (" {:{}} ").format("{}".format(c), width[idx])  # type: ignore
+                        repr_string += "|" if idx < col_number - 1 else ""
                     else:
-                        repr_string += ("| {:{}} |").format(c if c is not None else "", width[idx])
+                        repr_string += (" {:{}} ").format(c if c is not None else "", width[idx])
+                        repr_string += "|" if idx < col_number - 1 else ""
                 repr_string += "\n"
         return repr_string
 

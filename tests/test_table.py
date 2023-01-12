@@ -65,16 +65,16 @@ def test_dataframe_getitem_slice_off_limit(db: gp.Database, t: gp.DataFrame):
 
 def test_dataframe_display_repr(db: gp.Database):
     # fmt: off
-    rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
+    rows = [(1, 1, "Lion",), (2, 2, "Tiger",), (3, 3, "Wolf",), (4, 4, "Fox")]
     # fmt: on
-    t = db.create_dataframe(rows=rows, column_names=["id", "animal"])
+    t = db.create_dataframe(rows=rows, column_names=["id", "idd", "animal"])
     expected = (
-        "| id || animal |\n"
-        "================\n"
-        "|  1 || Lion   |\n"
-        "|  2 || Tiger  |\n"
-        "|  3 || Wolf   |\n"
-        "|  4 || Fox    |\n"
+        " id | idd | animal \n"
+        " -- + --- + ------ \n"
+        "  1 |   1 | Lion   \n"
+        "  2 |   2 | Tiger  \n"
+        "  3 |   3 | Wolf   \n"
+        "  4 |   4 | Fox    \n"
     )
     assert str(t.order_by("id")[:]) == expected
 
@@ -85,12 +85,12 @@ def test_dataframe_display_repr_zero(db: gp.Database):
     # fmt: on
     t = db.create_dataframe(rows=rows, column_names=["id", "animal"])
     expected = (
-        "| id || animal |\n"
-        "================\n"
-        "|  0 || Lion   |\n"
-        "|  2 || Tiger  |\n"
-        "|  3 || Wolf   |\n"
-        "|  4 || Fox    |\n"
+        " id | animal \n"
+        " -- + ------ \n"
+        "  0 | Lion   \n"
+        "  2 | Tiger  \n"
+        "  3 | Wolf   \n"
+        "  4 | Fox    \n"
     )
     assert str(t.order_by("id")[:]) == expected
 
@@ -101,12 +101,12 @@ def test_dataframe_display_repr_long_content(db: gp.Database):
     # fmt: on
     t = db.create_dataframe(rows=rows, column_names=["iddddddddddddddddddd", "animal"])
     expected = (
-        "| iddddddddddddddddddd || animal           |\n"
-        "============================================\n"
-        "|                    1 || Lion             |\n"
-        "|                    2 || Tigerrrrrrrrrrrr |\n"
-        "|                    3 || Wolf             |\n"
-        "|                    4 || Fox              |\n"
+        " iddddddddddddddddddd | animal           \n"
+        " -------------------- + ---------------- \n"
+        "                    1 | Lion             \n"
+        "                    2 | Tigerrrrrrrrrrrr \n"
+        "                    3 | Wolf             \n"
+        "                    4 | Fox              \n"
     )
     assert str(t.order_by("iddddddddddddddddddd")[:]) == expected
 
@@ -154,16 +154,16 @@ def test_dataframe_display_repr_empty_result(db: gp.Database):
 
 def test_dataframe_display_result_null(db: gp.Database):
     # fmt: off
-    rows = [([1,], None,), ([2,], "Tiger",), ([3,], None,), ([None,], "Fox")]
+    rows = [([1,1,1], None,), ([2,2,2], "Tiger",), ([3,3,3], None,), ([4,None,4], "Fox")]
     # fmt: on
     t = db.create_dataframe(rows=rows, column_names=["id", "animal"])
     expected = (
-        "| id     || animal |\n"
-        "====================\n"
-        "| [1]    ||        |\n"
-        "| [2]    || Tiger  |\n"
-        "| [3]    ||        |\n"
-        "| [None] || Fox    |\n"
+        " id           | animal \n"
+        " ------------ + ------ \n"
+        " [1, 1, 1]    |        \n"
+        " [2, 2, 2]    | Tiger  \n"
+        " [3, 3, 3]    |        \n"
+        " [4, None, 4] | Fox    \n"
     )
     assert str(t.order_by("id")[:]) == expected
 
