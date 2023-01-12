@@ -15,7 +15,7 @@ class TypeCast(Expr):
             .. code-block::  Python
 
                 rows = [(i,) for i in range(10)]
-                series = gp.to_dataframe(rows, db, column_names=["val"]).save_as("series")
+                series = db.create_dataframe(rows=rows, column_names=["val"]).save_as("series")
                 regclass = gp.get_type("regclass", db)
                 dataframe_name = regclass(series["tableoid"]).rename("dataframe_name")
     """

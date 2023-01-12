@@ -74,15 +74,23 @@ class Database:
         column_names: Optional[Iterable[str]] = None,
     ):
         """
-        Returns a :class:`~dataframe.DataFrame` using list of values given by rows or columns
+        Returns a :class:`~dataframe.DataFrame` using Table name, list of values given by rows or columns
 
         Args:
-            content:
-                - a List of rows: List[Tuple[Any]]
-                - a dict of columns: Dict[str, List[Any]]
+            table_name: str: name of table in Database
+            rows: List[Union[Tuple[Any, ...], Dict[str, Any]]]: a List of rows
+            columns: Dict[str, List[Any]]: a dict of columns
             column_names: Iterable[str]: List of given column names
 
         Returns:
+
+        .. code-block::  python
+
+            t_from_table = db.create_dataframe(table_name="pg_class")
+            rows = [(1,), (2,), (3,)]
+            t_from_rows = db.create_dataframe(rows=rows)
+            columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
+            t_from_columns = db.create_dataframe(columns=columns)
 
         """
         from greenplumpython.dataframe import DataFrame
@@ -113,7 +121,7 @@ class Database:
             as_name: str: rename returning column
 
         Returns:
-            DataFrame: resulted DataFrame
+            DataFrame: resulted GreenplumPython DataFrame
 
         Example:
             .. code-block::  python
@@ -132,7 +140,7 @@ class Database:
                 constant value in database.
 
         Returns:
-            DataFrame: DataFrame resulted with assigned columns
+            DataFrame: GreenplumPython DataFrame resulted with assigned columns
 
         Example:
             .. code-block::  python
