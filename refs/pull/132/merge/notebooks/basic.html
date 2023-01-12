@@ -382,7 +382,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;demo&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;demo&quot;</span><span class="p">)</span>
 <span class="n">t</span>
 </pre></div>
 </div>
@@ -700,7 +700,7 @@ div.rendered_html tbody tr:hover {
 </section>
 <section id="JOIN-ing-Two-DataFrames">
 <h1><code class="docutils literal notranslate"><span class="pre">JOIN</span></code>-ing Two DataFrames<a class="headerlink" href="#JOIN-ing-Two-DataFrames" title="Permalink to this heading"></a></h1>
-<p>We can also <code class="docutils literal notranslate"><span class="pre">JOIN</span></code> two tables with GreenplumPython. For example, suppose we have two tables like this:</p>
+<p>We can also <code class="docutils literal notranslate"><span class="pre">JOIN</span></code> two dataframes with GreenplumPython. For example, suppose we have two dataframes like this:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
