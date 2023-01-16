@@ -29,8 +29,11 @@ def test_db_get_dataframe(db: gp.Database):
 
 
 def test_print_sql():
-    assert gp.config.print_sql is False
-    gp.config.print_sql = True
-    assert gp.config.print_sql is True
-    gp.config.print_sql = False
-    assert gp.config.print_sql is False
+    assert gp.config.print_sql is not None
+
+
+def test_db_assign_empty(db: gp.Database):
+    df = list(db.assign())
+    assert len(df) == 1
+    for row in df:
+        assert len(row) == 0

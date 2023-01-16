@@ -29,6 +29,4 @@ def test_expr_column_str_in_query(db: gp.Database, dataframe: gp.DataFrame):
     query = "select " + str(c) + " from " + c.dataframe.name
     tr = gp.DataFrame(query=query, db=db)
     for row in tr:
-        keys = row.column_names()
-        assert len(keys) == 1
-        assert "id" in keys[0]
+        assert list(row.keys()) == ["id"]

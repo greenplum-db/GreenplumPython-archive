@@ -170,66 +170,67 @@ class DataFrame:
         """
         return self._getitem(_)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         :meta private:
 
         Return a string representation for a dataframe
         """
-        repr_string: str = ""
-        ret = list(self)
-        if len(ret) != 0:
-            # Iterate over the given table to calculate the column width for its ASCII representation.
-            col_number = len(ret[0])
-            width = [0] * col_number
-            for row in ret:
-                for col_idx, col in enumerate(row):  # type: ignore
-                    width[col_idx] = max(width[col_idx], len(col), len(str(row[col])))  # type: ignore
-            # DataFrame header.
-            repr_string += (
-                "".join(
+        contents = list(self)
+        row_num_string = f"({len(contents)} row{'s' if len(contents) != 1 else ''})\n"
+        if len(contents) == 0:  # DataFrame is empty
+            return "  \n--\n" + row_num_string
+
+        # To align each column, we use a two-pass algorithm:
+        # 1. Iterate over the DataFrame to find the max width for each column; and
+        # 2. Convert the datum in each column to str within the width.
+        first_row: Row = contents[0]
+        width = {col_name: len(col_name) for col_name in first_row}
+        for row in contents:
+            for col_name, col_value in row.items():
+                width[col_name] = max(width[col_name], len(str(col_value)))
+        # For Python >= 3.7, dict.items() and dict.values() will preserves the
+        # input order.
+        df_string = (
+            "|".join(
+                [" {:{}} ".format(col_name, col_width) for col_name, col_width in width.items()]
+            )
+            + "\n"
+        )
+        df_string += (
+            "+".join([" {:{}} ".format("-" * col_width, col_width) for col_width in width.values()])
+            + "\n"
+        )
+        for row in contents:
+            df_string += (
+                "|".join(
                     [
-                        " {:{}} ".format(col, width[idx]) + ("|" if idx < col_number - 1 else "")  # type: ignore
-                        for idx, col in enumerate(ret[0])  # type: ignore
+                        (" {:{}} ").format("{}".format(row[col_name]), width[col_name])
+                        if isinstance(row[col_name], list)
+                        else (" {:{}} ").format(
+                            row[col_name] if row[col_name] is not None else "", width[col_name]
+                        )
+                        for col_name in width
                     ]
                 )
                 + "\n"
             )
-            # Dividing line below DataFrame header.
-            repr_string += (
-                "+".join(
-                    [" {:{}} ".format("-" * width[idx], width[idx]) for idx in range(col_number)]
-                )
-                + "\n"
-            )
-            # DataFrame contents.
-            for row in ret:
-                content = [row[c] for c in row]  # type: ignore
-                for idx, c in enumerate(content):  # type: ignore
-                    if isinstance(c, list):
-                        repr_string += (" {:{}} ").format("{}".format(c), width[idx])  # type: ignore
-                        repr_string += "|" if idx < col_number - 1 else ""
-                    else:
-                        repr_string += (" {:{}} ").format(c if c is not None else "", width[idx])  # type: ignore
-                        repr_string += "|" if idx < col_number - 1 else ""
-                repr_string += "\n"
-        return repr_string
+        df_string += row_num_string
+        return df_string
 
-    def _repr_html_(self):
+    def _repr_html_(self) -> str:
         """:meta private:"""
         repr_html_str = ""
         ret = list(self)
         if len(ret) != 0:
             repr_html_str = "<table>\n"
             repr_html_str += "\t<tr>\n"
-            repr_html_str += ("\t\t<th>{:}</th>\n" * len(ret[0])).format(
-                *((ret[0]))  # type: ignore
-            )
+            repr_html_str += ("\t\t<th>{:}</th>\n" * len(ret[0])).format(*((ret[0])))
             repr_html_str += "\t</tr>\n"
             for row in ret:
-                content = [row[c] for c in row]  # type: ignore
+                content = [row[c] for c in row]
                 repr_html_str += "\t<tr>\n"
-                for c in content:  # type: ignore
+                for c in content:
                     if isinstance(c, list):
                         repr_html_str += ("\t\t<td>{:}</td>\n").format("{}".format(c))  # type: ignore
                     else:
@@ -555,16 +556,16 @@ class DataFrame:
             return self._query
         return "WITH " + ",".join(cte_list) + self._query
 
-    def __iter__(self) -> "DataFrame.DictIterator":
+    def __iter__(self) -> "DataFrame.Iterator":
         """:meta private:"""
         if self._contents is not None:
-            return DataFrame.DictIterator(self._contents)
+            return DataFrame.Iterator(self._contents)
         assert self._db is not None
         self._contents = self._fetch()
         assert self._contents is not None
-        return DataFrame.DictIterator(self._contents)
+        return DataFrame.Iterator(self._contents)
 
-    class DictIterator:
+    class Iterator:
         """:meta private:"""
 
         def __init__(self, contents: Iterable[RealDictRow]) -> None:
@@ -574,7 +575,7 @@ class DataFrame:
         def __iter__(self):
             return self
 
-        def __next__(self):
+        def __next__(self) -> Row:
             """:meta private:"""
 
             def tuple_to_dict(json_pairs: List[tuple[str, Any]]):

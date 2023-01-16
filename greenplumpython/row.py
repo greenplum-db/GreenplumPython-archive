@@ -1,12 +1,14 @@
 """
 This module creates a Python object :class:`Row` for GreenplumPython DataFrame iteration.
 """
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, Iterable, Tuple
 
 
 class Row:
     """
-    Represents a row of GreenplumPython :class:`~table.DataFrame`.
+    Represents a row of GreenplumPython :class:`~dataframe.DataFrame`.
+
+    A :class:`Row` is conceptually an immutable :class:`dict`.
     """
 
     def __init__(self, contents: Dict[str, Union[str, List[str]]]):
@@ -39,22 +41,25 @@ class Row:
         """
         return len(self._contents)
 
-    def column_names(self) -> List[str]:
+    def keys(self) -> Iterable[str]:
         """
-        Return list of column names of row
+        Return Iterable of column names of row
 
         Returns:
-            List[str]: list of column names
+            Iterable[str]: Iterable of column names
 
         """
-        return list(self._contents.keys())
+        return self._contents.keys()
 
-    def values(self) -> List[Any]:
+    def values(self) -> Iterable[Any]:
         """
-        Return list of values of row
+        Return Iterable of values of row
 
         Returns:
-            List[Any]
+            Iterable[Any]
 
         """
-        return list(self._contents.values())
+        return self._contents.values()
+
+    def items(self) -> Iterable[Tuple[str, Any]]:
+        return self._contents.items()
