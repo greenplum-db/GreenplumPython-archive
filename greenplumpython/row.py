@@ -11,7 +11,7 @@ class Row:
     A :class:`Row` is conceptually an immutable :class:`dict`.
     """
 
-    def __init__(self, contents: Dict[str, Union[str, List[str]]]):
+    def __init__(self, contents: Dict[str, Union[Any, List[Any]]]):
         self._contents = contents
 
     def __getitem__(self, column_name: str) -> Any:
