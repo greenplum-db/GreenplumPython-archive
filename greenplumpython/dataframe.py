@@ -1,6 +1,7 @@
 """
-`DataFrame` is the core data structure in GreenplumPython. Conceptually, a `DataFrame`
-is a two-dimensional structure containing data.
+`DataFrame` is the core data structure in GreenplumPython.
+
+Conceptually, a `DataFrame` is a two-dimensional structure containing data.
 
 In the data science world, a :class:`DataFrame` in GreenplumPython is similar to a `DataFrame
 <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html>`_ in `pandas <https://pandas.pydata.org/>`_,
@@ -59,9 +60,7 @@ from greenplumpython.row import Row
 
 
 class DataFrame:
-    """
-    Representation of GreenplumPython DataFrame object.
-    """
+    """Representation of GreenplumPython DataFrame object."""
 
     def __init__(
         self,
@@ -71,6 +70,8 @@ class DataFrame:
         db: Optional[Database] = None,
         columns: Optional[Iterable[Column]] = None,
     ) -> None:
+    # FIXME: Add doc
+    # noqa
         self._query = query
         self._parents = parents
         self._name = "cte_" + uuid4().hex if name is None else name
@@ -121,26 +122,33 @@ class DataFrame:
 
     @overload
     def __getitem__(self, _) -> "DataFrame":
+    # noqa
         ...
 
     @overload
     def __getitem__(self, column_names: List[str]) -> "DataFrame":
+    # noqa
         ...
 
     @overload
     def __getitem__(self, predicate: Callable[["DataFrame"], Expr]) -> "DataFrame":
+    # noqa
         ...
 
     @overload
     def __getitem__(self, column_name: str) -> Expr:
+    # noqa
         ...
 
     @overload
     def __getitem__(self, rows: slice) -> "DataFrame":
+    # noqa
         ...
 
     def __getitem__(self, _):
         """
+        Select parts of the :class:`DataFrame`.
+
         Returns: :class:`~col.Column` or :class:`DataFrame`
 
             - a :class:`~col.Column` of the current :class:`DataFrame` if the key is a string:
@@ -173,6 +181,7 @@ class DataFrame:
         return self._getitem(_)
 
     def __repr__(self):
+        # noqa
         """
         :meta private:
 
@@ -218,6 +227,7 @@ class DataFrame:
         return repr_string
 
     def _repr_html_(self):
+        # noqa
         """:meta private:"""
         repr_html_str = ""
         ret = list(self)
@@ -311,8 +321,8 @@ class DataFrame:
         Assign new columns to the current :class:`DataFrame`. Existing columns cannot be reassigned.
 
         Args:
-            new_columns: a `dict` whose keys are column names and values are :class:`Callable` which returns column data
-                         when is applied to the current :class:`DataFrame`.
+            new_columns: a `dict` whose keys are column names and values are :class:`Callable` which
+                         returns column data when is applied to the current :class:`DataFrame`.
 
         Returns:
             DataFrame: a new :class:`DataFrame` including the new assigned columns.
@@ -326,7 +336,6 @@ class DataFrame:
                 results = series.assign(abs=lambda nums: abs(nums["id"]))
 
         """
-
         if len(new_columns) == 0:
             return self
         targets: List[str] = []
@@ -355,7 +364,7 @@ class DataFrame:
         operator: Optional[str] = None,
     ) -> DataFrameOrdering:
         """
-        Returns: :class:`DataFrame` order by the given arguments.
+        Return :class:`DataFrame` order by the given arguments.
 
         Args:
             column_name: name of column to order the dataframe by.
@@ -531,10 +540,12 @@ class DataFrame:
     # Actually we cannot determine if a dataframe is recorded in the system catalogs
     # without querying the db.
     def _in_catalog(self) -> bool:
+        # noqa
         """:meta private:"""
         return self._query.startswith("TABLE")
 
     def _list_lineage(self) -> List["DataFrame"]:
+        # noqa
         """:meta private:"""
         lineage: List["DataFrame"] = [self]
         dataframes_visited: Set[str] = set()
@@ -549,6 +560,7 @@ class DataFrame:
         return lineage
 
     def _depth_first_search(self, t: "DataFrame", visited: Set[str], lineage: List["DataFrame"]):
+        # noqa
         """:meta private:"""
         visited.add(t.name)
         for i in t._parents:
@@ -557,6 +569,7 @@ class DataFrame:
         lineage.append(t)
 
     def _build_full_query(self) -> str:
+        # noqa
         """:meta private:"""
         lineage = self._list_lineage()
         cte_list: List[str] = []
@@ -568,6 +581,7 @@ class DataFrame:
         return "WITH " + ",".join(cte_list) + self._query
 
     def __iter__(self) -> "DataFrame.DictIterator":
+        # noqa
         """:meta private:"""
         if self._contents is not None:
             return DataFrame.DictIterator(self._contents)
@@ -577,16 +591,20 @@ class DataFrame:
         return DataFrame.DictIterator(self._contents)
 
     class DictIterator:
+        # noqa
         """:meta private:"""
 
         def __init__(self, contents: Iterable[RealDictRow]) -> None:
+        # noqa
             """:meta private:"""
             self._proxy_iter: Iterator[RealDictRow] = iter(contents)
 
         def __iter__(self):
+        # noqa
             return self
 
         def __next__(self):
+        # noqa
             """:meta private:"""
 
             def tuple_to_dict(json_pairs: List[tuple[str, Any]]):
@@ -606,13 +624,13 @@ class DataFrame:
 
     def refresh(self) -> "DataFrame":
         """
-        Refresh the local cache of :class:`DataFrame`. The local cache if used to iterate the :class:`DataFrame`
-        instance locally.
+        Refresh the local cache of :class:`DataFrame`.
+
+        The local cache if used to iterate the :class:`DataFrame` instance locally.
 
         Returns:
             self
         """
-
         assert self._db is not None
         self._contents = self._fetch()
         assert self._contents is not None
@@ -646,8 +664,9 @@ class DataFrame:
         self, dataframe_name: str, column_names: List[str] = [], temp: bool = False
     ) -> "DataFrame":
         """
-        Save the GreenplumPython :class:`Dataframe` as a *table* into the database, and return a new instance of
-        :class:`DataFrame` that represents the newly saved *table*.
+        Save the GreenplumPython :class:`Dataframe` as a *table* into the database.
+
+        And return a new instance of :class:`DataFrame` that represents the newly saved *table*.
 
         Args:
             dataframe_name : str
