@@ -112,9 +112,9 @@
       <li><a href="col.html#col.Column.__getitem__">__getitem__() (col.Column method)</a>
 
       <ul>
-        <li><a href="row.html#row.Row.__getitem__">(row.Row method)</a>
+        <li><a href="dataframe.html#dataframe.DataFrame.__getitem__">(dataframe.DataFrame method)</a>
 </li>
-        <li><a href="table.html#table.Table.__getitem__">(table.Table method)</a>
+        <li><a href="row.html#row.Row.__getitem__">(row.Row method)</a>
 </li>
       </ul></li>
       <li><a href="expr.html#expr.Expr.__gt__">__gt__() (expr.Expr method)</a>
@@ -153,12 +153,12 @@
 </li>
       <li><a href="func.html#func.AggregateFunction">AggregateFunction (class in func)</a>
 </li>
-      <li><a href="db.html#db.Database.apply">apply() (db.Database method)</a>
+      <li><a href="dataframe.html#dataframe.DataFrame.apply">apply() (dataframe.DataFrame method)</a>
 
       <ul>
-        <li><a href="group.html#group.TableGroupingSets.apply">(group.TableGroupingSets method)</a>
+        <li><a href="db.html#db.Database.apply">(db.Database method)</a>
 </li>
-        <li><a href="table.html#table.Table.apply">(table.Table method)</a>
+        <li><a href="group.html#group.DataFrameGroupingSets.apply">(group.DataFrameGroupingSets method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -167,12 +167,12 @@
 </li>
       <li><a href="func.html#func.ArrayFunctionExpr">ArrayFunctionExpr (class in func)</a>
 </li>
-      <li><a href="db.html#db.Database.assign">assign() (db.Database method)</a>
+      <li><a href="dataframe.html#dataframe.DataFrame.assign">assign() (dataframe.DataFrame method)</a>
 
       <ul>
-        <li><a href="group.html#group.TableGroupingSets.assign">(group.TableGroupingSets method)</a>
+        <li><a href="db.html#db.Database.assign">(db.Database method)</a>
 </li>
-        <li><a href="table.html#table.Table.assign">(table.Table method)</a>
+        <li><a href="group.html#group.DataFrameGroupingSets.assign">(group.DataFrameGroupingSets method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -206,8 +206,6 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="table.html#table.Table.columns">columns (table.Table property)</a>
-</li>
       <li>
     config
 
@@ -219,9 +217,11 @@
 </li>
       <li><a href="func.html#func.create_array_function">create_array_function() (in module func)</a>
 </li>
+      <li><a href="db.html#db.Database.create_dataframe">create_dataframe() (db.Database method)</a>
+</li>
       <li><a href="func.html#func.create_function">create_function() (in module func)</a>
 </li>
-      <li><a href="table.html#table.Table.cross_join">cross_join() (table.Table method)</a>
+      <li><a href="dataframe.html#dataframe.DataFrame.cross_join">cross_join() (dataframe.DataFrame method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -234,23 +234,46 @@
       <li><a href="db.html#db.database">database() (in module db)</a>
 </li>
       <li>
+    dataframe
+
+      <ul>
+        <li><a href="dataframe.html#module-dataframe">module</a>
+</li>
+      </ul></li>
+      <li><a href="dataframe.html#dataframe.DataFrame">DataFrame (class in dataframe)</a>
+</li>
+      <li><a href="col.html#col.Column.dataframe">dataframe (col.Column property)</a>
+
+      <ul>
+        <li><a href="expr.html#expr.Expr.dataframe">(expr.Expr property)</a>
+</li>
+        <li><a href="group.html#group.DataFrameGroupingSets.dataframe">(group.DataFrameGroupingSets property)</a>
+</li>
+        <li><a href="order.html#order.DataFrameOrdering.dataframe">(order.DataFrameOrdering property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="group.html#group.DataFrameGroupingSets">DataFrameGroupingSets (class in group)</a>
+</li>
+      <li><a href="order.html#order.DataFrameOrdering">DataFrameOrdering (class in order)</a>
+</li>
+      <li>
     db
 
       <ul>
         <li><a href="db.html#module-db">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="expr.html#expr.Expr.db">db (expr.Expr property)</a>
+      <li><a href="dataframe.html#dataframe.DataFrame.db">db (dataframe.DataFrame property)</a>
 
       <ul>
-        <li><a href="table.html#table.Table.db">(table.Table property)</a>
+        <li><a href="expr.html#expr.Expr.db">(expr.Expr property)</a>
 </li>
       </ul></li>
       <li><a href="func.html#func.AggregateFunction.distinct">distinct() (func.AggregateFunction method)</a>
 </li>
-      <li><a href="table.html#table.Table.distinct_on">distinct_on() (table.Table method)</a>
+      <li><a href="dataframe.html#dataframe.DataFrame.distinct_on">distinct_on() (dataframe.DataFrame method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -260,7 +283,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="db.html#db.Database.execute">execute() (db.Database method)</a>
 </li>
-      <li><a href="table.html#table.Table.explain">explain() (table.Table method)</a>
+      <li><a href="dataframe.html#dataframe.DataFrame.explain">explain() (dataframe.DataFrame method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -279,8 +302,16 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="table.html#table.Table.full_join">full_join() (table.Table method)</a>
+      <li><a href="dataframe.html#dataframe.DataFrame.from_columns">from_columns() (dataframe.DataFrame class method)</a>
 </li>
+      <li><a href="dataframe.html#dataframe.DataFrame.from_rows">from_rows() (dataframe.DataFrame class method)</a>
+</li>
+      <li><a href="dataframe.html#dataframe.DataFrame.from_table">from_table() (dataframe.DataFrame class method)</a>
+</li>
+      <li><a href="dataframe.html#dataframe.DataFrame.full_join">full_join() (dataframe.DataFrame method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     func
 
@@ -288,8 +319,6 @@
         <li><a href="func.html#module-func">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="func.html#func.function">function() (in module func)</a>
 </li>
       <li><a href="func.html#func.FunctionExpr">FunctionExpr (class in func)</a>
@@ -318,7 +347,7 @@
         <li><a href="group.html#module-group">module</a>
 </li>
       </ul></li>
-      <li><a href="table.html#table.Table.group_by">group_by() (table.Table method)</a>
+      <li><a href="dataframe.html#dataframe.DataFrame.group_by">group_by() (dataframe.DataFrame method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -332,7 +361,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="expr.html#expr.InExpr">InExpr (class in expr)</a>
 </li>
-      <li><a href="table.html#table.Table.inner_join">inner_join() (table.Table method)</a>
+      <li><a href="dataframe.html#dataframe.DataFrame.inner_join">inner_join() (dataframe.DataFrame method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -340,7 +369,7 @@
 <h2 id="J">J</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="table.html#table.Table.join">join() (table.Table method)</a>
+      <li><a href="dataframe.html#dataframe.DataFrame.join">join() (dataframe.DataFrame method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -348,7 +377,7 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="table.html#table.Table.left_join">left_join() (table.Table method)</a>
+      <li><a href="dataframe.html#dataframe.DataFrame.left_join">left_join() (dataframe.DataFrame method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -368,6 +397,8 @@
 </li>
         <li><a href="config.html#module-config">config</a>
 </li>
+        <li><a href="dataframe.html#module-dataframe">dataframe</a>
+</li>
         <li><a href="db.html#module-db">db</a>
 </li>
         <li><a href="expr.html#module-expr">expr</a>
@@ -384,8 +415,6 @@
 </li>
         <li><a href="row.html#module-row">row</a>
 </li>
-        <li><a href="table.html#module-table">table</a>
-</li>
         <li><a href="type.html#module-type">type</a>
 </li>
       </ul></li>
@@ -398,7 +427,7 @@
       <li><a href="col.html#col.Column.name">name (col.Column property)</a>
 
       <ul>
-        <li><a href="table.html#table.Table.name">(table.Table property)</a>
+        <li><a href="dataframe.html#dataframe.DataFrame.name">(dataframe.DataFrame property)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -420,6 +449,8 @@
       </ul></li>
       <li><a href="op.html#op.operator">operator() (in module op)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     order
 
@@ -427,16 +458,12 @@
         <li><a href="order.html#module-order">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="order.html#order.OrderedTable.order_by">order_by() (order.OrderedTable method)</a>
+      <li><a href="dataframe.html#dataframe.DataFrame.order_by">order_by() (dataframe.DataFrame method)</a>
 
       <ul>
-        <li><a href="table.html#table.Table.order_by">(table.Table method)</a>
+        <li><a href="order.html#order.DataFrameOrdering.order_by">(order.DataFrameOrdering method)</a>
 </li>
       </ul></li>
-      <li><a href="order.html#order.OrderedTable">OrderedTable (class in order)</a>
-</li>
   </ul></td>
 </tr></table>
 
@@ -451,9 +478,9 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="table.html#table.Table.refresh">refresh() (table.Table method)</a>
+      <li><a href="dataframe.html#dataframe.DataFrame.refresh">refresh() (dataframe.DataFrame method)</a>
 </li>
-      <li><a href="table.html#table.Table.right_join">right_join() (table.Table method)</a>
+      <li><a href="dataframe.html#dataframe.DataFrame.right_join">right_join() (dataframe.DataFrame method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -472,7 +499,7 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="table.html#table.Table.save_as">save_as() (table.Table method)</a>
+      <li><a href="dataframe.html#dataframe.DataFrame.save_as">save_as() (dataframe.DataFrame method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -480,37 +507,6 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li>
-    table
-
-      <ul>
-        <li><a href="table.html#module-table">module</a>
-</li>
-      </ul></li>
-      <li><a href="table.html#table.Table">Table (class in table)</a>
-</li>
-      <li><a href="col.html#col.Column.table">table (col.Column property)</a>
-
-      <ul>
-        <li><a href="expr.html#expr.Expr.table">(expr.Expr property)</a>
-</li>
-        <li><a href="group.html#group.TableGroupingSets.table">(group.TableGroupingSets property)</a>
-</li>
-        <li><a href="order.html#order.OrderedTable.table">(order.OrderedTable property)</a>
-</li>
-      </ul></li>
-      <li><a href="db.html#db.Database.table">table() (db.Database method)</a>
-
-      <ul>
-        <li><a href="table.html#table.table">(in module table)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="group.html#group.TableGroupingSets">TableGroupingSets (class in group)</a>
-</li>
-      <li><a href="table.html#table.to_table">to_table() (in module table)</a>
-</li>
       <li><a href="func.html#func.AggregateFunction.transition_function">transition_function (func.AggregateFunction property)</a>
 </li>
       <li>
@@ -520,6 +516,8 @@
         <li><a href="type.html#module-type">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="type.html#type.Type">Type (class in type)</a>
 </li>
       <li><a href="type.html#type.TypeCast">TypeCast (class in type)</a>
@@ -534,7 +532,7 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="group.html#group.TableGroupingSets.union">union() (group.TableGroupingSets method)</a>
+      <li><a href="group.html#group.DataFrameGroupingSets.union">union() (group.DataFrameGroupingSets method)</a>
 </li>
       <li><a href="func.html#func.NormalFunction.unwrap">unwrap() (func.NormalFunction method)</a>
 </li>
@@ -552,7 +550,7 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="table.html#table.Table.where">where() (table.Table method)</a>
+      <li><a href="dataframe.html#dataframe.DataFrame.where">where() (dataframe.DataFrame method)</a>
 </li>
   </ul></td>
 </tr></table>

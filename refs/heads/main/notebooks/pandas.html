@@ -406,7 +406,7 @@ div.rendered_html tbody tr:hover {
 <p>This document covers the similarities and the differences between GreenplumPython and pandas, as well as the rationales behind.</p>
 <section id="Data-Structure">
 <h2>Data Structure<a class="headerlink" href="#Data-Structure" title="Permalink to this heading"></a></h2>
-<p>The core data structure of GreenplumPython, <code class="docutils literal notranslate"><span class="pre">Table</span></code>, is fundamentally similar to <code class="docutils literal notranslate"><span class="pre">Dataframe</span></code> in pandas in that - Data are organized into rows and columns; - Columns can be of different types, and can be accessed by name; - Rows are of the same type, and are iterable.</p>
+<p>The core data structure of GreenplumPython, <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>, is fundamentally similar to <code class="docutils literal notranslate"><span class="pre">Dataframe</span></code> in pandas in that - Data are organized into rows and columns; - Columns can be of different types, and can be accessed by name; - Rows are of the same type, and are iterable.</p>
 <p>Next, we will see similarities and differences between them in detail with examples.</p>
 <section id="Getting-Access-to-the-Structure">
 <h3>Getting Access to the Structure<a class="headerlink" href="#Getting-Access-to-the-Structure" title="Permalink to this heading"></a></h3>
@@ -486,13 +486,13 @@ div.rendered_html tbody tr:hover {
 </table>
 </div></div>
 </div>
-<p>We can also create a <code class="docutils literal notranslate"><span class="pre">Table</span></code> in GreenplumPython from the same data in a very similar way:</p>
+<p>We can also create a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> in GreenplumPython from the same data in a very similar way:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">database</span><span class="p">(</span><span class="n">dbname</span><span class="o">=</span><span class="s2">&quot;gpadmin&quot;</span><span class="p">)</span>
-<span class="n">t</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">to_table</span><span class="p">(</span><span class="n">students</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">],</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_rows</span><span class="p">(</span><span class="n">students</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">],</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
 <span class="n">t</span>
 </pre></div>
 </div>
@@ -521,10 +521,10 @@ div.rendered_html tbody tr:hover {
     </tr>
 </table></div>
 </div>
-<p>But here is an important <strong>difference</strong>: - a <code class="docutils literal notranslate"><span class="pre">Table</span></code> in GreenplumPython must be created in a database, while - pandas does not have the concept of “database”.</p>
+<p>But here is an important <strong>difference</strong>: - a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> in GreenplumPython must be created in a database, while - pandas does not have the concept of “database”.</p>
 <p><code class="docutils literal notranslate"><span class="pre">Database</span></code> in GreenplumPython is like “directory” in file systems, which helps to avoid name conflict on persistence.</p>
-<p>The reason behind this difference is that - <code class="docutils literal notranslate"><span class="pre">Table</span></code>s in GreenplumPython can themselves be persisted, while - <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s in pandas live only in memory and need to be written to a file for persistence.</p>
-<p>A <code class="docutils literal notranslate"><span class="pre">Table</span></code> can be saved persistently in the database system with</p>
+<p>The reason behind this difference is that - <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s in GreenplumPython can themselves be persisted, while - <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s in pandas live only in memory and need to be written to a file for persistence.</p>
+<p>A GreenplumPython <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> can be saved persistently in the database system with</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
@@ -557,7 +557,7 @@ div.rendered_html tbody tr:hover {
     </tr>
 </table></div>
 </div>
-<p>This is similar to how a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> is persisted as file</p>
+<p>This is similar to how a pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> is persisted as file</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
@@ -566,13 +566,13 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<p>Saving a <code class="docutils literal notranslate"><span class="pre">Table</span></code> with <code class="docutils literal notranslate"><span class="pre">temp=True</span></code> in GreenplumPython is similar to saving a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> into the <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> directory - <code class="docutils literal notranslate"><span class="pre">Table</span></code>s saved with <code class="docutils literal notranslate"><span class="pre">temp=True</span></code> will be dropped automatically by the database system, while - <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s saved in <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> will be clean automatically by the operating system.</p>
-<p>In order to get access to a previously persisted <code class="docutils literal notranslate"><span class="pre">Table</span></code> in a <code class="docutils literal notranslate"><span class="pre">Database</span></code>, like <code class="docutils literal notranslate"><span class="pre">student</span></code>, we can do</p>
+<p>Saving a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> with <code class="docutils literal notranslate"><span class="pre">temp=True</span></code> in GreenplumPython is similar to saving a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> into the <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> directory in pandas - GreenplumPython <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s saved with <code class="docutils literal notranslate"><span class="pre">temp=True</span></code> will be dropped automatically by the database system, while - pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s saved in <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> will be clean automatically by the operating system.</p>
+<p>In order to get access to a previously persisted <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> in a <code class="docutils literal notranslate"><span class="pre">Database</span></code>, like <code class="docutils literal notranslate"><span class="pre">student</span></code>, we can do</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">student</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;student&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">student</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;student&quot;</span><span class="p">)</span>
 <span class="n">student</span>
 </pre></div>
 </div>
@@ -664,8 +664,8 @@ div.rendered_html tbody tr:hover {
 </section>
 <section id="Accessing-Data-in-Rows-and-Columns">
 <h3>Accessing Data in Rows and Columns<a class="headerlink" href="#Accessing-Data-in-Rows-and-Columns" title="Permalink to this heading"></a></h3>
-<p>In both GreenplumPython <code class="docutils literal notranslate"><span class="pre">Table</span></code>s and pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s, rows can be iterated.</p>
-<p>To access each row in a <code class="docutils literal notranslate"><span class="pre">Table</span></code> in GreenplumPython, simply iterate over the <code class="docutils literal notranslate"><span class="pre">Table</span></code>:</p>
+<p>In both GreenplumPython <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s and pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s, rows can be iterated.</p>
+<p>To access each row in a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> in GreenplumPython, simply iterate over the <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
@@ -706,7 +706,7 @@ carol 19
 </pre></div></div>
 </div>
 <p>Similar to pandas, <code class="docutils literal notranslate"><span class="pre">Row</span></code> in GreenplumPython is <code class="docutils literal notranslate"><span class="pre">dict</span></code>-like. The value of each column can be accessed by name.</p>
-<p>In conclusion, from the user’s perspective, <code class="docutils literal notranslate"><span class="pre">Table</span></code> in GreenplumPython is very similar to <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> in pandas. We expect this would make it easier for whoever interested to get started using GreenplumPython.</p>
+<p>In conclusion, from the user’s perspective, <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> in GreenplumPython is very similar to <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> in pandas. We expect this would make it easier for whoever interested to get started using GreenplumPython.</p>
 </section>
 </section>
 <section id="Data-Selection">
@@ -772,7 +772,7 @@ carol 19
 </table>
 </div></div>
 </div>
-<p>The result of the <code class="docutils literal notranslate"><span class="pre">[]</span></code> operator is a new <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>. In GreenplumPython, this is exactly the same:</p>
+<p>The result of the <code class="docutils literal notranslate"><span class="pre">[]</span></code> operator is a new pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>. In GreenplumPython, this is exactly the same:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
@@ -805,7 +805,7 @@ carol 19
     </tr>
 </table></div>
 </div>
-<p>The result is a new <code class="docutils literal notranslate"><span class="pre">Table</span></code> containing the selected columns.</p>
+<p>The result is a new GreenplumPython <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> containing the selected columns.</p>
 </section>
 <section id="Accessing-a-Single-Column">
 <h3>Accessing a Single Column<a class="headerlink" href="#Accessing-a-Single-Column" title="Permalink to this heading"></a></h3>
@@ -850,7 +850,7 @@ Name: name, dtype: object
 </pre></div></div>
 </div>
 <p>But you might notice the <strong>difference</strong> here: - for pandas, using the <code class="docutils literal notranslate"><span class="pre">[]</span></code> operator gives us the data immediately if we refer to a column, while - for GreenplumPython, it only gives a <code class="docutils literal notranslate"><span class="pre">Column</span></code> object. <code class="docutils literal notranslate"><span class="pre">Column</span></code> is supposed to be used for computation rather than for observing data.</p>
-<p>The reasons behind this difference are - Database systems behind GreenplumPython does not provide native one-dimensional data structure like <code class="docutils literal notranslate"><span class="pre">Series</span></code> in pandas. - It is much more efficient to retrieve all columns needed in a <code class="docutils literal notranslate"><span class="pre">Table</span></code> at once than one at a time. We will see later how to add new columns to a <code class="docutils literal notranslate"><span class="pre">Table</span></code> so that they can be retrived all at once.</p>
+<p>The reasons behind this difference are - Database systems behind GreenplumPython does not provide native one-dimensional data structure like <code class="docutils literal notranslate"><span class="pre">Series</span></code> in pandas. - It is much more efficient to retrieve all columns needed in a GreenplumPython <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> at once than one at a time. We will see later how to add new columns to a GreenplumPython <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> so that they can be retrived all at once.</p>
 </section>
 <section id="Selecting-Rows-by-Predicate">
 <h3>Selecting Rows by Predicate<a class="headerlink" href="#Selecting-Rows-by-Predicate" title="Permalink to this heading"></a></h3>
@@ -927,14 +927,14 @@ Name: name, dtype: object
 </table></div>
 </div>
 <p>Here we see how a column in GreenplumPython, <code class="docutils literal notranslate"><span class="pre">t[&quot;name&quot;]</span></code> in this case, is used for computation to form a more complex expression.</p>
-<p>In this example, When the expression <code class="docutils literal notranslate"><span class="pre">t[&quot;name&quot;]</span> <span class="pre">==</span> <span class="pre">&quot;alice&quot;</span></code> is evaluated, <code class="docutils literal notranslate"><span class="pre">t</span></code> will be bound to the “current” table, i.e. <code class="docutils literal notranslate"><span class="pre">student</span></code>.</p>
+<p>In this example, When the expression <code class="docutils literal notranslate"><span class="pre">t[&quot;name&quot;]</span> <span class="pre">==</span> <span class="pre">&quot;alice&quot;</span></code> is evaluated, <code class="docutils literal notranslate"><span class="pre">t</span></code> will be bound to the “current” dataframe, i.e. <code class="docutils literal notranslate"><span class="pre">student</span></code>.</p>
 <p>GreenplumPython provides such a functional interface so that the user does not have to refer to the possibly long intermediate variable name like <code class="docutils literal notranslate"><span class="pre">student</span></code> again and again when the expression becomes complicated.</p>
 </section>
 <section id="Selecting-Rows-by-Slice">
 <h3>Selecting Rows by Slice<a class="headerlink" href="#Selecting-Rows-by-Slice" title="Permalink to this heading"></a></h3>
 <p>We can get a quick glance of the data by selecting the first several rows. This can be achieved with <code class="docutils literal notranslate"><span class="pre">slice</span></code> in Python.</p>
-<p>Like many built-in data structures in Python, such as <code class="docutils literal notranslate"><span class="pre">list</span></code> and <code class="docutils literal notranslate"><span class="pre">tuple</span></code>, <code class="docutils literal notranslate"><span class="pre">Table</span></code> in GreenplumPython supports slicing.</p>
-<p>For example, if we want only the first two rows of the <code class="docutils literal notranslate"><span class="pre">Table</span></code> of students in GreenplumPython, we can do</p>
+<p>Like many built-in data structures in Python, such as <code class="docutils literal notranslate"><span class="pre">list</span></code> and <code class="docutils literal notranslate"><span class="pre">tuple</span></code>, <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> in GreenplumPython supports slicing.</p>
+<p>For example, if we want only the first two rows of the <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> of students in GreenplumPython, we can do</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
@@ -1014,7 +1014,7 @@ Name: name, dtype: object
 </table>
 </div></div>
 </div>
-<p>But you might notice the <strong>difference</strong>: When selecting rows, - for pandas, rows in the output <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> preserves the same order as the input, while - for GreenplumPython, the order of rows in <code class="docutils literal notranslate"><span class="pre">Table</span></code> might not be preserved.</p>
+<p>But you might notice the <strong>difference</strong>: When selecting rows, - for pandas, rows in the output <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> preserves the same order as the input, while - for GreenplumPython, the order of rows in <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> might not be preserved.</p>
 <p>The difference is due to the fact that database systems behind will not guarantee the order of rows unless otherwise specified.</p>
 </section>
 </section>
@@ -1115,13 +1115,13 @@ Name: name, dtype: object
     </tr>
 </table></div>
 </div>
-<p>There are some important <strong>difference</strong> compared with pandas: - GreenplumPython does not provide something like <code class="docutils literal notranslate"><span class="pre">DataFrame.sort_index()</span></code> in pandas, because unlike <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s in pandas, <code class="docutils literal notranslate"><span class="pre">Table</span></code> in GreenplumPython does not have an “index column”. - <code class="docutils literal notranslate"><span class="pre">Table.order_by()</span></code> supports chaining to specify multiple ordering columns. We think that compared to passing lists, method chaining is simpler because it is not required to remember the order of columns in the list.</p>
+<p>There are some important <strong>difference</strong> compared with pandas: - GreenplumPython does not provide something like <code class="docutils literal notranslate"><span class="pre">DataFrame.sort_index()</span></code> in pandas, because unlike <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s in pandas, <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> in GreenplumPython does not have an “index column”. - <code class="docutils literal notranslate"><span class="pre">DataFrame.order_by()</span></code> supports chaining to specify multiple ordering columns. We think that compared to passing lists, method chaining is simpler because it is not required to remember the order of columns in the list.</p>
 </section>
 <section id="Column-Transformation">
 <h3>Column Transformation<a class="headerlink" href="#Column-Transformation" title="Permalink to this heading"></a></h3>
 <p>Column transformation is to transform one or more existing columns into a new one of the same length.</p>
 <p>A new column may contains data resulting from whatever computation we want.</p>
-<p>Both GreeplumPython and pandas support transforming columns by adding a new column. Specifically, we need to - define the transfomation as an expression, and then - bind the expression to a new column of the source <code class="docutils literal notranslate"><span class="pre">Table</span></code> or <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> to form a new one.</p>
+<p>Both GreeplumPython and pandas support transforming columns by adding a new column. Specifically, we need to - define the transfomation as an expression, and then - bind the expression to a new column of the source <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> or <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> to form a new one.</p>
 <p>We can use <code class="docutils literal notranslate"><span class="pre">assign()</span></code> method to add new columns. For example, suppose we would like to know the year of birth for each student in the previous example.</p>
 <p>In pandas, we can add a new column named <code class="docutils literal notranslate"><span class="pre">year_of_birth</span></code> like this</p>
 <div class="nbinput docutils container">
@@ -1275,9 +1275,9 @@ Name: name, dtype: object
     </tr>
 </table></div>
 </div>
-<p>After adding the new column, we can select the columns we care about into a new <code class="docutils literal notranslate"><span class="pre">Table</span></code> with the <code class="docutils literal notranslate"><span class="pre">[]</span></code> operator.</p>
-<p>To be more concise, GreenplumPython and pandas support transforming columns directly into a new <code class="docutils literal notranslate"><span class="pre">Table</span></code> or <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> by <code class="docutils literal notranslate"><span class="pre">apply()</span></code>-ing the function.</p>
-<p>In the previous example, using <code class="docutils literal notranslate"><span class="pre">apply()</span></code>, we can obtain the <code class="docutils literal notranslate"><span class="pre">Table</span></code> with the original names hidden:</p>
+<p>After adding the new column, we can select the columns we care about into a new <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> with the <code class="docutils literal notranslate"><span class="pre">[]</span></code> operator.</p>
+<p>To be more concise, GreenplumPython and pandas support transforming columns directly into a new <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> or <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> by <code class="docutils literal notranslate"><span class="pre">apply()</span></code>-ing the function.</p>
+<p>In the previous example, using <code class="docutils literal notranslate"><span class="pre">apply()</span></code>, we can obtain the GreenplumPython <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> with the original names hidden:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
@@ -1375,7 +1375,7 @@ Name: name, dtype: object
 </table>
 </div></div>
 </div>
-<p>But there are still some important <strong>differences</strong> between the two cases: - In pandas, what we apply to a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> is a Python function, while in GreenplumPython, a Python function must be converted to a database function before being applied to a <code class="docutils literal notranslate"><span class="pre">Table</span></code>. - pandas supports applying a function along different axes, while GreenplumPython only support applying a function to each row due to the limitation of the database system behind.</p>
+<p>But there are still some important <strong>differences</strong> between the two cases: - In pandas, what we apply to a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> is a Python function, while in GreenplumPython, a Python function must be converted to a database function before being applied to a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>. - pandas supports applying a function along different axes, while GreenplumPython only support applying a function to each row due to the limitation of the database system behind.</p>
 </section>
 <section id="Data-Grouping">
 <h3>Data Grouping<a class="headerlink" href="#Data-Grouping" title="Permalink to this heading"></a></h3>
@@ -1677,7 +1677,7 @@ dtype: int64
 </div>
 <p>In terms of associative query, there is an important <strong>difference</strong> between GreenplumPython and pandas.</p>
 <p>pandas allows querying one <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> based on another without previously joining them.</p>
-<p>For example, suppose we have two <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> of numbers, the operation below is <em>legal</em> even though not <em>sensible</em>:</p>
+<p>For example, suppose we have two pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> of numbers, the operation below is <em>legal</em> even though not <em>sensible</em>:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[60]:
 </pre></div>
@@ -1740,8 +1740,8 @@ dtype: int64
 </table>
 </div></div>
 </div>
-<p>To avoid such kind of misuse, in GreenplumPython, it is impossible to refer to other <code class="docutils literal notranslate"><span class="pre">Table</span></code>s except for the “current” one in an expression.</p>
-<p>This is because GreenplumPython only accepts a <code class="docutils literal notranslate"><span class="pre">Callable</span></code> as argument for expression and will bind it to the current <code class="docutils literal notranslate"><span class="pre">Table</span></code> automatically.</p>
+<p>To avoid such kind of misuse, in GreenplumPython, it is impossible to refer to other <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s except for the “current” one in an expression.</p>
+<p>This is because GreenplumPython only accepts a <code class="docutils literal notranslate"><span class="pre">Callable</span></code> as argument for expression and will bind it to the current <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> automatically.</p>
 </section>
 </section>
 </section>

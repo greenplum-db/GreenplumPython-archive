@@ -46,9 +46,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../basic.html">Getting Started</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Selecting the Database of Your Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Accessing-a-Table-in-the-Database">Accessing a Table in the Database</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Accessing-a-DataFrame-in-the-Database">Accessing a DataFrame in the Database</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Basic-Data-Manipulation">Basic Data Manipulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#JOIN-ing-Two-Tables"><code class="docutils literal notranslate"><span class="pre">JOIN</span></code>-ing Two Tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#JOIN-ing-Two-DataFrames"><code class="docutils literal notranslate"><span class="pre">JOIN</span></code>-ing Two DataFrames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Creating-and-Calling-Functions">Creating and Calling Functions</a></li>
 </ul>
 </li>
@@ -375,14 +375,14 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 </section>
-<section id="Accessing-a-Table-in-the-Database">
-<h1>Accessing a Table in the Database<a class="headerlink" href="#Accessing-a-Table-in-the-Database" title="Permalink to this heading"></a></h1>
-<p>After selecting the database, we can access a table in the database by specifying its name:</p>
+<section id="Accessing-a-DataFrame-in-the-Database">
+<h1>Accessing a DataFrame in the Database<a class="headerlink" href="#Accessing-a-DataFrame-in-the-Database" title="Permalink to this heading"></a></h1>
+<p>After selecting the database, we can access a dataframe in the database by specifying its name:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;demo&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;demo&quot;</span><span class="p">)</span>
 <span class="n">t</span>
 </pre></div>
 </div>
@@ -424,16 +424,6 @@ div.rendered_html tbody tr:hover {
             <td>8</td>
     </tr>
     <tr>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-    </tr>
-    <tr>
-            <td>1</td>
-            <td>1</td>
-            <td>1</td>
-    </tr>
-    <tr>
             <td>5</td>
             <td>5</td>
             <td>5</td>
@@ -447,10 +437,20 @@ div.rendered_html tbody tr:hover {
             <td>9</td>
             <td>9</td>
             <td>9</td>
+    </tr>
+    <tr>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+    </tr>
+    <tr>
+            <td>1</td>
+            <td>1</td>
+            <td>1</td>
     </tr>
 </table></div>
 </div>
-<p>And of course, we can <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> the first ordered N rows of a table, like this:</p>
+<p>And of course, we can <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> the first ordered N rows of a dataframe, like this:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -525,7 +525,7 @@ div.rendered_html tbody tr:hover {
 </section>
 <section id="Basic-Data-Manipulation">
 <h1>Basic Data Manipulation<a class="headerlink" href="#Basic-Data-Manipulation" title="Permalink to this heading"></a></h1>
-<p>Now we have a table. We can do basic data manipulation on it, just like in SQL.</p>
+<p>Now we have a dataframe. We can do basic data manipulation on it, just like in SQL.</p>
 <p>For example, we can <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> a subset of its columns:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
@@ -555,6 +555,18 @@ div.rendered_html tbody tr:hover {
             <td>1</td>
     </tr>
     <tr>
+            <td>5</td>
+            <td>5</td>
+    </tr>
+    <tr>
+            <td>6</td>
+            <td>6</td>
+    </tr>
+    <tr>
+            <td>9</td>
+            <td>9</td>
+    </tr>
+    <tr>
             <td>2</td>
             <td>2</td>
     </tr>
@@ -573,18 +585,6 @@ div.rendered_html tbody tr:hover {
     <tr>
             <td>8</td>
             <td>8</td>
-    </tr>
-    <tr>
-            <td>5</td>
-            <td>5</td>
-    </tr>
-    <tr>
-            <td>6</td>
-            <td>6</td>
-    </tr>
-    <tr>
-            <td>9</td>
-            <td>9</td>
     </tr>
 </table></div>
 </div>
@@ -609,10 +609,6 @@ div.rendered_html tbody tr:hover {
             <th>j</th>
     </tr>
     <tr>
-            <td>0</td>
-            <td>0</td>
-    </tr>
-    <tr>
             <td>2</td>
             <td>2</td>
     </tr>
@@ -623,6 +619,10 @@ div.rendered_html tbody tr:hover {
     <tr>
             <td>8</td>
             <td>8</td>
+    </tr>
+    <tr>
+            <td>0</td>
+            <td>0</td>
     </tr>
     <tr>
             <td>6</td>
@@ -630,7 +630,7 @@ div.rendered_html tbody tr:hover {
     </tr>
 </table></div>
 </div>
-<p>For a quick glance, we can <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> the first unordered N rows of a table, like this:</p>
+<p>For a quick glance, we can <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> the first unordered N rows of a dataframe, like this:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
@@ -651,25 +651,25 @@ div.rendered_html tbody tr:hover {
             <th>j</th>
     </tr>
     <tr>
-            <td>0</td>
-            <td>0</td>
-    </tr>
-    <tr>
             <td>2</td>
             <td>2</td>
     </tr>
     <tr>
             <td>4</td>
             <td>4</td>
+    </tr>
+    <tr>
+            <td>8</td>
+            <td>8</td>
     </tr>
 </table></div>
 </div>
-<p>Finally when we are done, we can save the resulting table to the database, either temporarily or persistently:</p>
+<p>Finally when we are done, we can save the resulting dataframe to the database, either temporarily or persistently:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_n</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;t_n&quot;</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_n</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">dataframe_name</span><span class="o">=</span><span class="s2">&quot;t_n&quot;</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -692,15 +692,15 @@ div.rendered_html tbody tr:hover {
             <td>4</td>
     </tr>
     <tr>
-            <td>8</td>
-            <td>8</td>
+            <td>0</td>
+            <td>0</td>
     </tr>
 </table></div>
 </div>
 </section>
-<section id="JOIN-ing-Two-Tables">
-<h1><code class="docutils literal notranslate"><span class="pre">JOIN</span></code>-ing Two Tables<a class="headerlink" href="#JOIN-ing-Two-Tables" title="Permalink to this heading"></a></h1>
-<p>We can also <code class="docutils literal notranslate"><span class="pre">JOIN</span></code> two tables with GreenplumPython. For example, suppose we have two tables like this:</p>
+<section id="JOIN-ing-Two-DataFrames">
+<h1><code class="docutils literal notranslate"><span class="pre">JOIN</span></code>-ing Two DataFrames<a class="headerlink" href="#JOIN-ing-Two-DataFrames" title="Permalink to this heading"></a></h1>
+<p>We can also <code class="docutils literal notranslate"><span class="pre">JOIN</span></code> two dataframes with GreenplumPython. For example, suppose we have two dataframes like this:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
@@ -720,7 +720,7 @@ div.rendered_html tbody tr:hover {
     <span class="p">),</span>
     <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;&#39;d&#39;&quot;</span><span class="p">),</span>
 <span class="p">]</span>
-<span class="n">t1</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">to_table</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id, val&quot;</span><span class="p">])</span>
+<span class="n">t1</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id, val&quot;</span><span class="p">])</span>
 <span class="n">t1</span>
 </pre></div>
 </div>
@@ -772,7 +772,7 @@ div.rendered_html tbody tr:hover {
     <span class="p">),</span>
     <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;&#39;b&#39;&quot;</span><span class="p">),</span>
 <span class="p">]</span>
-<span class="n">t2</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">to_table</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id, val&quot;</span><span class="p">])</span>
+<span class="n">t2</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id, val&quot;</span><span class="p">])</span>
 <span class="n">t2</span>
 <br/></pre></div>
 </div>
@@ -805,7 +805,7 @@ div.rendered_html tbody tr:hover {
     </tr>
 </table></div>
 </div>
-<p>We can <code class="docutils literal notranslate"><span class="pre">JOIN</span></code> the two table like this:</p>
+<p>We can <code class="docutils literal notranslate"><span class="pre">JOIN</span></code> the two dataframe like this:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
@@ -868,13 +868,13 @@ div.rendered_html tbody tr:hover {
 <section id="Creating-and-Calling-Functions">
 <h1>Creating and Calling Functions<a class="headerlink" href="#Creating-and-Calling-Functions" title="Permalink to this heading"></a></h1>
 <p>Calling functions is essential for data analytics. GreenplumPython supports creating Greenplum UDFs and UDAs from Python functions and calling them in Python.</p>
-<p>Suppose we have a table of numbers:</p>
+<p>Suppose we have a dataframe of numbers:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
-<span class="n">numbers</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">to_table</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">])</span>
+<span class="n">numbers</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">])</span>
 <span class="n">numbers</span>
 </pre></div>
 </div>

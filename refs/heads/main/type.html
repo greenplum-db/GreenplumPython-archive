@@ -45,7 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">GreenplumPython</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="db.html">Database</a></li>
-<li class="toctree-l2"><a class="reference internal" href="table.html">Table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dataframe.html">DataFrame</a></li>
 <li class="toctree-l2"><a class="reference internal" href="expr.html">Expression</a></li>
 <li class="toctree-l2"><a class="reference internal" href="col.html">Column</a></li>
 <li class="toctree-l2"><a class="reference internal" href="row.html">Row</a></li>
@@ -125,9 +125,9 @@
 <p>Representation of a Type Casting.</p>
 <p class="rubric">Example</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
-<span class="n">series</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">to_table</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="s2">&quot;series&quot;</span><span class="p">)</span>
+<span class="n">series</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="s2">&quot;series&quot;</span><span class="p">)</span>
 <span class="n">regclass</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">get_type</span><span class="p">(</span><span class="s2">&quot;regclass&quot;</span><span class="p">,</span> <span class="n">db</span><span class="p">)</span>
-<span class="n">table_name</span> <span class="o">=</span> <span class="n">regclass</span><span class="p">(</span><span class="n">series</span><span class="p">[</span><span class="s2">&quot;tableoid&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;table_name&quot;</span><span class="p">)</span>
+<span class="n">dataframe_name</span> <span class="o">=</span> <span class="n">regclass</span><span class="p">(</span><span class="n">series</span><span class="p">[</span><span class="s2">&quot;tableoid&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;dataframe_name&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>

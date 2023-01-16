@@ -378,7 +378,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> sql
-<span class="o">%</span><span class="k">sql</span> postgresql://gpadmin:***@localhost:7000/postgres
+<span class="o">%</span><span class="k">sql</span> postgresql://gpadmin@localhost:7000/postgres
 </pre></div>
 </div>
 </div>
@@ -410,7 +410,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
- * postgresql://gpadmin:***@localhost:7000/postgres
+ * postgresql://gpadmin@localhost:7000/postgres
 Done.
 Done.
 </pre></div></div>
@@ -443,7 +443,7 @@ Done.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
- * postgresql://gpadmin:***@localhost:7000/postgres
+ * postgresql://gpadmin@localhost:7000/postgres
 Done.
 4177 rows affected.
 </pre></div></div>
@@ -500,7 +500,7 @@ Done.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
- * postgresql://gpadmin:***@localhost:7000/postgres
+ * postgresql://gpadmin@localhost:7000/postgres
 4177 rows affected.
 3 rows affected.
 3 rows affected.
@@ -548,7 +548,7 @@ Done.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">abalone</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;abalone&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">abalone</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;abalone&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -670,12 +670,12 @@ Done.
             <th>gp_segment_id</th>
     </tr>
     <tr>
-            <td>1307</td>
-            <td>2</td>
-    </tr>
-    <tr>
             <td>2870</td>
             <td>1</td>
+    </tr>
+    <tr>
+            <td>1307</td>
+            <td>2</td>
     </tr>
 </table></div>
 </div>
@@ -684,8 +684,8 @@ Done.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">abalone_train</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;abalone_train&quot;</span><span class="p">)</span>
-<span class="n">abalone_test</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;abalone_test&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">abalone_train</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;abalone_train&quot;</span><span class="p">)</span>
+<span class="n">abalone_test</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;abalone_test&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -811,23 +811,23 @@ Done.
     <tr>
             <td>F</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[26.64345987344362, -8.796198706038702]</td>
-            <td>-0.2797087276764554</td>
-            <td>2022-10-31 11:30:46.550850</td>
+            <td>[26.450187407789976, -8.780855265628666]</td>
+            <td>-0.29327673210977245</td>
+            <td>2023-01-10 16:19:16.025537</td>
     </tr>
     <tr>
             <td>M</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[24.231149070078427, -7.116405101732939]</td>
-            <td>0.19075461390319504</td>
-            <td>2022-10-31 11:30:46.550850</td>
+            <td>[23.16255006609472, -6.380683774781346]</td>
+            <td>0.479481002278213</td>
+            <td>2023-01-10 16:19:16.026369</td>
     </tr>
     <tr>
             <td>I</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[15.827197139394086, -0.06639609462432383]</td>
-            <td>1.1320984411058683</td>
-            <td>2022-10-31 11:30:46.552986</td>
+            <td>[15.291716971049556, 0.6835519727947413]</td>
+            <td>1.220294653689031</td>
+            <td>2023-01-10 16:19:16.028601</td>
     </tr>
 </table></div>
 </div>
@@ -869,47 +869,47 @@ Done.
     <tr>
             <td>F</td>
             <td>length</td>
-            <td>26.64345987344362</td>
+            <td>26.450187407789976</td>
     </tr>
     <tr>
             <td>F</td>
             <td>shucked_weight</td>
-            <td>-8.796198706038702</td>
+            <td>-8.780855265628666</td>
     </tr>
     <tr>
             <td>F</td>
             <td>intercept</td>
-            <td>-0.2797087276764554</td>
+            <td>-0.29327673210977245</td>
     </tr>
     <tr>
             <td>M</td>
             <td>length</td>
-            <td>24.231149070078427</td>
+            <td>23.16255006609472</td>
     </tr>
     <tr>
             <td>M</td>
             <td>shucked_weight</td>
-            <td>-7.116405101732939</td>
+            <td>-6.380683774781346</td>
     </tr>
     <tr>
             <td>M</td>
             <td>intercept</td>
-            <td>0.19075461390319504</td>
+            <td>0.479481002278213</td>
     </tr>
     <tr>
             <td>I</td>
             <td>length</td>
-            <td>15.827197139394086</td>
+            <td>15.291716971049556</td>
     </tr>
     <tr>
             <td>I</td>
             <td>shucked_weight</td>
-            <td>-0.06639609462432383</td>
+            <td>0.6835519727947413</td>
     </tr>
     <tr>
             <td>I</td>
             <td>intercept</td>
-            <td>1.1320984411058683</td>
+            <td>1.220294653689031</td>
     </tr>
 </table></div>
 </div>
@@ -938,7 +938,7 @@ Done.
 </pre></div>
 </div>
 </div>
-<p><strong>Join model table and test set table</strong></p>
+<p><strong>Join model dataframe and test set dataframe</strong></p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
@@ -1008,34 +1008,34 @@ Done.
             <th>rings_pred</th>
     </tr>
     <tr>
-            <td>43</td>
-            <td>I</td>
-            <td>5</td>
-            <td>4.928534277579782</td>
-    </tr>
-    <tr>
             <td>44</td>
             <td>I</td>
             <td>5</td>
-            <td>4.374980754268735</td>
+            <td>4.372527208060456</td>
     </tr>
     <tr>
-            <td>70</td>
-            <td>I</td>
-            <td>6</td>
-            <td>6.034346600356702</td>
-    </tr>
-    <tr>
-            <td>101</td>
+            <td>46</td>
             <td>I</td>
             <td>7</td>
-            <td>6.822917821352185</td>
+            <td>7.243875070017898</td>
     </tr>
     <tr>
-            <td>126</td>
+            <td>51</td>
             <td>I</td>
-            <td>5</td>
-            <td>5.403549380045479</td>
+            <td>8</td>
+            <td>9.335014624146346</td>
+    </tr>
+    <tr>
+            <td>59</td>
+            <td>I</td>
+            <td>4</td>
+            <td>4.995474494453552</td>
+    </tr>
+    <tr>
+            <td>125</td>
+            <td>I</td>
+            <td>6</td>
+            <td>6.780680473063245</td>
     </tr>
 </table></div>
 </div>
@@ -1124,29 +1124,29 @@ Done.
     </tr>
     <tr>
             <td>F</td>
-            <td>2.3026019371780984</td>
-            <td>19.3314133850934</td>
-            <td>9.875533730405603</td>
-            <td>0.13007372742245216</td>
+            <td>2.290821558427861</td>
+            <td>19.6396756159456</td>
+            <td>10.846899619010793</td>
+            <td>0.14265447951572385</td>
     </tr>
     <tr>
             <td>M</td>
-            <td>2.1010139156351832</td>
-            <td>18.881078910518635</td>
-            <td>8.602811849618515</td>
-            <td>0.19326022694863587</td>
+            <td>1.9013084168788352</td>
+            <td>18.16306443972444</td>
+            <td>7.0253924610645635</td>
+            <td>0.23614853154578153</td>
     </tr>
     <tr>
             <td>I</td>
-            <td>1.2216707220952547</td>
-            <td>15.630494204187832</td>
-            <td>3.5030819902455326</td>
-            <td>0.46786552152759686</td>
+            <td>1.3770876023515812</td>
+            <td>15.653999263230437</td>
+            <td>4.729464876202149</td>
+            <td>0.39861315224092864</td>
     </tr>
 </table></div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
