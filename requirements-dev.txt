@@ -3,4 +3,5 @@ isort==5.10.1
 pytest==7.0.1
 pglast==3.10
 pyright==1.1.250
+pydocstyle==6.2.3
 pandas
