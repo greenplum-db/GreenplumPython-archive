@@ -1,7 +1,7 @@
 """
 This module creates a Python object :class:`Row` for GreenplumPython DataFrame iteration.
 """
-from typing import Any, Dict, List, Union, Iterable, Tuple
+from typing import Any, Dict, Iterable, List, Tuple, Union
 
 
 class Row:
