@@ -776,7 +776,7 @@ class DataFrame:
         .. code-block::  python
 
            rows = [(1,), (2,), (3,)]
-           df = gp.DataFrame.from_rows(rows, db=db)
+           df = gp.DataFrame.from_rows(rows, db=db, column_names=["id"])
 
            dict_list = [{"id": 1, "val": "11"}, {"id": 2, "val": "22"}]
            df = gp.DataFrame.from_rows(dict_list, db=db)
