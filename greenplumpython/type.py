@@ -15,9 +15,9 @@ class TypeCast(Expr):
             .. code-block::  Python
 
                 rows = [(i,) for i in range(10)]
-                series = gp.to_table(rows, db, column_names=["val"]).save_as("series")
+                series = db.create_dataframe(rows=rows, column_names=["val"]).save_as("series")
                 regclass = gp.get_type("regclass", db)
-                table_name = regclass(series["tableoid"]).rename("table_name")
+                dataframe_name = regclass(series["tableoid"]).rename("dataframe_name")
     """
 
     def __init__(
@@ -32,8 +32,8 @@ class TypeCast(Expr):
             obj: object : which will be applied type casting
             type_name : str : name of type which object will be cast
         """
-        table = obj.table if isinstance(obj, Expr) else None
-        super().__init__(table, db=db)
+        dataframe = obj.dataframe if isinstance(obj, Expr) else None
+        super().__init__(dataframe, db=db)
         self._obj = obj
         self._type_name = type_name
 

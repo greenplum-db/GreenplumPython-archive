@@ -9,10 +9,10 @@ from typing import Any, Callable, Dict, Optional, Set, Tuple
 from uuid import uuid4
 
 from greenplumpython.col import Column
+from greenplumpython.dataframe import DataFrame
 from greenplumpython.db import Database
 from greenplumpython.expr import Expr, serialize
-from greenplumpython.group import TableGroupingSets
-from greenplumpython.table import Table
+from greenplumpython.group import DataFrameGroupingSets
 from greenplumpython.type import to_pg_type
 
 
@@ -28,20 +28,20 @@ class FunctionExpr(Expr):
         self,
         func: "_AbstractFunction",
         args: Tuple[Any] = [],
-        group_by: Optional[TableGroupingSets] = None,
-        table: Optional[Table] = None,
+        group_by: Optional[DataFrameGroupingSets] = None,
+        dataframe: Optional[DataFrame] = None,
         db: Optional[Database] = None,
         distinct: bool = False,
     ) -> None:
-        if table is None and group_by is not None:
-            table = group_by.table
+        if dataframe is None and group_by is not None:
+            dataframe = group_by.dataframe
         for arg in args:
-            if isinstance(arg, Expr) and arg.table is not None:
-                if table is None:
-                    table = arg.table
-                elif table.name != arg.table.name:
-                    raise Exception("Cannot pass arguments from more than one tables")
-        super().__init__(table=table, db=db)
+            if isinstance(arg, Expr) and arg.dataframe is not None:
+                if dataframe is None:
+                    dataframe = arg.dataframe
+                elif dataframe.name != arg.dataframe.name:
+                    raise Exception("Cannot pass arguments from more than one dataframes")
+        super().__init__(dataframe=dataframe, db=db)
         self._func = func
         self._args = args
         self._group_by = group_by
@@ -49,8 +49,8 @@ class FunctionExpr(Expr):
 
     def bind(
         self,
-        group_by: Optional[TableGroupingSets] = None,
-        table: Optional[Table] = None,
+        group_by: Optional[DataFrameGroupingSets] = None,
+        dataframe: Optional[DataFrame] = None,
         db: Optional[Database] = None,
     ):
         """:meta private:"""
@@ -58,7 +58,7 @@ class FunctionExpr(Expr):
             self._func,
             self._args,
             group_by=group_by,
-            table=table,
+            dataframe=dataframe,
             db=db if db is not None else self._db,
             distinct=self._distinct,
         )
@@ -74,30 +74,29 @@ class FunctionExpr(Expr):
         )
         return f"{self._func.qualified_name}({distinct} {args_string})"
 
-    def apply(self, expand: Optional[bool] = None, as_name: Optional[str] = None) -> Table:
+    def apply(self, expand: Optional[bool] = None, as_name: Optional[str] = None) -> DataFrame:
         """
         :meta private:
-        Returns the result table of the self function applied on args, with potential GROUP BY if
+        Returns the result GreenplumPython dataframe of the self function applied on args, with potential GROUP BY if
         it is an Aggregation function.
         """
         self.function.create_in_db(self._db)
-        from_clause = f"FROM {self.table.name}" if self.table is not None else ""
+        from_clause = f"FROM {self.dataframe.name}" if self.dataframe is not None else ""
         group_by_clause = self._group_by.clause() if self._group_by is not None else ""
         if expand and as_name is None:
             as_name = "func_" + uuid4().hex
-
-        parents = [self.table] if self.table is not None else []
+        parents = [self.dataframe] if self.dataframe is not None else []
         grouping_col_names = self._group_by.flatten() if self._group_by is not None else None
         # FIXME: The names of GROUP BY exprs can collide with names of fields in
-        # the comosite type, making the column names of the resulting table not
-        # unique. This can be mitigated after we implement table column
+        # the comosite type, making the column names of the resulting dataframe not
+        # unique. This can be mitigated after we implement dataframe column
         # inference by raising an error when the function gets called.
         grouping_cols = (
-            [Column(name, self._table).serialize() for name in grouping_col_names]
+            [Column(name, self._dataframe).serialize() for name in grouping_col_names]
             if grouping_col_names is not None and len(grouping_col_names) != 0
             else None
         )
-        orig_func_table = Table(
+        orig_func_dataframe = DataFrame(
             " ".join(
                 [
                     f"SELECT {str(self)} {'AS ' + as_name if as_name is not None else ''}",
@@ -109,7 +108,7 @@ class FunctionExpr(Expr):
             db=self._db,
             parents=parents,
         )
-        # We use 2 `Table`s here because on GPDB 6X and PostgreSQL <= 9.6, a
+        # We use 2 `DataFrame`s here because on GPDB 6X and PostgreSQL <= 9.6, a
         # function returning records that contains more than one attributes
         # will be called multiple times if we do
         # ```sql
@@ -123,7 +122,7 @@ class FunctionExpr(Expr):
         # SELECT (result).* FROM func_call;
         # ```
         rebased_grouping_cols = (
-            [Column(name, orig_func_table).serialize() for name in grouping_col_names]
+            [Column(name, orig_func_dataframe).serialize() for name in grouping_col_names]
             if grouping_col_names is not None
             else None
         )
@@ -132,15 +131,15 @@ class FunctionExpr(Expr):
             if not expand
             else f"({as_name}).*"
             if rebased_grouping_cols is None or len(rebased_grouping_cols) == 0
-            else f"({orig_func_table.name}).*"
+            else f"({orig_func_dataframe.name}).*"
             if not expand
             else f"{','.join(rebased_grouping_cols)}, ({as_name}).*"
         )
 
-        return Table(
-            f"SELECT {str(results)} FROM {orig_func_table.name}",
+        return DataFrame(
+            f"SELECT {str(results)} FROM {orig_func_dataframe.name}",
             db=self._db,
-            parents=[orig_func_table],
+            parents=[orig_func_dataframe],
         )
 
     @property
@@ -163,7 +162,7 @@ class ArrayFunctionExpr(FunctionExpr):
         args_string = ""
         grouping_col_names = self._group_by.flatten() if self._group_by is not None else None
         grouping_cols = (
-            {Column(name, self._table) for name in grouping_col_names}
+            {Column(name, self._dataframe) for name in grouping_col_names}
             if grouping_col_names is not None
             else None
         )
@@ -184,8 +183,8 @@ class ArrayFunctionExpr(FunctionExpr):
 
     def bind(
         self,
-        group_by: Optional[TableGroupingSets] = None,
-        table: Optional[Table] = None,
+        group_by: Optional[DataFrameGroupingSets] = None,
+        dataframe: Optional[DataFrame] = None,
         db: Optional[Database] = None,
     ):
         """:meta private:"""
@@ -193,7 +192,7 @@ class ArrayFunctionExpr(FunctionExpr):
             self._func,
             self._args,
             group_by=group_by,
-            table=table,
+            dataframe=dataframe,
             db=db if db is not None else self._db,
         )
 
@@ -456,7 +455,7 @@ def create_aggregate(
                 return result + val
 
             rows = [(1,) for _ in range(10)]
-            numbers = gp.to_table(rows, db=db, column_names=["val"])
+            numbers = db.create_dataframe(rows=rows, column_names=["val"])
             results = numbers.group_by().assign(result=lambda t: my_sum(t["val"]))
 
     """
@@ -502,7 +501,7 @@ def create_array_function(
                     return sum(val_list)
 
                 rows = [(1, i % 2 == 0) for i in range(10)]
-                numbers = gp.to_table(rows, db=db, column_names=["val", "is_even"])
+                numbers = db.create_dataframe(rows=rows, column_names=["val", "is_even"])
                 results = numbers.group_by("is_even").assign(result=lambda t: my_sum(t["val]))
     """
     # If user needs extra parameters when creating a function

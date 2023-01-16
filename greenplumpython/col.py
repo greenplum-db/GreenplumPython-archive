@@ -8,7 +8,7 @@ from greenplumpython.expr import Expr
 from greenplumpython.type import Type
 
 if TYPE_CHECKING:
-    from greenplumpython.table import Table
+    from greenplumpython.dataframe import DataFrame
 
 
 class ColumnField(Expr):
@@ -23,20 +23,20 @@ class ColumnField(Expr):
         self,
         column: "Column",
         field_name: str,
-        table: Optional["Table"] = None,
+        dataframe: Optional["DataFrame"] = None,
         db: Optional[Database] = None,
     ) -> None:
         self._field_name = field_name
         self._column = column
-        self._table = column.table
-        super().__init__(table, db)
+        self._dataframe = column.dataframe
+        super().__init__(dataframe, db)
 
     @property
     def column(self) -> "Column":
         return self._column
 
     def serialize(self) -> str:
-        return f"({self.column.serialize()}).{self._field_name}"
+        return f'({self.column.serialize()})."{self._field_name}"'
 
 
 class Column(Expr):
@@ -46,14 +46,19 @@ class Column(Expr):
     Representation of a Python object :class:`.Column`.
     """
 
-    def __init__(self, name: str, table: "Table") -> None:
-        super().__init__(table=table)
+    def __init__(self, name: str, dataframe: "DataFrame") -> None:
+        super().__init__(dataframe=dataframe)
         self._name = name
         self._type: Optional[Type] = None  # TODO: Add type inference
 
     def serialize(self) -> str:
-        assert self.table is not None
-        return self.table.name + "." + self.name
+        assert self.dataframe is not None
+        # Quote both dataframe name and column name to avoid SQL injection.
+        return (
+            f'"{self.dataframe.name}"."{self.name}"'
+            if self.name != "*"
+            else f'"{self.dataframe.name}".*'
+        )
 
     @property
     def name(self) -> str:
@@ -66,14 +71,14 @@ class Column(Expr):
         return self._name
 
     @property
-    def table(self) -> Optional["Table"]:
+    def dataframe(self) -> Optional["DataFrame"]:
         """
-        Returns :class:`Column` associated :class:`~table.Table`
+        Returns :class:`Column` associated :class:`~dataframe.DataFrame`
 
         Returns:
-            Optional[Table]: :class:`~table.Table` associated with :class:`Column`
+            Optional[DataFrame]: :class:`~dataframe.DataFrame` associated with :class:`Column`
         """
-        return self._table
+        return self._dataframe
 
     def __getitem__(self, field_name: str) -> ColumnField:
         """

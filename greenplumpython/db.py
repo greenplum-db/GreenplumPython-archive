@@ -1,12 +1,22 @@
 """
 This  module can create a connection to a Greenplum database
 """
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Optional, Tuple
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 
 from greenplumpython import config
 
 if TYPE_CHECKING:
-    from greenplumpython.table import Table
+    from greenplumpython.dataframe import DataFrame
     from greenplumpython.func import FunctionExpr
 
 import psycopg2
@@ -56,26 +66,52 @@ class Database:
         """
         self._conn.close()
 
-    def table(self, name: str):
+    def create_dataframe(
+        self,
+        table_name: Optional[str] = None,
+        rows: Optional[List[Union[Tuple[Any, ...], Dict[str, Any]]]] = None,
+        columns: Optional[Dict[str, List[Any]]] = None,
+        column_names: Optional[Iterable[str]] = None,
+    ):
         """
-        Returns a :class:`~table.Table` using table name and self
+        Returns a :class:`~dataframe.DataFrame` using Table name, list of values given by rows or columns
 
         Args:
-            name: str : Table name
+            table_name: str: name of table in Database
+            rows: List[Union[Tuple[Any, ...], Dict[str, Any]]]: a List of rows
+            columns: Dict[str, List[Any]]: a dict of columns
+            column_names: Iterable[str]: List of given column names
 
         Returns:
-            Table: Table in database named **name**
-        """
-        from greenplumpython.table import table
 
-        return table(name, self)
+        .. code-block::  python
+
+            t_from_table = db.create_dataframe(table_name="pg_class")
+            rows = [(1,), (2,), (3,)]
+            t_from_rows = db.create_dataframe(rows=rows)
+            columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
+            t_from_columns = db.create_dataframe(columns=columns)
+
+        """
+        from greenplumpython.dataframe import DataFrame
+
+        if table_name is not None:
+            assert isinstance(table_name, str), "Table name is expected to be a str."
+            assert (
+                rows is None and columns is None
+            ), "Provisioning data is not allowed when opening existing table."
+            return DataFrame.from_table(table_name=table_name, db=self)
+        assert rows is None or columns is None, "Only one data format is allowed."
+        if rows is not None:
+            return DataFrame.from_rows(rows=rows, db=self, column_names=column_names)
+        return DataFrame.from_columns(columns=columns, db=self)
 
     def apply(
         self,
         func: Callable[[], "FunctionExpr"],
         expand: bool = False,
         as_name: Optional[str] = None,
-    ) -> "Table":
+    ) -> "DataFrame":
         """
         Apply a function in database.
 
@@ -85,7 +121,7 @@ class Database:
             as_name: str: rename returning column
 
         Returns:
-            Table: resulted Table
+            DataFrame: resulted GreenplumPython DataFrame
 
         Example:
             .. code-block::  python
@@ -94,7 +130,7 @@ class Database:
         """
         return func().bind(db=self).apply(expand=expand, as_name=as_name)
 
-    def assign(self, **new_columns: Callable[[], Any]) -> "Table":
+    def assign(self, **new_columns: Callable[[], Any]) -> "DataFrame":
         """
         Assign new columns by calling functions in database
 
@@ -104,7 +140,7 @@ class Database:
                 constant value in database.
 
         Returns:
-            Table: Table resulted with assigned columns
+            DataFrame: GreenplumPython DataFrame resulted with assigned columns
 
         Example:
             .. code-block::  python
@@ -113,19 +149,19 @@ class Database:
                 db.assign(version=lambda: version())
 
         """
+        from greenplumpython.dataframe import DataFrame
         from greenplumpython.expr import Expr, serialize
         from greenplumpython.func import FunctionExpr
-        from greenplumpython.table import Table
 
         targets: List[str] = []
         for k, f in new_columns.items():
             v: Any = f()
             if isinstance(v, Expr):
-                assert v.table is None, "New column should not depend on any table."
+                assert v.dataframe is None, "New column should not depend on any dataframe."
             if isinstance(v, FunctionExpr):
                 v = v.bind(db=self)
             targets.append(f"{serialize(v)} AS {k}")
-        return Table(f"SELECT {','.join(targets)}", db=self)
+        return DataFrame(f"SELECT {','.join(targets)}", db=self)
 
 
 def database(

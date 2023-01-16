@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, List, Optional, Union, overload
 from greenplumpython.db import Database
 
 if TYPE_CHECKING:
-    from greenplumpython.table import Table
+    from greenplumpython.dataframe import DataFrame
 
 
 class Expr:
@@ -21,13 +21,13 @@ class Expr:
 
     def __init__(
         self,
-        table: Optional["Table"] = None,
-        other_table: Optional["Table"] = None,
+        dataframe: Optional["DataFrame"] = None,
+        other_dataframe: Optional["DataFrame"] = None,
         db: Optional[Database] = None,
     ) -> None:
-        self._table = table
-        self._other_table = other_table
-        self._db = db if db is not None else (table.db if table is not None else None)
+        self._dataframe = dataframe
+        self._other_dataframe = other_dataframe
+        self._db = db if db is not None else (dataframe.db if dataframe is not None else None)
 
     def __hash__(self) -> int:
         return hash(self.serialize())
@@ -299,18 +299,18 @@ class Expr:
         return self._db
 
     @property
-    def table(self) -> Optional["Table"]:
+    def dataframe(self) -> Optional["DataFrame"]:
         """
-        Returns Expr associated :class:`~table.Table`
+        Returns Expr associated :class:`~dataframe.DataFrame`
 
         Returns:
-            Optional[:class:`~table.Table`]: Table associated with :class:`Expr`
+            Optional[:class:`~dataframe.DataFrame`]: GreenplumPython DataFrame associated with :class:`Expr`
         """
-        return self._table
+        return self._dataframe
 
     @property
-    def other_table(self) -> Optional["Table"]:
-        return self._other_table
+    def other_dataframe(self) -> Optional["DataFrame"]:
+        return self._other_dataframe
 
     # NOTE: We cannot use __contains__() because the return value will always
     # be converted to bool.
@@ -327,14 +327,14 @@ class Expr:
         Args:
             container: A collection of values. It can either be another
                 :class:`Expr` representing a transformed column of
-                :class:`Table`, or   a `list` of values of the same type as the
+                GreenplumPython :class:`DataFrame`, or a `list` of values of the same type as the
                 current `Expr`.
 
         Returns:
             :class:`InExpr`: A boolean :class:`Expr` whose values are of the
                 same length as the current :class:`Expr`.
         """
-        return InExpr(self, container, self.table, self.db)
+        return InExpr(self, container, self.dataframe, self.db)
 
 
 from psycopg2.extensions import adapt  # type: ignore
@@ -371,13 +371,13 @@ class BinaryExpr(Expr):
         as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ):
-        table = left.table if isinstance(left, Expr) else None
-        if table is not None and isinstance(right, Expr):
-            table = right.table
-        other_table = left.other_table if isinstance(left, Expr) else None
-        if other_table is not None and isinstance(right, Expr):
-            other_table = right.other_table
-        super().__init__(table=table, other_table=other_table, db=db)
+        dataframe = left.dataframe if isinstance(left, Expr) else None
+        if dataframe is not None and isinstance(right, Expr):
+            dataframe = right.dataframe
+        other_dataframe = left.other_dataframe if isinstance(left, Expr) else None
+        if other_dataframe is not None and isinstance(right, Expr):
+            other_dataframe = right.other_dataframe
+        super().__init__(dataframe=dataframe, other_dataframe=other_dataframe, db=db)
         self.operator = operator
         self.left = left
         self.right = right
@@ -457,10 +457,10 @@ class UnaryExpr(Expr):
         Args:
             right: :class:`Expr`
         """
-        table, other_table = (
-            (right.table, right.other_table) if isinstance(right, Expr) else (None, None)
+        dataframe, other_dataframe = (
+            (right.dataframe, right.other_dataframe) if isinstance(right, Expr) else (None, None)
         )
-        super().__init__(table=table, other_table=other_table, db=db)
+        super().__init__(dataframe=dataframe, other_dataframe=other_dataframe, db=db)
         self.operator = operator
         self.right = right
 
@@ -474,21 +474,23 @@ class InExpr(Expr):
         self,
         item: "Expr",
         container: Union["Expr", List[Any]],
-        table: Optional["Table"] = None,
+        dataframe: Optional["DataFrame"] = None,
         db: Optional[Database] = None,
     ) -> None:
         super().__init__(
-            table, other_table=container.table if isinstance(container, Expr) else None, db=db
+            dataframe,
+            other_dataframe=container.dataframe if isinstance(container, Expr) else None,
+            db=db,
         )
         self._item = item
         self._container = container
 
     def serialize(self) -> str:
         if isinstance(self._container, Expr):
-            assert self.other_table is not None, "Table of container is unknown."
+            assert self.other_dataframe is not None, "DataFrame of container is unknown."
         container_str = (
-            f"SELECT {self._container.serialize()} FROM {self.other_table.name}"
-            if isinstance(self._container, Expr) and self.other_table is not None
+            f"SELECT {self._container.serialize()} FROM {self.other_dataframe.name}"
+            if isinstance(self._container, Expr) and self.other_dataframe is not None
             else serialize(self._container)
         )
         return f"{self._item.serialize()} = ANY({container_str})"
