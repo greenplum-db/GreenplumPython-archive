@@ -179,42 +179,56 @@ class DataFrame:
         contents = list(self)
         row_num_string = f"({len(contents)} row{'s' if len(contents) != 1 else ''})\n"
         if len(contents) == 0:  # DataFrame is empty
-            return "  \n--\n" + row_num_string
+            return "----\n" "----\n" "----\n" + row_num_string
 
         # To align each column, we use a two-pass algorithm:
         # 1. Iterate over the DataFrame to find the max width for each column; and
         # 2. Convert the datum in each column to str within the width.
         first_row: Row = contents[0]
-        width = {col_name: len(col_name) for col_name in first_row}
+        widths = {col: len(col) for col in first_row} if len(first_row) > 0 else {None: 2}
         for row in contents:
-            for col_name, col_value in row.items():
-                width[col_name] = max(width[col_name], len(str(col_value)))
+            for name, val in row.items():
+                widths[name] = max(widths[name], len(str(val)))
         # For Python >= 3.7, dict.items() and dict.values() will preserves the
         # input order.
-        df_string = (
+        def line(sep: str) -> str:
+            return (
+                sep.join(["-{:{}}-".format("-" * width, width) for width in widths.values()]) + "\n"
+            )
+
+        df_string = line("-")
+        df_string += (
             "|".join(
-                [" {:{}} ".format(col_name, col_width) for col_name, col_width in width.items()]
+                [
+                    " {:{}} ".format(col if col is not None else "", width)
+                    for col, width in widths.items()
+                ]
             )
             + "\n"
         )
-        df_string += (
-            "+".join([" {:{}} ".format("-" * col_width, col_width) for col_width in width.values()])
-            + "\n"
-        )
+        df_string += line("+")
         for row in contents:
             df_string += (
                 "|".join(
                     [
-                        (" {:{}} ").format("{}".format(row[col_name]), width[col_name])
-                        if isinstance(row[col_name], list)
-                        else (" {:{}} ").format(
-                            row[col_name] if row[col_name] is not None else "", width[col_name]
+                        (" {:{}} ").format(
+                            "{}".format(
+                                ""
+                                if col_name is None
+                                else row[col_name]
+                                if isinstance(row[col_name], list)
+                                else ("{:{}}").format(
+                                    row[col_name] if row[col_name] is not None else "",
+                                    widths[col_name],
+                                )
+                            ),
+                            widths[col_name],
                         )
-                        for col_name in width
+                        for col_name in widths
                     ]
                 )
-                + "\n"
-            )
+            ) + "\n"
+        df_string += line("-")
         df_string += row_num_string
         return df_string
 

@@ -32,8 +32,11 @@ def test_print_sql():
     assert gp.config.print_sql is not None
 
 
-def test_db_assign_empty(db: gp.Database):
-    df = list(db.assign())
-    assert len(df) == 1
+def test_db_assign_zero_columns(db: gp.Database):
+    df = db.assign()
+    assert len(list(df)) == 1
     for row in df:
         assert len(row) == 0
+    print(df)
+    expected = "----\n" "    \n" "----\n" "    \n" "----\n" "(1 row)\n"
+    assert str(df) == expected

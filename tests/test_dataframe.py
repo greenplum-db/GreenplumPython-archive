@@ -67,16 +67,20 @@ def test_dataframe_display_repr(db: gp.Database):
     rows = [(1, 1, "Lion",), (2, 2, "Tiger",), (3, 3, "Wolf",), (4, 4, "Fox")]
     # fmt: on
     t = db.create_dataframe(rows=rows, column_names=["id", "idd", "animal"])
+    t = t.order_by("id")[:]
+    print(t)
     expected = (
+        "-------------------\n"
         " id | idd | animal \n"
-        " -- + --- + ------ \n"
+        "----+-----+--------\n"
         "  1 |   1 | Lion   \n"
         "  2 |   2 | Tiger  \n"
         "  3 |   3 | Wolf   \n"
         "  4 |   4 | Fox    \n"
+        "-------------------\n"
         "(4 rows)\n"
     )
-    assert str(t.order_by("id")[:]) == expected
+    assert str(t) == expected
 
 
 def test_dataframe_display_repr_zero(db: gp.Database):
@@ -84,16 +88,20 @@ def test_dataframe_display_repr_zero(db: gp.Database):
     rows = [(0, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
     t = db.create_dataframe(rows=rows, column_names=["id", "animal"])
+    t = t.order_by("id")[:]
+    print(t)
     expected = (
+        "-------------\n"
         " id | animal \n"
-        " -- + ------ \n"
+        "----+--------\n"
         "  0 | Lion   \n"
         "  2 | Tiger  \n"
         "  3 | Wolf   \n"
         "  4 | Fox    \n"
+        "-------------\n"
         "(4 rows)\n"
     )
-    assert str(t.order_by("id")[:]) == expected
+    assert str(t) == expected
 
 
 def test_dataframe_display_repr_long_content(db: gp.Database):
@@ -101,16 +109,20 @@ def test_dataframe_display_repr_long_content(db: gp.Database):
     rows = [(1, "Lion",), (2, "Tigerrrrrrrrrrrr",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
     t = db.create_dataframe(rows=rows, column_names=["iddddddddddddddddddd", "animal"])
+    t = t.order_by("iddddddddddddddddddd")[:]
+    print(t)
     expected = (
+        "-----------------------------------------\n"
         " iddddddddddddddddddd | animal           \n"
-        " -------------------- + ---------------- \n"
+        "----------------------+------------------\n"
         "                    1 | Lion             \n"
         "                    2 | Tigerrrrrrrrrrrr \n"
         "                    3 | Wolf             \n"
         "                    4 | Fox              \n"
+        "-----------------------------------------\n"
         "(4 rows)\n"
     )
-    assert str(t.order_by("iddddddddddddddddddd")[:]) == expected
+    assert str(t) == expected
 
 
 def test_dataframe_display_repr_html(db: gp.Database):
@@ -145,13 +157,15 @@ def test_dataframe_display_repr_html(db: gp.Database):
     assert (t.order_by("id")[:]._repr_html_()) == expected
 
 
-def test_dataframe_display_repr_empty_result(db: gp.Database):
+def test_dataframe_display_repr_zero_rows(db: gp.Database):
     # fmt: off
     rows = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
     # fmt: on
     t = db.create_dataframe(rows=rows, column_names=["id", "animal"])
-    assert str(t[lambda t: t["id"] == 0]) == "  \n--\n(0 rows)\n"
-    assert (t[lambda t: t["id"] == 0]._repr_html_()) == ""
+    t = t[lambda t: t["id"] == 0]
+    print(t)
+    assert str(t) == "----\n" "----\n" "----\n" "(0 rows)\n"
+    assert (t._repr_html_()) == ""
 
 
 def test_dataframe_display_result_null(db: gp.Database):
@@ -159,16 +173,20 @@ def test_dataframe_display_result_null(db: gp.Database):
     rows = [([1,1,1], None,), ([2,2,2], "Tiger",), ([3,3,3], None,), ([4,None,4], "Fox")]
     # fmt: on
     t = db.create_dataframe(rows=rows, column_names=["id", "animal"])
+    t = t.order_by("id")[:]
+    print(t)
     expected = (
+        "-----------------------\n"
         " id           | animal \n"
-        " ------------ + ------ \n"
+        "--------------+--------\n"
         " [1, 1, 1]    |        \n"
         " [2, 2, 2]    | Tiger  \n"
         " [3, 3, 3]    |        \n"
         " [4, None, 4] | Fox    \n"
+        "-----------------------\n"
         "(4 rows)\n"
     )
-    assert str(t.order_by("id")[:]) == expected
+    assert str(t) == expected
 
 
 def test_dataframe_assign_const(db: gp.Database):
