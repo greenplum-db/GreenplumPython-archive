@@ -373,7 +373,7 @@ class DataFrame:
         Example:
             .. code-block::  Python
 
-                t.order_by("id")
+                t.order_by("id")[:]
         """
         # State transition diagram:
         # DataFrame --order_by()-> DataFrameOrdering --head()-> DataFrame
@@ -716,9 +716,9 @@ class DataFrame:
             by a different set of values of the columns in the arguments.
         """
         #  State transition diagram:
-        #  DataFrame --group_by()-> DataFrameRowGroup --aggregate()-> FunctionExpr
-        #    ^                                                    |
-        #    |------------------------- to_dataframe() ---------------|
+        #  DataFrame --group_by()-> DataFrameGroupingSets --aggregate()-> FunctionExpr
+        #    ^                                                             |
+        #    |------------------------- assign() or apply() ---------------|
         return DataFrameGroupingSets(self, [column_names])
 
     def distinct_on(self, *column_names: str) -> "DataFrame":
