@@ -270,7 +270,9 @@ class NormalFunction(_AbstractFunction):
                     for param in func_sig.parameters.values()
                 ]
             )
-            func_arg_names = ",".join([param.name for param in func_sig.parameters.values()])
+            func_arg_names = ",".join(
+                [f"{param.name}={param.name}" for param in func_sig.parameters.values()]
+            )
             dumped_func = dumps(self._wrapped_func, recurse=True)
             return_type = to_pg_type(func_sig.return_annotation, db, for_return=True)
             assert (
