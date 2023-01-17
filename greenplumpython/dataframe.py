@@ -706,8 +706,7 @@ class DataFrame:
     #         has_results=False,
     #     )
 
-    # FIXME: Should we choose JSON as the default format?
-    def explain(self, format: str = "TEXT") -> Iterable[Tuple[str]]:
+    def _explain(self, format: str = "TEXT") -> Iterable[Tuple[str]]:
         """
         Explain the GreenplumPython :class:`DataFrame`'s execution plan.
 

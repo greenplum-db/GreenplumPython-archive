@@ -29,7 +29,7 @@ def test_op_index(db: gp.Database):
 
     db.execute("SET enable_seqscan TO False", has_results=False)
     json_contains = gp.operator("@>", db)
-    results = student[lambda t: json_contains(t["info"], json.dumps({"name": "john"}))].explain()
+    results = student[lambda t: json_contains(t["info"], json.dumps({"name": "john"}))]._explain()
     uses_index_scan = False
     for row in results:
         if "Index Scan" in row["QUERY PLAN"]:
