@@ -6,7 +6,7 @@ from typing import Any, Dict, Iterable, List, Tuple, Union
 
 class Row:
     """
-    Represents a row of GreenplumPython :class:`~dataframe.DataFrame`.
+    Represents a row of :class:`~dataframe.DataFrame`.
 
     A :class:`Row` is conceptually an immutable :class:`dict`.
     """
