@@ -8,7 +8,7 @@ import textwrap
 from typing import Any, Callable, Dict, Optional, Set, Tuple
 from uuid import uuid4
 
-from dill import dumps
+from dill import dumps  # type: ignore
 
 from greenplumpython.col import Column
 from greenplumpython.dataframe import DataFrame
