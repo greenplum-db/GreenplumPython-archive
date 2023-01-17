@@ -70,8 +70,8 @@ class DataFrame:
         db: Optional[Database] = None,
         columns: Optional[Iterable[Column]] = None,
     ) -> None:
-    # FIXME: Add doc
-    # noqa
+        # FIXME: Add doc
+        # noqa
         self._query = query
         self._parents = parents
         self._name = "cte_" + uuid4().hex if name is None else name
@@ -122,27 +122,27 @@ class DataFrame:
 
     @overload
     def __getitem__(self, _) -> "DataFrame":
-    # noqa
+        # noqa
         ...
 
     @overload
     def __getitem__(self, column_names: List[str]) -> "DataFrame":
-    # noqa
+        # noqa
         ...
 
     @overload
     def __getitem__(self, predicate: Callable[["DataFrame"], Expr]) -> "DataFrame":
-    # noqa
+        # noqa
         ...
 
     @overload
     def __getitem__(self, column_name: str) -> Expr:
-    # noqa
+        # noqa
         ...
 
     @overload
     def __getitem__(self, rows: slice) -> "DataFrame":
-    # noqa
+        # noqa
         ...
 
     def __getitem__(self, _):
@@ -595,16 +595,16 @@ class DataFrame:
         """:meta private:"""
 
         def __init__(self, contents: Iterable[RealDictRow]) -> None:
-        # noqa
+            # noqa
             """:meta private:"""
             self._proxy_iter: Iterator[RealDictRow] = iter(contents)
 
         def __iter__(self):
-        # noqa
+            # noqa
             return self
 
         def __next__(self):
-        # noqa
+            # noqa
             """:meta private:"""
 
             def tuple_to_dict(json_pairs: List[tuple[str, Any]]):
