@@ -276,7 +276,7 @@ class NormalFunction(_AbstractFunction):
                 # that func is not buildin
             except IOError:
                 # use diff package to bypass that
-                from dill.source import getsource
+                from dill.source import getsource # type: ignore
 
                 source = getsource(self._wrapped_func)
 
