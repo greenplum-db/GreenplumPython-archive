@@ -401,12 +401,21 @@ div.rendered_html tbody tr:hover {
 &lt;module &#39;greenplumpython&#39; from &#39;/home/gpadmin/.local/lib/python3.9/site-packages/greenplumpython/__init__.py&#39;&gt;
 </pre></div></div>
 </div>
-<p>However, due to the discrepency in the purposes they serve, that is, - GreenplumPython is an interface to a remote database system, while - pandas is a library for manipulating local in-memory data</p>
+<p>However, due to the discrepency in the purposes they serve, that is,</p>
+<ul class="simple">
+<li><p>GreenplumPython is an interface to a remote database system, while</p></li>
+<li><p>pandas is a library for manipulating local in-memory data</p></li>
+</ul>
 <p>there are still some important differences in their interface.</p>
 <p>This document covers the similarities and the differences between GreenplumPython and pandas, as well as the rationales behind.</p>
 <section id="Data-Structure">
 <h2>Data Structure<a class="headerlink" href="#Data-Structure" title="Permalink to this heading"></a></h2>
-<p>The core data structure of GreenplumPython, <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>, is fundamentally similar to <code class="docutils literal notranslate"><span class="pre">Dataframe</span></code> in pandas in that - Data are organized into rows and columns; - Columns can be of different types, and can be accessed by name; - Rows are of the same type, and are iterable.</p>
+<p>The core data structure of GreenplumPython, <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>, is fundamentally similar to <code class="docutils literal notranslate"><span class="pre">Dataframe</span></code> in pandas in that</p>
+<ul class="simple">
+<li><p>Data are organized into rows and columns;</p></li>
+<li><p>Columns can be of different types, and can be accessed by name;</p></li>
+<li><p>Rows are of the same type, and are iterable.</p></li>
+</ul>
 <p>Next, we will see similarities and differences between them in detail with examples.</p>
 <section id="Getting-Access-to-the-Structure">
 <h3>Getting Access to the Structure<a class="headerlink" href="#Getting-Access-to-the-Structure" title="Permalink to this heading"></a></h3>
@@ -434,8 +443,8 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">students</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">])</span>
-<span class="n">df</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">students</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">])</span>
+<span class="n">pd_df</span>
 </pre></div>
 </div>
 </div>
@@ -492,8 +501,8 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">database</span><span class="p">(</span><span class="n">dbname</span><span class="o">=</span><span class="s2">&quot;gpadmin&quot;</span><span class="p">)</span>
-<span class="n">t</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_rows</span><span class="p">(</span><span class="n">students</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">],</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
-<span class="n">t</span>
+<span class="n">gp_df</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_rows</span><span class="p">(</span><span class="n">students</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">],</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
+<span class="n">gp_df</span>
 </pre></div>
 </div>
 </div>
@@ -521,15 +530,23 @@ div.rendered_html tbody tr:hover {
     </tr>
 </table></div>
 </div>
-<p>But here is an important <strong>difference</strong>: - a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> in GreenplumPython must be created in a database, while - pandas does not have the concept of “database”.</p>
+<p>But here is an important <strong>difference</strong>:</p>
+<ul class="simple">
+<li><p>a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> in GreenplumPython must be created in a database, while</p></li>
+<li><p>pandas does not have the concept of “database”.</p></li>
+</ul>
 <p><code class="docutils literal notranslate"><span class="pre">Database</span></code> in GreenplumPython is like “directory” in file systems, which helps to avoid name conflict on persistence.</p>
-<p>The reason behind this difference is that - <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s in GreenplumPython can themselves be persisted, while - <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s in pandas live only in memory and need to be written to a file for persistence.</p>
+<p>The reason behind this difference is that</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s in GreenplumPython can themselves be persisted, while</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s in pandas live only in memory and need to be written to a file for persistence.</p></li>
+</ul>
 <p>A GreenplumPython <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> can be saved persistently in the database system with</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="s2">&quot;student&quot;</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">gp_df</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="s2">&quot;student&quot;</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">],</span> <span class="n">temp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -562,11 +579,15 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;/tmp/student.csv&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;/tmp/student.csv&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<p>Saving a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> with <code class="docutils literal notranslate"><span class="pre">temp=True</span></code> in GreenplumPython is similar to saving a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> into the <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> directory in pandas - GreenplumPython <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s saved with <code class="docutils literal notranslate"><span class="pre">temp=True</span></code> will be dropped automatically by the database system, while - pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s saved in <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> will be clean automatically by the operating system.</p>
+<p>Saving a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> with <code class="docutils literal notranslate"><span class="pre">temp=True</span></code> in GreenplumPython is similar to saving a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> into the <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> directory in pandas:</p>
+<ul class="simple">
+<li><p>GreenplumPython <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s saved with <code class="docutils literal notranslate"><span class="pre">temp=True</span></code> will be dropped automatically by the database system when the database session is terminated, while</p></li>
+<li><p>pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s saved in <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> will be clean automatically by the operating system.</p></li>
+</ul>
 <p>In order to get access to a previously persisted <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> in a <code class="docutils literal notranslate"><span class="pre">Database</span></code>, like <code class="docutils literal notranslate"><span class="pre">student</span></code>, we can do</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
@@ -588,16 +609,16 @@ div.rendered_html tbody tr:hover {
             <th>age</th>
     </tr>
     <tr>
+            <td>alice</td>
+            <td>18</td>
+    </tr>
+    <tr>
             <td>bob</td>
             <td>19</td>
     </tr>
     <tr>
             <td>carol</td>
             <td>19</td>
-    </tr>
-    <tr>
-            <td>alice</td>
-            <td>18</td>
     </tr>
 </table></div>
 </div>
@@ -670,7 +691,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">t</span><span class="p">:</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">gp_df</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">])</span>
 </pre></div>
 </div>
@@ -690,7 +711,7 @@ carol 19
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">pd_df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;age&quot;</span><span class="p">])</span>
 </pre></div>
 </div>
@@ -721,7 +742,7 @@ carol 19
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">]]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd_df</span><span class="p">[[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">]]</span>
 </pre></div>
 </div>
 </div>
@@ -792,16 +813,16 @@ carol 19
             <th>age</th>
     </tr>
     <tr>
+            <td>alice</td>
+            <td>18</td>
+    </tr>
+    <tr>
             <td>bob</td>
             <td>19</td>
     </tr>
     <tr>
             <td>carol</td>
             <td>19</td>
-    </tr>
-    <tr>
-            <td>alice</td>
-            <td>18</td>
     </tr>
 </table></div>
 </div>
@@ -815,7 +836,7 @@ carol 19
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd_df</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -836,7 +857,7 @@ Name: name, dtype: object
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">gp_df</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -846,21 +867,29 @@ Name: name, dtype: object
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;greenplumpython.col.Column at 0x7f0b8448ed30&gt;
+&lt;greenplumpython.col.Column at 0x7f99919172b0&gt;
 </pre></div></div>
 </div>
-<p>But you might notice the <strong>difference</strong> here: - for pandas, using the <code class="docutils literal notranslate"><span class="pre">[]</span></code> operator gives us the data immediately if we refer to a column, while - for GreenplumPython, it only gives a <code class="docutils literal notranslate"><span class="pre">Column</span></code> object. <code class="docutils literal notranslate"><span class="pre">Column</span></code> is supposed to be used for computation rather than for observing data.</p>
-<p>The reasons behind this difference are - Database systems behind GreenplumPython does not provide native one-dimensional data structure like <code class="docutils literal notranslate"><span class="pre">Series</span></code> in pandas. - It is much more efficient to retrieve all columns needed in a GreenplumPython <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> at once than one at a time. We will see later how to add new columns to a GreenplumPython <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> so that they can be retrived all at once.</p>
+<p>But you might notice the <strong>difference</strong> here:</p>
+<ul class="simple">
+<li><p>for pandas, using the <code class="docutils literal notranslate"><span class="pre">[]</span></code> operator gives us the data immediately if we refer to a column, while</p></li>
+<li><p>for GreenplumPython, it only gives a <code class="docutils literal notranslate"><span class="pre">Column</span></code> object. <code class="docutils literal notranslate"><span class="pre">Column</span></code> is supposed to be used for computation rather than for observing data.</p></li>
+</ul>
+<p>The reasons behind this difference are:</p>
+<ul class="simple">
+<li><p>Database systems behind GreenplumPython does not provide native one-dimensional data structure like <code class="docutils literal notranslate"><span class="pre">Series</span></code> in pandas.</p></li>
+<li><p>It is much more efficient to retrieve all columns needed in a GreenplumPython <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> at once than one at a time. We will see later how to add new columns to a GreenplumPython <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> so that they can be retrieved all at once.</p></li>
+</ul>
 </section>
 <section id="Selecting-Rows-by-Predicate">
 <h3>Selecting Rows by Predicate<a class="headerlink" href="#Selecting-Rows-by-Predicate" title="Permalink to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">[]</span></code> operator can also be used to select a subset of rows, a.k.a filtering.</p>
-<p>Say we want the infomation of student named “alice”, with pandas we can do</p>
+<p>Say we want the information of student named “alice”, with pandas we can do</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="p">[</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;alice&quot;</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd_df</span><span class="p">[</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;alice&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -927,7 +956,7 @@ Name: name, dtype: object
 </table></div>
 </div>
 <p>Here we see how a column in GreenplumPython, <code class="docutils literal notranslate"><span class="pre">t[&quot;name&quot;]</span></code> in this case, is used for computation to form a more complex expression.</p>
-<p>In this example, When the expression <code class="docutils literal notranslate"><span class="pre">t[&quot;name&quot;]</span> <span class="pre">==</span> <span class="pre">&quot;alice&quot;</span></code> is evaluated, <code class="docutils literal notranslate"><span class="pre">t</span></code> will be bound to the “current” dataframe, i.e. <code class="docutils literal notranslate"><span class="pre">student</span></code>.</p>
+<p>In this example, When the expression <code class="docutils literal notranslate"><span class="pre">t[&quot;name&quot;]</span> <span class="pre">==</span> <span class="pre">&quot;alice&quot;</span></code> is evaluated, <code class="docutils literal notranslate"><span class="pre">t</span></code> will be bound to the <strong>current</strong> dataframe, i.e. <code class="docutils literal notranslate"><span class="pre">student</span></code>.</p>
 <p>GreenplumPython provides such a functional interface so that the user does not have to refer to the possibly long intermediate variable name like <code class="docutils literal notranslate"><span class="pre">student</span></code> again and again when the expression becomes complicated.</p>
 </section>
 <section id="Selecting-Rows-by-Slice">
@@ -968,7 +997,7 @@ Name: name, dtype: object
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd_df</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -1014,7 +1043,11 @@ Name: name, dtype: object
 </table>
 </div></div>
 </div>
-<p>But you might notice the <strong>difference</strong>: When selecting rows, - for pandas, rows in the output <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> preserves the same order as the input, while - for GreenplumPython, the order of rows in <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> might not be preserved.</p>
+<p>But you might notice the <strong>difference</strong>: When selecting rows,</p>
+<ul class="simple">
+<li><p>for pandas, rows in the output <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> preserves the same order as the input, while</p></li>
+<li><p>for GreenplumPython, the order of rows in <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> might not be preserved.</p></li>
+</ul>
 <p>The difference is due to the fact that database systems behind will not guarantee the order of rows unless otherwise specified.</p>
 </section>
 </section>
@@ -1031,7 +1064,7 @@ Name: name, dtype: object
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;age&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;age&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -1115,13 +1148,21 @@ Name: name, dtype: object
     </tr>
 </table></div>
 </div>
-<p>There are some important <strong>difference</strong> compared with pandas: - GreenplumPython does not provide something like <code class="docutils literal notranslate"><span class="pre">DataFrame.sort_index()</span></code> in pandas, because unlike <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s in pandas, <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> in GreenplumPython does not have an “index column”. - <code class="docutils literal notranslate"><span class="pre">DataFrame.order_by()</span></code> supports chaining to specify multiple ordering columns. We think that compared to passing lists, method chaining is simpler because it is not required to remember the order of columns in the list.</p>
+<p>There are some important <strong>difference</strong> compared with pandas:</p>
+<ul class="simple">
+<li><p>GreenplumPython does not provide something like <code class="docutils literal notranslate"><span class="pre">DataFrame.sort_index()</span></code> in pandas, because unlike <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s in pandas, <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> in GreenplumPython does not have an “index column”.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DataFrame.order_by()</span></code> supports chaining to specify multiple ordering columns. We think that compared to passing lists, method chaining is simpler because it is not required to remember the order of columns in the list.</p></li>
+</ul>
 </section>
 <section id="Column-Transformation">
 <h3>Column Transformation<a class="headerlink" href="#Column-Transformation" title="Permalink to this heading"></a></h3>
 <p>Column transformation is to transform one or more existing columns into a new one of the same length.</p>
 <p>A new column may contains data resulting from whatever computation we want.</p>
-<p>Both GreeplumPython and pandas support transforming columns by adding a new column. Specifically, we need to - define the transfomation as an expression, and then - bind the expression to a new column of the source <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> or <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> to form a new one.</p>
+<p>Both GreeplumPython and pandas support transforming columns by adding a new column. Specifically, we need to:</p>
+<ul class="simple">
+<li><p>define the transfomation as an expression, and then</p></li>
+<li><p>bind the expression to a new column of the source <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> or <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> to form a new one.</p></li>
+</ul>
 <p>We can use <code class="docutils literal notranslate"><span class="pre">assign()</span></code> method to add new columns. For example, suppose we would like to know the year of birth for each student in the previous example.</p>
 <p>In pandas, we can add a new column named <code class="docutils literal notranslate"><span class="pre">year_of_birth</span></code> like this</p>
 <div class="nbinput docutils container">
@@ -1131,7 +1172,7 @@ Name: name, dtype: object
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span>
 
 <span class="n">this_year</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">year</span>
-<span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">year_of_birth</span><span class="o">=</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="o">-</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">this_year</span><span class="p">)</span>
+<span class="n">pd_df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">year_of_birth</span><span class="o">=</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="o">-</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">this_year</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1168,19 +1209,19 @@ Name: name, dtype: object
       <th>0</th>
       <td>alice</td>
       <td>18</td>
-      <td>2004</td>
+      <td>2005</td>
     </tr>
     <tr>
       <th>1</th>
       <td>bob</td>
       <td>19</td>
-      <td>2003</td>
+      <td>2004</td>
     </tr>
     <tr>
       <th>2</th>
       <td>carol</td>
       <td>19</td>
-      <td>2003</td>
+      <td>2004</td>
     </tr>
   </tbody>
 </table>
@@ -1209,17 +1250,17 @@ Name: name, dtype: object
     <tr>
             <td>alice</td>
             <td>18</td>
-            <td>2004</td>
+            <td>2005</td>
     </tr>
     <tr>
             <td>bob</td>
             <td>19</td>
-            <td>2003</td>
+            <td>2004</td>
     </tr>
     <tr>
             <td>carol</td>
             <td>19</td>
-            <td>2003</td>
+            <td>2004</td>
     </tr>
 </table></div>
 </div>
@@ -1259,6 +1300,11 @@ Name: name, dtype: object
             <th>name_</th>
     </tr>
     <tr>
+            <td>alice</td>
+            <td>18</td>
+            <td>2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90</td>
+    </tr>
+    <tr>
             <td>bob</td>
             <td>19</td>
             <td>81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9</td>
@@ -1267,11 +1313,6 @@ Name: name, dtype: object
             <td>carol</td>
             <td>19</td>
             <td>4c26d9074c27d89ede59270c0ac14b71e071b15239519f75474b2f3ba63481f5</td>
-    </tr>
-    <tr>
-            <td>alice</td>
-            <td>18</td>
-            <td>2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90</td>
     </tr>
 </table></div>
 </div>
@@ -1324,7 +1365,7 @@ Name: name, dtype: object
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">hide_name</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">result_type</span><span class="o">=</span><span class="s2">&quot;expand&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd_df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">hide_name</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">result_type</span><span class="o">=</span><span class="s2">&quot;expand&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1375,7 +1416,11 @@ Name: name, dtype: object
 </table>
 </div></div>
 </div>
-<p>But there are still some important <strong>differences</strong> between the two cases: - In pandas, what we apply to a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> is a Python function, while in GreenplumPython, a Python function must be converted to a database function before being applied to a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>. - pandas supports applying a function along different axes, while GreenplumPython only support applying a function to each row due to the limitation of the database system behind.</p>
+<p>But there are still some important <strong>differences</strong> between the two cases:</p>
+<ul class="simple">
+<li><p>In pandas, what we apply to a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> is a Python function, while in GreenplumPython, a Python function must be converted to a database function before being applied to a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>.</p></li>
+<li><p>pandas supports applying a function along different axes, while GreenplumPython only supports applying a function to each row due to the limitation of the database system behind.</p></li>
+</ul>
 </section>
 <section id="Data-Grouping">
 <h3>Data Grouping<a class="headerlink" href="#Data-Grouping" title="Permalink to this heading"></a></h3>
@@ -1388,7 +1433,7 @@ Name: name, dtype: object
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]))</span>
+<span class="n">pd_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]))</span>
 </pre></div>
 </div>
 </div>
@@ -1443,15 +1488,15 @@ dtype: int64
 <p>For example, suppose we want to draw a representative sample containing students for each distinct age,</p>
 <p>With pandas, we can do</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd_df</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1494,7 +1539,7 @@ dtype: int64
 </div>
 <p>With GreenplumPython, what we need to do is</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">student</span><span class="o">.</span><span class="n">distinct_on</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">)</span>
@@ -1502,7 +1547,7 @@ dtype: int64
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1524,7 +1569,7 @@ dtype: int64
 <p>Moreover, GreenplumPython also supports aggregation on only the distinct values.</p>
 <p>Suppose we want to know the number of different ages of the students, we can do</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">student</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">count</span><span class="o">.</span><span class="n">distinct</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]))</span>
@@ -1532,7 +1577,7 @@ dtype: int64
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1553,15 +1598,15 @@ dtype: int64
 <p>For example, suppose we want to retrieve all pairs of sturents of the same age.</p>
 <p>In pandas, we can join the <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> with itself on the “age” column:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[55]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;age&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;_2&quot;</span><span class="p">))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">pd_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;age&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;_2&quot;</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[55]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1625,11 +1670,12 @@ dtype: int64
 </div>
 <p>Similarily, in GreenplumPython, we can do</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[56]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">student</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-    <span class="n">student</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;student_2&quot;</span><span class="p">),</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">student_2</span> <span class="o">=</span> <span class="n">student</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">dataframe_name</span><span class="o">=</span><span class="s2">&quot;students_2&quot;</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">],</span> <span class="n">temp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">student</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="n">student_2</span><span class="p">,</span>
     <span class="n">using</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">],</span>
     <span class="n">self_columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;*&quot;</span><span class="p">},</span>
     <span class="n">other_columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;name_2&quot;</span><span class="p">},</span>
@@ -1638,7 +1684,7 @@ dtype: int64
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[56]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1654,14 +1700,14 @@ dtype: int64
             <td>carol</td>
     </tr>
     <tr>
-            <td>carol</td>
+            <td>bob</td>
             <td>19</td>
-            <td>carol</td>
+            <td>bob</td>
     </tr>
     <tr>
-            <td>bob</td>
+            <td>carol</td>
             <td>19</td>
-            <td>bob</td>
+            <td>carol</td>
     </tr>
     <tr>
             <td>carol</td>
@@ -1679,7 +1725,7 @@ dtype: int64
 <p>pandas allows querying one <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> based on another without previously joining them.</p>
 <p>For example, suppose we have two pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> of numbers, the operation below is <em>legal</em> even though not <em>sensible</em>:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[60]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">num_1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">]})</span>
@@ -1690,7 +1736,7 @@ dtype: int64
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[60]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
