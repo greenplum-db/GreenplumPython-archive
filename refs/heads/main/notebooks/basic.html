@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Selecting the Database of Your Data &mdash; GreenplumPython 1.0.0-beta3 documentation</title>
+  <title>Prepare Data &mdash; GreenplumPython 1.0.0-beta3 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -45,7 +45,8 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../basic.html">Getting Started</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Selecting the Database of Your Data</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Prepare Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Selecting-the-Database-of-Your-Data">Selecting the Database of Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Accessing-a-DataFrame-in-the-Database">Accessing a DataFrame in the Database</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Basic-Data-Manipulation">Basic Data Manipulation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#JOIN-ing-Two-DataFrames"><code class="docutils literal notranslate"><span class="pre">JOIN</span></code>-ing Two DataFrames</a></li>
@@ -72,7 +73,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../basic.html">Getting Started</a> &raquo;</li>
-      <li>Selecting the Database of Your Data</li>
+      <li>Prepare Data</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/notebooks/basic.ipynb" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -361,16 +362,71 @@ div.rendered_html tbody tr:hover {
     text-align: unset;
 }
 </style>
+<section id="Prepare-Data">
+<h1>Prepare Data<a class="headerlink" href="#Prepare-Data" title="Permalink to this heading"></a></h1>
+<p>First, connect to the <code class="docutils literal notranslate"><span class="pre">gpadmin</span></code> database and populate some data into <code class="docutils literal notranslate"><span class="pre">demo</span></code> table.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> sql
+<span class="o">%</span><span class="k">sql</span> postgresql://${PGHOST}:${PGPORT}/gpadmin
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+The sql extension is already loaded. To reload it, use:
+  %reload_ext sql
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="input_area highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">sql</span>
+
+<span class="c1">-- DROP TABLE IF EXISTS demo;</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">demo</span><span class="w"> </span><span class="k">AS</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">k</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">generate_Series</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">9</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ * postgresql://127.0.0.1:6000/gpadmin
+Done.
+10 rows affected.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[]
+</pre></div></div>
+</div>
+</section>
 <section id="Selecting-the-Database-of-Your-Data">
 <h1>Selecting the Database of Your Data<a class="headerlink" href="#Selecting-the-Database-of-Your-Data" title="Permalink to this heading"></a></h1>
 <p>To begin with, we need to select the database that contains the data we want:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">greenplumpython</span> <span class="k">as</span> <span class="nn">gp</span>
 
-<span class="n">db</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">database</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="n">dbname</span><span class="o">=</span><span class="s2">&quot;postgres&quot;</span><span class="p">)</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">database</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="n">dbname</span><span class="o">=</span><span class="s2">&quot;gpadmin&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -379,7 +435,7 @@ div.rendered_html tbody tr:hover {
 <h1>Accessing a DataFrame in the Database<a class="headerlink" href="#Accessing-a-DataFrame-in-the-Database" title="Permalink to this heading"></a></h1>
 <p>After selecting the database, we can access a dataframe in the database by specifying its name:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;demo&quot;</span><span class="p">)</span>
@@ -388,7 +444,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -399,6 +455,16 @@ div.rendered_html tbody tr:hover {
             <th>k</th>
     </tr>
     <tr>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+    </tr>
+    <tr>
+            <td>1</td>
+            <td>1</td>
+            <td>1</td>
+    </tr>
+    <tr>
             <td>2</td>
             <td>2</td>
             <td>2</td>
@@ -407,26 +473,6 @@ div.rendered_html tbody tr:hover {
             <td>3</td>
             <td>3</td>
             <td>3</td>
-    </tr>
-    <tr>
-            <td>4</td>
-            <td>4</td>
-            <td>4</td>
-    </tr>
-    <tr>
-            <td>7</td>
-            <td>7</td>
-            <td>7</td>
-    </tr>
-    <tr>
-            <td>8</td>
-            <td>8</td>
-            <td>8</td>
-    </tr>
-    <tr>
-            <td>5</td>
-            <td>5</td>
-            <td>5</td>
     </tr>
     <tr>
             <td>6</td>
@@ -439,20 +485,30 @@ div.rendered_html tbody tr:hover {
             <td>9</td>
     </tr>
     <tr>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
+            <td>4</td>
+            <td>4</td>
+            <td>4</td>
     </tr>
     <tr>
-            <td>1</td>
-            <td>1</td>
-            <td>1</td>
+            <td>5</td>
+            <td>5</td>
+            <td>5</td>
+    </tr>
+    <tr>
+            <td>7</td>
+            <td>7</td>
+            <td>7</td>
+    </tr>
+    <tr>
+            <td>8</td>
+            <td>8</td>
+            <td>8</td>
     </tr>
 </table></div>
 </div>
 <p>And of course, we can <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> the first ordered N rows of a dataframe, like this:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span>
@@ -460,7 +516,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -528,7 +584,7 @@ div.rendered_html tbody tr:hover {
 <p>Now we have a dataframe. We can do basic data manipulation on it, just like in SQL.</p>
 <p>For example, we can <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> a subset of its columns:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_ij</span> <span class="o">=</span> <span class="n">t</span><span class="p">[[</span><span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="s2">&quot;j&quot;</span><span class="p">]]</span>
@@ -537,7 +593,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -547,24 +603,28 @@ div.rendered_html tbody tr:hover {
             <th>j</th>
     </tr>
     <tr>
-            <td>0</td>
-            <td>0</td>
-    </tr>
-    <tr>
-            <td>1</td>
-            <td>1</td>
+            <td>4</td>
+            <td>4</td>
     </tr>
     <tr>
             <td>5</td>
             <td>5</td>
     </tr>
     <tr>
-            <td>6</td>
-            <td>6</td>
+            <td>7</td>
+            <td>7</td>
     </tr>
     <tr>
-            <td>9</td>
-            <td>9</td>
+            <td>8</td>
+            <td>8</td>
+    </tr>
+    <tr>
+            <td>0</td>
+            <td>0</td>
+    </tr>
+    <tr>
+            <td>1</td>
+            <td>1</td>
     </tr>
     <tr>
             <td>2</td>
@@ -575,22 +635,18 @@ div.rendered_html tbody tr:hover {
             <td>3</td>
     </tr>
     <tr>
-            <td>4</td>
-            <td>4</td>
+            <td>6</td>
+            <td>6</td>
     </tr>
     <tr>
-            <td>7</td>
-            <td>7</td>
-    </tr>
-    <tr>
-            <td>8</td>
-            <td>8</td>
+            <td>9</td>
+            <td>9</td>
     </tr>
 </table></div>
 </div>
 <p>And we can also <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> a subset of its rows. Say we want all the even numbers:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_even</span> <span class="o">=</span> <span class="n">t_ij</span><span class="p">[</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;i&quot;</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
@@ -599,7 +655,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -609,10 +665,6 @@ div.rendered_html tbody tr:hover {
             <th>j</th>
     </tr>
     <tr>
-            <td>2</td>
-            <td>2</td>
-    </tr>
-    <tr>
             <td>4</td>
             <td>4</td>
     </tr>
@@ -623,6 +675,10 @@ div.rendered_html tbody tr:hover {
     <tr>
             <td>0</td>
             <td>0</td>
+    </tr>
+    <tr>
+            <td>2</td>
+            <td>2</td>
     </tr>
     <tr>
             <td>6</td>
@@ -632,7 +688,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>For a quick glance, we can <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> the first unordered N rows of a dataframe, like this:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_n</span> <span class="o">=</span> <span class="n">t_even</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
@@ -641,7 +697,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -651,30 +707,30 @@ div.rendered_html tbody tr:hover {
             <th>j</th>
     </tr>
     <tr>
+            <td>0</td>
+            <td>0</td>
+    </tr>
+    <tr>
             <td>2</td>
             <td>2</td>
     </tr>
     <tr>
-            <td>4</td>
-            <td>4</td>
-    </tr>
-    <tr>
-            <td>8</td>
-            <td>8</td>
+            <td>6</td>
+            <td>6</td>
     </tr>
 </table></div>
 </div>
 <p>Finally when we are done, we can save the resulting dataframe to the database, either temporarily or persistently:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_n</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">dataframe_name</span><span class="o">=</span><span class="s2">&quot;t_n&quot;</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_n</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">dataframe_name</span><span class="o">=</span><span class="s2">&quot;t_n&quot;</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="s2">&quot;j&quot;</span><span class="p">],</span> <span class="n">temp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -684,8 +740,8 @@ div.rendered_html tbody tr:hover {
             <th>j</th>
     </tr>
     <tr>
-            <td>2</td>
-            <td>2</td>
+            <td>8</td>
+            <td>8</td>
     </tr>
     <tr>
             <td>4</td>
@@ -702,7 +758,7 @@ div.rendered_html tbody tr:hover {
 <h1><code class="docutils literal notranslate"><span class="pre">JOIN</span></code>-ing Two DataFrames<a class="headerlink" href="#JOIN-ing-Two-DataFrames" title="Permalink to this heading"></a></h1>
 <p>We can also <code class="docutils literal notranslate"><span class="pre">JOIN</span></code> two dataframes with GreenplumPython. For example, suppose we have two dataframes like this:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[</span>
@@ -720,13 +776,13 @@ div.rendered_html tbody tr:hover {
     <span class="p">),</span>
     <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;&#39;d&#39;&quot;</span><span class="p">),</span>
 <span class="p">]</span>
-<span class="n">t1</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id, val&quot;</span><span class="p">])</span>
+<span class="n">t1</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">])</span>
 <span class="n">t1</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -754,7 +810,7 @@ div.rendered_html tbody tr:hover {
 </table></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[</span>
@@ -772,13 +828,13 @@ div.rendered_html tbody tr:hover {
     <span class="p">),</span>
     <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;&#39;b&#39;&quot;</span><span class="p">),</span>
 <span class="p">]</span>
-<span class="n">t2</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id, val&quot;</span><span class="p">])</span>
+<span class="n">t2</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">])</span>
 <span class="n">t2</span>
 <br/></pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -807,7 +863,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>We can <code class="docutils literal notranslate"><span class="pre">JOIN</span></code> the two dataframe like this:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_join</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -827,7 +883,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -870,7 +926,7 @@ div.rendered_html tbody tr:hover {
 <p>Calling functions is essential for data analytics. GreenplumPython supports creating Greenplum UDFs and UDAs from Python functions and calling them in Python.</p>
 <p>Suppose we have a dataframe of numbers:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
@@ -880,7 +936,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -922,7 +978,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>If we want to get the square of each number, we can write a function to do that:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_function</span>
@@ -930,12 +986,12 @@ div.rendered_html tbody tr:hover {
     <span class="k">return</span> <span class="n">a</span><span class="o">**</span><span class="mi">2</span>
 
 
-<span class="n">numbers</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">square</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]))</span>
+<span class="n">numbers</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">square</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]),</span> <span class="n">as_name</span><span class="o">=</span><span class="s2">&quot;square&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -978,7 +1034,7 @@ div.rendered_html tbody tr:hover {
 <p>Note that this function is called in exactly the same way as ordinary Python functions.</p>
 <p>If we also want to get the sum of these numbers, what we need is to write an aggregate function like this:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_aggregate</span>
@@ -988,18 +1044,18 @@ div.rendered_html tbody tr:hover {
     <span class="k">return</span> <span class="n">result</span> <span class="o">+</span> <span class="n">val</span>
 
 
-<span class="n">numbers</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">my_sum</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]))</span>
+<span class="n">numbers</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">my_sum</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]),</span> <span class="n">as_name</span><span class="o">=</span><span class="s2">&quot;sum&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
 <table>
     <tr>
-            <th>my_sum</th>
+            <th>sum</th>
     </tr>
     <tr>
             <td>45</td>
