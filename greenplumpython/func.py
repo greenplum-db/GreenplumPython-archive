@@ -268,9 +268,21 @@ class NormalFunction(_AbstractFunction):
                     for param in func_sig.parameters.values()
                 ]
             )
+            # make inspect.getsource can run in Python REPL(IPython do not have this issue)
+            # CPython issue https://github.com/python/cpython/issues/57129
+            try:
+                source: str = inspect.getsource(self._wrapped_func)
+                # if run inspect.getsource(func) in REPL will rasie IOError
+                # that func is not buildin
+            except IOError:
+                # use diff package to bypass that
+                from dill.source import getsource
+
+                source = getsource(self._wrapped_func)
+
             # -- Loading Python code of Function
             # FIXME: include things in func.__closure__
-            func_lines = textwrap.dedent(inspect.getsource(self._wrapped_func)).split("\n")
+            func_lines = textwrap.dedent(source).split("\n")
             func_body = "\n".join([line for line in func_lines if re.match(r"^\s", line)])
             return_type = to_pg_type(func_sig.return_annotation, db, for_return=True)
             assert (
