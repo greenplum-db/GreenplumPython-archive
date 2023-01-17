@@ -644,7 +644,7 @@ class DataFrame:
         return result if result is not None else []
 
     def save_as(
-        self, dataframe_name: str, column_names: List[str] = [], temp: bool = False
+        self, table_name: str, column_names: List[str] = [], temp: bool = False
     ) -> "DataFrame":
         """
         Save the GreenplumPython Dataframe to database as a Table (Temp or not) in Database
@@ -662,12 +662,12 @@ class DataFrame:
         assert len(column_names) > 0, "Column names of new dataframe are unknown."
         self._db.execute(
             f"""
-            CREATE {'TEMP' if temp else ''} TABLE {dataframe_name} ({','.join(column_names)}) 
+            CREATE {'TEMP' if temp else ''} TABLE "{table_name}" ({','.join(column_names)}) 
             AS {self._build_full_query()}
             """,
             has_results=False,
         )
-        return DataFrame.from_table(dataframe_name, self._db)
+        return DataFrame.from_table(table_name, self._db)
 
     # TODO: Uncomment or remove this.
     #
