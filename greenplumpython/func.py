@@ -8,14 +8,14 @@ import textwrap
 from typing import Any, Callable, Dict, Optional, Set, Tuple
 from uuid import uuid4
 
+from dill import dumps
+
 from greenplumpython.col import Column
 from greenplumpython.dataframe import DataFrame
 from greenplumpython.db import Database
 from greenplumpython.expr import Expr, serialize
 from greenplumpython.group import DataFrameGroupingSets
 from greenplumpython.type import to_pg_type
-
-from dill import dumps
 
 
 class FunctionExpr(Expr):
