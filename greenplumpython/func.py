@@ -15,6 +15,8 @@ from greenplumpython.expr import Expr, serialize
 from greenplumpython.group import DataFrameGroupingSets
 from greenplumpython.type import to_pg_type
 
+from dill import dumps
+
 
 class FunctionExpr(Expr):
     """
@@ -268,25 +270,8 @@ class NormalFunction(_AbstractFunction):
                     for param in func_sig.parameters.values()
                 ]
             )
-            # make inspect.getsource can run in Python REPL(IPython do not have this issue)
-
-            # CPython issue https://github.com/python/cpython/issues/57129
-            # TODO: in the future, we might want to use `dill.dumps(func, recurse=True)`
-            # to send the function to the DBMS with dependencies like imports.
-            try:
-                source: str = inspect.getsource(self._wrapped_func)
-                # if run inspect.getsource(func) in REPL will raise IOError
-                # that func is not buildin
-            except IOError:
-                # use dill library to bypass that
-                from dill.source import getsource  # type: ignore
-
-                source = getsource(self._wrapped_func)
-
-            # -- Loading Python code of Function
-            # FIXME: include things in func.__closure__
-            func_lines = textwrap.dedent(source).split("\n")
-            func_body = "\n".join([line for line in func_lines if re.match(r"^\s", line)])
+            func_arg_names = ",".join([param.name for param in func_sig.parameters.values()])
+            dumped_func = dumps(self._wrapped_func, recurse=True)
             return_type = to_pg_type(func_sig.return_annotation, db, for_return=True)
             assert (
                 db.execute(
@@ -294,8 +279,11 @@ class NormalFunction(_AbstractFunction):
                         f"CREATE FUNCTION {self._qualified_name} ({func_args}) "
                         f"RETURNS {return_type} "
                         f"AS $$\n"
-                        f"{textwrap.dedent(func_body)} $$"
-                        f"LANGUAGE {self._language_handler};"
+                        f"if '__wrapped_func__' not in SD:\n"
+                        f"    from dill import loads\n"
+                        f"    SD['__wrapped_func__'] = loads({dumped_func})\n"
+                        f"return SD['__wrapped_func__']({func_arg_names})\n"
+                        f"$$ LANGUAGE {self._language_handler};"
                     ),
                     has_results=False,
                 )

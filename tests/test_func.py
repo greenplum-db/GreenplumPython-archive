@@ -662,3 +662,20 @@ def test_agg_composite_type(db: gp.Database):
     result = numbers.group_by().apply(lambda t: sum_count(t["val"]), expand=True)
     for row in result:
         assert row["count"] == len(rows) and row["sum"] == 10
+
+
+import pandas as pd
+
+
+def test_func_with_outside_dependencies(db: gp.Database):
+    def inner(x: int) -> pd.DataFrame:
+        return pd.DataFrame({"x": [x]})
+
+    @gp.create_function
+    def proxy(x: int) -> int:
+        return inner(x)["x"][0]
+
+    df = db.apply(lambda: proxy(42), as_name="x")
+    assert len(list(df)) == 1
+    for row in df:
+        assert row["x"] == 42
