@@ -275,11 +275,6 @@ class NormalFunction(_AbstractFunction):
             )
             dumped_func = dumps(self._wrapped_func, recurse=True)
             return_type = to_pg_type(func_sig.return_annotation, db, for_return=True)
-            # NOTE: We use pickle.loads() instead of dill.loads() on server
-            # to avoid introducing any extra dependency there.
-            #
-            # This works because the Unpickler in dill is based on the one in
-            # pickle, if we don't need to save module dict (e.g. not in REPL)
             assert (
                 db.execute(
                     (
@@ -287,7 +282,7 @@ class NormalFunction(_AbstractFunction):
                         f"RETURNS {return_type} "
                         f"AS $$\n"
                         f"if '__wrapped_func__' not in SD:\n"
-                        f"    from pickle import loads\n"
+                        f"    from dill import loads\n"
                         f"    SD['__wrapped_func__'] = loads({dumped_func})\n"
                         f"return SD['__wrapped_func__']({func_arg_names})\n"
                         f"$$ LANGUAGE {self._language_handler};"
