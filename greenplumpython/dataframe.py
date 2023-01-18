@@ -303,24 +303,60 @@ class DataFrame:
             DataFrame: resulted :class:`DataFrame`.
 
         Example:
+            .. highlight:: python
             .. code-block::  python
 
-                rows = [(i,) for i in range(-10, 0)]
-                series = gp.values(rows, db=db, column_names=["id"])
-                abs = gp.function("abs", db=db)
-                result = series.apply(lambda df: abs(df["id"]))
+                >>> rows = [(i,) for i in range(-10, 0)]
+                >>> series = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> abs = gp.function("abs")
+                >>> result = series.apply(lambda df: abs(df["id"]))
+                >>> result
+                -----
+                 abs
+                -----
+                  10
+                  9
+                  8
+                  7
+                  6
+                  5
+                  4
+                  3
+                  2
+                  1
+                -----
+                (10 rows)
 
             To transform colums into other types, see the following example. Suppose *label* function takes a `str` and a
             `int`, it joins them into a string and returns:
 
+            .. highlight:: python
             .. code-block::  python
 
-                @gp.create_function
-                def label(prefix: str, id: int) -> str:
-                    prefix = "id"
-                    return f"{prefix}_{id}"
+                >>> rows = [(i,) for i in range(10)]
+                >>> series = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> @gp.create_function
+                >>> def label(prefix: str, id: int) -> str:
+                >>>     prefix = "id"
+                >>>     return f"{prefix}_{id}"
 
-                result = series.apply(lambda t: label("label", t["id"]))
+                >>> result = series.apply(lambda t: label("label", t["id"]))
+                >>> result
+                ---------------------------------------
+                 func_d3da7bdf5c294e8cbaddac65e7027e69
+                ---------------------------------------
+                 id_0
+                 id_1
+                 id_2
+                 id_3
+                 id_4
+                 id_5
+                 id_6
+                 id_7
+                 id_8
+                 id_9
+                ---------------------------------------
+                (10 rows)
         """
         # We need to support calling functions with constant args or even no
         # arg. For example: SELECT count(*) FROM t; In that case, the
@@ -343,13 +379,29 @@ class DataFrame:
             DataFrame: a new :class:`DataFrame` including the new assigned columns.
 
         Example:
+            .. highlight:: python
             .. code-block::  python
 
-                rows = [(i,) for i in range(-10, 0)]
-                series = db.create_dataframe(rows=rows, column_names=["id"])
-                abs = gp.function("abs")
-                results = series.assign(abs=lambda nums: abs(nums["id"]))
-
+                >>> rows = [(i,) for i in range(-10, 0)]
+                >>> series = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> abs = gp.function("abs")
+                >>> results = series.assign(abs=lambda nums: abs(nums["id"]))
+                >>> results
+                -----------
+                 id  | abs
+                -----+-----
+                 -10 |  10
+                 -9  |   9
+                 -8  |   8
+                 -7  |   7
+                 -6  |   6
+                 -5  |   5
+                 -4  |   4
+                 -3  |   3
+                 -2  |   2
+                 -1  |   1
+                -----------
+                (10 rows)
         """
         if len(new_columns) == 0:
             return self
@@ -391,9 +443,21 @@ class DataFrame:
             DataFrameOrdering : :class:`DataFrame` ordered by the given arguments.
 
         Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                t.order_by("id")[:]
+            >>> columns = {"id": [3, 1, 2], "b": [1, 2, 3]
+            >>> t = gp.DataFrame.from_columns(columns, db=db
+            >>> t.order_by("id")[:]
+            >>> t
+            --------
+             id | b
+            ----+---
+              1 | 2
+              2 | 3
+              3 | 1
+            --------
+            (3 rows)
         """
         # State transition diagram:
         # DataFrame --order_by()-> DataFrameOrdering --head()-> DataFrame
@@ -813,14 +877,31 @@ class DataFrame:
         Returns:
             :class:`DataFrame`: :class:`DataFrame` generated with given values.
 
+        .. highlight:: python
         .. code-block::  python
 
-           rows = [(1,), (2,), (3,)]
-           df = gp.DataFrame.from_rows(rows, db=db, column_names=["id"])
+           >>> rows = [(1,), (2,), (3,)]
+           >>> df = gp.DataFrame.from_rows(rows, db=db, column_names=["id"])
+           >>> df
+            ----
+             id
+            ----
+             1
+             2
+             3
+            ----
+            (3 rows)
 
-           dict_list = [{"id": 1, "val": "11"}, {"id": 2, "val": "22"}]
-           df = gp.DataFrame.from_rows(dict_list, db=db)
-
+           >>> dict_list = [{"id": 1, "val": "11"}, {"id": 2, "val": "22"}]
+           >>> df = gp.DataFrame.from_rows(dict_list, db=db)
+           >>> df
+            ----------
+             id | val
+            ----+-----
+              1 | 11
+              2 | 22
+            ----------
+            (2 rows)
         """
         row_tuples = [row.values() if isinstance(row, dict) else row for row in rows]
         if column_names is None:
@@ -850,11 +931,21 @@ class DataFrame:
         Returns:
             :class:`DataFrame`: the :class:`DataFrame` generated with given values.
 
-        .. code-block::  python
+        Example:
+            .. highlight:: python
+            .. code-block::  python
 
-           columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
-           t = gp.DataFrame.from_columns(columns, db=db)
-
+            >>> columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
+            >>> t = gp.DataFrame.from_columns(columns, db=db)
+            >>> t
+            -------
+             a | b
+            ---+---
+             1 | 1
+             2 | 2
+             3 | 3
+            -------
+            (3 rows)
         """
         columns_string = ",".join([f'unnest({serialize(v)}) AS "{k}"' for k, v in columns.items()])
         return DataFrame(f"SELECT {columns_string}", db=db)
