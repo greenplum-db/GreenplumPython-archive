@@ -303,24 +303,58 @@ class DataFrame:
             DataFrame: resulted :class:`DataFrame`.
 
         Example:
+            .. highlight:: python
             .. code-block::  python
 
-                rows = [(i,) for i in range(-10, 0)]
-                series = gp.values(rows, db=db, column_names=["id"])
-                abs = gp.function("abs", db=db)
-                result = series.apply(lambda df: abs(df["id"]))
+                >>> rows = [(i,) for i in range(-10, 0)]
+                >>> series = db.create_dataframe(rows, column_names=["id"])
+                >>> abs = gp.function("abs")
+                >>> result = series.apply(lambda df: abs(df["id"]))
+                >>> result
+                -----
+                 abs
+                -----
+                 10
+                 9
+                 8
+                 7
+                 6
+                 5
+                 4
+                 3
+                 2
+                 1
+                -----
+                (10 rows)
 
             To transform colums into other types, see the following example. Suppose *label* function takes a `str` and a
             `int`, it joins them into a string and returns:
 
+            .. highlight:: python
             .. code-block::  python
 
-                @gp.create_function
-                def label(prefix: str, id: int) -> str:
-                    prefix = "id"
-                    return f"{prefix}_{id}"
+                >>> @gp.create_function
+                >>> def label(prefix: str, id: int) -> str:
+                >>>     prefix = "id"
+                >>>     return f"{prefix}_{id}"
 
-                result = series.apply(lambda t: label("label", t["id"]))
+                >>> result = series.apply(lambda t: label("label", t["id"]))
+                >>> result
+                ---------------------------------------
+                 func_f8971a6a88f84ebfa15a342ea8d2e503
+                ---------------------------------------
+                 id_-10
+                 id_-9
+                 id_-8
+                 id_-7
+                 id_-6
+                 id_-5
+                 id_-4
+                 id_-3
+                 id_-2
+                 id_-1
+                ---------------------------------------
+                (10 rows)
         """
         # We need to support calling functions with constant args or even no
         # arg. For example: SELECT count(*) FROM t; In that case, the
@@ -343,13 +377,29 @@ class DataFrame:
             DataFrame: a new :class:`DataFrame` including the new assigned columns.
 
         Example:
+            .. highlight:: python
             .. code-block::  python
 
-                rows = [(i,) for i in range(-10, 0)]
-                series = db.create_dataframe(rows=rows, column_names=["id"])
-                abs = gp.function("abs")
-                results = series.assign(abs=lambda nums: abs(nums["id"]))
-
+                >>> rows = [(i,) for i in range(-10, 0)]
+                >>> series = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> abs = gp.function("abs")
+                >>> results = series.assign(abs=lambda nums: abs(nums["id"]))
+                >>> results
+                -----------
+                id   | abs
+                -----+-----
+                -10 |  10
+                -9  |   9
+                -8  |   8
+                -7  |   7
+                -6  |   6
+                -5  |   5
+                -4  |   4
+                -3  |   3
+                -2  |   2
+                -1  |   1
+                -----------
+                (10 rows)
         """
         if len(new_columns) == 0:
             return self
@@ -391,9 +441,21 @@ class DataFrame:
             DataFrameOrdering : :class:`DataFrame` ordered by the given arguments.
 
         Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                t.order_by("id")[:]
+            >>> columns = {"id": [3, 1, 2], "b": [1, 2, 3]
+            >>> t = gp.DataFrame.from_columns(columns, db=db
+            >>> t.order_by("id")[:]
+            >>> t
+            --------
+             id | b
+            ----+---
+              1 | 2
+              2 | 3
+              3 | 1
+            --------
+            (3 rows)
         """
         # State transition diagram:
         # DataFrame --order_by()-> DataFrameOrdering --head()-> DataFrame
@@ -843,11 +905,21 @@ class DataFrame:
         Returns:
             :class:`DataFrame`: the :class:`DataFrame` generated with given values.
 
-        .. code-block::  python
+        Example:
+            .. highlight:: python
+            .. code-block::  python
 
-           columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
-           t = gp.DataFrame.from_columns(columns, db=db)
-
+            >>> columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
+            >>> t = gp.DataFrame.from_columns(columns, db=db)
+            >>> t
+            -------
+             a | b
+            ---+---
+             1 | 1
+             2 | 2
+             3 | 3
+            -------
+            (3 rows)
         """
         columns_string = ",".join([f'unnest({serialize(v)}) AS "{k}"' for k, v in columns.items()])
         return DataFrame(f"SELECT {columns_string}", db=db)

@@ -12,12 +12,28 @@ class TypeCast(Expr):
     Representation of a Type Casting.
 
     Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                rows = [(i,) for i in range(10)]
-                series = db.create_dataframe(rows=rows, column_names=["val"]).save_as("series")
-                regclass = gp.get_type("regclass", db)
-                dataframe_name = regclass(series["tableoid"]).rename("dataframe_name")
+                >>> rows = [(i,) for i in range(10)]
+                >>> series = db.create_dataframe(rows=rows, column_names=["val"]).save_as("series", column_names=["val"])
+                >>> regclass = gp.get_type("regclass")
+                >>> dataframe_name = series.assign(dataframe_name=lambda t: regclass(t["tableoid"]))
+                ----------------------
+                val | dataframe_name
+                -----+----------------
+                0 | serie
+                1 | serie
+                2 | serie
+                3 | serie
+                4 | serie
+                5 | serie
+                6 | serie
+                7 | serie
+                8 | serie
+                9 | serie
+                ----------------------
+                (10 rows)
     """
 
     def __init__(

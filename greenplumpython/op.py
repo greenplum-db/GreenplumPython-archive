@@ -17,10 +17,18 @@ def operator(name: str, db: Database) -> Callable[[Any, Any], BinaryExpr]:
 
 
     Example:
+        .. highlight:: python
         .. code-block::  python
 
-            regex_match = gp.operator("~", db)
-            result = list(regex_match("hello", "h.*o").rename("is_matched"))
+            >>> regex_match = gp.operator("~", db)
+            >>> result = db.assign(is_matched=lambda: regex_match("hello", "h.*o")
+            >>> result
+            ------------
+             is_matched
+            ------------
+                    1
+            ------------
+            (1 row)
     """
 
     def make_operator_expr(left: Any, right: Any) -> BinaryExpr:
