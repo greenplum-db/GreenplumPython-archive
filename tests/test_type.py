@@ -5,7 +5,7 @@ import pytest
 
 import greenplumpython as gp
 from greenplumpython.type import to_pg_type
-from tests import db
+from . import db
 
 
 def test_type_cast(db: gp.Database):

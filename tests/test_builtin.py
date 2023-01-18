@@ -2,7 +2,7 @@ import pytest
 
 import greenplumpython as gp
 import greenplumpython.builtin.function as F
-from tests import db
+from . import db
 
 
 def test_builtin_func_assign(db: gp.Database):

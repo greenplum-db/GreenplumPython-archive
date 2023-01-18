@@ -1,7 +1,7 @@
 from functools import partial
 
 import greenplumpython as gp
-from tests import db
+from . import db
 
 
 def test_group_agg(db: gp.Database):

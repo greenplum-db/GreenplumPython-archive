@@ -4,7 +4,7 @@ import pytest
 
 import greenplumpython as gp
 from greenplumpython.builtin.function import generate_series
-from tests import db
+from . import db
 
 
 def test_expr_bin_equal_int(db: gp.Database):
