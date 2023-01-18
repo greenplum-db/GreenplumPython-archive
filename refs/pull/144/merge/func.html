@@ -218,11 +218,11 @@ defaults to plpython3u, will also support plcontainer later.</p></li>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">numbers</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">])</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">results</span> <span class="o">=</span> <span class="n">numbers</span><span class="o">.</span><span class="n">group_by</span><span class="p">()</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">my_sum</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]))</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">results</span>
-<span class="o">--------</span>
- <span class="n">result</span>
-<span class="o">--------</span>
-     <span class="mi">10</span>
-<span class="o">--------</span>
+<span class="o">---------</span>
+ <span class="n">results</span>
+<span class="o">---------</span>
+      <span class="mi">10</span>
+<span class="o">---------</span>
 <span class="p">(</span><span class="mi">1</span> <span class="n">row</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -255,10 +255,10 @@ will also support plcontainer later.</p></li>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">results</span> <span class="o">=</span> <span class="n">numbers</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;is_even&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">my_sum</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val]))</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">results</span>
 <span class="o">------------------</span>
-<span class="n">is_even</span> <span class="o">|</span> <span class="n">result</span>
+ <span class="n">is_even</span> <span class="o">|</span> <span class="n">result</span>
 <span class="o">---------+--------</span>
-    <span class="mi">0</span> <span class="o">|</span>      <span class="mi">5</span>
-    <span class="mi">1</span> <span class="o">|</span>      <span class="mi">5</span>
+       <span class="mi">0</span> <span class="o">|</span>      <span class="mi">5</span>
+       <span class="mi">1</span> <span class="o">|</span>      <span class="mi">5</span>
 <span class="o">------------------</span>
 <span class="p">(</span><span class="mi">2</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
@@ -289,7 +289,7 @@ will also support plcontainer later.</p>
 <span class="o">--------</span>
  <span class="n">result</span>
 <span class="o">--------</span>
-    <span class="mi">2</span>
+      <span class="mi">2</span>
 <span class="o">--------</span>
 <span class="p">(</span><span class="mi">1</span> <span class="n">row</span><span class="p">)</span>
 </pre></div>
