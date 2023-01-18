@@ -47,7 +47,7 @@ def test_expr_bin_equal_2expr(db: gp.Database):
     )
     b4: Callable[[gp.DataFrame, gp.DataFrame], gp.Expr] = lambda t1, t2: t1["id"] == t2["id"]
     assert str(b4(t1, t2)) == '("temp4"."id" = "temp5"."id")'
-    assert len(list(t1.join(t2, using=["id"], other_columns={}))) == 3
+    assert len(list(t1.join(t2, on=["id"], other_columns={}))) == 3
 
 
 def test_expr_bin_equal_bool(db: gp.Database):

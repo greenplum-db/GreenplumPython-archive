@@ -414,7 +414,7 @@ class DataFrame:
         other: "DataFrame",
         how: str = "",
         cond: Optional[Callable[["DataFrame", "DataFrame"], Expr]] = None,
-        using: Optional[Iterable[str]] = None,
+        on: Optional[Union[str, Iterable[str]]] = None,
         self_columns: Union[Dict[str, Optional[str]], Set[str]] = {"*"},
         other_columns: Union[Dict[str, Optional[str]], Set[str]] = {"*"},
     ) -> "DataFrame":
@@ -434,17 +434,17 @@ class DataFrame:
                 The default value `""` is equivalent to "INNER".
 
             cond: :class:`Callable` lambda function as the join condition
-            using: a list of column names that exists in both `DataFrames` to join on.
-                `cond` and `using` cannot be used together.
+            on: a list of column names that exists in both `DataFrames` to join on.
+                :code:`cond` and :code:`on` cannot be used together.
             self_columns: A :class:`dict` whose keys are the column names of
                 the current dataframe to be included in the resulting
                 dataframe. The value, if not `None`, is used for renaming
-                the corresponding key to avoid name conflicts. Asterisk `"*"`
+                the corresponding key to avoid name conflicts. Asterisk :code:`"*"`
                 can be used as a key to indicate all columns.
             other_columns: Same as `self_columns`, but for the **other** :class:`DataFrame`.
 
         Note:
-            When using `"*"` as key in `self_columns` or `other_columns`,
+            When using :code:`"*"` as key in `self_columns` or `other_columns`,
             please ensure that there will not be more than one column with the
             same name by applying proper renaming. Otherwise, there will be an
             error.
@@ -458,14 +458,14 @@ class DataFrame:
             "FULL",
             "CROSS",
         ], "Unsupported join type"
-        assert cond is None or using is None, 'Cannot specify "cond" and "using" together'
+        assert cond is None or on is None, 'Cannot specify "cond" and "using" together'
 
         def bind(t: DataFrame, columns: Union[Dict[str, Optional[str]], Set[str]]) -> List[str]:
             target_list: List[str] = []
             for k in columns:
                 col: Column = t[k]
                 v = columns[k] if isinstance(columns, dict) else None
-                target_list.append(col.serialize() + (f" AS {v}" if v is not None else ""))
+                target_list.append(col.serialize() + (f' AS "{v}"' if v is not None else ""))
             return target_list
 
         other_name = other.name if self.name != other.name else "cte_" + uuid4().hex
@@ -473,12 +473,19 @@ class DataFrame:
         target_list = bind(self, self_columns) + bind(
             DataFrame(query="", name=other_name), other_columns
         )
-        on_clause = f"ON {cond(self, other).serialize()}" if cond is not None else ""
-        using_clause = f"USING ({','.join(using)})" if using is not None else ""
+        # ON clause in SQL uses argument `cond`.
+        sql_on_clause = f"ON {cond(self, other).serialize()}" if cond is not None else ""
+        join_column_names = (
+            (f'"{on}"' if isinstance(on, str) else ",".join([f'"{name}"' for name in on]))
+            if on is not None
+            else None
+        )
+        # USING clause in SQL uses argument `on`.
+        sql_using_clause = f"USING ({join_column_names})" if join_column_names is not None else ""
         return DataFrame(
             f"""
                 SELECT {",".join(target_list)}
-                FROM {self.name} {how} JOIN {other_clause} {on_clause} {using_clause}
+                FROM {self.name} {how} JOIN {other_clause} {sql_on_clause} {sql_using_clause}
             """,
             parents=[self, other],
         )
@@ -511,7 +518,7 @@ class DataFrame:
     Equivalent to calling :meth:`DataFrame.join` with argutment `how="FULL"`.
     """
 
-    cross_join = partialmethod(join, how="CROSS", cond=None, using=None)
+    cross_join = partialmethod(join, how="CROSS", cond=None, on=None)
     """
     Cross joins the current :class:`DataFrame` with another :class:`DataFrame`,
     i.e. the Cartesian product.
