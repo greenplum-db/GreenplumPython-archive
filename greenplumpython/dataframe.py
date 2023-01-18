@@ -307,23 +307,23 @@ class DataFrame:
             .. code-block::  python
 
                 >>> rows = [(i,) for i in range(-10, 0)]
-                >>> series = db.create_dataframe(rows, column_names=["id"])
+                >>> series = db.create_dataframe(rows=rows, column_names=["id"])
                 >>> abs = gp.function("abs")
                 >>> result = series.apply(lambda df: abs(df["id"]))
                 >>> result
                 -----
                  abs
                 -----
-                 10
-                 9
-                 8
-                 7
-                 6
-                 5
-                 4
-                 3
-                 2
-                 1
+                  10
+                  9
+                  8
+                  7
+                  6
+                  5
+                  4
+                  3
+                  2
+                  1
                 -----
                 (10 rows)
 
@@ -333,6 +333,8 @@ class DataFrame:
             .. highlight:: python
             .. code-block::  python
 
+                >>> rows = [(i,) for i in range(10)]
+                >>> series = db.create_dataframe(rows=rows, column_names=["id"])
                 >>> @gp.create_function
                 >>> def label(prefix: str, id: int) -> str:
                 >>>     prefix = "id"
@@ -341,18 +343,18 @@ class DataFrame:
                 >>> result = series.apply(lambda t: label("label", t["id"]))
                 >>> result
                 ---------------------------------------
-                 func_f8971a6a88f84ebfa15a342ea8d2e503
+                 func_d3da7bdf5c294e8cbaddac65e7027e69
                 ---------------------------------------
-                 id_-10
-                 id_-9
-                 id_-8
-                 id_-7
-                 id_-6
-                 id_-5
-                 id_-4
-                 id_-3
-                 id_-2
-                 id_-1
+                 id_0
+                 id_1
+                 id_2
+                 id_3
+                 id_4
+                 id_5
+                 id_6
+                 id_7
+                 id_8
+                 id_9
                 ---------------------------------------
                 (10 rows)
         """
@@ -386,18 +388,18 @@ class DataFrame:
                 >>> results = series.assign(abs=lambda nums: abs(nums["id"]))
                 >>> results
                 -----------
-                id   | abs
+                 id  | abs
                 -----+-----
-                -10 |  10
-                -9  |   9
-                -8  |   8
-                -7  |   7
-                -6  |   6
-                -5  |   5
-                -4  |   4
-                -3  |   3
-                -2  |   2
-                -1  |   1
+                 -10 |  10
+                 -9  |   9
+                 -8  |   8
+                 -7  |   7
+                 -6  |   6
+                 -5  |   5
+                 -4  |   4
+                 -3  |   3
+                 -2  |   2
+                 -1  |   1
                 -----------
                 (10 rows)
         """
@@ -868,14 +870,31 @@ class DataFrame:
         Returns:
             :class:`DataFrame`: :class:`DataFrame` generated with given values.
 
+        .. highlight:: python
         .. code-block::  python
 
-           rows = [(1,), (2,), (3,)]
-           df = gp.DataFrame.from_rows(rows, db=db, column_names=["id"])
+           >>> rows = [(1,), (2,), (3,)]
+           >>> df = gp.DataFrame.from_rows(rows, db=db, column_names=["id"])
+           >>> df
+            ----
+             id
+            ----
+             1
+             2
+             3
+            ----
+            (3 rows)
 
-           dict_list = [{"id": 1, "val": "11"}, {"id": 2, "val": "22"}]
-           df = gp.DataFrame.from_rows(dict_list, db=db)
-
+           >>> dict_list = [{"id": 1, "val": "11"}, {"id": 2, "val": "22"}]
+           >>> df = gp.DataFrame.from_rows(dict_list, db=db)
+           >>> df
+            ----------
+             id | val
+            ----+-----
+              1 | 11
+              2 | 22
+            ----------
+            (2 rows)
         """
         row_tuples = [row.values() if isinstance(row, dict) else row for row in rows]
         if column_names is None:

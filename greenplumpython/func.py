@@ -440,7 +440,7 @@ def create_function(
             --------
              result
             --------
-                2
+                  2
             --------
             (1 row)
 
@@ -481,11 +481,11 @@ def create_aggregate(
             >>> numbers = db.create_dataframe(rows=rows, column_names=["val"])
             >>> results = numbers.group_by().assign(result=lambda t: my_sum(t["val"]))
             >>> results
-            --------
-             result
-            --------
-                 10
-            --------
+            ---------
+             results
+            ---------
+                  10
+            ---------
             (1 row)
     """
     # If user needs extra parameters when creating a function
@@ -535,10 +535,10 @@ def create_array_function(
                 >>> results = numbers.group_by("is_even").assign(result=lambda t: my_sum(t["val]))
                 >>> results
                 ------------------
-                is_even | result
+                 is_even | result
                 ---------+--------
-                    0 |      5
-                    1 |      5
+                       0 |      5
+                       1 |      5
                 ------------------
                 (2 rows)
     """

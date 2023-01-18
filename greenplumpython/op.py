@@ -26,7 +26,7 @@ def operator(name: str, db: Database) -> Callable[[Any, Any], BinaryExpr]:
             ------------
              is_matched
             ------------
-                    1
+                      1
             ------------
             (1 row)
     """
