@@ -268,9 +268,24 @@ class NormalFunction(_AbstractFunction):
                     for param in func_sig.parameters.values()
                 ]
             )
+            # make inspect.getsource can run in Python REPL(IPython do not have this issue)
+
+            # CPython issue https://github.com/python/cpython/issues/57129
+            # TODO: in the future, we might want to use `dill.dumps(func, recurse=True)`
+            # to send the function to the DBMS with dependencies like imports.
+            try:
+                source: str = inspect.getsource(self._wrapped_func)
+                # if run inspect.getsource(func) in REPL will raise IOError
+                # that func is not buildin
+            except IOError:
+                # use dill library to bypass that
+                from dill.source import getsource  # type: ignore
+
+                source = getsource(self._wrapped_func)
+
             # -- Loading Python code of Function
             # FIXME: include things in func.__closure__
-            func_lines = textwrap.dedent(inspect.getsource(self._wrapped_func)).split("\n")
+            func_lines = textwrap.dedent(source).split("\n")
             func_body = "\n".join([line for line in func_lines if re.match(r"^\s", line)])
             return_type = to_pg_type(func_sig.return_annotation, db, for_return=True)
             assert (
