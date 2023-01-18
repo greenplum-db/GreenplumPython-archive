@@ -1,0 +1,5 @@
+Type
+========
+
+.. automodule:: type
+   :members:
