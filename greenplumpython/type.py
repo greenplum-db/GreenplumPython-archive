@@ -20,18 +20,18 @@ class TypeCast(Expr):
                 >>> regclass = gp.get_type("regclass")
                 >>> dataframe_name = series.assign(dataframe_name=lambda t: regclass(t["tableoid"]))
                 ----------------------
-                val | dataframe_name
+                 val | dataframe_name
                 -----+----------------
-                0 | serie
-                1 | serie
-                2 | serie
-                3 | serie
-                4 | serie
-                5 | serie
-                6 | serie
-                7 | serie
-                8 | serie
-                9 | serie
+                   0 | serie
+                   1 | serie
+                   2 | serie
+                   3 | serie
+                   4 | serie
+                   5 | serie
+                   6 | serie
+                   7 | serie
+                   8 | serie
+                   9 | serie
                 ----------------------
                 (10 rows)
     """
