@@ -180,53 +180,70 @@ class DataFrame:
         """
         return self._getitem(_)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         # noqa
         """
         :meta private:
 
         Return a string representation for a dataframe
         """
-        repr_string: str = ""
-        ret = list(self)
-        if len(ret) != 0:
-            # Iterate over the given table to calculate the column width for its ASCII representation.
-            col_number = len(ret[0])
-            width = [0] * col_number
-            for row in ret:
-                for col_idx, col in enumerate(row):  # type: ignore
-                    width[col_idx] = max(width[col_idx], len(col), len(str(row[col])))  # type: ignore
-            # DataFrame header.
-            repr_string += (
-                "".join(
+        contents = list(self)
+        row_num_string = f"({len(contents)} row{'s' if len(contents) != 1 else ''})\n"
+        if len(contents) == 0:  # DataFrame is empty
+            return "----\n" "----\n" "----\n" + row_num_string
+
+        # To align each column, we use a two-pass algorithm:
+        # 1. Iterate over the DataFrame to find the max width for each column; and
+        # 2. Convert the datum in each column to str within the width.
+        first_row: Row = contents[0]
+        widths = {col: len(col) for col in first_row} if len(first_row) > 0 else {None: 2}
+        for row in contents:
+            for name, val in row.items():
+                widths[name] = max(widths[name], len(str(val)))
+        # For Python >= 3.7, dict.items() and dict.values() will preserves the
+        # input order.
+        def line(sep: str) -> str:
+            return (
+                sep.join(["-{:{}}-".format("-" * width, width) for width in widths.values()]) + "\n"
+            )
+
+        df_string = line("-")
+        df_string += (
+            "|".join(
+                [
+                    " {:{}} ".format(col if col is not None else "", width)
+                    for col, width in widths.items()
+                ]
+            )
+            + "\n"
+        )
+        df_string += line("+")
+        for row in contents:
+            df_string += (
+                "|".join(
                     [
-                        " {:{}} ".format(col, width[idx]) + ("|" if idx < col_number - 1 else "")  # type: ignore
-                        for idx, col in enumerate(ret[0])  # type: ignore
+                        (" {:{}} ").format(
+                            "{}".format(
+                                ""
+                                if col_name is None
+                                else row[col_name]
+                                if isinstance(row[col_name], list)
+                                else ("{:{}}").format(
+                                    row[col_name] if row[col_name] is not None else "",
+                                    widths[col_name],
+                                )
+                            ),
+                            widths[col_name],
+                        )
+                        for col_name in widths
                     ]
                 )
-                + "\n"
-            )
-            # Dividing line below DataFrame header.
-            repr_string += (
-                "+".join(
-                    [" {:{}} ".format("-" * width[idx], width[idx]) for idx in range(col_number)]
-                )
-                + "\n"
-            )
-            # DataFrame contents.
-            for row in ret:
-                content = [row[c] for c in row]  # type: ignore
-                for idx, c in enumerate(content):  # type: ignore
-                    if isinstance(c, list):
-                        repr_string += (" {:{}} ").format("{}".format(c), width[idx])  # type: ignore
-                        repr_string += "|" if idx < col_number - 1 else ""
-                    else:
-                        repr_string += (" {:{}} ").format(c if c is not None else "", width[idx])  # type: ignore
-                        repr_string += "|" if idx < col_number - 1 else ""
-                repr_string += "\n"
-        return repr_string
+            ) + "\n"
+        df_string += line("-")
+        df_string += row_num_string
+        return df_string
 
-    def _repr_html_(self):
+    def _repr_html_(self) -> str:
         # noqa
         """:meta private:"""
         repr_html_str = ""
@@ -234,14 +251,12 @@ class DataFrame:
         if len(ret) != 0:
             repr_html_str = "<table>\n"
             repr_html_str += "\t<tr>\n"
-            repr_html_str += ("\t\t<th>{:}</th>\n" * len(ret[0])).format(
-                *((ret[0]))  # type: ignore
-            )
+            repr_html_str += ("\t\t<th>{:}</th>\n" * len(ret[0])).format(*((ret[0])))
             repr_html_str += "\t</tr>\n"
             for row in ret:
-                content = [row[c] for c in row]  # type: ignore
+                content = [row[c] for c in row]
                 repr_html_str += "\t<tr>\n"
-                for c in content:  # type: ignore
+                for c in content:
                     if isinstance(c, list):
                         repr_html_str += ("\t\t<td>{:}</td>\n").format("{}".format(c))  # type: ignore
                     else:
@@ -378,7 +393,7 @@ class DataFrame:
         Example:
             .. code-block::  Python
 
-                t.order_by("id")
+                t.order_by("id")[:]
         """
         # State transition diagram:
         # DataFrame --order_by()-> DataFrameOrdering --head()-> DataFrame
@@ -580,17 +595,17 @@ class DataFrame:
             return self._query
         return "WITH " + ",".join(cte_list) + self._query
 
-    def __iter__(self) -> "DataFrame.DictIterator":
+    def __iter__(self) -> "DataFrame.Iterator":
         # noqa
         """:meta private:"""
         if self._contents is not None:
-            return DataFrame.DictIterator(self._contents)
+            return DataFrame.Iterator(self._contents)
         assert self._db is not None
         self._contents = self._fetch()
         assert self._contents is not None
-        return DataFrame.DictIterator(self._contents)
+        return DataFrame.Iterator(self._contents)
 
-    class DictIterator:
+    class Iterator:
         # noqa
         """:meta private:"""
 
@@ -603,7 +618,7 @@ class DataFrame:
             # noqa
             return self
 
-        def __next__(self):
+        def __next__(self) -> Row:
             # noqa
             """:meta private:"""
 
@@ -661,7 +676,7 @@ class DataFrame:
         return result if result is not None else []
 
     def save_as(
-        self, dataframe_name: str, column_names: List[str] = [], temp: bool = False
+        self, table_name: str, column_names: List[str] = [], temp: bool = False
     ) -> "DataFrame":
         """
         Save the GreenplumPython :class:`Dataframe` as a *table* into the database.
@@ -681,12 +696,12 @@ class DataFrame:
         assert len(column_names) > 0, "Column names of new dataframe are unknown."
         self._db.execute(
             f"""
-            CREATE {'TEMP' if temp else ''} TABLE {dataframe_name} ({','.join(column_names)})
+            CREATE {'TEMP' if temp else ''} TABLE "{table_name}" ({','.join(column_names)}) 
             AS {self._build_full_query()}
             """,
             has_results=False,
         )
-        return DataFrame.from_table(dataframe_name, self._db)
+        return DataFrame.from_table(table_name, self._db)
 
     # TODO: Uncomment or remove this.
     #
@@ -733,9 +748,9 @@ class DataFrame:
             by a different set of values of the columns in the arguments.
         """
         #  State transition diagram:
-        #  DataFrame --group_by()-> DataFrameRowGroup --aggregate()-> FunctionExpr
-        #    ^                                                    |
-        #    |------------------------- to_dataframe() ---------------|
+        #  DataFrame --group_by()-> DataFrameGroupingSets --aggregate()-> FunctionExpr
+        #    ^                                                             |
+        #    |------------------------- assign() or apply() ---------------|
         return DataFrameGroupingSets(self, [column_names])
 
     def distinct_on(self, *column_names: str) -> "DataFrame":
