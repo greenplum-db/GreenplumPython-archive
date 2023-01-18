@@ -19,7 +19,7 @@
                 {
                     "data": {
                         "text/plain": [
-                            "<module 'greenplumpython' from '/home/gpadmin/.local/lib/python3.9/site-packages/greenplumpython/__init__.py'>"
+                            "<module 'greenplumpython' from '/home/gpadmin/GreenplumPython/greenplumpython/__init__.py'>"
                         ]
                     },
                     "execution_count": 1,
@@ -191,11 +191,14 @@
                             "</table>"
                         ],
                         "text/plain": [
+                            "-------------\n",
                             " name  | age \n",
-                            " ----- + --- \n",
+                            "-------+-----\n",
                             " alice |  18 \n",
                             " bob   |  19 \n",
-                            " carol |  19 "
+                            " carol |  19 \n",
+                            "-------------\n",
+                            "(3 rows)"
                         ]
                     },
                     "execution_count": 4,
@@ -220,12 +223,7 @@
                 "\n",
                 "`Database` in GreenplumPython is like \"directory\" in file systems, which helps to avoid name conflict on persistence.\n",
                 "\n",
-                "The reason behind this difference is that\n",
-                "\n",
-                "- `DataFrame`s in GreenplumPython can themselves be persisted, while\n",
-                "- `DataFrame`s in pandas live only in memory and need to be written to a file for persistence.\n",
-                "\n",
-                "A GreenplumPython `DataFrame` can be saved persistently in the database system with"
+                "A GreenplumPython `DataFrame` can be saved persistently in the database system as a table with"
             ]
         },
         {
@@ -242,6 +240,10 @@
                             "\t\t<th>age</th>\n",
                             "\t</tr>\n",
                             "\t<tr>\n",
+                            "\t\t<td>alice</td>\n",
+                            "\t\t<td>18</td>\n",
+                            "\t</tr>\n",
+                            "\t<tr>\n",
                             "\t\t<td>bob</td>\n",
                             "\t\t<td>19</td>\n",
                             "\t</tr>\n",
@@ -249,18 +251,17 @@
                             "\t\t<td>carol</td>\n",
                             "\t\t<td>19</td>\n",
                             "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>alice</td>\n",
-                            "\t\t<td>18</td>\n",
-                            "\t</tr>\n",
                             "</table>"
                         ],
                         "text/plain": [
+                            "-------------\n",
                             " name  | age \n",
-                            " ----- + --- \n",
+                            "-------+-----\n",
+                            " alice |  18 \n",
                             " bob   |  19 \n",
                             " carol |  19 \n",
-                            " alice |  18 "
+                            "-------------\n",
+                            "(3 rows)"
                         ]
                     },
                     "execution_count": 5,
@@ -333,11 +334,14 @@
                             "</table>"
                         ],
                         "text/plain": [
+                            "-------------\n",
                             " name  | age \n",
-                            " ----- + --- \n",
+                            "-------+-----\n",
                             " alice |  18 \n",
                             " bob   |  19 \n",
-                            " carol |  19 "
+                            " carol |  19 \n",
+                            "-------------\n",
+                            "(3 rows)"
                         ]
                     },
                     "execution_count": 7,
@@ -603,6 +607,10 @@
                             "\t\t<th>age</th>\n",
                             "\t</tr>\n",
                             "\t<tr>\n",
+                            "\t\t<td>carol</td>\n",
+                            "\t\t<td>19</td>\n",
+                            "\t</tr>\n",
+                            "\t<tr>\n",
                             "\t\t<td>alice</td>\n",
                             "\t\t<td>18</td>\n",
                             "\t</tr>\n",
@@ -610,18 +618,17 @@
                             "\t\t<td>bob</td>\n",
                             "\t\t<td>19</td>\n",
                             "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>carol</td>\n",
-                            "\t\t<td>19</td>\n",
-                            "\t</tr>\n",
                             "</table>"
                         ],
                         "text/plain": [
+                            "-------------\n",
                             " name  | age \n",
-                            " ----- + --- \n",
+                            "-------+-----\n",
+                            " carol |  19 \n",
                             " alice |  18 \n",
                             " bob   |  19 \n",
-                            " carol |  19 "
+                            "-------------\n",
+                            "(3 rows)"
                         ]
                     },
                     "execution_count": 12,
@@ -689,7 +696,7 @@
                 {
                     "data": {
                         "text/plain": [
-                            "<greenplumpython.col.Column at 0x7f99919172b0>"
+                            "<greenplumpython.col.Column at 0x7fc529986e80>"
                         ]
                     },
                     "execution_count": 14,
@@ -808,9 +815,12 @@
                             "</table>"
                         ],
                         "text/plain": [
+                            "-------------\n",
                             " name  | age \n",
-                            " ----- + --- \n",
-                            " alice |  18 "
+                            "-------+-----\n",
+                            " alice |  18 \n",
+                            "-------------\n",
+                            "(1 row)"
                         ]
                     },
                     "execution_count": 16,
@@ -870,10 +880,13 @@
                             "</table>"
                         ],
                         "text/plain": [
+                            "-------------\n",
                             " name  | age \n",
-                            " ----- + --- \n",
+                            "-------+-----\n",
                             " alice |  18 \n",
-                            " bob   |  19 "
+                            " bob   |  19 \n",
+                            "-------------\n",
+                            "(2 rows)"
                         ]
                     },
                     "execution_count": 17,
@@ -1084,11 +1097,14 @@
                             "</table>"
                         ],
                         "text/plain": [
+                            "-------------\n",
                             " name  | age \n",
-                            " ----- + --- \n",
+                            "-------+-----\n",
                             " carol |  19 \n",
                             " bob   |  19 \n",
-                            " alice |  18 "
+                            " alice |  18 \n",
+                            "-------------\n",
+                            "(3 rows)"
                         ]
                     },
                     "execution_count": 20,
@@ -1242,11 +1258,14 @@
                             "</table>"
                         ],
                         "text/plain": [
+                            "-----------------------------\n",
                             " name  | age | year_of_birth \n",
-                            " ----- + --- + ------------- \n",
+                            "-------+-----+---------------\n",
                             " alice |  18 |          2005 \n",
                             " bob   |  19 |          2004 \n",
-                            " carol |  19 |          2004 "
+                            " carol |  19 |          2004 \n",
+                            "-----------------------------\n",
+                            "(3 rows)"
                         ]
                     },
                     "execution_count": 22,
@@ -1304,6 +1323,11 @@
                             "\t\t<th>name_</th>\n",
                             "\t</tr>\n",
                             "\t<tr>\n",
+                            "\t\t<td>carol</td>\n",
+                            "\t\t<td>19</td>\n",
+                            "\t\t<td>4c26d9074c27d89ede59270c0ac14b71e071b15239519f75474b2f3ba63481f5</td>\n",
+                            "\t</tr>\n",
+                            "\t<tr>\n",
                             "\t\t<td>alice</td>\n",
                             "\t\t<td>18</td>\n",
                             "\t\t<td>2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90</td>\n",
@@ -1313,19 +1337,17 @@
                             "\t\t<td>19</td>\n",
                             "\t\t<td>81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9</td>\n",
                             "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>carol</td>\n",
-                            "\t\t<td>19</td>\n",
-                            "\t\t<td>4c26d9074c27d89ede59270c0ac14b71e071b15239519f75474b2f3ba63481f5</td>\n",
-                            "\t</tr>\n",
                             "</table>"
                         ],
                         "text/plain": [
+                            "--------------------------------------------------------------------------------\n",
                             " name  | age | name_                                                            \n",
-                            " ----- + --- + ---------------------------------------------------------------- \n",
+                            "-------+-----+------------------------------------------------------------------\n",
+                            " carol |  19 | 4c26d9074c27d89ede59270c0ac14b71e071b15239519f75474b2f3ba63481f5 \n",
                             " alice |  18 | 2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90 \n",
                             " bob   |  19 | 81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9 \n",
-                            " carol |  19 | 4c26d9074c27d89ede59270c0ac14b71e071b15239519f75474b2f3ba63481f5 "
+                            "--------------------------------------------------------------------------------\n",
+                            "(3 rows)"
                         ]
                     },
                     "execution_count": 24,
@@ -1376,11 +1398,14 @@
                             "</table>"
                         ],
                         "text/plain": [
+                            "------------------------------------------------------------------------\n",
                             " name                                                             | age \n",
-                            " ---------------------------------------------------------------- + --- \n",
+                            "------------------------------------------------------------------+-----\n",
                             " 2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90 |  18 \n",
                             " 81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9 |  19 \n",
-                            " 4c26d9074c27d89ede59270c0ac14b71e071b15239519f75474b2f3ba63481f5 |  19 "
+                            " 4c26d9074c27d89ede59270c0ac14b71e071b15239519f75474b2f3ba63481f5 |  19 \n",
+                            "------------------------------------------------------------------------\n",
+                            "(3 rows)"
                         ]
                     },
                     "execution_count": 25,
@@ -1553,10 +1578,13 @@
                             "</table>"
                         ],
                         "text/plain": [
+                            "-------------\n",
                             " count | age \n",
-                            " ----- + --- \n",
+                            "-------+-----\n",
                             "     2 |  19 \n",
-                            "     1 |  18 "
+                            "     1 |  18 \n",
+                            "-------------\n",
+                            "(2 rows)"
                         ]
                     },
                     "execution_count": 28,
@@ -1670,16 +1698,19 @@
                             "\t\t<td>18</td>\n",
                             "\t</tr>\n",
                             "\t<tr>\n",
-                            "\t\t<td>carol</td>\n",
+                            "\t\t<td>bob</td>\n",
                             "\t\t<td>19</td>\n",
                             "\t</tr>\n",
                             "</table>"
                         ],
                         "text/plain": [
+                            "-------------\n",
                             " name  | age \n",
-                            " ----- + --- \n",
+                            "-------+-----\n",
                             " alice |  18 \n",
-                            " carol |  19 "
+                            " bob   |  19 \n",
+                            "-------------\n",
+                            "(2 rows)"
                         ]
                     },
                     "execution_count": 30,
@@ -1718,9 +1749,12 @@
                             "</table>"
                         ],
                         "text/plain": [
+                            "-------\n",
                             " count \n",
-                            " ----- \n",
-                            "     2 "
+                            "-------\n",
+                            "     2 \n",
+                            "-------\n",
+                            "(1 row)"
                         ]
                     },
                     "execution_count": 31,
@@ -1853,12 +1887,7 @@
                             "\t\t<th>name_2</th>\n",
                             "\t</tr>\n",
                             "\t<tr>\n",
-                            "\t\t<td>bob</td>\n",
-                            "\t\t<td>19</td>\n",
                             "\t\t<td>carol</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>bob</td>\n",
                             "\t\t<td>19</td>\n",
                             "\t\t<td>bob</td>\n",
                             "\t</tr>\n",
@@ -1866,27 +1895,35 @@
                             "\t\t<td>carol</td>\n",
                             "\t\t<td>19</td>\n",
                             "\t\t<td>carol</td>\n",
-                            "\t</tr>\n",
-                            "\t<tr>\n",
-                            "\t\t<td>carol</td>\n",
-                            "\t\t<td>19</td>\n",
-                            "\t\t<td>bob</td>\n",
                             "\t</tr>\n",
                             "\t<tr>\n",
                             "\t\t<td>alice</td>\n",
                             "\t\t<td>18</td>\n",
                             "\t\t<td>alice</td>\n",
                             "\t</tr>\n",
+                            "\t<tr>\n",
+                            "\t\t<td>bob</td>\n",
+                            "\t\t<td>19</td>\n",
+                            "\t\t<td>bob</td>\n",
+                            "\t</tr>\n",
+                            "\t<tr>\n",
+                            "\t\t<td>bob</td>\n",
+                            "\t\t<td>19</td>\n",
+                            "\t\t<td>carol</td>\n",
+                            "\t</tr>\n",
                             "</table>"
                         ],
                         "text/plain": [
+                            "----------------------\n",
                             " name  | age | name_2 \n",
-                            " ----- + --- + ------ \n",
-                            " bob   |  19 | carol  \n",
-                            " bob   |  19 | bob    \n",
-                            " carol |  19 | carol  \n",
+                            "-------+-----+--------\n",
                             " carol |  19 | bob    \n",
-                            " alice |  18 | alice  "
+                            " carol |  19 | carol  \n",
+                            " alice |  18 | alice  \n",
+                            " bob   |  19 | bob    \n",
+                            " bob   |  19 | carol  \n",
+                            "----------------------\n",
+                            "(5 rows)"
                         ]
                     },
                     "execution_count": 33,
@@ -1895,13 +1932,13 @@
                 }
             ],
             "source": [
-                "student_2 = student.save_as(dataframe_name=\"students_2\", column_names=[\"name\", \"age\"], temp=True)\n",
+                "student_2 = student.save_as(table_name=\"students_2\", column_names=[\"name\", \"age\"], temp=True)\n",
                 "student.join(\n",
                 "    student_2,\n",
                 "    on=\"age\",\n",
                 "    self_columns={\"*\"},\n",
                 "    other_columns={\"name\": \"name_2\"},\n",
-                ")"
+                ")\n"
             ]
         },
         {
@@ -1994,7 +2031,7 @@
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "To avoid such kind of misuse, in GreenplumPython, it is impossible to refer to other `DataFrame`s except for the \"current\" one in an expression.\n",
+                "To avoid such kind of misuse, in GreenplumPython, it is impossible to refer to other `DataFrame`s except for the \"current\" one in an expression except when using the `in_()` expression.\n",
                 "\n",
                 "This is because GreenplumPython only accepts a `Callable` as argument for expression and will bind it to the current `DataFrame` automatically. "
             ]
@@ -2016,7 +2053,7 @@
             "name": "python",
             "nbconvert_exporter": "python",
             "pygments_lexer": "ipython3",
-            "version": "3.10.9"
+            "version": "3.9.13"
         },
         "vscode": {
             "interpreter": {
