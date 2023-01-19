@@ -47,13 +47,35 @@
 <li class="toctree-l1"><a class="reference internal" href="../basic.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules.html">GreenplumPython</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../abalone.html">Example: Predicting the age of abalone</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Context</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Context</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Background">Background</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Problem">Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Fetch-data-from-ML-data-repository">Fetch data from ML data repository</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Train-Test-set-split">Train Test set split</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#Import-preparation">Import preparation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Data-Exploration">Data Exploration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Execute-the-OLS-Linear-Regression-Function-by-‘sex’">Execute the OLS Linear Regression Function by ‘sex’</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#Training-Process">Training Process</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Prediction">Prediction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Evaluation-of-model">Evaluation of model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Training-Process">Training Process</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Creation-of-training-function">Creation of training function</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Apply-linreg_fitted-function-to-our-train-set">Apply <code class="docutils literal notranslate"><span class="pre">linreg_fitted</span></code> function to our train set</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Take-a-look-at-models-built">Take a look at models built</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Get-summary-of-parameter’s-coefficient-for-three-sex">Get summary of parameter’s coefficient for three sex</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Prediction">Prediction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Creation-of-prediction-function">Creation of prediction function</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Join-model-dataframe-and-test-set-dataframe">Join model dataframe and test set dataframe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Predict-test-set">Predict test set</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Evaluation-of-model">Evaluation of model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Creation-of-evaluation-return-type">Creation of evaluation return type</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Creation-of-evaluation-function">Creation of evaluation function</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Evaluate-our-model">Evaluate our model</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -367,21 +389,28 @@ div.rendered_html tbody tr:hover {
 </style>
 <section id="Context">
 <h1>Context<a class="headerlink" href="#Context" title="Permalink to this heading"></a></h1>
-<p><strong>Background:</strong></p>
+<section id="Background">
+<h2>Background<a class="headerlink" href="#Background" title="Permalink to this heading"></a></h2>
 <p>Predicting the age of abalone from physical measurements. The age of abalone is determined by cutting the shell through the cone, staining it, and counting the number of rings through a microscope – a boring and time-consuming task. Other measurements, which are easier to obtain, are used to predict the age.</p>
-<p><strong>Problem:</strong></p>
+</section>
+<section id="Problem">
+<h2>Problem<a class="headerlink" href="#Problem" title="Permalink to this heading"></a></h2>
 <p>Build regression models by sex which can predict the number of rings.</p>
-<p><strong>Fetch data from ML data repository:</strong></p>
-<p>We can fetch data to Greenplum Using following steps.</p>
+</section>
+<section id="Fetch-data-from-ML-data-repository">
+<h2>Fetch data from ML data repository<a class="headerlink" href="#Fetch-data-from-ML-data-repository" title="Permalink to this heading"></a></h2>
+<p>The training data is located on the website. Thanks for Greenplum’s <a class="reference external" href="https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-admin_guide-external-g-creating-and-using-web-external-tables.html">external table</a>, accessing CSV data from a HTTP server is easy.</p>
+<p>First, connect to the database. You may want to change the connect string like <code class="docutils literal notranslate"><span class="pre">postgresql://&lt;user&gt;&#64;&lt;host&gt;:&lt;port&gt;/&lt;db_name&gt;</span></code> to fit your needs.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> sql
-<span class="o">%</span><span class="k">sql</span> postgresql://gpadmin@localhost:7000/postgres
+<span class="o">%</span><span class="k">sql</span> postgresql://${PGHOST}:${PGPORT}/gpadmin
 </pre></div>
 </div>
 </div>
+<p>Then, create the external table:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
@@ -410,7 +439,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
- * postgresql://gpadmin@localhost:7000/postgres
+ * postgresql://127.0.0.1:6000/gpadmin
 Done.
 Done.
 </pre></div></div>
@@ -443,7 +472,7 @@ Done.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
- * postgresql://gpadmin@localhost:7000/postgres
+ * postgresql://127.0.0.1:6000/gpadmin
 Done.
 4177 rows affected.
 </pre></div></div>
@@ -457,10 +486,16 @@ Done.
 []
 </pre></div></div>
 </div>
-<p><strong>Train Test set split</strong></p>
-<p>Before proceeding data exploration, let’s split our dataset to train and test set without using MADlib.</p>
-<p>Firstly, we fetch a random value between 0 and 1 to each row. Then we create a percentile table that stores percentile values for each sex. Finally, we join those 2 tables to obtain our training or test tables.</p>
-<p>But since Ordered-Set Aggregate Function is not yet supported with Beta version 1, we will skip this step with GreenplumPython and implement it with SQL.</p>
+</section>
+<section id="Train-Test-set-split">
+<h2>Train Test set split<a class="headerlink" href="#Train-Test-set-split" title="Permalink to this heading"></a></h2>
+<p>Before proceeding data exploration, let’s split our dataset to train and test set.</p>
+<ul class="simple">
+<li><p>Firstly, we fetch a random value between 0 and 1 to each row;</p></li>
+<li><p>Then we create a percentile table that stores percentile values for each sex;</p></li>
+<li><p>Finally, we join those 2 tables to obtain our training or test tables.</p></li>
+</ul>
+<p>But since Ordered-Set Aggregate Function is not yet supported by the current version, we will skip this step with GreenplumPython and implement it with SQL.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
@@ -500,7 +535,7 @@ Done.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
- * postgresql://gpadmin@localhost:7000/postgres
+ * postgresql://127.0.0.1:6000/gpadmin
 4177 rows affected.
 3 rows affected.
 3 rows affected.
@@ -521,9 +556,10 @@ Done.
 </div>
 <p>Note that these features could be supported by GreenplumPython in future release.</p>
 </section>
+</section>
 <section id="Import-preparation">
 <h1>Import preparation<a class="headerlink" href="#Import-preparation" title="Permalink to this heading"></a></h1>
-<p>We connect to Greenplum database named “postgres”</p>
+<p>Connect to Greenplum database named <code class="docutils literal notranslate"><span class="pre">gpadmin</span></code></p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
@@ -536,14 +572,14 @@ Done.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">database</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="n">dbname</span><span class="o">=</span><span class="s2">&quot;postgres&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">database</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="n">dbname</span><span class="o">=</span><span class="s2">&quot;gpadmin&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </section>
 <section id="Data-Exploration">
 <h1>Data Exploration<a class="headerlink" href="#Data-Exploration" title="Permalink to this heading"></a></h1>
-<p>Get access to existed table “abalone”</p>
+<p>Get access to the existing table <code class="docutils literal notranslate"><span class="pre">abalone</span></code>:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
@@ -552,7 +588,7 @@ Done.
 </pre></div>
 </div>
 </div>
-<p>Take a look on table</p>
+<p>Inspect the table:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
@@ -643,7 +679,7 @@ Done.
     </tr>
 </table></div>
 </div>
-<p>Observe the distribution of data on different segments</p>
+<p>Observe the distribution of data on different segments:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
@@ -679,7 +715,7 @@ Done.
     </tr>
 </table></div>
 </div>
-<p>Since we already have table “abalone_train” ad “abalone_test” in the database, we can get access to them.</p>
+<p>Since we already have table <code class="docutils literal notranslate"><span class="pre">abalone_train</span></code> ad <code class="docutils literal notranslate"><span class="pre">abalone_test</span></code> in the database, we can get access to them.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
@@ -694,7 +730,11 @@ Done.
 <h1>Execute the OLS Linear Regression Function by ‘sex’<a class="headerlink" href="#Execute-the-OLS-Linear-Regression-Function-by-‘sex’" title="Permalink to this heading"></a></h1>
 <section id="Training-Process">
 <h2>Training Process<a class="headerlink" href="#Training-Process" title="Permalink to this heading"></a></h2>
-<p><strong>Creation of training function</strong></p>
+<section id="Creation-of-training-function">
+<h3>Creation of training function<a class="headerlink" href="#Creation-of-training-function" title="Permalink to this heading"></a></h3>
+<hr class="docutils" />
+<p><strong>NOTE:</strong> Since the <code class="docutils literal notranslate"><span class="pre">linreg_func</span></code> will be executed on Greenplum Database, all the python dependencies (<code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code>/<code class="docutils literal notranslate"><span class="pre">numpy</span></code>/etc.) needs to be discoverable by the <code class="docutils literal notranslate"><span class="pre">plpython</span></code> extension. Please check <a class="reference external" href="https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-analytics-pl_python.html">Greenplum PL/Python Language</a> for more information.</p>
+<hr class="docutils" />
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
@@ -753,7 +793,9 @@ Done.
 </pre></div>
 </div>
 </div>
-<p><strong>Apply “linreg_fitted” function to our train set</strong></p>
+</section>
+<section id="Apply-linreg_fitted-function-to-our-train-set">
+<h3>Apply <code class="docutils literal notranslate"><span class="pre">linreg_fitted</span></code> function to our train set<a class="headerlink" href="#Apply-linreg_fitted-function-to-our-train-set" title="Permalink to this heading"></a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
@@ -786,7 +828,9 @@ Done.
 </pre></div>
 </div>
 </div>
-<p><strong>Take a look at models built</strong></p>
+</section>
+<section id="Take-a-look-at-models-built">
+<h3>Take a look at models built<a class="headerlink" href="#Take-a-look-at-models-built" title="Permalink to this heading"></a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
@@ -811,30 +855,30 @@ Done.
     <tr>
             <td>F</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[26.450187407789976, -8.780855265628666]</td>
-            <td>-0.29327673210977245</td>
-            <td>2023-01-10 16:19:16.025537</td>
-    </tr>
-    <tr>
-            <td>M</td>
-            <td>['length', 'shucked_weight']</td>
-            <td>[23.16255006609472, -6.380683774781346]</td>
-            <td>0.479481002278213</td>
-            <td>2023-01-10 16:19:16.026369</td>
+            <td>[25.214525177099, -8.13516176003671]</td>
+            <td>0.155903008984469</td>
+            <td>2023-01-18 20:20:15.911128</td>
     </tr>
     <tr>
             <td>I</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[15.291716971049556, 0.6835519727947413]</td>
-            <td>1.220294653689031</td>
-            <td>2023-01-10 16:19:16.028601</td>
+            <td>[16.0937167348806, -0.277297553836529]</td>
+            <td>1.06519379419403</td>
+            <td>2023-01-18 20:20:15.924544</td>
+    </tr>
+    <tr>
+            <td>M</td>
+            <td>['length', 'shucked_weight']</td>
+            <td>[23.8277243968678, -6.74027973741311]</td>
+            <td>0.277948645598155</td>
+            <td>2023-01-18 20:20:15.926368</td>
     </tr>
 </table></div>
 </div>
-<p><strong>Get summary of parameter’s coefficient for three sex</strong></p>
-<ul class="simple">
-<li><p>Using ARRAY_APPEND</p></li>
-</ul>
+</section>
+<section id="Get-summary-of-parameter’s-coefficient-for-three-sex">
+<h3>Get summary of parameter’s coefficient for three sex<a class="headerlink" href="#Get-summary-of-parameter’s-coefficient-for-three-sex" title="Permalink to this heading"></a></h3>
+<p>Using <code class="docutils literal notranslate"><span class="pre">ARRAY_APPEND</span></code>:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
@@ -869,54 +913,56 @@ Done.
     <tr>
             <td>F</td>
             <td>length</td>
-            <td>26.450187407789976</td>
+            <td>25.2145251770991</td>
     </tr>
     <tr>
             <td>F</td>
             <td>shucked_weight</td>
-            <td>-8.780855265628666</td>
+            <td>-8.13516176003671</td>
     </tr>
     <tr>
             <td>F</td>
             <td>intercept</td>
-            <td>-0.29327673210977245</td>
-    </tr>
-    <tr>
-            <td>M</td>
-            <td>length</td>
-            <td>23.16255006609472</td>
-    </tr>
-    <tr>
-            <td>M</td>
-            <td>shucked_weight</td>
-            <td>-6.380683774781346</td>
-    </tr>
-    <tr>
-            <td>M</td>
-            <td>intercept</td>
-            <td>0.479481002278213</td>
+            <td>0.155903008984463</td>
     </tr>
     <tr>
             <td>I</td>
             <td>length</td>
-            <td>15.291716971049556</td>
+            <td>16.0937167348806</td>
     </tr>
     <tr>
             <td>I</td>
             <td>shucked_weight</td>
-            <td>0.6835519727947413</td>
+            <td>-0.277297553836528</td>
     </tr>
     <tr>
             <td>I</td>
             <td>intercept</td>
-            <td>1.220294653689031</td>
+            <td>1.06519379419403</td>
+    </tr>
+    <tr>
+            <td>M</td>
+            <td>length</td>
+            <td>23.8277243968678</td>
+    </tr>
+    <tr>
+            <td>M</td>
+            <td>shucked_weight</td>
+            <td>-6.74027973741311</td>
+    </tr>
+    <tr>
+            <td>M</td>
+            <td>intercept</td>
+            <td>0.277948645598151</td>
     </tr>
 </table></div>
 </div>
 </section>
+</section>
 <section id="Prediction">
 <h2>Prediction<a class="headerlink" href="#Prediction" title="Permalink to this heading"></a></h2>
-<p><strong>Creation of prediction function</strong></p>
+<section id="Creation-of-prediction-function">
+<h3>Creation of prediction function<a class="headerlink" href="#Creation-of-prediction-function" title="Permalink to this heading"></a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
@@ -938,7 +984,9 @@ Done.
 </pre></div>
 </div>
 </div>
-<p><strong>Join model dataframe and test set dataframe</strong></p>
+</section>
+<section id="Join-model-dataframe-and-test-set-dataframe">
+<h3>Join model dataframe and test set dataframe<a class="headerlink" href="#Join-model-dataframe-and-test-set-dataframe" title="Permalink to this heading"></a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
@@ -952,7 +1000,9 @@ Done.
 </pre></div>
 </div>
 </div>
-<p><strong>Predict test set</strong></p>
+</section>
+<section id="Predict-test-set">
+<h3>Predict test set<a class="headerlink" href="#Predict-test-set" title="Permalink to this heading"></a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
@@ -1008,41 +1058,43 @@ Done.
             <th>rings_pred</th>
     </tr>
     <tr>
-            <td>44</td>
+            <td>45</td>
             <td>I</td>
-            <td>5</td>
-            <td>4.372527208060456</td>
+            <td>4</td>
+            <td>4.44002160132682</td>
     </tr>
     <tr>
             <td>46</td>
             <td>I</td>
             <td>7</td>
-            <td>7.243875070017898</td>
+            <td>7.31747978483678</td>
     </tr>
     <tr>
             <td>51</td>
             <td>I</td>
             <td>8</td>
-            <td>9.335014624146346</td>
-    </tr>
-    <tr>
-            <td>59</td>
-            <td>I</td>
-            <td>4</td>
-            <td>4.995474494453552</td>
+            <td>9.36779102974194</td>
     </tr>
     <tr>
             <td>125</td>
             <td>I</td>
             <td>6</td>
-            <td>6.780680473063245</td>
+            <td>6.83647071689029</td>
+    </tr>
+    <tr>
+            <td>126</td>
+            <td>I</td>
+            <td>5</td>
+            <td>5.40259433232746</td>
     </tr>
 </table></div>
 </div>
 </section>
+</section>
 <section id="Evaluation-of-model">
 <h2>Evaluation of model<a class="headerlink" href="#Evaluation-of-model" title="Permalink to this heading"></a></h2>
-<p><strong>Creation of evaluation return type</strong></p>
+<section id="Creation-of-evaluation-return-type">
+<h3>Creation of evaluation return type<a class="headerlink" href="#Creation-of-evaluation-return-type" title="Permalink to this heading"></a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
@@ -1063,7 +1115,9 @@ Done.
 </pre></div>
 </div>
 </div>
-<p><strong>Creation of evaluation function</strong></p>
+</section>
+<section id="Creation-of-evaluation-function">
+<h3>Creation of evaluation function<a class="headerlink" href="#Creation-of-evaluation-function" title="Permalink to this heading"></a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
@@ -1086,7 +1140,9 @@ Done.
 </pre></div>
 </div>
 </div>
-<p>Evaluate our model</p>
+</section>
+<section id="Evaluate-our-model">
+<h3>Evaluate our model<a class="headerlink" href="#Evaluate-our-model" title="Permalink to this heading"></a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
@@ -1124,35 +1180,28 @@ Done.
     </tr>
     <tr>
             <td>F</td>
-            <td>2.290821558427861</td>
-            <td>19.6396756159456</td>
-            <td>10.846899619010793</td>
-            <td>0.14265447951572385</td>
-    </tr>
-    <tr>
-            <td>M</td>
-            <td>1.9013084168788352</td>
-            <td>18.16306443972444</td>
-            <td>7.0253924610645635</td>
-            <td>0.23614853154578153</td>
+            <td>2.07916732311501</td>
+            <td>19.0318170341858</td>
+            <td>8.04647876678667</td>
+            <td>0.138682114304443</td>
     </tr>
     <tr>
             <td>I</td>
-            <td>1.3770876023515812</td>
-            <td>15.653999263230437</td>
-            <td>4.729464876202149</td>
-            <td>0.39861315224092864</td>
+            <td>1.30612047270036</td>
+            <td>16.1458759880454</td>
+            <td>3.65555421316371</td>
+            <td>0.481159217581736</td>
+    </tr>
+    <tr>
+            <td>M</td>
+            <td>2.26969012372248</td>
+            <td>20.9666196214235</td>
+            <td>8.94939932664624</td>
+            <td>0.171649418612848</td>
     </tr>
 </table></div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-</div>
+</section>
 </section>
 </section>
 
