@@ -667,7 +667,7 @@ def test_agg_composite_type(db: gp.Database):
 import math
 
 
-def test_func_with_outside_dependencies(db: gp.Database):
+def test_func_with_outside_func(db: gp.Database):
     def inner(x: int) -> float:
         return math.log(x)
 
@@ -679,3 +679,21 @@ def test_func_with_outside_dependencies(db: gp.Database):
     assert len(list(df)) == 1
     for row in df:
         assert abs(row["x"] - math.log(42)) < 1e-5
+
+
+def test_func_with_outside_class(db: gp.Database):
+    class Student:
+        name: str
+        age: int
+
+    @gp.create_function
+    def student(name: str, age: int) -> Student:
+        student = Student()
+        student.name = name
+        student.age = age
+        return student.__dict__
+
+    df = db.apply(lambda: student("alice", 19), expand=True)
+    assert len(list(df)) == 1
+    for row in df:
+        assert row["name"] == "alice" and row["age"] == 19

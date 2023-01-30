@@ -1,4 +1,4 @@
-import greenplumpython.config
+from greenplumpython import config
 from greenplumpython.dataframe import DataFrame
 from greenplumpython.db import Database, database
 from greenplumpython.expr import Expr

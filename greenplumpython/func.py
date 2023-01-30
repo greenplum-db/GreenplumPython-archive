@@ -1,10 +1,17 @@
 """
 This module creates a Python object Func which able creation and calling of Greenplum UDF and UDA.
 """
+import ast
 import functools
 import inspect
+import textwrap
 from typing import Any, Callable, Optional, Set, Tuple
 from uuid import uuid4
+
+import dill  # type: ignore reportMissingTypeStubs
+
+dill.settings["recurse"] = True
+pickle = dill  # So that we can replace it with another package with min effort.
 
 from greenplumpython.col import Column
 from greenplumpython.dataframe import DataFrame
@@ -269,20 +276,33 @@ class NormalFunction(_AbstractFunction):
             func_arg_names = ",".join(
                 [f"{param.name}={param.name}" for param in func_sig.parameters.values()]
             )
-            from cloudpickle import dumps  # type: ignore reportMissingTypeStubs
-
-            dumped_func: bytes = dumps(self._wrapped_func, protocol=4)
             return_type = to_pg_type(func_sig.return_annotation, db, for_return=True)
+            dumped_func: bytes = pickle.dumps(self._wrapped_func)
+            func_ast: ast.FunctionDef = ast.parse(
+                textwrap.dedent(dill.source.getsource(self._wrapped_func))
+            ).body[0]
+            assert isinstance(func_ast, ast.FunctionDef), f"{self._wrapped_func} is not a function."
+            # Clear decorators and type annotations in source so that no
+            # import is needed.
+            func_ast.decorator_list.clear()
+            func_ast.name = self._qualified_name.split(".")[-1]
+            for arg in func_ast.args.args:
+                arg.annotation = None
+            func_ast.returns = None
             assert (
                 db.execute(
                     (
                         f"CREATE FUNCTION {self._qualified_name} ({func_args}) "
                         f"RETURNS {return_type} "
                         f"AS $$\n"
+                        f"{ast.unparse(func_ast)}\n"
                         f"_wrapped_func_ = SD.get('_wrapped_func_')\n"
                         f"if _wrapped_func_ is None:\n"
-                        f"    from pickle import loads\n"
-                        f"    _wrapped_func_ = loads({dumped_func})\n"
+                        f"    try: \n"
+                        f"        from dill import loads\n"
+                        f"        _wrapped_func_ = loads({dumped_func})\n"
+                        f"    except ModuleNotFoundError:\n"
+                        f"        _wrapped_func_ = {func_ast.name}\n"
                         f"    SD['_wrapped_func_'] = _wrapped_func_\n"
                         f"return _wrapped_func_({func_arg_names})\n"
                         f"$$ LANGUAGE {self._language_handler};"
