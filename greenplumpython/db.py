@@ -83,14 +83,32 @@ class Database:
             column_names: Iterable[str]: List of given column names
 
         Returns:
-
+        .. highlight:: python
         .. code-block::  python
 
-            t_from_table = db.create_dataframe(table_name="pg_class")
-            rows = [(1,), (2,), (3,)]
-            t_from_rows = db.create_dataframe(rows=rows)
-            columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
-            t_from_columns = db.create_dataframe(columns=columns)
+            >>> t_from_table = db.create_dataframe(table_name="pg_class")
+            >>> rows = [(1,), (2,), (3,)]
+            >>> t_from_rows = db.create_dataframe(rows=rows, column_names=["id"])
+            >>> t_from_rows
+            ----
+             id
+            ----
+              1
+              2
+              3
+            ----
+            (3 rows)
+            >>> columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
+            >>> t_from_columns = db.create_dataframe(columns=columns)
+            >>> t_from_columns
+            -------
+             a | b
+            ---+---
+             1 | 1
+             2 | 2
+             3 | 3
+            -------
+            (3 rows)
 
         """
         from greenplumpython.dataframe import DataFrame
@@ -143,11 +161,17 @@ class Database:
             DataFrame: GreenplumPython DataFrame resulted with assigned columns
 
         Example:
+            .. highlight:: python
             .. code-block::  python
 
-                version = gp.function("version")
-                db.assign(version=lambda: version())
-
+                >>> version = gp.function("version")
+                >>> db.assign(version=lambda: version())
+                -----------------------------------------------------------------------------------------------------------------------------
+                version
+                -----------------------------------------------------------------------------------------------------------------------------
+                PostgreSQL 12.9 (Debian 12.9-1.pgdg110+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 10.2.1-6) 10.2.1 20210110, 64-bit
+                -----------------------------------------------------------------------------------------------------------------------------
+                (1 row)
         """
         from greenplumpython.dataframe import DataFrame
         from greenplumpython.expr import Expr, serialize

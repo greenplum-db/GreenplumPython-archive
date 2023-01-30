@@ -49,12 +49,12 @@ def test_join_all_and_all_columns(db: gp.Database, t1: gp.DataFrame, t2: gp.Data
             )
         )
     )
-    assert sorted(row.column_names()) == sorted(["id1", "idd1", "n1", "id2", "idd2", "n2"])
+    assert sorted(row.keys()) == sorted(["id1", "idd1", "n1", "id2", "idd2", "n2"])
 
 
 def test_join_no_and_no_columns(db: gp.Database, t1: gp.DataFrame, t2: gp.DataFrame):
     ret = next(iter(t1.join(t2, cond=lambda t1, t2: t1["id1"] == t2["id2"])))
-    assert sorted(ret.column_names()) == sorted(["id1", "idd1", "n1", "id2", "idd2", "n2"])
+    assert sorted(ret.keys()) == sorted(["id1", "idd1", "n1", "id2", "idd2", "n2"])
 
 
 def test_join_all_and_no_columns(db: gp.Database, t1: gp.DataFrame, t2: gp.DataFrame):
@@ -65,7 +65,7 @@ def test_join_all_and_no_columns(db: gp.Database, t1: gp.DataFrame, t2: gp.DataF
             )
         )
     )
-    assert sorted(ret.column_names()) == sorted(["id2", "idd2", "n2"])
+    assert sorted(ret.keys()) == sorted(["id2", "idd2", "n2"])
 
 
 def test_join_all_and_one_columns(db: gp.Database, t1: gp.DataFrame, t2: gp.DataFrame):
@@ -79,7 +79,7 @@ def test_join_all_and_one_columns(db: gp.Database, t1: gp.DataFrame, t2: gp.Data
             )
         )
     )
-    assert sorted(ret.column_names()) == sorted(["id1", "id2", "idd2", "n2"])
+    assert sorted(ret.keys()) == sorted(["id1", "id2", "idd2", "n2"])
 
 
 def test_join_columns_from_list(db: gp.Database, t1: gp.DataFrame, t2: gp.DataFrame):
@@ -93,7 +93,7 @@ def test_join_columns_from_list(db: gp.Database, t1: gp.DataFrame, t2: gp.DataFr
             )
         )
     )
-    assert sorted(ret.column_names()) == sorted(["id1", "n1", "idd2"])
+    assert sorted(ret.keys()) == sorted(["id1", "n1", "idd2"])
 
 
 # FIXME : Test for no exist target column
@@ -103,28 +103,32 @@ def test_join_same_column_using(db: gp.Database):
     rows = [(1,), (2,), (3,)]
     t1 = db.create_dataframe(rows=rows, column_names=["id"])
     t2 = db.create_dataframe(rows=rows, column_names=["id"])
-    ret = t1.join(t2, using=["id"], self_columns={"id": "t1_id"}, other_columns={"id": "t2_id"})
-    assert sorted(next(iter(ret)).column_names()) == sorted(["t1_id", "t2_id"])
+    ret = t1.join(t2, on=["id"], self_columns={"id": "t1_id"}, other_columns={"id": "t2_id"})
+    assert sorted(next(iter(ret)).keys()) == sorted(["t1_id", "t2_id"])
 
 
 def test_join_same_column_names(db: gp.Database):
     rows = [(1, 1), (2, 1), (3, 1)]
     t1 = db.create_dataframe(rows=rows, column_names=["id", "n1"])
     t2 = db.create_dataframe(rows=rows, column_names=["id", "n2"])
-    ret = t1.cross_join(
-        t2,
-        self_columns={"*"},
-        other_columns={"*"},
-    )
+    ret = t1.cross_join(t2)
     with pytest.raises(Exception) as e:
         print(ret)
     assert "Duplicate column name(s) found" in str(e.value)
 
 
+def test_join_on_multi_columns(db: gp.Database):
+    rows = [(1, 1), (2, 1), (3, 1)]
+    t1 = db.create_dataframe(rows=rows, column_names=["id", "n"])
+    t2 = db.create_dataframe(rows=rows, column_names=["id", "n"])
+    ret = t1.join(t2, on=["id", "n"], other_columns={})
+    print(ret)
+
+
 def test_dataframe_inner_join(db: gp.Database, zoo_1: gp.DataFrame, zoo_2: gp.DataFrame):
     ret: gp.DataFrame = zoo_1.join(
         zoo_2,
-        using=["animal"],
+        on=["animal"],
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
         other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
     )
@@ -137,7 +141,7 @@ def test_dataframe_inner_join(db: gp.Database, zoo_1: gp.DataFrame, zoo_2: gp.Da
 def test_dataframe_left_join(db: gp.Database, zoo_1: gp.DataFrame, zoo_2: gp.DataFrame):
     ret = zoo_1.left_join(
         zoo_2,
-        using=["animal"],
+        on=["animal"],
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
         other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
     )
@@ -153,7 +157,7 @@ def test_dataframe_left_join(db: gp.Database, zoo_1: gp.DataFrame, zoo_2: gp.Dat
 def test_dataframe_right_join(db: gp.Database, zoo_1: gp.DataFrame, zoo_2: gp.DataFrame):
     ret = zoo_1.right_join(
         zoo_2,
-        using=["animal"],
+        on=["animal"],
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
         other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
     )
@@ -169,7 +173,7 @@ def test_dataframe_right_join(db: gp.Database, zoo_1: gp.DataFrame, zoo_2: gp.Da
 def test_dataframe_full_join(db: gp.Database, zoo_1: gp.DataFrame, zoo_2: gp.DataFrame):
     ret = zoo_1.full_join(
         zoo_2,
-        using=["animal"],
+        on=["animal"],
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
         other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
     )
@@ -197,12 +201,12 @@ def test_join_natural(db: gp.Database):
 
     ret = categories.join(
         products,
-        using=["category_id"],
+        on=["category_id"],
         self_columns={"category_name", "category_id"},
         other_columns={"product_name"},
     )
     assert len(list(ret)) == 6
-    assert sorted(next(iter(ret)).column_names()) == sorted(
+    assert sorted(next(iter(ret)).keys()) == sorted(
         ["category_id", "category_name", "product_name"]
     )
     for row in ret:
@@ -237,7 +241,7 @@ def test_dataframe_cross_join(db: gp.Database, zoo_1: gp.DataFrame, zoo_2: gp.Da
 def test_dataframe_self_join(db: gp.Database, zoo_1: gp.DataFrame):
     ret: gp.DataFrame = zoo_1.join(
         zoo_1,
-        using=["animal"],
+        on=["animal"],
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
         other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
     )
@@ -249,7 +253,7 @@ def test_dataframe_self_join(db: gp.Database, zoo_1: gp.DataFrame):
 def test_dataframe_join_save(db: gp.Database, zoo_1: gp.DataFrame):
     t_join: gp.DataFrame = zoo_1.join(
         zoo_1,
-        using=["animal"],
+        on=["animal"],
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
         other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
     )
@@ -259,7 +263,7 @@ def test_dataframe_join_save(db: gp.Database, zoo_1: gp.DataFrame):
         temp=True,
     )
     t_join_reload = gp.DataFrame.from_table("dataframe_join", db=db)
-    assert sorted(next(iter(t_join_reload)).column_names()) == sorted(
+    assert sorted(next(iter(t_join_reload)).keys()) == sorted(
         [
             "zoo1_animal",
             "zoo1_id",
@@ -285,7 +289,7 @@ def test_dataframe_join_ine(db: gp.Database):
 def test_dataframe_multiple_self_join(db: gp.Database, zoo_1: gp.DataFrame):
     t_join = zoo_1.join(
         zoo_1,
-        using=["animal"],
+        on=["animal"],
         self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
         other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
     )
@@ -308,5 +312,5 @@ def test_lineage_dfs_order(db: gp.Database):
     numbers = db.create_dataframe(rows=rows, column_names=["val"])
     mod = numbers.assign(mod=lambda t: t["val"] % 2)
     mod3 = mod.assign(mod3=lambda t: t["val"] % 3)
-    results: gp.DataFrame = mod3.join(numbers, using=["val"], other_columns={})
+    results: gp.DataFrame = mod3.join(numbers, on=["val"], other_columns={})
     assert len(list(results)) == 10

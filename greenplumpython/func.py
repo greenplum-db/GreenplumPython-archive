@@ -439,13 +439,20 @@ def create_function(
         :class:`NormalFunction`
 
     Example:
+        .. highlight:: python
         .. code-block::  Python
 
-            @gp.create_function
-            def multiply(a: int, b: int) -> int:
-                return a * b
+            >>> @gp.create_function
+            >>> def multiply(a: int, b: int) -> int:
+            >>>    return a * b
 
-            db.assign(result=lambda: multiply(1, 2))
+            >>> db.assign(result=lambda: multiply(1, 2))
+            --------
+             result
+            --------
+                  2
+            --------
+            (1 row)
 
     """
     # If user needs extra parameters when creating a function
@@ -471,18 +478,25 @@ def create_aggregate(
         :class:`AggregateFunction`
 
     Example:
+        .. highlight:: python
         .. code-block::  Python
 
-            @gp.create_aggregate
-            def my_sum(result: int, val: int) -> int:
-                if result is None:
-                    return val
-                return result + val
+            >>> @gp.create_aggregate
+            >>> def my_sum(result: int, val: int) -> int:
+            >>>     if result is None:
+            >>>         return val
+            >>>     return result + val
 
-            rows = [(1,) for _ in range(10)]
-            numbers = db.create_dataframe(rows=rows, column_names=["val"])
-            results = numbers.group_by().assign(result=lambda t: my_sum(t["val"]))
-
+            >>> rows = [(1,) for _ in range(10)]
+            >>> numbers = db.create_dataframe(rows=rows, column_names=["val"])
+            >>> results = numbers.group_by().assign(result=lambda t: my_sum(t["val"]))
+            >>> results
+            ---------
+             results
+            ---------
+                  10
+            ---------
+            (1 row)
     """
     # If user needs extra parameters when creating a function
     if transition_func is None:
@@ -519,15 +533,24 @@ def create_array_function(
         :class:`ArrayFunction`
 
     Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                @gp.create_array_function
-                def my_sum_array(val_list: List[int]) -> int:
-                    return sum(val_list)
+                >>> @gp.create_array_function
+                >>> def my_sum_array(val_list: List[int]) -> int:
+                >>>     return sum(val_list)
 
-                rows = [(1, i % 2 == 0) for i in range(10)]
-                numbers = db.create_dataframe(rows=rows, column_names=["val", "is_even"])
-                results = numbers.group_by("is_even").assign(result=lambda t: my_sum(t["val]))
+                >>> rows = [(1, i % 2 == 0) for i in range(10)]
+                >>> numbers = db.create_dataframe(rows=rows, column_names=["val", "is_even"])
+                >>> results = numbers.group_by("is_even").assign(result=lambda t: my_sum(t["val]))
+                >>> results
+                ------------------
+                 is_even | result
+                ---------+--------
+                       0 |      5
+                       1 |      5
+                ------------------
+                (2 rows)
     """
     # If user needs extra parameters when creating a function
     if wrapped_func is None:

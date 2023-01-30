@@ -271,7 +271,7 @@ def test_array_func_group_by(db: gp.Database):
     # -- WITH ASSIGN FUNC
     results = numbers.group_by("is_even").assign(result=lambda t: my_sum_array(t["val"]))
     assert len(list(results)) == 2
-    assert all(e in next(iter(results)).column_names() for e in ["result", "is_even"])
+    assert all(e in next(iter(results)).keys() for e in ["result", "is_even"])
     for row in results:
         print(row["is_even"])
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["result"] == 5)
@@ -279,7 +279,7 @@ def test_array_func_group_by(db: gp.Database):
     # -- WITH APPLY FUNC
     results = numbers.group_by("is_even").apply(lambda t: my_sum_array(t["val"]), as_name="my_sum")
     assert len(list(results)) == 2
-    assert all(e in next(iter(results)).column_names() for e in ["my_sum", "is_even"])
+    assert all(e in next(iter(results)).keys() for e in ["my_sum", "is_even"])
     for row in results:
         print(row["is_even"])
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["my_sum"] == 5)
@@ -305,15 +305,15 @@ def test_array_func_group_by_return_composite(db: gp.Database):
         .assign(result=lambda t: my_count_sum(t["val"]))
         .assign(_sum=lambda t: t["result"]["_sum"], _count=lambda t: t["result"]["_count"])
     )
-    assert all(e in next(iter(ret)).column_names() for e in ["_sum", "_count", "lab"])
+    assert all(e in next(iter(ret)).keys() for e in ["_sum", "_count", "lab"])
     for row in ret:
         assert row["_sum"] == 3
         assert row["_count"] == 3
 
     # -- WITH APPLY FUNC
     ret_apply = numbers.group_by("lab").apply(lambda t: my_count_sum(t["val"]), expand=True)
-    print(next(iter(ret_apply)).column_names())
-    assert all(e in next(iter(ret_apply)).column_names() for e in ["_sum", "_count", "lab"])
+    print(next(iter(ret_apply)).keys())
+    assert all(e in next(iter(ret_apply)).keys() for e in ["_sum", "_count", "lab"])
     for row in ret_apply:
         assert row["_sum"] == 3
         assert row["_count"] == 3
@@ -527,7 +527,7 @@ def test_array_func_group_by_composite_apply(db: gp.Database):
         .assign(result=lambda tab: my_stat(tab["val"]))
         .assign(sum=lambda t: t["result"]["sum"], count=lambda t: t["result"]["sum"])
     )
-    assert all(e in next(iter(results)).column_names() for e in ["sum", "count", "is_even"])
+    assert all(e in next(iter(results)).keys() for e in ["sum", "count", "is_even"])
     for row in results:
         assert all(
             ["is_even" in row, row["is_even"] is not None, row["sum"] == 5, row["count"] == 5]
@@ -535,7 +535,7 @@ def test_array_func_group_by_composite_apply(db: gp.Database):
 
     # -- WITH APPLY FUNC
     results = numbers.group_by("is_even").apply(lambda tab: my_stat(tab["val"]), expand=True)
-    assert all(e in next(iter(results)).column_names() for e in ["sum", "count", "is_even"])
+    assert all(e in next(iter(results)).keys() for e in ["sum", "count", "is_even"])
     for row in results:
         assert all(
             ["is_even" in row, row["is_even"] is not None, row["sum"] == 5, row["count"] == 5]

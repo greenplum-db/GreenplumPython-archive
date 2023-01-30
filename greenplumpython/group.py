@@ -68,10 +68,20 @@ class DataFrameGroupingSets:
 
 
         Example:
+            .. highlight:: python
             .. code-block::  python
 
-                count = gp.aggregate_function("count")
-                results = numbers.group_by().assign(count=lambda t: count(t["val"]))
+                >>> rows = [(1,) for _ in range(10)]
+                >>> numbers = db.create_dataframe(rows=rows, column_names=["val"])
+                >>> count = gp.aggregate_function("count")
+                >>> results = numbers.group_by().assign(count=lambda t: count(t["val"]))
+                >>> results
+                -------
+                 count
+                -------
+                    10
+                -------
+                (1 row)
 
         """
         from greenplumpython.dataframe import DataFrame
