@@ -3,12 +3,10 @@ This module creates a Python object Func which able creation and calling of Gree
 """
 import functools
 import inspect
-import re
-import textwrap
-from typing import Any, Callable, Dict, Optional, Set, Tuple
+from typing import Any, Callable, Optional, Set, Tuple
 from uuid import uuid4
 
-from dill import dumps  # type: ignore
+from cloudpickle import dumps  # type: ignore reportMissingTypeStubs
 
 from greenplumpython.col import Column
 from greenplumpython.dataframe import DataFrame
@@ -273,7 +271,7 @@ class NormalFunction(_AbstractFunction):
             func_arg_names = ",".join(
                 [f"{param.name}={param.name}" for param in func_sig.parameters.values()]
             )
-            dumped_func = dumps(self._wrapped_func, recurse=True)
+            dumped_func: bytes = dumps(self._wrapped_func)
             return_type = to_pg_type(func_sig.return_annotation, db, for_return=True)
             assert (
                 db.execute(
@@ -281,10 +279,12 @@ class NormalFunction(_AbstractFunction):
                         f"CREATE FUNCTION {self._qualified_name} ({func_args}) "
                         f"RETURNS {return_type} "
                         f"AS $$\n"
-                        f"if '__wrapped_func__' not in SD:\n"
-                        f"    from dill import loads\n"
-                        f"    SD['__wrapped_func__'] = loads({dumped_func})\n"
-                        f"return SD['__wrapped_func__']({func_arg_names})\n"
+                        f"_wrapped_func_ = SD.get('_wrapped_func_')\n"
+                        f"if _wrapped_func_ is None:\n"
+                        f"    from pickle import loads\n"
+                        f"    _wrapped_func_ = loads({dumped_func})\n"
+                        f"    SD['_wrapped_func_'] = _wrapped_func_\n"
+                        f"return _wrapped_func_({func_arg_names})\n"
                         f"$$ LANGUAGE {self._language_handler};"
                     ),
                     has_results=False,

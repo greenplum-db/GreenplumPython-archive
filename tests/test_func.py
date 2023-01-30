@@ -664,18 +664,18 @@ def test_agg_composite_type(db: gp.Database):
         assert row["count"] == len(rows) and row["sum"] == 10
 
 
-import pandas as pd
+import math
 
 
 def test_func_with_outside_dependencies(db: gp.Database):
-    def inner(x: int) -> pd.DataFrame:
-        return pd.DataFrame({"x": [x]})
+    def inner(x: int) -> float:
+        return math.log(x)
 
     @gp.create_function
-    def proxy(x: int) -> int:
-        return inner(x)["x"][0]
+    def proxy(x: int) -> float:
+        return inner(x)
 
     df = db.apply(lambda: proxy(42), as_name="x")
     assert len(list(df)) == 1
     for row in df:
-        assert row["x"] == 42
+        assert abs(row["x"] - math.log(42)) < 1e-5
