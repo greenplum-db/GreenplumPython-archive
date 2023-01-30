@@ -277,10 +277,9 @@ class NormalFunction(_AbstractFunction):
                 [f"{param.name}={param.name}" for param in func_sig.parameters.values()]
             )
             return_type = to_pg_type(func_sig.return_annotation, db, for_return=True)
-            dumped_func: bytes = pickle.dumps(self._wrapped_func)
-            func_ast: ast.FunctionDef = ast.parse(
-                textwrap.dedent(dill.source.getsource(self._wrapped_func))
-            ).body[0]
+            func_pickled: bytes = pickle.dumps(self._wrapped_func)
+            func_src: str = dill.source.getsource(self._wrapped_func)
+            func_ast: ast.FunctionDef = ast.parse(textwrap.dedent(func_src)).body[0]
             assert isinstance(func_ast, ast.FunctionDef), f"{self._wrapped_func} is not a function."
             # Clear decorators and type annotations in source so that no
             # import is needed.
@@ -300,7 +299,7 @@ class NormalFunction(_AbstractFunction):
                         f"if _wrapped_func_ is None:\n"
                         f"    try: \n"
                         f"        from dill import loads\n"
-                        f"        _wrapped_func_ = loads({dumped_func})\n"
+                        f"        _wrapped_func_ = loads({func_pickled})\n"
                         f"    except ModuleNotFoundError:\n"
                         f"        _wrapped_func_ = {func_ast.name}\n"
                         f"    SD['_wrapped_func_'] = _wrapped_func_\n"
