@@ -1,7 +1,7 @@
 from typing import List
 
 import greenplumpython as gp
-from . import db
+from tests import db
 
 
 def test_op_on_consts(db: gp.Database):

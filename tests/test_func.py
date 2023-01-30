@@ -5,7 +5,7 @@ import pytest
 import greenplumpython as gp
 from greenplumpython.builtin.function import generate_series
 from greenplumpython.func import AggregateFunction, NormalFunction
-from . import db
+from tests import db
 
 
 @pytest.fixture

@@ -11,7 +11,7 @@ function _main() {
     pushd /home/gpadmin/greenplumpython_src
     unset PYTHONPATH
     unset PYTHONHOME
-    python3.9 -m pip install dill==0.3.6 pandas
+    python3.9 -m pip install dill==0.3.6
     tox -e test_py39
     popd
 }

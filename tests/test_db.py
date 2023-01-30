@@ -3,7 +3,7 @@ from os import environ
 import pytest
 
 import greenplumpython as gp
-from . import db
+from tests import db
 
 
 def test_db():

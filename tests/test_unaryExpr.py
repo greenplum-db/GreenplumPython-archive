@@ -1,5 +1,5 @@
 import greenplumpython as gp
-from . import db
+from tests import db
 
 
 def test_expr_unary_not(db: gp.Database):
