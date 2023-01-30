@@ -6,8 +6,6 @@ import inspect
 from typing import Any, Callable, Optional, Set, Tuple
 from uuid import uuid4
 
-from cloudpickle import dumps  # type: ignore reportMissingTypeStubs
-
 from greenplumpython.col import Column
 from greenplumpython.dataframe import DataFrame
 from greenplumpython.db import Database
@@ -271,6 +269,8 @@ class NormalFunction(_AbstractFunction):
             func_arg_names = ",".join(
                 [f"{param.name}={param.name}" for param in func_sig.parameters.values()]
             )
+            from cloudpickle import dumps  # type: ignore reportMissingTypeStubs
+
             dumped_func: bytes = dumps(self._wrapped_func, protocol=4)
             return_type = to_pg_type(func_sig.return_annotation, db, for_return=True)
             assert (
