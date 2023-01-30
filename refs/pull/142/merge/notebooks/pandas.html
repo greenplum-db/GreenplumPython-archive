@@ -4,7 +4,8 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Comparison with pandas &mdash; GreenplumPython 1.0.0-beta3 documentation</title>
+  <title>Comparison with pandas &mdash; GreenplumPython 1.0.0-beta5
+ documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -398,7 +399,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;module &#39;greenplumpython&#39; from &#39;/home/gpadmin/.local/lib/python3.9/site-packages/greenplumpython/__init__.py&#39;&gt;
+&lt;module &#39;greenplumpython&#39; from &#39;/home/gpadmin/GreenplumPython/greenplumpython/__init__.py&#39;&gt;
 </pre></div></div>
 </div>
 <p>However, due to the discrepency in the purposes they serve, that is,</p>
@@ -536,12 +537,7 @@ div.rendered_html tbody tr:hover {
 <li><p>pandas does not have the concept of “database”.</p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">Database</span></code> in GreenplumPython is like “directory” in file systems, which helps to avoid name conflict on persistence.</p>
-<p>The reason behind this difference is that</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s in GreenplumPython can themselves be persisted, while</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s in pandas live only in memory and need to be written to a file for persistence.</p></li>
-</ul>
-<p>A GreenplumPython <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> can be saved persistently in the database system with</p>
+<p>A GreenplumPython <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> can be saved persistently in the database system as a table with</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
@@ -561,16 +557,16 @@ div.rendered_html tbody tr:hover {
             <th>age</th>
     </tr>
     <tr>
+            <td>alice</td>
+            <td>18</td>
+    </tr>
+    <tr>
             <td>bob</td>
             <td>19</td>
     </tr>
     <tr>
             <td>carol</td>
             <td>19</td>
-    </tr>
-    <tr>
-            <td>alice</td>
-            <td>18</td>
     </tr>
 </table></div>
 </div>
@@ -813,15 +809,15 @@ carol 19
             <th>age</th>
     </tr>
     <tr>
+            <td>carol</td>
+            <td>19</td>
+    </tr>
+    <tr>
             <td>alice</td>
             <td>18</td>
     </tr>
     <tr>
             <td>bob</td>
-            <td>19</td>
-    </tr>
-    <tr>
-            <td>carol</td>
             <td>19</td>
     </tr>
 </table></div>
@@ -867,7 +863,7 @@ Name: name, dtype: object
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;greenplumpython.col.Column at 0x7f99919172b0&gt;
+&lt;greenplumpython.col.Column at 0x7fc529986e80&gt;
 </pre></div></div>
 </div>
 <p>But you might notice the <strong>difference</strong> here:</p>
@@ -1300,6 +1296,11 @@ Name: name, dtype: object
             <th>name_</th>
     </tr>
     <tr>
+            <td>carol</td>
+            <td>19</td>
+            <td>4c26d9074c27d89ede59270c0ac14b71e071b15239519f75474b2f3ba63481f5</td>
+    </tr>
+    <tr>
             <td>alice</td>
             <td>18</td>
             <td>2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90</td>
@@ -1308,11 +1309,6 @@ Name: name, dtype: object
             <td>bob</td>
             <td>19</td>
             <td>81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9</td>
-    </tr>
-    <tr>
-            <td>carol</td>
-            <td>19</td>
-            <td>4c26d9074c27d89ede59270c0ac14b71e071b15239519f75474b2f3ba63481f5</td>
     </tr>
 </table></div>
 </div>
@@ -1561,7 +1557,7 @@ dtype: int64
             <td>18</td>
     </tr>
     <tr>
-            <td>carol</td>
+            <td>bob</td>
             <td>19</td>
     </tr>
 </table></div>
@@ -1673,14 +1669,14 @@ dtype: int64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">student_2</span> <span class="o">=</span> <span class="n">student</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">dataframe_name</span><span class="o">=</span><span class="s2">&quot;students_2&quot;</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">],</span> <span class="n">temp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">student_2</span> <span class="o">=</span> <span class="n">student</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;students_2&quot;</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">],</span> <span class="n">temp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">student</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
     <span class="n">student_2</span><span class="p">,</span>
-    <span class="n">using</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">],</span>
+    <span class="n">on</span><span class="o">=</span><span class="s2">&quot;age&quot;</span><span class="p">,</span>
     <span class="n">self_columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;*&quot;</span><span class="p">},</span>
     <span class="n">other_columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;name_2&quot;</span><span class="p">},</span>
 <span class="p">)</span>
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1695,12 +1691,7 @@ dtype: int64
             <th>name_2</th>
     </tr>
     <tr>
-            <td>bob</td>
-            <td>19</td>
             <td>carol</td>
-    </tr>
-    <tr>
-            <td>bob</td>
             <td>19</td>
             <td>bob</td>
     </tr>
@@ -1708,16 +1699,21 @@ dtype: int64
             <td>carol</td>
             <td>19</td>
             <td>carol</td>
-    </tr>
-    <tr>
-            <td>carol</td>
-            <td>19</td>
-            <td>bob</td>
     </tr>
     <tr>
             <td>alice</td>
             <td>18</td>
             <td>alice</td>
+    </tr>
+    <tr>
+            <td>bob</td>
+            <td>19</td>
+            <td>bob</td>
+    </tr>
+    <tr>
+            <td>bob</td>
+            <td>19</td>
+            <td>carol</td>
     </tr>
 </table></div>
 </div>
@@ -1786,7 +1782,7 @@ dtype: int64
 </table>
 </div></div>
 </div>
-<p>To avoid such kind of misuse, in GreenplumPython, it is impossible to refer to other <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s except for the “current” one in an expression.</p>
+<p>To avoid such kind of misuse, in GreenplumPython, it is impossible to refer to other <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s except for the “current” one in an expression except when using the <code class="docutils literal notranslate"><span class="pre">in_()</span></code> expression.</p>
 <p>This is because GreenplumPython only accepts a <code class="docutils literal notranslate"><span class="pre">Callable</span></code> as argument for expression and will bind it to the current <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> automatically.</p>
 </section>
 </section>
