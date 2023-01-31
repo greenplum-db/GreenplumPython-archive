@@ -310,7 +310,7 @@ class NormalFunction(_AbstractFunction):
                         f"        from dill import loads\n"
                         f"        _wrapped_func_ = loads({func_pickled})\n"
                         f"    except ModuleNotFoundError:\n"
-                        f"        exec({json.dumps(ast.unparse(func_ast))})\n"
+                        f"        exec({json.dumps(ast.unparse(func_ast))}, globals())\n"
                         f"        _wrapped_func_ = {func_ast.name}\n"
                         f"    SD['_wrapped_func_'] = _wrapped_func_\n"
                         f"return _wrapped_func_({func_arg_names})\n"
