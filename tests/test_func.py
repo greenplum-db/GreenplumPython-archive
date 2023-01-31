@@ -1,4 +1,4 @@
-from typing import List
+from typing import Callable, List
 
 import pytest
 
@@ -667,18 +667,31 @@ def test_agg_composite_type(db: gp.Database):
 import math
 
 
+def test_func_with_outside_imports(db: gp.Database):
+    # NOTE: imports in the function's closure rather than in the globals() is
+    # NOT supported.
+    @gp.create_function
+    def my_math(x: int) -> float:
+        return math.sqrt(x**2)
+
+    df = db.apply(lambda: my_math(42), as_name="x")
+    assert len(list(df)) == 1
+    for row in df:
+        assert abs(row["x"] - 42) < 1e-5
+
+
 def test_func_with_outside_func(db: gp.Database):
-    def inner(x: int) -> float:
-        return math.log(x)
+    def inner(x: int) -> int:
+        return x * x
 
     @gp.create_function
     def proxy(x: int) -> float:
         return inner(x)
 
-    df = db.apply(lambda: proxy(42), as_name="x")
+    df = db.apply(lambda: proxy(5), as_name="x")
     assert len(list(df)) == 1
     for row in df:
-        assert abs(row["x"] - math.log(42)) < 1e-5
+        assert row["x"] == 25
 
 
 def test_func_with_outside_class(db: gp.Database):
@@ -697,3 +710,21 @@ def test_func_with_outside_class(db: gp.Database):
     assert len(list(df)) == 1
     for row in df:
         assert row["name"] == "alice" and row["age"] == 19
+
+
+def test_func_one_liner(db: gp.Database):
+    # fmt: off
+    @gp.create_function
+    def add_one(x: int) -> int: return x + 1
+    # fmt: on
+
+    df = db.apply(lambda: add_one(1), as_name="x")
+    assert len(list(df)) == 1
+    for row in df:
+        assert row["x"] == 2
+
+    # TODO: Lambda expressions are not supported.
+    add_one: Callable[[int], int] = lambda x: x + 1
+    with pytest.raises(AssertionError) as exc_info:
+        df = db.apply(lambda: gp.create_function(add_one)(1), as_name="x")
+    assert "is not a function" in str(exc_info.value)

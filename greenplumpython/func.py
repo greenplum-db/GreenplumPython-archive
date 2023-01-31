@@ -4,8 +4,9 @@ This module creates a Python object Func which able creation and calling of Gree
 import ast
 import functools
 import inspect
-import textwrap
-from typing import Any, Callable, Optional, Set, Tuple
+import json
+from textwrap import dedent
+from typing import Any, Callable, List, Optional, Set, Tuple
 from uuid import uuid4
 
 import dill  # type: ignore reportMissingTypeStubs
@@ -266,6 +267,13 @@ class NormalFunction(_AbstractFunction):
             return
         assert self._created_in_dbs is not None
         if db not in self._created_in_dbs:
+            func_src: str = dill.source.getsource(self._wrapped_func)
+            func_ast: ast.FunctionDef = ast.parse(dedent(func_src)).body[0]
+            # TODO: Lambda expressions are NOT supported since inspect.signature()
+            # does not work as expected.
+            assert isinstance(
+                func_ast, ast.FunctionDef
+            ), f"{self._wrapped_func} is not a function. (lambda is not supported.)"
             func_sig = inspect.signature(self._wrapped_func)
             func_args = ",".join(
                 [
@@ -278,30 +286,34 @@ class NormalFunction(_AbstractFunction):
             )
             return_type = to_pg_type(func_sig.return_annotation, db, for_return=True)
             func_pickled: bytes = pickle.dumps(self._wrapped_func)
-            func_src: str = dill.source.getsource(self._wrapped_func)
-            func_ast: ast.FunctionDef = ast.parse(textwrap.dedent(func_src)).body[0]
-            assert isinstance(func_ast, ast.FunctionDef), f"{self._wrapped_func} is not a function."
-            # Clear decorators and type annotations in source so that no
-            # import is needed.
+            # Modify the AST so that the wrapped function can be serialized:
+            # 1. Apply proper renaming to avoid name conflict;
+            # 2. Clear decorators and type annotations to avoid import;
+            # 3. Prepend imports for modules referred to in the body.
             func_ast.decorator_list.clear()
-            func_ast.name = self._qualified_name.split(".")[-1]
+            func_ast.name = "_wrapped_func_"
             for arg in func_ast.args.args:
                 arg.annotation = None
             func_ast.returns = None
+            importables: List[str] = [
+                dill.source.getimportable(obj)
+                for obj in dill.detect.globalvars(self._wrapped_func).values()
+            ]
+            importables_ast: List[ast.Import] = ast.parse(dedent("".join(importables))).body
+            func_ast.body = importables_ast + func_ast.body
             assert (
                 db.execute(
                     (
                         f"CREATE FUNCTION {self._qualified_name} ({func_args}) "
                         f"RETURNS {return_type} "
                         f"AS $$\n"
-                        f"{ast.unparse(func_ast)}\n"
                         f"_wrapped_func_ = SD.get('_wrapped_func_')\n"
                         f"if _wrapped_func_ is None:\n"
                         f"    try: \n"
                         f"        from dill import loads\n"
                         f"        _wrapped_func_ = loads({func_pickled})\n"
                         f"    except ModuleNotFoundError:\n"
-                        f"        _wrapped_func_ = {func_ast.name}\n"
+                        f"        exec({json.dumps(ast.unparse(func_ast))})\n"
                         f"    SD['_wrapped_func_'] = _wrapped_func_\n"
                         f"return _wrapped_func_({func_arg_names})\n"
                         f"$$ LANGUAGE {self._language_handler};"
