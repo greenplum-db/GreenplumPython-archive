@@ -86,18 +86,16 @@ class Type:
         if self._created_in_dbs is None or db in self._created_in_dbs:
             return
         schema = "pg_temp"
-        att_type_str = ",".join(
+        att_type_str = ",\n".join(
             [
                 f"{name} {to_pg_type(type_t, db)}"
                 for name, type_t in get_type_hints(self._annotation).items()
             ]
         )
         db.execute(
-            f"""
-                CREATE TYPE {schema}.{self._name} AS (
-                    {att_type_str}
-                )
-            """,
+            f"CREATE TYPE {schema}.{self._name} AS (\n"
+            f"{att_type_str}\n"
+            f")",
             has_results=False,
         )
         self._created_in_dbs.add(db)

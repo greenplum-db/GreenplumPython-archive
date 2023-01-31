@@ -286,9 +286,11 @@ class NormalFunction(_AbstractFunction):
             return_type = to_pg_type(func_sig.return_annotation, db, for_return=True)
             func_pickled: bytes = dill.dumps(self._wrapped_func)
             # Modify the AST of the wrapped function to minify dependency: (1-3)
-            # 1. Apply proper renaming to avoid name conflict;
-            func_ast.name = self._qualified_name.split(".")[-1]
-            # 2. Clear decorators and type annotations to avoid import;
+            # 1. Apply random renaming to avoid name conflict. (TODO: Support
+            #    calling another UDF in the current UDF directly.)
+            func_name = self._qualified_name.split(".")[-1]
+            func_ast.name = "_wrapped_func_"
+            # 2. Clear decorators and type annotations to avoid import.
             func_ast.decorator_list.clear()
             for arg in func_ast.args.args:
                 arg.annotation = None
@@ -304,16 +306,17 @@ class NormalFunction(_AbstractFunction):
                         f"CREATE FUNCTION {self._qualified_name} ({func_args}) "
                         f"RETURNS {return_type} "
                         f"AS $$\n"
-                        f"_wrapped_func_ = SD.get('_wrapped_func_')\n"
-                        f"if _wrapped_func_ is None:\n"
-                        f"    try: \n"
-                        f"        from dill import loads\n"
-                        f"        _wrapped_func_ = loads({func_pickled})\n"
-                        f"    except ModuleNotFoundError:\n"
-                        f"        exec({json.dumps(ast.unparse(func_ast))}, globals())\n"
-                        f"        _wrapped_func_ = {func_ast.name}\n"
-                        f"    SD['_wrapped_func_'] = _wrapped_func_\n"
-                        f"return _wrapped_func_({func_arg_names})\n"
+                        f"{func_name} = SD.get('{func_name}')\n"
+                        f"if {func_name} is not None:\n"
+                        f"    return {func_name}({func_arg_names})\n"
+                        f"try:\n"
+                        f"    from dill import loads\n"
+                        f"    {func_name} = loads({func_pickled})\n"
+                        f"except ModuleNotFoundError:\n"
+                        f"    exec({json.dumps(ast.unparse(func_ast))}, globals())\n"
+                        f"    {func_name} = {func_ast.name}\n"
+                        f"SD['{func_name}'] = {func_name}\n"
+                        f"return {func_name}({func_arg_names})\n"
                         f"$$ LANGUAGE {self._language_handler};"
                     ),
                     has_results=False,
