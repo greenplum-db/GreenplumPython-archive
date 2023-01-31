@@ -306,7 +306,7 @@ class NormalFunction(_AbstractFunction):
                         f"CREATE FUNCTION {self._qualified_name} ({func_args}) "
                         f"RETURNS {return_type} "
                         f"AS $$\n"
-                        f"{func_name} = SD.get('{func_name}')\n"
+                        f"{func_name} = GD.get('{func_name}')\n"
                         f"if {func_name} is not None:\n"
                         f"    return {func_name}({func_arg_names})\n"
                         f"try:\n"
@@ -315,7 +315,7 @@ class NormalFunction(_AbstractFunction):
                         f"except ModuleNotFoundError:\n"
                         f"    exec({json.dumps(ast.unparse(func_ast))}, globals())\n"
                         f"    {func_name} = {func_ast.name}\n"
-                        f"SD['{func_name}'] = {func_name}\n"
+                        f"GD['{func_name}'] = {func_name}\n"
                         f"return {func_name}({func_arg_names})\n"
                         f"$$ LANGUAGE {self._language_handler};"
                     ),
@@ -392,12 +392,12 @@ class AggregateFunction(_AbstractFunction):
             )
             # -- Creation of UDA in Greenplum
             db.execute(
-                f"""
-                CREATE AGGREGATE {self.qualified_name} ({args_string}) (
-                    SFUNC = {self.transition_function.qualified_name},
-                    STYPE = {to_pg_type(state_param.annotation, db)}
-                )
-                """,
+                (
+                    f"CREATE AGGREGATE {self.qualified_name} ({args_string}) (\n"
+                    f"    SFUNC = {self.transition_function.qualified_name},\n"
+                    f"    STYPE = {to_pg_type(state_param.annotation, db)}\n"
+                    f");\n"
+                ),
                 has_results=False,
             )
             self._created_in_dbs.add(db)

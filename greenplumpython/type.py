@@ -1,4 +1,4 @@
-from typing import List, Optional, Set, Tuple, get_type_hints
+from typing import Dict, List, Optional, Set, Tuple, get_type_hints
 from uuid import uuid4
 
 from greenplumpython.db import Database
@@ -107,7 +107,7 @@ class Type:
 
 
 # -- Map between Python and Greenplum primitive types
-_defined_types: dict[Optional[type], Type] = {
+_defined_types: Dict[Optional[type], Type] = {
     None: Type(name="void"),
     int: Type(name="integer"),
     float: Type(name="double precision"),
