@@ -25,6 +25,10 @@ jobs:
         include:
           - tox_test: "test_py39"
             python-version: "3.9"
+          - dill_version: python3.9
+            postgres-version: '12'
+          - dill_version: python3.9
+            postgres-version: '13'
 
     services:
       postgres:
