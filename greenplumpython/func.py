@@ -288,7 +288,7 @@ class NormalFunction(_AbstractFunction):
             # Modify the AST of the wrapped function to minify dependency: (1-3)
             # 1. Apply random renaming to avoid name conflict. (TODO: Support
             #    calling another UDF in the current UDF directly.)
-            func_ast.name = self._qualified_name.split(".")[-1]
+            func_ast.name = "__" + self._qualified_name.split(".")[-1]
             # 2. Clear decorators and type annotations to avoid import.
             func_ast.decorator_list.clear()
             for arg in func_ast.args.args:
