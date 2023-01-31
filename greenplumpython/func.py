@@ -291,7 +291,7 @@ class NormalFunction(_AbstractFunction):
             # 2. Clear decorators and type annotations to avoid import;
             # 3. Prepend imports for modules referred to in the body.
             func_ast.decorator_list.clear()
-            func_ast.name = "_wrapped_func_"
+            func_ast.name = self._qualified_name.split(".")[-1]
             for arg in func_ast.args.args:
                 arg.annotation = None
             func_ast.returns = None
@@ -314,6 +314,7 @@ class NormalFunction(_AbstractFunction):
                         f"        _wrapped_func_ = loads({func_pickled})\n"
                         f"    except ModuleNotFoundError:\n"
                         f"        exec({json.dumps(ast.unparse(func_ast))})\n"
+                        f"        _wrapped_func_ = {func_ast.name}\n"
                         f"    SD['_wrapped_func_'] = _wrapped_func_\n"
                         f"return _wrapped_func_({func_arg_names})\n"
                         f"$$ LANGUAGE {self._language_handler};"
