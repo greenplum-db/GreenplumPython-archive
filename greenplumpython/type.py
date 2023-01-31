@@ -93,9 +93,7 @@ class Type:
             ]
         )
         db.execute(
-            f"CREATE TYPE {schema}.{self._name} AS (\n"
-            f"{att_type_str}\n"
-            f")",
+            f"CREATE TYPE {schema}.{self._name} AS (\n" f"{att_type_str}\n" f");",
             has_results=False,
         )
         self._created_in_dbs.add(db)
