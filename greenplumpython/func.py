@@ -299,7 +299,7 @@ class NormalFunction(_AbstractFunction):
             importables: List[str] = [dill.source.getimportable(obj) for obj in global_objects]
             importables_ast: List[ast.Import] = ast.parse(dedent("".join(importables))).body
             func_ast.body = importables_ast + func_ast.body
-            pickler_name: str = "lib_" + uuid4().hex
+            pickler_name: str = "__lib_" + uuid4().hex
             assert (
                 db.execute(
                     (
