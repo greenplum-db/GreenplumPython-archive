@@ -668,8 +668,8 @@ import math
 
 
 def test_func_with_outside_imports(db: gp.Database):
-    # NOTE: imports in the function's closure rather than in the globals() is
-    # NOT supported.
+    # NOTE: imports in function's closure rather than in globals() is NOT
+    # supported.
     @gp.create_function
     def my_math(x: int) -> float:
         return math.sqrt(x**2)

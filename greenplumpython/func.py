@@ -12,7 +12,6 @@ from uuid import uuid4
 import dill  # type: ignore reportMissingTypeStubs
 
 dill.settings["recurse"] = True
-pickle = dill  # So that we can replace it with another package with min effort.
 
 from greenplumpython.col import Column
 from greenplumpython.dataframe import DataFrame
@@ -285,20 +284,18 @@ class NormalFunction(_AbstractFunction):
                 [f"{param.name}={param.name}" for param in func_sig.parameters.values()]
             )
             return_type = to_pg_type(func_sig.return_annotation, db, for_return=True)
-            func_pickled: bytes = pickle.dumps(self._wrapped_func)
-            # Modify the AST so that the wrapped function can be serialized:
+            func_pickled: bytes = dill.dumps(self._wrapped_func)
+            # Modify the AST of the wrapped function to minify dependency: (1-3)
             # 1. Apply proper renaming to avoid name conflict;
-            # 2. Clear decorators and type annotations to avoid import;
-            # 3. Prepend imports for modules referred to in the body.
-            func_ast.decorator_list.clear()
             func_ast.name = self._qualified_name.split(".")[-1]
+            # 2. Clear decorators and type annotations to avoid import;
+            func_ast.decorator_list.clear()
             for arg in func_ast.args.args:
                 arg.annotation = None
             func_ast.returns = None
-            importables: List[str] = [
-                dill.source.getimportable(obj)
-                for obj in dill.detect.globalvars(self._wrapped_func).values()
-            ]
+            # 3. Prepend imports for modules referred to in the body.
+            global_objects: List[Any] = dill.detect.globalvars(self._wrapped_func).values()
+            importables: List[str] = [dill.source.getimportable(obj) for obj in global_objects]
             importables_ast: List[ast.Import] = ast.parse(dedent("".join(importables))).body
             func_ast.body = importables_ast + func_ast.body
             assert (
