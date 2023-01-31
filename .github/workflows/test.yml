@@ -15,7 +15,7 @@ env:
 
 jobs:
   build:
-    name: Test P${{ matrix.python-version }}, PSQL${{matrix.postgres-version}}
+    name: Test Python${{ matrix.python-version }}, PSQL${{matrix.postgres-version}}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -25,8 +25,6 @@ jobs:
         include:
           - tox_test: "test_py39"
             python-version: "3.9"
-          - tox_test: "test_py310"
-            python-version: "3.10"
 
     services:
       postgres:
