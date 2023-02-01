@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Configuration &mdash; GreenplumPython 1.0.0-beta5
+  <title>Requirements &mdash; GreenplumPython 1.0.0-beta5
  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
@@ -21,8 +21,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Example: Predicting the age of abalone" href="abalone.html" />
-    <link rel="prev" title="Ordering" href="order.html" /> 
+    <link rel="next" title="Installation" href="install.html" />
+    <link rel="prev" title="Welcome to GreenplumPython’s documentation!" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -42,23 +42,10 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="requirements.html">Requirements</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">GreenplumPython</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="db.html">Database</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dataframe.html">DataFrame</a></li>
-<li class="toctree-l2"><a class="reference internal" href="expr.html">Expression</a></li>
-<li class="toctree-l2"><a class="reference internal" href="col.html">Column</a></li>
-<li class="toctree-l2"><a class="reference internal" href="row.html">Row</a></li>
-<li class="toctree-l2"><a class="reference internal" href="func.html">Function</a></li>
-<li class="toctree-l2"><a class="reference internal" href="op.html">Operator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="type.html">Type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="group.html">Grouping</a></li>
-<li class="toctree-l2"><a class="reference internal" href="order.html">Ordering</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Configuration</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">GreenplumPython</a></li>
 <li class="toctree-l1"><a class="reference internal" href="abalone.html">Example: Predicting the age of abalone</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pandas.html">Comparison with pandas</a></li>
 </ul>
@@ -77,10 +64,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">GreenplumPython</a> &raquo;</li>
-      <li>Configuration</li>
+      <li>Requirements</li>
       <li class="wy-breadcrumbs-aside">
-              <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/config.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/requirements.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -112,23 +98,30 @@
     text-align: unset;
 }
 </style>
-<section id="module-config">
-<span id="configuration"></span><h1>Configuration<a class="headerlink" href="#module-config" title="Permalink to this heading"></a></h1>
-<p>This file contains all the variables to configure GreenplumPython, users can directly set them by assigning value.</p>
-<dl class="py data">
-<dt class="sig sig-object py" id="config.print_sql">
-<span class="sig-prename descclassname"><span class="pre">config.</span></span><span class="sig-name descname"><span class="pre">print_sql</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#config.print_sql" title="Permalink to this definition"></a></dt>
-<dd><p>This variable configure to display or not the SQL query sent by GreenplumPython to Database behind each command.</p>
-</dd></dl>
-
+<section id="requirements">
+<h1>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading"></a></h1>
+<dl class="simple">
+<dt>GreenplumPython currently requires at least Python 3.9 to run, this is because:</dt><dd><ul class="simple">
+<li><p>Python 3.9 is the version we officially support and release with PL/Python3 and GPDB 6.</p></li>
+<li><p>Python 3.9 is the default version in Rocky Linux 9 and is officially supported in Rocky Linux 8 (and also probably in RHEL 8).</p></li>
+</ul>
+</dd>
+<dt>As a dependency of GreenplumPython, psycopg2 is a source package. To install it, the client side need to have</dt><dd><ul class="simple">
+<li><p>libpq and its C header files,</p></li>
+<li><p>C compilers, such as gcc</p></li>
+</ul>
+</dd>
+</dl>
+<p>installed so that the C code in the psycopg2 package can be compiled. To sidestep this problem, we change
+our dependency to psycopg2-binary, which is a binary package.</p>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="order.html" class="btn btn-neutral float-left" title="Ordering" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="abalone.html" class="btn btn-neutral float-right" title="Example: Predicting the age of abalone" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to GreenplumPython’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="install.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -17,5 +17,3 @@ To install the latest development version, do
 NOTE: This version is considered UNSTABLE. DON'T use it in the production environment!
 
 Stable version will be released soon.
-
-NOTE: The lowest Python version supported by GreenplumPython is Python3.9!
