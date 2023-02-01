@@ -5,6 +5,7 @@ import ast
 import functools
 import inspect
 import json
+import sys
 from textwrap import dedent
 from typing import Any, Callable, List, Optional, Set, Tuple
 from uuid import uuid4
@@ -300,6 +301,8 @@ class NormalFunction(_AbstractFunction):
             importables_ast: List[ast.Import] = ast.parse(dedent("".join(importables))).body
             func_ast.body = importables_ast + func_ast.body
             pickle_lib_name: str = "__lib_" + uuid4().hex
+            sys_lib_name: str = "__lib_" + uuid4().hex
+            python_version = (sys.version_info.major, sys.version_info.minor)
             assert (
                 db.execute(
                     (
@@ -310,7 +313,9 @@ class NormalFunction(_AbstractFunction):
                         f"    return GD['{func_ast.name}']({func_arg_names})\n"
                         f"except KeyError:\n"
                         f"    try:\n"
-                        f"        import dill as {pickle_lib_name}\n"
+                        f"        import dill as {pickle_lib_name}, sys as {sys_lib_name}\n"
+                        f"        if ({sys_lib_name}.version_info.major, {sys_lib_name}.version_info.minor) != {python_version}:\n"
+                        f"            raise ModuleNotFoundError\n"
                         f"        GD['{func_ast.name}'] = {pickle_lib_name}.loads({func_pickled})\n"
                         f"    except ModuleNotFoundError:\n"
                         f"        exec({json.dumps(ast.unparse(func_ast))}, globals())\n"
