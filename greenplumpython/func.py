@@ -310,9 +310,10 @@ class NormalFunction(_AbstractFunction):
 
 def function(name: str, schema: Optional[str] = None) -> NormalFunction:
     """
-    A wrap in order to call function
+    A wrap in order to call function (Predefined in-Database UDF) on :class:`~db.Dataframe`.
 
     Example:
+        Get a wrapper of the in-Database function `generate_series`
         .. code-block::  Python
 
             generate_series = gp.function("generate_series")
@@ -402,7 +403,7 @@ class AggregateFunction(_AbstractFunction):
 
 def aggregate_function(name: str, schema: Optional[str] = None) -> AggregateFunction:
     """
-    A wrap in order to call an aggregate function
+    A wrap in order to call an aggregate function (Predefined in-Database UDA).
 
     Example:
         .. code-block::  Python
@@ -417,8 +418,7 @@ def create_function(
     wrapped_func: Optional[Callable[..., Any]] = None, language_handler: str = "plpython3u"
 ) -> NormalFunction:
     """
-    Creates a User Defined Function (UDF) in database from the given Python
-    function.
+    Creates a User Defined Function (UDF) in database from the given Python function.
 
     Args:
         wrapped_func : the Python function to be wrapped into a database function
@@ -456,8 +456,7 @@ def create_aggregate(
     transition_func: Optional[Callable[..., Any]] = None, language_handler: str = "plpython3u"
 ) -> AggregateFunction:
     """
-    Creates a User Defined Aggregate (UDA) in Database using the given Python
-    function as the state transition function.
+    Creates a User Defined Aggregate (UDA) in Database using the given Python function as the state transition function.
 
     Args:
         transition_func : python function
@@ -511,8 +510,7 @@ def create_array_function(
     wrapped_func: Optional[Callable[..., Any]] = None, language_handler: str = "plpython3u"
 ) -> ArrayFunction:
     """
-    Creates a User Defined Array Function in database from the given Python
-    function.
+    Creates a User Defined Array Function in database from the given Python function.
 
     Args:
         wrapped_func: python function

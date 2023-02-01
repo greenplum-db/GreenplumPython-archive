@@ -151,31 +151,51 @@ class DataFrame:
 
         Returns: :class:`~col.Column` or :class:`DataFrame`
 
-            - a :class:`~col.Column` of the current :class:`DataFrame` if the key is a string:
+            - Returns: a :class:`~col.Column` of the current :class:`DataFrame`
+
+              When want to use :class:`~col.Column` for computation rather for observing data:
+
+              Args: key: :class:`string`
 
             .. code-block::  python
 
                id_col = dataframe["id"]
 
-            - a new :class:`DataFrame` from the current :class:`DataFrame` per the type of key:
 
-                - if the key is a list, then SELECT a subset of columns, a.k.a. targets;
+            - Returns: a new :class:`DataFrame` from the current :class:`DataFrame` per the type of key:
+
+                - When want to retrieve some columns of :class:`DataFrame`:
+
+                  Args: key: :class:`list` of columns
+
+                  Returns: :class:`DataFrame` with the subset of columns, a.k.a. targets
 
                 .. code-block::  python
 
                    id_dataframe = dataframe[["id"]]
 
-                - if the key is an :class:`~expr.Expr`, then SELECT a subset of rows per the value of the Expr;
+
+                - When want to filter :class:`DataFrame` on :class:`~col.Column` with conditions:
+
+                  Args: key: :class:`~expr.Expr`
+
+                  Returns: :class:`DataFrame` with subset of rows per the value of the Expr
 
                 .. code-block::  python
 
                    id_cond_dataframe = dataframe[lambda t: t["id"] == 0]
 
-                - if the key is a slice, then SELECT a portion of consecutive rows.
+
+                - When want to retrieve a portion of :class:`DataFrame`:
+
+                  Args: key: :class:`slice`
+
+                  Returns: :class:`DataFrame` with the portion of consecutive rows
 
                 .. code-block::  python
 
                    slice_dataframe = tab[2:5]
+
 
         """
         return self._getitem(_)
@@ -268,6 +288,8 @@ class DataFrame:
     # FIXME: Add test
     def where(self, predicate: Callable[["DataFrame"], "Expr"]) -> "DataFrame":
         """
+        Used when want to filter the :class:`DataFrame` by applying conditions.
+
         Return the :class:`DataFrame` filtered by :class:`~expr.Expr`.
 
         Args:
@@ -276,6 +298,29 @@ class DataFrame:
         Returns:
             DataFrame: :class:`~dataframe.DataFrame` filtered according to :class:`~expr.Expr` that is
             passed in argument.
+
+        Example:
+            .. highlight:: python
+            .. code-block::  python
+
+                >>> rows = [(i,) for i in range(-10, 10)]
+                >>> series = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> series.where(lambda df: df["id"] > 0)
+                ----
+                 id
+                ----
+                  1
+                  2
+                  3
+                  4
+                  5
+                  6
+                  7
+                  8
+                  9
+                ----
+                (9 rows)
+
         """
         v = predicate(self)
         assert v.dataframe == self, "Predicate must based on current dataframe"
@@ -291,7 +336,7 @@ class DataFrame:
         as_name: Optional[str] = None,
     ) -> "DataFrame":
         """
-        Apply a function to the :class:`DataFrame`.
+        Apply a Greenplum predefined function or a User-defined python function to the :class:`DataFrame`.
 
         Args:
             func: Callable[[:class:`DataFrame`], :class:`~func.FunctionExpr`]: a lambda function of a
@@ -303,6 +348,9 @@ class DataFrame:
             DataFrame: resulted :class:`DataFrame`.
 
         Example:
+
+            To compute the absolute value of a serie of numbers using the predefined Greenplum function `ABS`:
+
             .. highlight:: python
             .. code-block::  python
 
@@ -369,6 +417,8 @@ class DataFrame:
 
     def assign(self, **new_columns: Callable[["DataFrame"], Any]) -> "DataFrame":
         """
+        Used when want to combine new columns with the current :class:`DataFrame`.
+
         Assign new columns to the current :class:`DataFrame`. Existing columns cannot be reassigned.
 
         Args:
@@ -431,6 +481,8 @@ class DataFrame:
         operator: Optional[str] = None,
     ) -> DataFrameOrdering:
         """
+        Used when want to sort :class:`DataFrame` by values using the given arguments.
+
         Return :class:`DataFrame` order by the given arguments.
 
         Args:
@@ -446,18 +498,18 @@ class DataFrame:
             .. highlight:: python
             .. code-block::  Python
 
-            >>> columns = {"id": [3, 1, 2], "b": [1, 2, 3]
-            >>> t = gp.DataFrame.from_columns(columns, db=db
-            >>> t.order_by("id")[:]
-            >>> t
-            --------
-             id | b
-            ----+---
-              1 | 2
-              2 | 3
-              3 | 1
-            --------
-            (3 rows)
+                >>> columns = {"id": [3, 1, 2], "b": [1, 2, 3]}
+                >>> t = gp.DataFrame.from_columns(columns, db=db
+                >>> t.order_by("id")[:]
+                >>> t
+                --------
+                 id | b
+                ----+---
+                  1 | 2
+                  2 | 3
+                  3 | 1
+                --------
+                (3 rows)
         """
         # State transition diagram:
         # DataFrame --order_by()-> DataFrameOrdering --head()-> DataFrame
@@ -483,7 +535,7 @@ class DataFrame:
         other_columns: Union[Dict[str, Optional[str]], Set[str]] = {"*"},
     ) -> "DataFrame":
         """
-        Join the current :class:`DataFrame` with another.
+        Join the current :class:`DataFrame` with another using the given arguments.
 
         Args:
             other: :class:`DataFrame` to join with
@@ -512,6 +564,30 @@ class DataFrame:
             please ensure that there will not be more than one column with the
             same name by applying proper renaming. Otherwise, there will be an
             error.
+
+        Example:
+            .. highlight:: python
+            .. code-block::  Python
+
+                >>> students = [("alice", 18), ("bob", 19), ("carol", 19)]
+                >>> student = gp.DataFrame.from_rows(students, column_names=["name", "age"], db=db)
+                >>> student_2 = student.save_as(table_name="students_2", column_names=["name", "age"], temp=True)
+                >>> student.join(
+                        student_2,
+                        on="age",
+                        self_columns={"*"},
+                        other_columns={"name": "name_2"},
+                    )
+                ----------------------
+                 name  | age | name_2
+                -------+-----+--------
+                 carol |  19 | bob
+                 bob   |  19 | bob
+                 alice |  18 | alice
+                 carol |  19 | carol
+                 bob   |  19 | carol
+                ----------------------
+                (5 rows)
         """
         # FIXME : Raise Error if target columns don't exist
         assert how.upper() in [
@@ -710,12 +786,56 @@ class DataFrame:
 
     def refresh(self) -> "DataFrame":
         """
-        Refresh the local cache of :class:`DataFrame`.
+        After displayed dataframe, its content has been cached in local.
+        This function refresh the local cache of :class:`DataFrame`, otherwise, all modifications made between last
+        cache and this refresh are not updated in local.
 
         The local cache if used to iterate the :class:`DataFrame` instance locally.
 
         Returns:
             self
+
+        Example:
+            .. highlight:: python
+            .. code-block::  Python
+
+                >>> nums = db.create_dataframe(rows=[(i,) for i in range(5)], column_names=["num"])
+                >>> df = nums.save_as("const_table", column_names=["num"], temp=True)
+                >>> df
+                -----
+                 num
+                -----
+                   0
+                   1
+                   2
+                   3
+                   4
+                -----
+                (5 rows)
+                >>> db.execute("INSERT INTO const_table(num) VALUES (5);", has_results=False)
+                >>> df
+                -----
+                 num
+                -----
+                   0
+                   1
+                   2
+                   3
+                   4
+                -----
+                (5 rows)
+                >>> df.refresh()
+                -----
+                 num
+                -----
+                   0
+                   1
+                   2
+                   3
+                   4
+                   5
+                -----
+                (6 rows)
         """
         assert self._db is not None
         self._contents = self._fetch()
@@ -754,6 +874,9 @@ class DataFrame:
 
         And return a new instance of :class:`DataFrame` that represents the newly saved *table*.
 
+        After running this function, if `temp is False`, you can also use
+        :func:`~db.Database.create_dataframe(table_name)` to create a new :class:`Dataframe` next time.
+
         Args:
             dataframe_name : str
             temp : bool : if table is temporary
@@ -761,6 +884,36 @@ class DataFrame:
 
         Returns:
             DataFrame : :class:`DataFrame` represents the newly saved table
+
+        Example:
+            .. highlight:: python
+            .. code-block::  Python
+
+                >>> nums = db.create_dataframe(rows=[(i,) for i in range(5)], column_names=["num"])
+                >>> df = nums.save_as("const_table", column_names=["num"], temp=True)
+                >>> df
+                -----
+                 num
+                -----
+                   0
+                   1
+                   2
+                   3
+                   4
+                -----
+                (5 rows)
+                >>> const_table = db.create_dataframe(table_name="const_table")
+                >>> const_table
+                -----
+                 num
+                -----
+                   0
+                   1
+                   2
+                   3
+                   4
+                -----
+                (5 rows)
         """
         assert self._db is not None
         # TODO: Remove assertion below after implementing schema inference.
@@ -828,11 +981,28 @@ class DataFrame:
         """
         Deduplicate the current :class:`DataFrame` with respect to the given columns.
 
+        This function follows the `DISTINCT ON` syntax in PostgreSQL.
+
         Args:
             column_names: names of the current :class:`DataFrame`'s columns.
 
         Returns:
             :class:`DataFrame`: the :class:`DataFrame` containing only the distinct values of the given columns.
+
+        Example:
+            .. highlight:: python
+            .. code-block::  Python
+
+                >>> students = [("alice", 18), ("bob", 19), ("carol", 19)]
+                >>> student = gp.DataFrame.from_rows(students, column_names=["name", "age"], db=db)
+                >>> student.distinct_on("age")
+                -------------
+                 name  | age
+                -------+-----
+                 alice |  18
+                 bob   |  19
+                -------------
+                (2 rows)
         """
         cols = [Column(name, self).serialize() for name in column_names]
         return DataFrame(
@@ -935,17 +1105,17 @@ class DataFrame:
             .. highlight:: python
             .. code-block::  python
 
-            >>> columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
-            >>> t = gp.DataFrame.from_columns(columns, db=db)
-            >>> t
-            -------
-             a | b
-            ---+---
-             1 | 1
-             2 | 2
-             3 | 3
-            -------
-            (3 rows)
+                >>> columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
+                >>> t = gp.DataFrame.from_columns(columns, db=db)
+                >>> t
+                -------
+                 a | b
+                ---+---
+                 1 | 1
+                 2 | 2
+                 3 | 3
+                -------
+                (3 rows)
         """
         columns_string = ",".join([f'unnest({serialize(v)}) AS "{k}"' for k, v in columns.items()])
         return DataFrame(f"SELECT {columns_string}", db=db)
