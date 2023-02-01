@@ -299,7 +299,7 @@ class NormalFunction(_AbstractFunction):
             importables: List[str] = [dill.source.getimportable(obj) for obj in global_objects]
             importables_ast: List[ast.Import] = ast.parse(dedent("".join(importables))).body
             func_ast.body = importables_ast + func_ast.body
-            pickler_name: str = "__lib_" + uuid4().hex
+            pickle_lib_name: str = "__lib_" + uuid4().hex
             assert (
                 db.execute(
                     (
@@ -310,13 +310,12 @@ class NormalFunction(_AbstractFunction):
                         f"    return GD['{func_ast.name}']({func_arg_names})\n"
                         f"except KeyError:\n"
                         f"    try:\n"
-                        f"        import dill as {pickler_name}\n"
-                        f"        {func_ast.name} = {pickler_name}.loads({func_pickled})\n"
+                        f"        import dill as {pickle_lib_name}\n"
+                        f"        GD['{func_ast.name}'] = {pickle_lib_name}.loads({func_pickled})\n"
                         f"    except ModuleNotFoundError:\n"
                         f"        exec({json.dumps(ast.unparse(func_ast))}, globals())\n"
-                        f"        {func_ast.name} = globals()['{func_ast.name}']\n"
-                        f"    GD['{func_ast.name}'] = {func_ast.name}\n"
-                        f"    return {func_ast.name}({func_arg_names})\n"
+                        f"        GD['{func_ast.name}'] = globals()['{func_ast.name}']\n"
+                        f"    return GD['{func_ast.name}']({func_arg_names})\n"
                         f"$$ LANGUAGE {self._language_handler};"
                     ),
                     has_results=False,
