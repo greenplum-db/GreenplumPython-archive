@@ -185,7 +185,7 @@ Greenplum data.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="func.aggregate_function">
 <span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">aggregate_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><span class="pre">AggregateFunction</span></a></span></span><a class="headerlink" href="#func.aggregate_function" title="Permalink to this definition"></a></dt>
-<dd><p>A wrap in order to call an aggregate function</p>
+<dd><p>A wrap in order to call an aggregate function (Predefined in-Database UDA).</p>
 <p class="rubric">Example</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">count</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">aggregate_function</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span>
 </pre></div>
@@ -195,8 +195,7 @@ Greenplum data.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="func.create_aggregate">
 <span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">create_aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transition_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'plpython3u'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><span class="pre">AggregateFunction</span></a></span></span><a class="headerlink" href="#func.create_aggregate" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a User Defined Aggregate (UDA) in Database using the given Python
-function as the state transition function.</p>
+<dd><p>Creates a User Defined Aggregate (UDA) in Database using the given Python function as the state transition function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -233,8 +232,7 @@ defaults to plpython3u, will also support plcontainer later.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="func.create_array_function">
 <span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">create_array_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wrapped_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'plpython3u'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#func.ArrayFunction" title="func.ArrayFunction"><span class="pre">ArrayFunction</span></a></span></span><a class="headerlink" href="#func.create_array_function" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a User Defined Array Function in database from the given Python
-function.</p>
+<dd><p>Creates a User Defined Array Function in database from the given Python function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -270,8 +268,7 @@ will also support plcontainer later.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="func.create_function">
 <span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">create_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wrapped_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'plpython3u'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><span class="pre">NormalFunction</span></a></span></span><a class="headerlink" href="#func.create_function" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a User Defined Function (UDF) in database from the given Python
-function.</p>
+<dd><p>Creates a User Defined Function (UDF) in database from the given Python function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>wrapped_func</strong> – the Python function to be wrapped into a database function
@@ -301,11 +298,13 @@ will also support plcontainer later.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="func.function">
 <span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><span class="pre">NormalFunction</span></a></span></span><a class="headerlink" href="#func.function" title="Permalink to this definition"></a></dt>
-<dd><p>A wrap in order to call function</p>
+<dd><p>A wrap in order to call function (Predefined in-Database UDF) on <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataframe</span></code>.</p>
 <p class="rubric">Example</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">generate_series</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;generate_series&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
+<p>Get a wrapper of the in-Database function <cite>generate_series</cite>
+.. code-block::  Python</p>
+<blockquote>
+<div><p>generate_series = gp.function(“generate_series”)</p>
+</div></blockquote>
 </dd></dl>
 
 </section>
