@@ -701,14 +701,15 @@ def test_func_with_outside_func(db: gp.Database):
         assert row["x"] == 25
 
 
+from dataclasses import dataclass
+
+
 def test_func_with_outside_class(db: gp.Database):
+    # It is recommended to use dataclass to represent composite types.
+    @dataclass
     class Student(SimpleNamespace):
         name: str
         age: int
-
-        def __init__(self, name: str, age: int):
-            self.name = name
-            self.age = age
 
     @gp.create_function
     def student(name: str, age: int) -> Student:
