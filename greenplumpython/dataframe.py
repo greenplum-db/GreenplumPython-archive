@@ -867,8 +867,11 @@ class DataFrame:
         return result if result is not None else []
 
     def save_as(
-        self, table_name: str, column_names: List[str] = [], temp: bool = False,
-        appendoptimized: bool = True, orientation:str = "row"
+        self,
+        table_name: str,
+        column_names: List[str] = [],
+        temp: bool = False,
+        storage_params: dict[str, Any] = {},
     ) -> "DataFrame":
         """
         Save the GreenplumPython :class:`Dataframe` as a *table* into the database.
@@ -924,11 +927,16 @@ class DataFrame:
         assert self._db is not None
         # TODO: Remove assertion below after implementing schema inference.
         assert len(column_names) > 0, "Column names of new dataframe are unknown."
-        ao_condition = f"WITH (appendoptimized={appendoptimized}, orientation='{orientation}')"
+
+        # build string from parameter dict, such as from {'a': 1, 'b': 2} to
+        # 'WITH (a=1, b=2)'
+        storage_parameters = (
+            f"WITH ({','.join([f'{key}={storage_params[key]}' for key in storage_params.keys()])})"
+        )
         self._db.execute(
             f"""
             CREATE {'TEMP' if temp else ''} TABLE "{table_name}"
-            {ao_condition if appendoptimized else ''}
+            {storage_parameters if storage_params else ''}
             ({','.join(column_names)}) 
             AS {self._build_full_query()}
             """,
