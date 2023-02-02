@@ -22,14 +22,17 @@ class DataFrame:
             else:
                 raise NotImplementedError
 
-    def to_sql(self, name: str, con: db.Database, schema:Optional[str] = None):
-        pass
+    def to_sql(self, name: str) -> "DataFrame":
+        self._proxy.save_as(table_name=name)
+        return self
 
     def read_sql(self, sql: str, con: db.Database):
-        pass
+        self._proxy = gp.DataFrame(query=sql, db=db)
+        return self
 
     def sort_values(self, by: Union[str, List[str]], ascending: bool):
-        pass
+        self._proxy = self._proxy.order_by(column_name=by, ascending=ascending)
+        return self
 
     def drop_duplicates(self, subset: Union[str, List[str]], keep: Literal["first", "last", False] = "first"):
         pass
@@ -58,3 +61,7 @@ class DataFrame:
         names: List[str],
     ):
         pass
+
+
+class DataFrameGroupBy:
+    pass
