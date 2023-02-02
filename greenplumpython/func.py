@@ -315,7 +315,7 @@ class NormalFunction(_AbstractFunction):
                         f"    return GD['{func_ast.name}']({func_arg_names})\n"
                         f"except KeyError:\n"
                         f"    try:\n"
-                        f"        import dillxxx as {pickle_lib_name}\n"
+                        f"        import dill as {pickle_lib_name}\n"
                         f"        import sys as {sys_lib_name}\n"
                         f"        import base64 as {encode_lib_name}\n"
                         f"        if ({sys_lib_name}.version_info.major, {sys_lib_name}.version_info.minor) != {python_version}:\n"
