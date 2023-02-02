@@ -1,3 +1,4 @@
+import sys
 from typing import Callable, List
 
 import pytest
@@ -687,13 +688,12 @@ def test_func_with_outside_func(db: gp.Database):
 
     @gp.create_function
     def proxy(x: int) -> float:
-        # Fallback when the pickle lib "dill" not available on server
+        # Fallback when the pickle lib "dill" cannot be used on server
         # so that the case can always pass.
         try:
-            import dill as _  # type: ignore reportMissingTypeStubs
-        except ModuleNotFoundError:
+            return inner(x)
+        except NameError:
             return x * x
-        return inner(x)
 
     df = db.apply(lambda: proxy(5), as_name="x")
     assert len(list(df)) == 1
@@ -713,13 +713,12 @@ def test_func_with_outside_class(db: gp.Database):
 
     @gp.create_function
     def student(name: str, age: int) -> Student:
-        # Fallback when the pickle lib "dill" not available on server
+        # Fallback when the pickle lib "dill" cannot be used on server
         # so that the case can always pass.
         try:
-            import dill as _  # type: ignore reportMissingTypeStubs
-        except ModuleNotFoundError:
+            return Student(name, age)
+        except NameError:
             return SimpleNamespace(name=name, age=age)
-        return Student(name, age)
 
     df = db.apply(lambda: student("alice", 19), expand=True)
     assert len(list(df)) == 1
