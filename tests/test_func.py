@@ -705,7 +705,7 @@ def test_func_with_outside_class(db: gp.Database):
         name: str
         age: int
 
-        def init(self, name: str, age: int):
+        def __init__(self, name: str, age: int):
             self.name = name
             self.age = age
 
@@ -717,9 +717,7 @@ def test_func_with_outside_class(db: gp.Database):
             import dill as _  # type: ignore reportMissingTypeStubs
         except ModuleNotFoundError:
             return {"name": name, "age": age}  # type: ignore reportGeneralTypeIssues
-        student = Student()
-        student.init(name, age)
-        return student
+        return Student(name, age)
 
     df = db.apply(lambda: student("alice", 19), expand=True)
     assert len(list(df)) == 1
