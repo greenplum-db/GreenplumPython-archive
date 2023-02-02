@@ -867,7 +867,8 @@ class DataFrame:
         return result if result is not None else []
 
     def save_as(
-        self, table_name: str, column_names: List[str] = [], temp: bool = False
+        self, table_name: str, column_names: List[str] = [], temp: bool = False,
+        appendoptimized: bool = True, orientation:str = "row"
     ) -> "DataFrame":
         """
         Save the GreenplumPython :class:`Dataframe` as a *table* into the database.
@@ -881,6 +882,11 @@ class DataFrame:
             dataframe_name : str
             temp : bool : if table is temporary
             column_names : List : list of column names
+            appendoptimized: bool: Set to TRUE to create the table as an append-optimized table.
+                If FALSE, the table will be created as a regular heap-storage table.
+            orientation: str: Set to column for column-oriented storage, or row (the default) for
+                row-oriented storage. This option is only valid if appendoptimized=TRUE. Heap-storage
+                tables can only be row-oriented.
 
         Returns:
             DataFrame : :class:`DataFrame` represents the newly saved table
@@ -918,9 +924,12 @@ class DataFrame:
         assert self._db is not None
         # TODO: Remove assertion below after implementing schema inference.
         assert len(column_names) > 0, "Column names of new dataframe are unknown."
+        ao_condition = f"WITH (appendoptimized={appendoptimized}, orientation='{orientation}')"
         self._db.execute(
             f"""
-            CREATE {'TEMP' if temp else ''} TABLE "{table_name}" ({','.join(column_names)}) 
+            CREATE {'TEMP' if temp else ''} TABLE "{table_name}"
+            {ao_condition if appendoptimized else ''}
+            ({','.join(column_names)}) 
             AS {self._build_full_query()}
             """,
             has_results=False,
