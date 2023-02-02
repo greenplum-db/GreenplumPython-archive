@@ -1,7 +1,8 @@
 from typing import Dict, Iterable, List, Optional, Union, Any, Tuple, Literal
 
-import greenplumpython.dataframe as gp
+import greenplumpython.dataframe as dataframe
 import greenplumpython.db as db
+import greenplumpython.group as groupby
 
 
 class DataFrame:
@@ -11,7 +12,7 @@ class DataFrame:
         columns: Optional[List[str]] = None,
         con: Optional[db.Database] = None,
     ) -> None:
-        if isinstance(data, gp.DataFrame):
+        if isinstance(data, dataframe.DataFrame):
             self._proxy = data
         else:
             assert con is not None
@@ -23,19 +24,20 @@ class DataFrame:
                 raise NotImplementedError
 
     def to_sql(self, name: str) -> "DataFrame":
-        self._proxy.save_as(table_name=name)
+        self._proxy = self._proxy.save_as(table_name=name)
         return self
 
     def read_sql(self, sql: str, con: db.Database):
-        self._proxy = gp.DataFrame(query=sql, db=db)
+        self._proxy = dataframe.DataFrame(query=sql, db=con)
         return self
 
     def sort_values(self, by: Union[str, List[str]], ascending: bool):
         self._proxy = self._proxy.order_by(column_name=by, ascending=ascending)
         return self
 
-    def drop_duplicates(self, subset: Union[str, List[str]], keep: Literal["first", "last", False] = "first"):
-        pass
+    def drop_duplicates(self, subset: Union[str, List[str]]):
+        self._proxy = self._proxy.distinct_on(subset)
+        return self
 
     def merge(self,
         right: "DataFrame",
@@ -47,11 +49,12 @@ class DataFrame:
     ):
         pass
 
-    def groupby(self, by: Union[str, List[str]], sort: bool = False):
-        pass
+    def groupby(self, by: Union[str, List[str]]):
+        return DataFrameGroupBy(self._proxy.group_by(by))
 
     def head(self, n: int):
-        pass
+        self._proxy = self._proxy[:n]
+        return self
 
     def read_csv(
         self,
@@ -62,6 +65,29 @@ class DataFrame:
     ):
         pass
 
+    def __repr__(self):
+        return self._proxy.__repr__()
+
+    def _repr_html_(self):
+        return self._proxy._repr_html_()
+
+    def __iter__(self):
+        pass
+
+    def apply(self):
+        pass
+
+    def agg(self):
+        pass
+
 
 class DataFrameGroupBy:
-    pass
+    def __init__(self, df_groupby: groupby.DataFrameGroupingSets):
+        self._proxy = df_groupby
+
+    def agg(self):
+        pass
+
+    def apply(self):
+        pass
+
