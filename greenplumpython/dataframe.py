@@ -936,8 +936,8 @@ class DataFrame:
         self._db.execute(
             f"""
             CREATE {'TEMP' if temp else ''} TABLE "{table_name}"
-            {storage_parameters if storage_params else ''}
             ({','.join(column_names)}) 
+            {storage_parameters if storage_params else ''}
             AS {self._build_full_query()}
             """,
             has_results=False,
