@@ -2,6 +2,7 @@
 This module creates a Python object Func which able creation and calling of Greenplum UDF and UDA.
 """
 import ast
+import base64
 import functools
 import inspect
 import json
@@ -303,6 +304,7 @@ class NormalFunction(_AbstractFunction):
             pickle_lib_name: str = "__lib_" + uuid4().hex
             sys_lib_name: str = "__lib_" + uuid4().hex
             python_version = (sys.version_info.major, sys.version_info.minor)
+            encode_lib_name: str = "__lib_" + uuid4().hex
             assert (
                 db.execute(
                     (
@@ -313,10 +315,12 @@ class NormalFunction(_AbstractFunction):
                         f"    return GD['{func_ast.name}']({func_arg_names})\n"
                         f"except KeyError:\n"
                         f"    try:\n"
-                        f"        import dill as {pickle_lib_name}, sys as {sys_lib_name}\n"
+                        f"        import dillxxx as {pickle_lib_name}\n"
+                        f"        import sys as {sys_lib_name}\n"
+                        f"        import base64 as {encode_lib_name}\n"
                         f"        if ({sys_lib_name}.version_info.major, {sys_lib_name}.version_info.minor) != {python_version}:\n"
                         f"            raise ModuleNotFoundError\n"
-                        f"        GD['{func_ast.name}'] = {pickle_lib_name}.loads({func_pickled})\n"
+                        f"        GD['{func_ast.name}'] = {pickle_lib_name}.loads({encode_lib_name}.b64decode({base64.b64encode(func_pickled)}))\n"
                         f"    except ModuleNotFoundError:\n"
                         f"        exec({json.dumps(ast.unparse(func_ast))}, globals())\n"
                         f"        GD['{func_ast.name}'] = globals()['{func_ast.name}']\n"

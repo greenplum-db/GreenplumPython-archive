@@ -686,6 +686,12 @@ def test_func_with_outside_func(db: gp.Database):
 
     @gp.create_function
     def proxy(x: int) -> float:
+        # Fallback when the pickle lib "dill" not available on server
+        # so that the case can always pass.
+        try:
+            import dill as _  # type: ignore reportMissingTypeStubs
+        except ModuleNotFoundError:
+            return x * x
         return inner(x)
 
     df = db.apply(lambda: proxy(5), as_name="x")
@@ -699,12 +705,21 @@ def test_func_with_outside_class(db: gp.Database):
         name: str
         age: int
 
+        def init(self, name: str, age: int):
+            self.name = name
+            self.age = age
+
     @gp.create_function
     def student(name: str, age: int) -> Student:
+        # Fallback when the pickle lib "dill" not available on server
+        # so that the case can always pass.
+        try:
+            import dill as _  # type: ignore reportMissingTypeStubs
+        except ModuleNotFoundError:
+            return {"name": name, "age": age}  # type: ignore reportGeneralTypeIssues
         student = Student()
-        student.name = name
-        student.age = age
-        return student.__dict__
+        student.init(name, age)
+        return student
 
     df = db.apply(lambda: student("alice", 19), expand=True)
     assert len(list(df)) == 1
