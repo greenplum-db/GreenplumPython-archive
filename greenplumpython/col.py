@@ -82,6 +82,7 @@ class Column(Expr):
 
     def __getitem__(self, field_name: str) -> ColumnField:
         """
+        Used when want to use Field of Column for computation.
         Returns :class:`ColumnField` of self by matching field_name
 
         Args:
