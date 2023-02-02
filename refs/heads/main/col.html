@@ -42,6 +42,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="requirements.html">Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">GreenplumPython</a><ul class="current">
@@ -160,7 +161,8 @@ allows to access to the fields in a dict-like manner.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="col.Column.__getitem__">
 <span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#col.ColumnField" title="col.ColumnField"><span class="pre">ColumnField</span></a></span></span><a class="headerlink" href="#col.Column.__getitem__" title="Permalink to this definition"></a></dt>
-<dd><p>Returns <a class="reference internal" href="#col.ColumnField" title="col.ColumnField"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnField</span></code></a> of self by matching field_name</p>
+<dd><p>Used when want to use Field of Column for computation.
+Returns <a class="reference internal" href="#col.ColumnField" title="col.ColumnField"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnField</span></code></a> of self by matching field_name</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>field_name</strong> – str</p>
