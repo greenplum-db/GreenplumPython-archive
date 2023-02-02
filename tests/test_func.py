@@ -297,9 +297,7 @@ def test_array_func_group_by_return_composite(db: gp.Database):
     def my_count_sum(val_list: List[int]) -> array_sum:
         return SimpleNamespace(_sum=sum(val_list), _count=len(val_list))
 
-    # fmt: off
-    rows = [(1, "a",), (1, "a",), (1, "b",), (1, "a",), (1, "b",), (1, "b",)]
-    # fmt: on
+    rows = [(1, "a"), (1, "a"), (1, "b"), (1, "a"), (1, "b"), (1, "b")]
     numbers = db.create_dataframe(rows=rows, column_names=["val", "lab"])
 
     # -- WITH ASSIGN FUNC
