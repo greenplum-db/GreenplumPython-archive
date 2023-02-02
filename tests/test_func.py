@@ -295,7 +295,7 @@ def test_array_func_group_by_return_composite(db: gp.Database):
 
     @gp.create_array_function
     def my_count_sum(val_list: List[int]) -> array_sum:
-        return SimpleNamespace(**{"_sum": sum(val_list), "_count": len(val_list)})
+        return SimpleNamespace(_sum=sum(val_list), _count=len(val_list))
 
     # fmt: off
     rows = [(1, "a",), (1, "a",), (1, "b",), (1, "a",), (1, "b",), (1, "b",)]
@@ -327,7 +327,7 @@ def test_array_func_group_by_return_composite(db: gp.Database):
 
     @gp.create_function
     def create_person(first: str, last: str) -> Person:
-        return SimpleNamespace(**{"_first_name": first, "_last_name": last})
+        return SimpleNamespace(_first_name=first, _last_name=last)
 
     # -- WITH ASSIGN FUNC
     for row in db.assign(result=lambda: create_person("Amy", "An")).assign(
@@ -348,7 +348,7 @@ class Pair(SimpleNamespace):
 
 @gp.create_function
 def create_pair(num: int) -> Pair:
-    return SimpleNamespace(**{"_num": num, "_next": num + 1})
+    return SimpleNamespace(_num=num, _next=num + 1)
 
 
 def test_func_composite_type_column(db: gp.Database):
@@ -373,7 +373,7 @@ def test_func_composite_type_setof(db: gp.Database):
 
     @gp.create_function
     def create_pair_tuple(num: int) -> List[Pair]:
-        return [SimpleNamespace(**{"_num": num, "_next": num + 1}) for _ in range(5)]
+        return [SimpleNamespace(_num=num, _next=num + 1) for _ in range(5)]
 
     rows = [(i,) for i in range(10)]
     numbers = db.create_dataframe(rows=rows, column_names=["val"])
@@ -408,7 +408,7 @@ class Stat(SimpleNamespace):
 
 @gp.create_array_function
 def my_stat(val_list: List[int]) -> Stat:
-    return SimpleNamespace(**{"sum": sum(val_list), "count": len(val_list)})
+    return SimpleNamespace(sum=sum(val_list), count=len(val_list))
 
 
 def test_array_func_composite_type(db: gp.Database):
@@ -592,7 +592,7 @@ def test_func_return_list_composite(db: gp.Database):
 
     @gp.create_function
     def add_to_cart(customer: str, items: List[str]) -> ShoppingCart:
-        return SimpleNamespace(**{"customer": customer, "items": items})
+        return SimpleNamespace(customer=customer, items=items)
 
     # -- WITH ASSIGN FUNC
     results = db.assign(result=lambda: add_to_cart("alice", ["apple"])).assign(
@@ -657,8 +657,8 @@ def test_agg_composite_type(db: gp.Database):
     @gp.create_aggregate
     def sum_count(result: sum_count_type, val: int) -> sum_count_type:
         if result is None:
-            return SimpleNamespace(**{"sum": val, "count": 1})
-        return SimpleNamespace(**{"sum": result["sum"] + val, "count": result["count"] + 1})
+            return SimpleNamespace(sum=val, count=1)
+        return SimpleNamespace(sum=result["sum"] + val, count=result["count"] + 1)
 
     rows = [(1,) for _ in range(10)]
     numbers = db.create_dataframe(rows=rows, column_names=["val"])
@@ -719,7 +719,7 @@ def test_func_with_outside_class(db: gp.Database):
         try:
             import dill as _  # type: ignore reportMissingTypeStubs
         except ModuleNotFoundError:
-            return SimpleNamespace(**{"name": name, "age": age})
+            return SimpleNamespace(name=name, age=age)
         return Student(name, age)
 
     df = db.apply(lambda: student("alice", 19), expand=True)
