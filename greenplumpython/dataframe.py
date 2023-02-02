@@ -885,11 +885,8 @@ class DataFrame:
             dataframe_name : str
             temp : bool : if table is temporary
             column_names : List : list of column names
-            appendoptimized: bool: Set to TRUE to create the table as an append-optimized table.
-                If FALSE, the table will be created as a regular heap-storage table.
-            orientation: str: Set to column for column-oriented storage, or row (the default) for
-                row-oriented storage. This option is only valid if appendoptimized=TRUE. Heap-storage
-                tables can only be row-oriented.
+            storage_params: dict: storage_parameter of gpdb, reference
+                https://docs.vmware.com/en/VMware-Tanzu-Greenplum/7/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html
 
         Returns:
             DataFrame : :class:`DataFrame` represents the newly saved table
