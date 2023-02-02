@@ -285,14 +285,17 @@ def test_array_func_group_by(db: gp.Database):
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["my_sum"] == 5)
 
 
+from types import SimpleNamespace
+
+
 def test_array_func_group_by_return_composite(db: gp.Database):
-    class array_sum:
+    class array_sum(SimpleNamespace):
         _sum: int
         _count: int
 
     @gp.create_array_function
     def my_count_sum(val_list: List[int]) -> array_sum:
-        return {"_sum": sum(val_list), "_count": len(val_list)}
+        return SimpleNamespace(**{"_sum": sum(val_list), "_count": len(val_list)})
 
     # fmt: off
     rows = [(1, "a",), (1, "a",), (1, "b",), (1, "a",), (1, "b",), (1, "b",)]
@@ -318,13 +321,13 @@ def test_array_func_group_by_return_composite(db: gp.Database):
         assert row["_sum"] == 3
         assert row["_count"] == 3
 
-    class Person:
+    class Person(SimpleNamespace):
         _first_name: str
         _last_name: str
 
     @gp.create_function
     def create_person(first: str, last: str) -> Person:
-        return {"_first_name": first, "_last_name": last}
+        return SimpleNamespace(**{"_first_name": first, "_last_name": last})
 
     # -- WITH ASSIGN FUNC
     for row in db.assign(result=lambda: create_person("Amy", "An")).assign(
@@ -338,14 +341,14 @@ def test_array_func_group_by_return_composite(db: gp.Database):
         assert row["_first_name"] == "Amy" and row["_last_name"] == "An"
 
 
-class Pair:
+class Pair(SimpleNamespace):
     _num: int
     _next: int
 
 
 @gp.create_function
 def create_pair(num: int) -> Pair:
-    return {"_num": num, "_next": num + 1}
+    return SimpleNamespace(**{"_num": num, "_next": num + 1})
 
 
 def test_func_composite_type_column(db: gp.Database):
@@ -364,13 +367,13 @@ def test_func_composite_type_column(db: gp.Database):
 
 
 def test_func_composite_type_setof(db: gp.Database):
-    class Pair:
+    class Pair(SimpleNamespace):
         _num: int
         _next: int
 
     @gp.create_function
     def create_pair_tuple(num: int) -> List[Pair]:
-        return [(num, num + 1) for _ in range(5)]
+        return [SimpleNamespace(**{"_num": num, "_next": num + 1}) for _ in range(5)]
 
     rows = [(i,) for i in range(10)]
     numbers = db.create_dataframe(rows=rows, column_names=["val"])
@@ -398,14 +401,14 @@ def test_func_composite_type_setof(db: gp.Database):
         assert dict_record[key] == 5
 
 
-class Stat:
+class Stat(SimpleNamespace):
     sum: int
     count: int
 
 
 @gp.create_array_function
 def my_stat(val_list: List[int]) -> Stat:
-    return {"sum": sum(val_list), "count": len(val_list)}
+    return SimpleNamespace(**{"sum": sum(val_list), "count": len(val_list)})
 
 
 def test_array_func_composite_type(db: gp.Database):
@@ -583,13 +586,13 @@ def test_array_func_group_by_attribute(db: gp.Database):
 
 
 def test_func_return_list_composite(db: gp.Database):
-    class ShoppingCart:
+    class ShoppingCart(SimpleNamespace):
         customer: str
         items: List[str]
 
     @gp.create_function
     def add_to_cart(customer: str, items: List[str]) -> ShoppingCart:
-        return {"customer": customer, "items": items}
+        return SimpleNamespace(**{"customer": customer, "items": items})
 
     # -- WITH ASSIGN FUNC
     results = db.assign(result=lambda: add_to_cart("alice", ["apple"])).assign(
@@ -647,15 +650,15 @@ def test_agg_distinct(db: gp.Database):
 
 
 def test_agg_composite_type(db: gp.Database):
-    class sum_count_type:
+    class sum_count_type(SimpleNamespace):
         sum: int
         count: int
 
     @gp.create_aggregate
     def sum_count(result: sum_count_type, val: int) -> sum_count_type:
         if result is None:
-            return {"sum": val, "count": 1}
-        return {"sum": result["sum"] + val, "count": result["count"] + 1}
+            return SimpleNamespace(**{"sum": val, "count": 1})
+        return SimpleNamespace(**{"sum": result["sum"] + val, "count": result["count"] + 1})
 
     rows = [(1,) for _ in range(10)]
     numbers = db.create_dataframe(rows=rows, column_names=["val"])
@@ -701,7 +704,7 @@ def test_func_with_outside_func(db: gp.Database):
 
 
 def test_func_with_outside_class(db: gp.Database):
-    class Student:
+    class Student(SimpleNamespace):
         name: str
         age: int
 
@@ -716,7 +719,7 @@ def test_func_with_outside_class(db: gp.Database):
         try:
             import dill as _  # type: ignore reportMissingTypeStubs
         except ModuleNotFoundError:
-            return {"name": name, "age": age}  # type: ignore reportGeneralTypeIssues
+            return SimpleNamespace(**{"name": name, "age": age})
         return Student(name, age)
 
     df = db.apply(lambda: student("alice", 19), expand=True)
