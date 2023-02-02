@@ -1,4 +1,5 @@
-from typing import List
+import sys
+from typing import Callable, List
 
 import pytest
 
@@ -285,18 +286,19 @@ def test_array_func_group_by(db: gp.Database):
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["my_sum"] == 5)
 
 
+from types import SimpleNamespace
+
+
 def test_array_func_group_by_return_composite(db: gp.Database):
-    class array_sum:
+    class array_sum(SimpleNamespace):
         _sum: int
         _count: int
 
     @gp.create_array_function
     def my_count_sum(val_list: List[int]) -> array_sum:
-        return {"_sum": sum(val_list), "_count": len(val_list)}
+        return SimpleNamespace(_sum=sum(val_list), _count=len(val_list))
 
-    # fmt: off
-    rows = [(1, "a",), (1, "a",), (1, "b",), (1, "a",), (1, "b",), (1, "b",)]
-    # fmt: on
+    rows = [(1, "a"), (1, "a"), (1, "b"), (1, "a"), (1, "b"), (1, "b")]
     numbers = db.create_dataframe(rows=rows, column_names=["val", "lab"])
 
     # -- WITH ASSIGN FUNC
@@ -318,13 +320,13 @@ def test_array_func_group_by_return_composite(db: gp.Database):
         assert row["_sum"] == 3
         assert row["_count"] == 3
 
-    class Person:
+    class Person(SimpleNamespace):
         _first_name: str
         _last_name: str
 
     @gp.create_function
     def create_person(first: str, last: str) -> Person:
-        return {"_first_name": first, "_last_name": last}
+        return SimpleNamespace(_first_name=first, _last_name=last)
 
     # -- WITH ASSIGN FUNC
     for row in db.assign(result=lambda: create_person("Amy", "An")).assign(
@@ -338,14 +340,14 @@ def test_array_func_group_by_return_composite(db: gp.Database):
         assert row["_first_name"] == "Amy" and row["_last_name"] == "An"
 
 
-class Pair:
+class Pair(SimpleNamespace):
     _num: int
     _next: int
 
 
 @gp.create_function
 def create_pair(num: int) -> Pair:
-    return {"_num": num, "_next": num + 1}
+    return SimpleNamespace(_num=num, _next=num + 1)
 
 
 def test_func_composite_type_column(db: gp.Database):
@@ -364,13 +366,13 @@ def test_func_composite_type_column(db: gp.Database):
 
 
 def test_func_composite_type_setof(db: gp.Database):
-    class Pair:
+    class Pair(SimpleNamespace):
         _num: int
         _next: int
 
     @gp.create_function
     def create_pair_tuple(num: int) -> List[Pair]:
-        return [(num, num + 1) for _ in range(5)]
+        return [SimpleNamespace(_num=num, _next=num + 1) for _ in range(5)]
 
     rows = [(i,) for i in range(10)]
     numbers = db.create_dataframe(rows=rows, column_names=["val"])
@@ -398,14 +400,14 @@ def test_func_composite_type_setof(db: gp.Database):
         assert dict_record[key] == 5
 
 
-class Stat:
+class Stat(SimpleNamespace):
     sum: int
     count: int
 
 
 @gp.create_array_function
 def my_stat(val_list: List[int]) -> Stat:
-    return {"sum": sum(val_list), "count": len(val_list)}
+    return SimpleNamespace(sum=sum(val_list), count=len(val_list))
 
 
 def test_array_func_composite_type(db: gp.Database):
@@ -583,13 +585,13 @@ def test_array_func_group_by_attribute(db: gp.Database):
 
 
 def test_func_return_list_composite(db: gp.Database):
-    class ShoppingCart:
+    class ShoppingCart(SimpleNamespace):
         customer: str
         items: List[str]
 
     @gp.create_function
     def add_to_cart(customer: str, items: List[str]) -> ShoppingCart:
-        return {"customer": customer, "items": items}
+        return SimpleNamespace(customer=customer, items=items)
 
     # -- WITH ASSIGN FUNC
     results = db.assign(result=lambda: add_to_cart("alice", ["apple"])).assign(
@@ -647,18 +649,96 @@ def test_agg_distinct(db: gp.Database):
 
 
 def test_agg_composite_type(db: gp.Database):
-    class sum_count_type:
+    class sum_count_type(SimpleNamespace):
         sum: int
         count: int
 
     @gp.create_aggregate
     def sum_count(result: sum_count_type, val: int) -> sum_count_type:
         if result is None:
-            return {"sum": val, "count": 1}
-        return {"sum": result["sum"] + val, "count": result["count"] + 1}
+            return SimpleNamespace(sum=val, count=1)
+        return SimpleNamespace(sum=result["sum"] + val, count=result["count"] + 1)
 
     rows = [(1,) for _ in range(10)]
     numbers = db.create_dataframe(rows=rows, column_names=["val"])
     result = numbers.group_by().apply(lambda t: sum_count(t["val"]), expand=True)
     for row in result:
         assert row["count"] == len(rows) and row["sum"] == 10
+
+
+import math
+
+
+def test_func_with_outside_imports(db: gp.Database):
+    # NOTE: imports in function's closure rather than in globals() is NOT
+    # supported.
+    @gp.create_function
+    def my_math(x: int) -> float:
+        return math.sqrt(x**2)
+
+    df = db.apply(lambda: my_math(42), as_name="x")
+    assert len(list(df)) == 1
+    for row in df:
+        assert abs(row["x"] - 42) < 1e-5
+
+
+def test_func_with_outside_func(db: gp.Database):
+    def inner(x: int) -> int:
+        return x * x
+
+    @gp.create_function
+    def proxy(x: int) -> float:
+        # Fallback when the pickle lib "dill" cannot be used on server
+        # so that the case can always pass.
+        try:
+            return inner(x)
+        except NameError:
+            return x * x
+
+    df = db.apply(lambda: proxy(5), as_name="x")
+    assert len(list(df)) == 1
+    for row in df:
+        assert row["x"] == 25
+
+
+from dataclasses import dataclass
+
+
+def test_func_with_outside_class(db: gp.Database):
+    # It is recommended to use dataclass to represent composite types.
+    @dataclass
+    class Student(SimpleNamespace):
+        name: str
+        age: int
+
+    @gp.create_function
+    def student(name: str, age: int) -> Student:
+        # Fallback when the pickle lib "dill" cannot be used on server
+        # so that the case can always pass.
+        try:
+            return Student(name, age)
+        except NameError:
+            return SimpleNamespace(name=name, age=age)
+
+    df = db.apply(lambda: student("alice", 19), expand=True)
+    assert len(list(df)) == 1
+    for row in df:
+        assert row["name"] == "alice" and row["age"] == 19
+
+
+def test_func_one_liner(db: gp.Database):
+    # fmt: off
+    @gp.create_function
+    def add_one(x: int) -> int: return x + 1
+    # fmt: on
+
+    df = db.apply(lambda: add_one(1), as_name="x")
+    assert len(list(df)) == 1
+    for row in df:
+        assert row["x"] == 2
+
+    # TODO: Lambda expressions are not supported.
+    add_one: Callable[[int], int] = lambda x: x + 1
+    with pytest.raises(AssertionError) as exc_info:
+        df = db.apply(lambda: gp.create_function(add_one)(1), as_name="x")
+    assert "is not a function" in str(exc_info.value)
