@@ -137,7 +137,7 @@ class DataFrame:
 
 def read_sql(
     sql: str,
-    con: engine,
+    con: db.Database,
     index_col: Union[str, list[str]] = None,
     coerce_float: bool = True,
     params=None,
@@ -145,7 +145,15 @@ def read_sql(
     columns: Optional[list[str]] = None,
     chunksize: Optional[int] = None,
 ):
-    return DataFrame(dataframe.DataFrame(query=sql, db=con))
+    try:
+        con.execute(f'SELECT * FROM "{sql}"')
+        return DataFrame(
+            dataframe.DataFrame(f'TABLE "{sql}"', name=sql, db=con),
+            con=con,
+        )
+    except:
+        return DataFrame(dataframe.DataFrame(query=sql, db=con))
+
 
 
 class DataFrameGroupBy:

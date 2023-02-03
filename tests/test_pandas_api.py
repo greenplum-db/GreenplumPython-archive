@@ -69,3 +69,13 @@ def test_join(db: gp.Database):
     for row in ret:
         assert row["zoo1_animal"] == row["zoo2_animal"]
         assert row["zoo1_animal"] == "Lion" or row["zoo1_animal"] == "Tiger"
+
+
+def test_read_sql(db: gp.Database, con):
+    columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
+    df = db.create_dataframe(columns=columns).save_as("const_dataframe", column_names=["a", "b"], temp=True)
+    pd_df = pd.read_sql("const_dataframe", db)
+    assert sorted([tuple(row.values()) for row in list(pd_df)]) == [(1, 1), (2, 2), (3, 3)]
+
+    pd_df = pd.read_sql("SELECT * FROM const_dataframe", db)
+    assert sorted([tuple(row.values()) for row in list(pd_df)]) == [(1, 1), (2, 2), (3, 3)]
