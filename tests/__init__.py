@@ -1,6 +1,7 @@
 from os import environ
 
 import pytest
+from sqlalchemy import create_engine
 
 import greenplumpython as gp
 
@@ -16,6 +17,12 @@ def db():
     )
     yield db
     db.close()
+
+
+@pytest.fixture()
+def con():
+    con = create_engine("postgresql://localhost/gpadmin")
+    yield con
 
 
 gp.config.print_sql = True
