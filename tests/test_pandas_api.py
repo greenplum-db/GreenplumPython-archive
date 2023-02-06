@@ -31,11 +31,12 @@ def test_to_sql(db: gp.Database, con):
     pd_df = pd.DataFrame(df)
     db.execute("DROP TABLE IF EXISTS test.test_to_sql", has_results=False)
     db.execute("DROP SCHEMA IF EXISTS test; CREATE SCHEMA test", has_results=False)
-    assert pd_df.to_sql(name="test_to_sql", con=con, schema="test") == 3
+    rowcount = pd_df.to_sql(name="test_to_sql", con=con, schema="test")
+    assert rowcount == 3
     with pytest.raises(Exception) as exc_info:
-        pd_df.to_sql(name="test_to_sql", con=con, schema="test") == 3
+        pd_df.to_sql(name="test_to_sql", con=con, schema="test")
     assert 'relation "test_to_sql" already exists' in str(exc_info)
-    pd_df.to_sql(name="test_to_sql", con=con, schema="test", if_exists="replace") == 3
+    pd_df.to_sql(name="test_to_sql", con=con, schema="test", if_exists="replace")
     df = db.create_dataframe(table_name="test.test_to_sql")
     assert sorted([tuple(row.values()) for row in df]) == [(1, 1), (2, 2), (3, 3)]
     assert list(next(iter(df)).keys()) == ["a", "b"]

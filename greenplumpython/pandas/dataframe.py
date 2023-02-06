@@ -41,10 +41,20 @@ class DataFrame:
         assert index is False, "DataFrame in GreenplumPython.pandas does not have an index column"
         assert if_exists in ["fail", "replace"], "Only support if_exists = 'fail' or 'replace'"
         table_name = name if schema is None else (schema + "." + name)
-        with con.connect() as connection:
+        # database = db.Database(url=str(con.url))
+        # if if_exists == "replace":
+        #     database.execute(f"DROP TABLE IF EXISTS {table_name}", has_results=False)
+        # result = database.execute(
+        #     f"""
+        #         CREATE TABLE {table_name}
+        #         AS {self._proxy._build_full_query()}
+        #     """,
+        #     has_results=False,
+        # )
+        with con.connect() as connexion:
             if if_exists == "replace":
-                connection.execute(f"DROP TABLE IF EXISTS {table_name}")
-            result = connection.execute(
+                connexion.execute(text(f"DROP TABLE IF EXISTS {table_name}"))
+            result = connexion.execute(
                 text(
                     f"""
                         CREATE TABLE {table_name}
@@ -52,7 +62,9 @@ class DataFrame:
                     """
                 )
             )
-            return result.rowcount
+            connexion.commit()
+
+        return result.rowcount
 
     def sort_values(
         self,
@@ -158,11 +170,9 @@ def read_sql(
 ):
     database = db.Database(url=str(con.url))
     try:
-        con.execute(f'SELECT * FROM "{sql}"')
-        return DataFrame(
-            database.create_dataframe(table_name=sql),
-            con=database,
-        )
+        database.execute(f"SELECT * FROM {sql}")
+        df = database.create_dataframe(table_name=sql)
+        return DataFrame(df, con=database)
     except:
         return DataFrame(dataframe.DataFrame(query=sql, db=database))
 
