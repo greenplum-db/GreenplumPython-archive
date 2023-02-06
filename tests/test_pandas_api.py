@@ -60,11 +60,7 @@ def test_join(db: gp.Database):
     zoo_1_pd_df = pd.DataFrame(zoo_1_df)
     zoo_2_pd_df = pd.DataFrame(zoo_2_df)
 
-    ret: pd.DataFrame = zoo_1_pd_df.join(
-        zoo_2_pd_df,
-        on=["animal"],
-        how="left"
-    )
+    ret: pd.DataFrame = zoo_1_pd_df.join(zoo_2_pd_df, on=["animal"], how="left")
     assert len(list(ret)) == 2
     for row in ret:
         assert row["zoo1_animal"] == row["zoo2_animal"]
@@ -73,9 +69,10 @@ def test_join(db: gp.Database):
 
 def test_read_sql(db: gp.Database, con):
     columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
-    df = db.create_dataframe(columns=columns).save_as("const_dataframe", column_names=["a", "b"], temp=True)
-    pd_df = pd.read_sql("const_dataframe", db)
+    db.create_dataframe(columns=columns).save_as("const_dataframe", column_names=["a", "b"])
+
+    pd_df = pd.read_sql("const_dataframe", con)
     assert sorted([tuple(row.values()) for row in list(pd_df)]) == [(1, 1), (2, 2), (3, 3)]
 
-    pd_df = pd.read_sql("SELECT * FROM const_dataframe", db)
+    pd_df = pd.read_sql("SELECT * FROM const_dataframe", con)
     assert sorted([tuple(row.values()) for row in list(pd_df)]) == [(1, 1), (2, 2), (3, 3)]

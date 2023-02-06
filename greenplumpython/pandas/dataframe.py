@@ -69,12 +69,12 @@ class DataFrame:
         ), "DataFrame in GreenplumPython.pandas does not have an index column"
         nulls_first = True if na_position == "first" else False
         df = orderby.DataFrameOrdering(
-                self._proxy,
-                by if isinstance(by, list) else [by],
-                ascending if isinstance(ascending, list) else [ascending],
-                len(by)*[nulls_first] if isinstance(by, list) else [nulls_first],
-                len(by)*[None]
-            )[:]
+            self._proxy,
+            by if isinstance(by, list) else [by],
+            ascending if isinstance(ascending, list) else [ascending],
+            len(by) * [nulls_first] if isinstance(by, list) else [nulls_first],
+            len(by) * [None],
+        )[:]
         return DataFrame(df)
 
     def drop_duplicates(
@@ -87,7 +87,7 @@ class DataFrame:
         assert keep == "first", "Can only keep first occurrence"
         assert inplace is False, "Cannot perform operation in place"
         assert (
-                ignore_index is True
+            ignore_index is True
         ), "DataFrame in GreenplumPython.pandas does not have an index column"
         df = self._proxy.distinct_on(*subset)
         return DataFrame(df)
@@ -137,7 +137,7 @@ class DataFrame:
 
 def read_sql(
     sql: str,
-    con: db.Database,
+    con: engine,
     index_col: Union[str, list[str]] = None,
     coerce_float: bool = True,
     params=None,
@@ -145,15 +145,15 @@ def read_sql(
     columns: Optional[list[str]] = None,
     chunksize: Optional[int] = None,
 ):
+    database = db.db_from_url(str(con.url))
     try:
         con.execute(f'SELECT * FROM "{sql}"')
         return DataFrame(
-            dataframe.DataFrame(f'TABLE "{sql}"', name=sql, db=con),
-            con=con,
+            database.create_dataframe(table_name=sql),
+            con=database,
         )
     except:
-        return DataFrame(dataframe.DataFrame(query=sql, db=con))
-
+        return DataFrame(dataframe.DataFrame(query=sql, db=database))
 
 
 class DataFrameGroupBy:

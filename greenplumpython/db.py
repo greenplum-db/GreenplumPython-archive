@@ -29,9 +29,14 @@ class Database:
     Each Database object has an instance **conn** which establishes a connection using psycopg2.
     """
 
-    def __init__(self, params: Dict[str, str]) -> None:
+    def __init__(self, params: Optional[Dict[str, str]] = None, url: Optional[str] = None) -> None:
+        assert (params is not None and url is None) or (params is None and url is not None)
+        if url is not None:
+            con_str = url
+        else:
+            con_str = " ".join([f"{k}={v}" for k, v in params.items()])
         self._conn = psycopg2.connect(  # type: ignore
-            " ".join([f"{k}={v}" for k, v in params.items()]),
+            con_str,
             cursor_factory=psycopg2.extras.RealDictCursor,
         )
         self._conn.set_session(autocommit=True)
@@ -239,4 +244,8 @@ def database(
         params["user"] = user
     if password is not None:
         params["password"] = password
-    return Database(params)
+    return Database(params=params)
+
+
+def db_from_url(url: str):
+    return Database(url=url)
