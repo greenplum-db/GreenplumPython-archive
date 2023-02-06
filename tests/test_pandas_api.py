@@ -6,6 +6,25 @@ import greenplumpython.pandas.dataframe as pd
 from tests import con, db
 
 
+def test_df_to_pddf(db: gp.Database):
+    rows = [(1,) for _ in range(10)]
+    df = db.create_dataframe(rows=rows, column_names=["val"])
+    pddf_from_df = pd.create_dataframe(dataframe=df)
+    assert sum(row["val"] for row in pddf_from_df) == 10
+
+
+def test_rows_to_pddf(db: gp.Database):
+    rows = [(1,) for _ in range(10)]
+    pddf_from_df = pd.create_dataframe(rows=rows, column_names=["val"], db=db)
+    assert sum(row["val"] for row in pddf_from_df) == 10
+
+
+def test_columns_to_pddf(db: gp.Database):
+    columns = {"val": [(1,) for _ in range(10)]}
+    pddf_from_df = pd.create_dataframe(columns=columns, db=db)
+    assert sum(row["val"] for row in pddf_from_df) == 10
+
+
 def test_to_sql(db: gp.Database, con):
     columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
     df = db.create_dataframe(columns=columns)
@@ -86,7 +105,7 @@ def test_merge_same_column_name(db: gp.Database):
 
 
 def test_read_sql(db: gp.Database, con):
-    db.execute('DROP TABLE IF EXISTS test_read_sql', has_results=False)
+    db.execute("DROP TABLE IF EXISTS test_read_sql", has_results=False)
     columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
     db.create_dataframe(columns=columns).save_as("test_read_sql", column_names=["a", "b"])
 

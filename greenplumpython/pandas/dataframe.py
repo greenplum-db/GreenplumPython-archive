@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Iterable, List, Literal, Optional, Tuple, Union
 
 from sqlalchemy import engine
 
@@ -163,6 +163,58 @@ def read_sql(
         )
     except:
         return DataFrame(dataframe.DataFrame(query=sql, db=database))
+
+
+def create_dataframe(
+    dataframe: Optional[dataframe.DataFrame] = None,
+    rows: Optional[List[Union[Tuple[Any, ...], Dict[str, Any]]]] = None,
+    columns: Optional[Dict[str, List[Any]]] = None,
+    column_names: Optional[Iterable[str]] = None,
+    db: Optional[db.Database] = None,
+):
+    """
+    Returns a GreenplumPython Pandas compatible :class:`~dataframe.DataFrame` using GreenplumPython
+    :class:`~greenplumpython.dataframe.DataFrame`, list of values given by rows or columns
+
+    Example:
+        .. highlight:: python
+        .. code-block::  python
+
+            >>> import greenplumpython.pandas as pd
+            >>> df = db.create_dataframe(table_name="pg_class")
+            >>> pd_df_from_df = pd.create_dataframe(dataframe=df)
+            >>> rows = [(1,), (2,), (3,)]
+            >>> pd_df_from_rows = pd.create_dataframe(rows=rows, column_names=["id"])
+            >>> pd_df_from_rows
+            ----
+             id
+            ----
+              1
+              2
+              3
+            ----
+            (3 rows)
+            >>> columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
+            >>> pd_df_from_columns = pd.create_dataframe(columns=columns)
+            >>> pd_df_from_columns
+            -------
+             a | b
+            ---+---
+             1 | 1
+             2 | 2
+             3 | 3
+            -------
+            (3 rows)
+
+    """
+    if dataframe is not None:
+        assert columns is None and rows is None, "Only one data format is allowed."
+        return DataFrame(data=dataframe)
+    assert db is not None, "Need provide database"
+    assert rows is None or columns is None, "Only one data format is allowed."
+    if rows is not None:
+        return DataFrame(data=rows, con=db, columns=column_names)
+    return DataFrame(data=columns, con=db)
 
 
 class DataFrameGroupBy:
