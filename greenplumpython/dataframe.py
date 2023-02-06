@@ -346,9 +346,9 @@ class DataFrame:
                     :class:`NormalFunction`, a :class:`AggregateFunction` or a
                     :class:`ColumnFunction`
 
-            expand: bool: expand the multi-valued result into columns of the
-                resulting :class:`DataFrame`.
-            column_name: str: name of the column of the return value in the
+            expand: whether to expand the multi-valued result into columns of
+                the resulting :class:`DataFrame`.
+            column_name: name of the column of the return value in the
                 resulting :class:`DataFrame`.
 
         Returns:
