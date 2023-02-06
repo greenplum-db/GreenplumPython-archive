@@ -45,7 +45,7 @@ def test_group_agg_multi_columns(db: gp.Database):
 
     # -- WITH APPLY FUNC
     results = numbers.group_by("is_even").apply(
-        lambda row: my_sum_copy(row["val"], row["val_cp"]), as_name="my_sum_copy"
+        lambda row: my_sum_copy(row["val"], row["val_cp"]), column_name="my_sum_copy"
     )
     assert len(list(results)) == 2
     for row in results:

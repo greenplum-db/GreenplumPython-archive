@@ -36,8 +36,10 @@ class Database:
         )
         self._conn.set_session(autocommit=True)
 
-    def execute(self, query: str, has_results: bool = True) -> Optional[Iterable[Tuple[Any]]]:
+    def execute(self, query: str, has_results: bool = True) -> Optional[Iterable[Any]]:
         """
+        :meta private:
+
         Return the result of SQL query executed in :class:`Database`
 
         Args:
@@ -46,14 +48,6 @@ class Database:
 
         Returns:
             Optional[Iterable]: None or result of SQL query
-
-        Example:
-            .. highlight:: python
-            .. code-block::  python
-
-                >>> version = db.execute("SELECT version()")
-                >>> db.assign(version=lambda: version())
-                PostgreSQL 12.9 (Debian 12.9-1.pgdg110+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 10.2.1-6) 10.2.1 20210110, 64-bit
         """
 
         with self._conn.cursor() as cursor:
@@ -72,7 +66,7 @@ class Database:
         self,
         table_name: Optional[str] = None,
         rows: Optional[List[Union[Tuple[Any, ...], Dict[str, Any]]]] = None,
-        columns: Optional[Dict[str, List[Any]]] = None,
+        columns: Optional[Dict[str, Iterable[Any]]] = None,
         column_names: Optional[Iterable[str]] = None,
     ):
         """
@@ -130,25 +124,24 @@ class Database:
         self,
         func: Callable[[], "FunctionExpr"],
         expand: bool = False,
-        as_name: Optional[str] = None,
+        column_name: Optional[str] = None,
     ) -> "DataFrame":
         """
-        Apply a function in database without dependencies on table.
+        Apply a dataframe function in database without depending on a
+        :class:`DataFrame`.
 
-        Args:
-            func: An aggregate function to be applied to
-            expand: bool: expand field of composite returning type
-            as_name: str: rename returning column
+        This is primarily for appling functions on adaptable Python objects
+        as constants in database.
 
-        Returns:
-            DataFrame: resulted GreenplumPython DataFrame
+        The arguments and return type is similar to :meth:`DataFrame.apply`
+        except that parameter :code:`func` takes no argument.
 
         Example:
             .. code-block::  python
 
                 db.apply(lambda: add(1, 2))
         """
-        return func().bind(db=self).apply(expand=expand, as_name=as_name)
+        return func().bind(db=self).apply(expand=expand, column_name=column_name)
 
     def assign(self, **new_columns: Callable[[], Any]) -> "DataFrame":
         """

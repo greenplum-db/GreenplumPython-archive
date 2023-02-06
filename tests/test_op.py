@@ -20,7 +20,7 @@ def test_op_index(db: gp.Database):
             self.courses = courses
 
     john = Student("john", 9, ["math", "english"])
-    jsonb = gp.get_type("jsonb")
+    jsonb = gp.type_("jsonb")
     rows = [(jsonb(json.dumps(john.__dict__)),)]
     student = db.create_dataframe(rows=rows, column_names=["info"]).save_as(
         "student", temp=True, column_names=["info"]

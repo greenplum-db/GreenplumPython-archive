@@ -33,25 +33,43 @@ class DataFrameGroupingSets:
         self,
         func: Callable[["DataFrame"], "FunctionExpr"],
         expand: bool = False,
-        as_name: Optional[str] = None,
+        column_name: Optional[str] = None,
     ) -> "DataFrame":
         """
-        Apply a function to the grouping set.
+        Apply a dataframe function to each group of the :code:`self` grouping
+        set.
 
-        Args:
-            func: An aggregate function to be applied to
-            expand: expand field of composite returning type
-            as_name: rename returning column
+        The arguemnts and the return type is the same as
+        :meth:`DataFrame.apply`.
 
-        Returns:
-            DataFrame: resulted GreenplumPython DataFrame
+        The differences between them are
+
+        - :meth:`DataFrame.apply` operates on the entire :class:`DataFrame`, while
+            this method operate on only one group.
+        - For :meth:`DataFrame.apply`, the resulting :class:`DataFrame` will only
+            contain the return value of the function, while for this method, the
+            resulting :class:`DataFrame` will contain the grouping attributes as
+            columns.
+
+        Warning:
+            An exception will be raised when the data of the resulting
+            :class:`DataFrame` is observed if there is name conflict, possibly
+            due to
+
+            - The assigned column name in :code:`column_name` or
+            - The names of members in the composite type if :code:`expend` is
+                :code:`True`
+
+            conflict with the name of the grouping attributes.
 
         Example:
             .. code-block::  python
 
                 numbers.group_by("is_even").apply(lambda _: count())
         """
-        return func(self._dataframe).bind(group_by=self).apply(expand=expand, as_name=as_name)
+        return (
+            func(self._dataframe).bind(group_by=self).apply(expand=expand, column_name=column_name)
+        )
 
     def assign(self, **new_columns: Callable[["DataFrame"], Any]) -> "DataFrame":
         """

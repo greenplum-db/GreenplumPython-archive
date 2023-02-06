@@ -81,17 +81,21 @@ class FunctionExpr(Expr):
         )
         return f"{self._func.qualified_name}({distinct} {args_string})"
 
-    def apply(self, expand: Optional[bool] = None, as_name: Optional[str] = None) -> DataFrame:
+    def apply(self, expand: bool = False, column_name: Optional[str] = None) -> DataFrame:
         """
         :meta private:
-        Returns the result GreenplumPython dataframe of the self function applied on args, with potential GROUP BY if
-        it is an Aggregation function.
+
+        Returns the resulting :class:`DataFrame` of the self function applied
+        to args, with potential GROUP BY if it is an Aggregation function.
         """
+        assert not (
+            expand and column_name is not None
+        ), "Cannot assign single column name when expanding multi-valued results."
         self.function.create_in_db(self._db)
         from_clause = f"FROM {self.dataframe.name}" if self.dataframe is not None else ""
         group_by_clause = self._group_by.clause() if self._group_by is not None else ""
-        if expand and as_name is None:
-            as_name = "func_" + uuid4().hex
+        if expand and column_name is None:
+            column_name = "func_" + uuid4().hex
         parents = [self.dataframe] if self.dataframe is not None else []
         grouping_col_names = self._group_by.flatten() if self._group_by is not None else None
         # FIXME: The names of GROUP BY exprs can collide with names of fields in
@@ -106,7 +110,7 @@ class FunctionExpr(Expr):
         orig_func_dataframe = DataFrame(
             " ".join(
                 [
-                    f"SELECT {str(self)} {'AS ' + as_name if as_name is not None else ''}",
+                    f"SELECT {str(self)} {'AS ' + column_name if column_name is not None else ''}",
                     ("," + ",".join(grouping_cols)) if (grouping_cols is not None) else "",
                     from_clause,
                     group_by_clause,
@@ -136,11 +140,11 @@ class FunctionExpr(Expr):
         results = (
             "*"
             if not expand
-            else f"({as_name}).*"
+            else f"({column_name}).*"
             if rebased_grouping_cols is None or len(rebased_grouping_cols) == 0
             else f"({orig_func_dataframe.name}).*"
             if not expand
-            else f"{','.join(rebased_grouping_cols)}, ({as_name}).*"
+            else f"{','.join(rebased_grouping_cols)}, ({column_name}).*"
         )
 
         return DataFrame(
@@ -238,9 +242,23 @@ class _AbstractFunction:
 
 class NormalFunction(_AbstractFunction):
     """
-    Inherited from :class:`_AbstractFunction`.
+    Represents a (normal) dataframe function that can be applied to
 
-    It will wrap a python function wrote by user which will be created in database.
+    - a :class:`DataFrame with :meth:`DataFrame.assign` or
+      :meth:`DataFrame.apply`;
+    - a :class:`Database` when no :class:`DataFrame is involved with
+      :meth:`Database.assign` or :meth:`Database.apply`.
+
+    A :class:`NormalFunction` is mapped to a User-Defined Function (UDF) in
+    database.
+
+    When called, the arguments of an :class:`AggregateFunction` can be
+
+    - :class:`Column`s of a :class:`DataFrame`, or
+    - constant values represented as Python objects
+
+    and the :class:`AggregateFunction` returns one value of the return type
+    for each row of values in its arguments.
     """
 
     def __init__(
@@ -340,10 +358,17 @@ class NormalFunction(_AbstractFunction):
 
 def function(name: str, schema: Optional[str] = None) -> NormalFunction:
     """
-    A wrap in order to call function (Predefined in-Database UDF) on :class:`~db.Dataframe`.
+    Get access to a predefined dataframe :class:`NormalFunction` from database.
+
+    Args:
+        name: Name of the function.
+        schema: Schema (a.k.a namespace) of the function in database.
+
+    Returns
+        The :class:`NormalFunction` with the specified :code:`name`
+        and :code:`schema`.
 
     Example:
-        Get a wrapper of the in-Database function `generate_series`
         .. code-block::  Python
 
             generate_series = gp.function("generate_series")
@@ -354,9 +379,25 @@ def function(name: str, schema: Optional[str] = None) -> NormalFunction:
 
 class AggregateFunction(_AbstractFunction):
     """
-    Inherited from :class:`_AbstractFunction`.
+    Represents an aggregate function that can be applied to
 
-    It will wrap a python function wrote by user as the transition function of an aggregate function which will be created in database.
+    - a :class:`DataFrame` with :meth:`DataFrame.apply`, where the function
+        will aggregate data in the entire dataframe;
+    - a :class:`DataFrameGroupingSets` with :meth:`DataFrameGroupingSets.assign`
+        or :meth:`DataFrameGroupingSets.apply`, where the function will
+        aggregate each group of data.
+
+    An :class:`AggregateFunction` is mapped to a User-Defined Aggregate (UDA)
+    function in database.
+
+    When called, the arguments of an :class:`AggregateFunction` can be
+
+    - :class:`Column`s of a :class:`DataFrame`; or
+    - constant values represented as Python objects.
+
+    and the :class:`AggregateFunction` returns one value aggregating data in all
+    rows of the :class:`DataFrame` or a group in the
+    :class:`DataFrameGroupingSets`.
     """
 
     def __init__(
@@ -433,12 +474,29 @@ class AggregateFunction(_AbstractFunction):
 
 def aggregate_function(name: str, schema: Optional[str] = None) -> AggregateFunction:
     """
-    A wrap in order to call an aggregate function (Predefined in-Database UDA).
+    Get access to a predefined dataframe :class:`AggregateFunction` from
+    database.
+
+    Args:
+        name: Name of the aggregate function.
+        schema: Schema (a.k.a namespace) of the aggregate function in database.
+
+    Returns
+        The :class:`AggregateFunction` with the specified :code:`name`
+        and :code:`schema`.
 
     Example:
         .. code-block::  Python
 
-            count = gp.aggregate_function("count")
+            >>> count = gp.aggregate_function("count")
+            >>> db.create_dataframe(columns={'x': range(10)}).apply(lambda t: count())
+            -------
+             count
+            -------
+                10
+            -------
+            (1 row)
+
     """
     return AggregateFunction(name=name, schema=schema)
 
@@ -448,15 +506,45 @@ def create_function(
     wrapped_func: Optional[Callable[..., Any]] = None, language_handler: str = "plpython3u"
 ) -> NormalFunction:
     """
-    Creates a User Defined Function (UDF) in database from the given Python function.
+    Creates a :class:`NormalFunction` from the given Python function.
 
     Args:
-        wrapped_func : the Python function to be wrapped into a database function
-            language_handler language handler to run the UDF, defaults to plpython3u,
-            will also support plcontainer later.
+        wrapped_func: the Python function carrying out the computation. Its
+            definition need to follow the conventions below:
+
+            - The function needs to be defined with the :code:`def` keyword.
+                Lambda expressions as the wrapped function are not supported
+                yet.
+            - Each parameter and the return value needs to be annotated with
+                native Python type. The type annotations will be mapped to
+                the types in database automatically.
+            - A :class:`NormalFunction` can return multiple values. In that
+                case, the return type of the wrapped Python function needs
+                to be a Python :code:`class` with members annotated. It is
+                recommended to use :class:`dataclasses.dataclass` as return
+                type.
+
+        language_handler: language handler to run the function in database,
+            defaults to plpython3u, will also support plcontainer later.
 
     Returns:
-        :class:`NormalFunction`
+        The newly created :class:`NormalFunction`.
+
+    Note:
+        The created function is actually executed on the remote database
+        server. To send it to the server, when creating the dataframe function,
+
+        - Package `dill <https://dill.readthedocs.io/en/latest/>`, by the
+            Uncertainty Quantification Foundation, is used to serialize the
+            wrapped Python function and its dependencies when applicable.
+            Therefore, it is recommended to install dill on the host of the
+            backing database server.
+        - If dill is not installed on the server, or the Python versions
+            between client and server does not match, the source code of
+            the wrapped Python function will be transmitted to the server,
+            along with all the import statements for dependencies used by the
+            function. In that case, the modules imported need to be installed
+            on server in advance.
 
     Example:
         .. highlight:: python
@@ -486,15 +574,19 @@ def create_aggregate(
     transition_func: Optional[Callable[..., Any]] = None, language_handler: str = "plpython3u"
 ) -> AggregateFunction:
     """
-    Creates a User Defined Aggregate (UDA) in Database using the given Python function as the state transition function.
+    Creates an :class:`AggregateFunction` from the given Python function.
 
     Args:
-        transition_func : python function
-        language_handler : language handler to run the aggregate function in database,
+        transition_func : the wrapped Python function carrying out the state
+            transition. It needs to follow the same convention as the
+            :code:`wrapped_func` parameter of :func:`create_function`, and the
+            notes on serialization also applied here.
+
+        language_handler : language handler to run the function in database,
             defaults to plpython3u, will also support plcontainer later.
 
     Returns:
-        :class:`AggregateFunction`
+        The newly created :class:`AggregateFunction`.
 
     Example:
         .. highlight:: python
@@ -530,31 +622,84 @@ def create_aggregate(
     )
 
 
-class ArrayFunction(NormalFunction):
+class ColumnFunction(NormalFunction):
+    """
+    Represents a dataframe column function that can be applied to
+
+    - a :class:`DataFrame` with :meth:`DataFrame.apply`, where the function
+        will operate on columns in the entire dataframe;
+    - a :class:`DataFrameGroupingSets` with :meth:`DataFrameGroupingSets.assign`
+        or :meth:`DataFrameGroupingSets.apply`, where the function will operate
+        on columns of each group of data.
+
+    As :class:`NormalFunction`, a :class:`ColumnFunction` is mapped to a UDF in
+    database.
+
+    The calling convention of a :class:`ColumnFunction` is the same as a
+    :class:`AggregateFunction`. However, rather than operating on one row at a
+    time, all rows of the entire column are aggregated into a :code:`list`
+    before passing to :class:`ColumnFunction` as argument, except when the
+    column is used as the grouping attribute in :meth:`DataFrame.group_by`.
+
+    A :class:`ColumnFunction` returns
+
+    - One value of the return type when applied to a :class:`DataFrame`; or
+    - One value for each group when applied to a a
+        :class:`DataFrameGroupingSets`.
+
+    Note:
+        The primary use case for column function is to implement complex
+        analytics such as machine learning using your favorite Python packages.
+
+        Inside a column function, the user can operate on all the data, rather
+        than only part of it. As a result, the operation does **not** to satisfy
+        certain restrictions such as
+        `Additivity<https://en.wikipedia.org/wiki/Sigma-additive_set_function>`.
+        This makes it possible to implement complex functions.
+
+    Warning:
+        However, such good usability comes at the cost of scalability.
+
+        - Gathering data into one place makes it hard to exploit inter-machine
+            parallelism when backed by an MPP database system like Greenplum,
+            especially when the number of groups is small. Fortunately, this
+            can be alleviated because many Python packages are SIMD optimized.
+        - When the backing database system is PostgreSQL-derived, such as
+            Greenplum, the size of one value cannot be larger then 1 GB. This
+            limits the size of problems column functions can solve. Currently,
+            one way to mitigate this issue is to break a large
+            :class:`DataFrame` into more smaller groups and somehow combine
+            the results of the column function for all groups.
+    """
+
     def __call__(self, *args: Any) -> ArrayFunctionExpr:
         return ArrayFunctionExpr(self, args=args)
 
 
 # FIXME: Add test cases for optional parameters
-def create_array_function(
+def create_column_function(
     wrapped_func: Optional[Callable[..., Any]] = None, language_handler: str = "plpython3u"
-) -> ArrayFunction:
+) -> ColumnFunction:
     """
-    Creates a User Defined Array Function in database from the given Python function.
+    Creates an :class:`ColumnFunction` from the given Python function.
 
     Args:
-        wrapped_func: python function
-        language_handler: language handler to run the UDF, defaults to plpython3u,
-            will also support plcontainer later.
+        wrapped_func: the wrapped Python function carrying out computation on
+            columns. It needs to follow the same convention as the
+            :code:`wrapped_func` parameter of :func:`create_function`, and the
+            notes on serialization also applied here.
+
+        language_handler : language handler to run the function in database,
+            defaults to plpython3u, will also support plcontainer later.
 
     Returns:
-        :class:`ArrayFunction`
+        The newly created :class:`ColumnFunction`.
 
     Example:
             .. highlight:: python
             .. code-block::  Python
 
-                >>> @gp.create_array_function
+                >>> @gp.create_column_function
                 >>> def my_sum_array(val_list: List[int]) -> int:
                 >>>     return sum(val_list)
 
@@ -572,5 +717,5 @@ def create_array_function(
     """
     # If user needs extra parameters when creating a function
     if wrapped_func is None:
-        return functools.partial(create_array_function, language_handler=language_handler)
-    return ArrayFunction(wrapped_func=wrapped_func, language_handler=language_handler)
+        return functools.partial(create_column_function, language_handler=language_handler)
+    return ColumnFunction(wrapped_func=wrapped_func, language_handler=language_handler)

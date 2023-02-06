@@ -166,7 +166,7 @@ def test_dataframe_true_div_integers(db: gp.Database):
 
 def test_dataframe_true_div_integer_float(db: gp.Database):
     nums = db.create_dataframe(rows=[(i,) for i in range(5, 8, 2)], column_names=["num"])
-    float_type = gp.get_type("float")
+    float_type = gp.type_("float")
     results = nums.assign(div=lambda t: float_type(t["num"]) / 2)
 
     for row in results:

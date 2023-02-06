@@ -38,7 +38,7 @@ def test_create_func(db: gp.Database):
         assert row["result"] == add.unwrap()(1, 2)
 
     # -- WITH APPLY FUNC
-    for row in db.apply(lambda: add(1, 2), as_name="add"):
+    for row in db.apply(lambda: add(1, 2), column_name="add"):
         assert row["add"] == 1 + 2
         assert row["add"] == add.unwrap()(1, 2)
 
@@ -57,7 +57,7 @@ def test_create_func_multiline(db: gp.Database):
         assert row["result"] == my_max.unwrap()(1, 2)
 
     # -- WITH APPLY FUNC
-    for row in db.apply(lambda: my_max(1, 2), as_name="my_max"):
+    for row in db.apply(lambda: my_max(1, 2), column_name="my_max"):
         assert row["my_max"] == max(1, 2)
         assert row["my_max"] == my_max.unwrap()(1, 2)
 
@@ -101,7 +101,7 @@ def test_func_on_multi_columns(db: gp.Database, series: gp.DataFrame):
     assert sorted([row["result"] for row in results]) == [i * i for i in range(10)]
 
     # -- WITH APPLY FUNC
-    results = series.apply(lambda t: multiply(t["a"], t["b"]), as_name="result")
+    results = series.apply(lambda t: multiply(t["a"], t["b"]), column_name="result")
     assert sorted([row["result"] for row in results]) == [i * i for i in range(10)]
 
 
@@ -206,7 +206,7 @@ def test_create_agg(db: gp.Database):
     assert len(list(results)) == 1 and next(iter(results))["result"] == 10
 
     # -- WITH APPLY FUNC
-    results = numbers.group_by().apply(lambda t: my_sum(t["val"]), as_name="my_sum")
+    results = numbers.group_by().apply(lambda t: my_sum(t["val"]), column_name="my_sum")
     assert len(list(results)) == 1 and next(iter(results))["my_sum"] == 10
 
 
@@ -226,7 +226,7 @@ def test_create_agg_multi_args(db: gp.Database):
 
     # -- WITH APPLY FUNC
     results = vectors.group_by().apply(
-        lambda t: manhattan_distance(t["a"], t["b"]), as_name="result"
+        lambda t: manhattan_distance(t["a"], t["b"]), column_name="result"
     )
     assert len(list(results)) == 1 and next(iter(results))["result"] == 10
 
@@ -247,7 +247,7 @@ def test_create_agg_with_optional_param(db: gp.Database):
     assert isinstance(agg_opt_param, AggregateFunction)
 
 
-@gp.create_array_function
+@gp.create_column_function
 def my_sum_array(val_list: List[int]) -> int:
     return sum(val_list)
 
@@ -261,7 +261,7 @@ def test_array_func(db: gp.Database):
     assert len(list(results)) == 1 and next(iter(results))["result"] == 10
 
     # -- WITH APPLY FUNC
-    results = numbers.group_by().apply(lambda t: my_sum_array(t["val"]), as_name="result")
+    results = numbers.group_by().apply(lambda t: my_sum_array(t["val"]), column_name="result")
     assert len(list(results)) == 1 and next(iter(results))["result"] == 10
 
 
@@ -278,7 +278,9 @@ def test_array_func_group_by(db: gp.Database):
         assert ("is_even" in row) and (row["is_even"] is not None) and (row["result"] == 5)
 
     # -- WITH APPLY FUNC
-    results = numbers.group_by("is_even").apply(lambda t: my_sum_array(t["val"]), as_name="my_sum")
+    results = numbers.group_by("is_even").apply(
+        lambda t: my_sum_array(t["val"]), column_name="my_sum"
+    )
     assert len(list(results)) == 2
     assert all(e in next(iter(results)).keys() for e in ["my_sum", "is_even"])
     for row in results:
@@ -294,7 +296,7 @@ def test_array_func_group_by_return_composite(db: gp.Database):
         _sum: int
         _count: int
 
-    @gp.create_array_function
+    @gp.create_column_function
     def my_count_sum(val_list: List[int]) -> array_sum:
         return SimpleNamespace(_sum=sum(val_list), _count=len(val_list))
 
@@ -405,7 +407,7 @@ class Stat(SimpleNamespace):
     count: int
 
 
-@gp.create_array_function
+@gp.create_column_function
 def my_stat(val_list: List[int]) -> Stat:
     return SimpleNamespace(sum=sum(val_list), count=len(val_list))
 
@@ -463,7 +465,7 @@ def test_func_apply_const_and_column(db: gp.Database):
         assert row["label"].startswith("label")
 
     # -- WITH APPLY FUNC
-    result = numbers.apply(lambda t: label("label", t["val"]), as_name="label")
+    result = numbers.apply(lambda t: label("label", t["val"]), column_name="label")
     assert len(list(result)) == 10
     for row in result:
         assert row["label"].startswith("label")
@@ -486,7 +488,7 @@ def test_func_apply_join(db: gp.Database):
         assert row["label"][1] == row["label"][2]
 
     # -- WITH APPLY FUNC
-    result = ret.apply(lambda t: label(t["n2"], t["id1"]), as_name="label")
+    result = ret.apply(lambda t: label(t["n2"], t["id1"]), column_name="label")
     for row in result:
         assert row["label"][1] == row["label"][2]
 
@@ -515,7 +517,7 @@ def test_array_func_apply(db: gp.Database):
     assert len(list(results)) == 1 and next(iter(results))["my_sum"] == 10
 
     # -- WITH APPLY FUNC
-    results = numbers.group_by().apply(lambda t: my_sum_array(t["val"]), as_name="my_sum_array")
+    results = numbers.group_by().apply(lambda t: my_sum_array(t["val"]), column_name="my_sum_array")
     assert len(list(results)) == 1 and next(iter(results))["my_sum_array"] == 10
 
 
@@ -544,7 +546,7 @@ def test_array_func_group_by_composite_apply(db: gp.Database):
         )
 
 
-@gp.create_array_function
+@gp.create_column_function
 def my_sum_const(label: str, val_list: List[int], initial: int) -> str:
     return label + " : " + str(sum(val_list) + initial)
 
@@ -559,7 +561,7 @@ def test_array_func_const_apply(db: gp.Database):
 
     # -- WITH APPLY FUNC
     results = numbers.group_by().apply(
-        lambda tab: my_sum_const("sum", tab["val"], 5), as_name="my_sum_const"
+        lambda tab: my_sum_const("sum", tab["val"], 5), column_name="my_sum_const"
     )
     assert len(list(results)) == 1 and next(iter(results))["my_sum_const"] == "sum : 15"
 
@@ -579,7 +581,7 @@ def test_array_func_group_by_attribute(db: gp.Database):
     # -- WITH APPLY FUNC
     results = numbers.group_by("label", "initial").apply(
         lambda tab: my_sum_const(tab["label"], tab["val"], tab["initial"]),
-        as_name="my_sum_const",
+        column_name="my_sum_const",
     )
     assert len(list(results)) == 1 and next(iter(results))["my_sum_const"] == "a : 50"
 
@@ -657,7 +659,7 @@ def test_agg_composite_type(db: gp.Database):
     def sum_count(result: sum_count_type, val: int) -> sum_count_type:
         if result is None:
             return SimpleNamespace(sum=val, count=1)
-        return SimpleNamespace(sum=result["sum"] + val, count=result["count"] + 1)
+        return SimpleNamespace(sum=result["count"] + val, count=result["count"] + 1)
 
     rows = [(1,) for _ in range(10)]
     numbers = db.create_dataframe(rows=rows, column_names=["val"])
@@ -676,7 +678,7 @@ def test_func_with_outside_imports(db: gp.Database):
     def my_math(x: int) -> float:
         return math.sqrt(x**2)
 
-    df = db.apply(lambda: my_math(42), as_name="x")
+    df = db.apply(lambda: my_math(42), column_name="x")
     assert len(list(df)) == 1
     for row in df:
         assert abs(row["x"] - 42) < 1e-5
@@ -695,7 +697,7 @@ def test_func_with_outside_func(db: gp.Database):
         except NameError:
             return x * x
 
-    df = db.apply(lambda: proxy(5), as_name="x")
+    df = db.apply(lambda: proxy(5), column_name="x")
     assert len(list(df)) == 1
     for row in df:
         assert row["x"] == 25
@@ -732,7 +734,7 @@ def test_func_one_liner(db: gp.Database):
     def add_one(x: int) -> int: return x + 1
     # fmt: on
 
-    df = db.apply(lambda: add_one(1), as_name="x")
+    df = db.apply(lambda: add_one(1), column_name="x")
     assert len(list(df)) == 1
     for row in df:
         assert row["x"] == 2
@@ -740,5 +742,5 @@ def test_func_one_liner(db: gp.Database):
     # TODO: Lambda expressions are not supported.
     add_one: Callable[[int], int] = lambda x: x + 1
     with pytest.raises(AssertionError) as exc_info:
-        df = db.apply(lambda: gp.create_function(add_one)(1), as_name="x")
+        df = db.apply(lambda: gp.create_function(add_one)(1), column_name="x")
     assert "is not a function" in str(exc_info.value)

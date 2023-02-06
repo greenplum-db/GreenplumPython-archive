@@ -368,7 +368,6 @@ class BinaryExpr(Expr):
         operator: str,
         left: Any,
         right: Any,
-        as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ):
         dataframe = left.dataframe if isinstance(left, Expr) else None
@@ -388,7 +387,6 @@ class BinaryExpr(Expr):
         operator: str,
         left: "Expr",
         right: "Expr",
-        as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ):
         ...
@@ -399,7 +397,6 @@ class BinaryExpr(Expr):
         operator: str,
         left: "Expr",
         right: int,
-        as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ):
         ...
@@ -410,7 +407,6 @@ class BinaryExpr(Expr):
         operator: str,
         left: "Expr",
         right: str,
-        as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ):
         ...
@@ -420,7 +416,6 @@ class BinaryExpr(Expr):
         operator: str,
         left: Any,
         right: Any,
-        as_name: Optional[str] = None,
         db: Optional[Database] = None,
     ):
         """
@@ -429,7 +424,7 @@ class BinaryExpr(Expr):
             left: Any : could be an :class:`Expr` or object in primitive types (int, str, etc)
             right: Any : could be an :class:`Expr` or object in primitive types (int, str, etc)
         """
-        self._init(operator, left, right, as_name, db)
+        self._init(operator, left, right, db)
 
     def serialize(self) -> str:
         from greenplumpython.expr import serialize

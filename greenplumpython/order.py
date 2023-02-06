@@ -66,7 +66,6 @@ class DataFrameOrdering:
             self._operator_list + [operator],
         )
 
-    # FIXME : Not sure about return type
     def __getitem__(self, rows: slice) -> "DataFrame":
         """
         Returns a GreenplumPython :class:`~dataframe.DataFrame` that contains the slice of DataFrame in order.
@@ -80,7 +79,7 @@ class DataFrameOrdering:
         Example:
             .. code-block::  Python
 
-                t.order_by("id").head(5)
+                t.order_by("id")[:5]
         """
         from greenplumpython.dataframe import DataFrame
 
@@ -111,8 +110,7 @@ class DataFrameOrdering:
 
     def _clause(self) -> str:
         """:meta private:"""
-        # FIXME : If user define ascending and operator, will get syntax error
-        order_by_str = ",".join(
+        order_by_str: str = ",".join(
             [
                 " ".join(
                     [

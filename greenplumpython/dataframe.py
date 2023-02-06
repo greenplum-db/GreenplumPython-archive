@@ -333,23 +333,30 @@ class DataFrame:
         self,
         func: Callable[["DataFrame"], "FunctionExpr"],
         expand: bool = False,
-        as_name: Optional[str] = None,
+        column_name: Optional[str] = None,
     ) -> "DataFrame":
         """
-        Apply a Greenplum predefined function or a User-defined python function to the :class:`DataFrame`.
+        Apply a dataframe function to the self :class:`DataFrame`.
 
         Args:
-            func: Callable[[:class:`DataFrame`], :class:`~func.FunctionExpr`]: a lambda function of a
-                  :class:`~func.FunctionExpr`.
-            expand: bool: expand the field of composite returning type.
-            as_name: str: rename the returning column.
+            func: A Python function that
+
+                - takes the self :class:`DataFrame` as the only parameter, and
+                - returns the result of a dataframe function, which can be a
+                    :class:`NormalFunction`, a :class:`AggregateFunction` or a
+                    :class:`ColumnFunction`
+
+            expand: bool: expand the multi-valued result into columns of the
+                resulting :class:`DataFrame`.
+            column_name: str: name of the column of the return value in the 
+                resulting :class:`DataFrame`.
 
         Returns:
-            DataFrame: resulted :class:`DataFrame`.
+            A :class:`DataFrame` of returned values of the function.
 
         Example:
 
-            To compute the absolute value of a serie of numbers using the predefined Greenplum function `ABS`:
+            To compute the absolute value of a serie of numbers:
 
             .. highlight:: python
             .. code-block::  python
@@ -413,7 +420,7 @@ class DataFrame:
         #
         # To fix this, we need to pass the dataframe to the resulting FunctionExpr
         # explicitly.
-        return func(self).bind(dataframe=self).apply(expand=expand, as_name=as_name)
+        return func(self).bind(dataframe=self).apply(expand=expand, column_name=column_name)
 
     def assign(self, **new_columns: Callable[["DataFrame"], Any]) -> "DataFrame":
         """
@@ -1090,7 +1097,7 @@ class DataFrame:
         )
 
     @classmethod
-    def from_columns(cls, columns: Dict[str, List[Any]], db: Database) -> "DataFrame":
+    def from_columns(cls, columns: Dict[str, Iterable[Any]], db: Database) -> "DataFrame":
         """
         Return a :class:`DataFrame` using list of columns values given.
 
@@ -1117,5 +1124,7 @@ class DataFrame:
                 -------
                 (3 rows)
         """
-        columns_string = ",".join([f'unnest({serialize(v)}) AS "{k}"' for k, v in columns.items()])
+        columns_string = ",".join(
+            [f'unnest({serialize(list(v))}) AS "{k}"' for k, v in columns.items()]
+        )
         return DataFrame(f"SELECT {columns_string}", db=db)
