@@ -1,6 +1,6 @@
 from typing import Any, Callable, Dict, Iterable, List, Literal, Optional, Tuple, Union
 
-from sqlalchemy import engine
+from sqlalchemy import engine, text
 
 import greenplumpython.dataframe as dataframe
 import greenplumpython.db as db
@@ -43,12 +43,14 @@ class DataFrame:
         table_name = name if schema is None else (schema + "." + name)
         with con.connect() as connection:
             if if_exists == "replace":
-                connection.execute(f'DROP TABLE IF EXISTS "{table_name}"')
+                connection.execute(f"DROP TABLE IF EXISTS {table_name}")
             result = connection.execute(
-                f"""
-                    CREATE TABLE "{table_name}"
-                    AS {self._proxy._build_full_query()}
-                """
+                text(
+                    f"""
+                        CREATE TABLE {table_name}
+                        AS {self._proxy._build_full_query()}
+                    """
+                )
             )
             return result.rowcount
 

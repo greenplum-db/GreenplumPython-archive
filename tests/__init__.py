@@ -11,7 +11,7 @@ def db():
     # for the connection both work for GitHub Actions and concourse
     db = gp.database(
         host="localhost",
-        dbname=environ.get("TESTDB", "gpadmin"),
+        dbname=environ.get("TESTDB", "pandas"),
         user=environ.get("PGUSER"),
         password=environ.get("PGPASSWORD"),
     )
@@ -22,10 +22,8 @@ def db():
 @pytest.fixture()
 def con():
     host = "localhost"
-    dbname = environ.get("TESTDB", "gpadmin")
-    user = environ.get("PGUSER")
-    password = environ.get("PGPASSWORD")
-    con = create_engine(f"postgresql://{user}:{password}@{host}/{dbname}")
+    dbname = environ.get("TESTDB", "pandas")
+    con = create_engine(f"postgresql://{host}/{dbname}")
     yield con
 
 
