@@ -348,7 +348,7 @@ class DataFrame:
 
             expand: bool: expand the multi-valued result into columns of the
                 resulting :class:`DataFrame`.
-            column_name: str: name of the column of the return value in the 
+            column_name: str: name of the column of the return value in the
                 resulting :class:`DataFrame`.
 
         Returns:
