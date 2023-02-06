@@ -30,6 +30,7 @@ def test_to_sql(db: gp.Database, con):
     df = db.create_dataframe(columns=columns)
     pd_df = pd.DataFrame(df)
     db.execute("DROP TABLE IF EXISTS test.test_to_sql", has_results=False)
+    db.execute("DROP SCHEMA IF EXISTS test; CREATE SCHEMA test", has_results=False)
     assert pd_df.to_sql(name="test_to_sql", con=con, schema="test") == 3
     with pytest.raises(Exception) as exc_info:
         pd_df.to_sql(name="test_to_sql", con=con, schema="test") == 3
