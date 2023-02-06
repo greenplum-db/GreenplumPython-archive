@@ -21,7 +21,11 @@ def db():
 
 @pytest.fixture()
 def con():
-    con = create_engine("postgresql://localhost/gpadmin")
+    host = "localhost"
+    dbname = environ.get("TESTDB", "gpadmin")
+    user = environ.get("PGUSER")
+    password = environ.get("PGPASSWORD")
+    con = create_engine(f"postgresql://{user}:{password}@{host}/{dbname}")
     yield con
 
 
