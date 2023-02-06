@@ -245,7 +245,3 @@ def database(
     if password is not None:
         params["password"] = password
     return Database(params=params)
-
-
-def db_from_url(url: str):
-    return Database(url=url)

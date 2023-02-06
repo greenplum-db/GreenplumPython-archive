@@ -92,24 +92,33 @@ class DataFrame:
         df = self._proxy.distinct_on(*subset)
         return DataFrame(df)
 
-    def join(
+    def merge(
         self,
-        other: "DataFrame",
-        on: Union[str, List[str]],
-        how: Literal["left", "right", "outer", "inner", "cross"] = "left",
-        lsuffix: str = "",
-        rsuffix: str = "",
+        right: "DataFrame",
+        how: Literal["left", "right", "outer", "inner", "cross"] = "inner",
+        on: Union[str, List[str]] = None,
+        left_on: str = None,
+        right_on: str = None,
+        left_index: bool = False,  # Not Used
+        right_index: bool = False,  # Not Used
         sort: bool = False,
+        suffixes: str = "",
+        copy: bool = True,  # Not Used
+        indicator: bool = False,  # Not Used
         validate: Optional[str] = None,  # Not Used
     ):
         how = "full" if how == "outer" else how
         assert (
-            lsuffix == "" and rsuffix == ""
-        ), "Can't support yet automatically handle overlapping column's suffice"
+            suffixes == ""
+        ), "Can't support yet automatically handle overlapping column's suffixes"
         assert (
             sort is False
         ), "Can't support yet order result DataFrame lexicographically by the join key"
-        df = self._proxy.join(other._proxy, how=how, on=on)
+        assert (
+            left_index is False and right_index is False
+        ), "DataFrame in GreenplumPython.pandas does not have an index column"
+        assert on is None, "Can't support duplicate columns name in both DataFrame"
+        df = self._proxy.join(right._proxy, how=how, cond=lambda s, o: s[left_on] == o[right_on])
         return DataFrame(df)
 
     def groupby(self, by: Union[str, List[str]]):
@@ -145,7 +154,7 @@ def read_sql(
     columns: Optional[list[str]] = None,
     chunksize: Optional[int] = None,
 ):
-    database = db.db_from_url(str(con.url))
+    database = db.Database(url=str(con.url))
     try:
         con.execute(f'SELECT * FROM "{sql}"')
         return DataFrame(

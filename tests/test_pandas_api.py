@@ -10,6 +10,7 @@ def test_to_sql(db: gp.Database, con):
     columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
     df = db.create_dataframe(columns=columns)
     pd_df = pd.DataFrame(df)
+    db.execute('DROP TABLE IF EXISTS "test.test_to_sql"', has_results=False)
     assert pd_df.to_sql(name="test_to_sql", con=con, schema="test") == 3
     with pytest.raises(Exception) as exc_info:
         pd_df.to_sql(name="test_to_sql", con=con, schema="test") == 3
@@ -50,7 +51,26 @@ def test_drop_duplicates(db: gp.Database):
         assert "i" in row and "j" in row
 
 
-def test_join(db: gp.Database):
+def test_merge(db: gp.Database):
+    # fmt: off
+    rows1 = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
+    rows2 = [(1, "Tiger",), (2, "Lion",), (3, "Rhino",), (4, "Panther")]
+    # fmt: on
+    zoo_1_df = db.create_dataframe(rows=rows1, column_names=["zoo1_id", "zoo1_animal"])
+    zoo_2_df = db.create_dataframe(rows=rows2, column_names=["zoo2_id", "zoo2_animal"])
+    zoo_1_pd_df = pd.DataFrame(zoo_1_df)
+    zoo_2_pd_df = pd.DataFrame(zoo_2_df)
+
+    ret: pd.DataFrame = zoo_1_pd_df.merge(
+        zoo_2_pd_df, how="inner", left_on="zoo1_animal", right_on="zoo2_animal"
+    )
+    assert len(list(ret)) == 2
+    for row in ret:
+        assert row["zoo1_animal"] == row["zoo2_animal"]
+        assert row["zoo1_animal"] == "Lion" or row["zoo1_animal"] == "Tiger"
+
+
+def test_merge_same_column_name(db: gp.Database):
     # fmt: off
     rows1 = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
     rows2 = [(1, "Tiger",), (2, "Lion",), (3, "Rhino",), (4, "Panther")]
@@ -60,19 +80,18 @@ def test_join(db: gp.Database):
     zoo_1_pd_df = pd.DataFrame(zoo_1_df)
     zoo_2_pd_df = pd.DataFrame(zoo_2_df)
 
-    ret: pd.DataFrame = zoo_1_pd_df.join(zoo_2_pd_df, on=["animal"], how="left")
-    assert len(list(ret)) == 2
-    for row in ret:
-        assert row["zoo1_animal"] == row["zoo2_animal"]
-        assert row["zoo1_animal"] == "Lion" or row["zoo1_animal"] == "Tiger"
+    with pytest.raises(Exception) as exc_info:
+        zoo_1_pd_df.merge(zoo_2_pd_df, how="inner", on="animal")
+    assert str(exc_info.value) == "Can't support duplicate columns name in both DataFrame"
 
 
 def test_read_sql(db: gp.Database, con):
+    db.execute('DROP TABLE IF EXISTS test_read_sql', has_results=False)
     columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
-    db.create_dataframe(columns=columns).save_as("const_dataframe", column_names=["a", "b"])
+    db.create_dataframe(columns=columns).save_as("test_read_sql", column_names=["a", "b"])
 
-    pd_df = pd.read_sql("const_dataframe", con)
+    pd_df = pd.read_sql("test_read_sql", con)
     assert sorted([tuple(row.values()) for row in list(pd_df)]) == [(1, 1), (2, 2), (3, 3)]
 
-    pd_df = pd.read_sql("SELECT * FROM const_dataframe", con)
+    pd_df = pd.read_sql("SELECT * FROM test_read_sql", con)
     assert sorted([tuple(row.values()) for row in list(pd_df)]) == [(1, 1), (2, 2), (3, 3)]
