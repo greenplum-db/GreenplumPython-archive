@@ -867,7 +867,7 @@ class DataFrame:
         assert self._db is not None
         output_name = "cte_" + uuid4().hex
         to_json_dataframe = DataFrame(
-            f'SELECT to_json({output_name})::TEXT FROM "{self.name}" AS {output_name}',
+            f"SELECT to_json({output_name})::TEXT FROM {self.name} AS {output_name}",
             parents=[self],
         )
         result = self._db._execute(to_json_dataframe._build_full_query())
