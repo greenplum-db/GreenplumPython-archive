@@ -34,8 +34,8 @@ class Database:
         if url is not None:
             con_str = url
         else:
-            con_str = " ".join([f"{k}={v}" for k, v in params.items()])
-        self._conn = psycopg2.connect(  # type: ignore
+            con_str = " ".join([f"{k}={v}" for k, v in params.items()])  # type: ignore
+        self._conn = psycopg2.connect(
             con_str,
             cursor_factory=psycopg2.extras.RealDictCursor,
         )

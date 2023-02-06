@@ -42,6 +42,13 @@ def test_to_sql(db: gp.Database, con):
     assert list(next(iter(df)).keys()) == ["a", "b"]
 
 
+def test_pddf_to_df(db: gp.Database):
+    columns = {"val": [(1,) for _ in range(10)]}
+    pddf_from_df = pd.create_dataframe(columns=columns, db=db)
+    df = pddf_from_df.to_gp_dataframe()
+    assert sum(row["val"] for row in df) == 10
+
+
 def test_sort_values(db: gp.Database):
     # fmt: off
     rows = [(1, "Mona Lisa", None), (5, "The Birth of Venus", None),

@@ -36,35 +36,29 @@ class DataFrame:
         index_label: Union[str, List[str]] = None,  # Not Used
         chunksize: Union[int, None] = None,  # Not Used
         dtype: Union[Dict[str, type], None] = None,  # Not Used
-        method: Literal[None, "multi", callable] = None,  # Not Used
+        method: Literal[None, "multi"] = None,  # Not Used  # type: ignore
     ) -> int:
         assert index is False, "DataFrame in GreenplumPython.pandas does not have an index column"
         assert if_exists in ["fail", "replace"], "Only support if_exists = 'fail' or 'replace'"
         table_name = name if schema is None else (schema + "." + name)
-        # database = db.Database(url=str(con.url))
-        # if if_exists == "replace":
-        #     database.execute(f"DROP TABLE IF EXISTS {table_name}", has_results=False)
-        # result = database.execute(
-        #     f"""
-        #         CREATE TABLE {table_name}
-        #         AS {self._proxy._build_full_query()}
-        #     """,
-        #     has_results=False,
-        # )
-        with con.connect() as connexion:
+        with con.connect() as connexion:  # type: ignore
             if if_exists == "replace":
                 connexion.execute(text(f"DROP TABLE IF EXISTS {table_name}"))
-            result = connexion.execute(
+            query = self._proxy._build_full_query()  # type: ignore
+            result = connexion.execute(  # type: ignore
                 text(
                     f"""
                         CREATE TABLE {table_name}
-                        AS {self._proxy._build_full_query()}
+                        AS {query}
                     """
                 )
             )
             connexion.commit()
+            count: int = result.rowcount
+            return count
 
-        return result.rowcount
+    def to_gp_dataframe(self) -> dataframe.DataFrame:
+        return self._proxy
 
     def sort_values(
         self,
@@ -75,7 +69,7 @@ class DataFrame:
         kind: Literal["quicksort", "mergesort", "heapsort", "stable"] = "quicksort",  # Not Used
         na_position: Literal["first", "last"] = "last",
         ignore_index: bool = True,
-        key: Optional[Callable] = None,  # Not Used
+        key: Optional[Callable[[Any], None]] = None,  # Not Used
     ) -> "DataFrame":
         assert inplace is False, "Cannot perform operation in place"
         assert (
@@ -103,6 +97,7 @@ class DataFrame:
         assert (
             ignore_index is True
         ), "DataFrame in GreenplumPython.pandas does not have an index column"
+        assert subset is not None  # FIXME: select distinct *
         df = self._proxy.distinct_on(*subset)
         return DataFrame(df)
 
@@ -146,7 +141,7 @@ class DataFrame:
         return self._proxy.__repr__()
 
     def _repr_html_(self):
-        return self._proxy._repr_html_()
+        return self._proxy._repr_html_()  # type: ignore
 
     def __iter__(self):
         return self._proxy.__iter__()
@@ -163,8 +158,8 @@ def read_sql(
     con: engine,
     index_col: Union[str, list[str]] = None,
     coerce_float: bool = True,
-    params=None,
-    parse_dates=None,
+    params: Optional[List[str]] = None,
+    parse_dates: Optional[List[str]] = None,
     columns: Optional[list[str]] = None,
     chunksize: Optional[int] = None,
 ):

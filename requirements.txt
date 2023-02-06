@@ -3,3 +3,4 @@ psycopg2-binary==2.9.5
 # See https://github.com/pypa/setuptools/commit/bd7613f7921e8d60fa089d3ab419d0f04db6db6f
 setuptools==65.5.1
 dill==0.3.6
+sqlalchemy==2.0.1
