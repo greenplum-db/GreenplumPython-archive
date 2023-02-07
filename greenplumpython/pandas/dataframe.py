@@ -1,3 +1,13 @@
+"""
+This package supports pandas compatible API which involves `greenplumpython.pandas.DataFrame`.
+
+This package contains classes and functions having same names and parameters as the equivalence in pandas to
+provide a Data Scientist familiar syntax. And at the same time, its DataFrame has same specifications as
+GreenplumPython DataFrame, which means: Data is located and manipulated on a remote database system.
+
+N.B.: This package contains fewer functions than GreenplumPython DataFrame, but it is easy the conversion between
+these two DataFrame.
+"""
 from typing import Any, Callable, Dict, Iterable, List, Literal, Optional, Tuple, Union
 
 from sqlalchemy import engine, text
@@ -38,6 +48,40 @@ class DataFrame:
         dtype: Union[Dict[str, type], None] = None,  # Not Used
         method: Literal[None, "multi"] = None,  # Not Used  # type: ignore
     ) -> int:
+        """
+        Write records stored in a DataFrame to a SQL database.
+        Tables in database can be newly created, appended to, or overwritten.
+
+        This aligns with the function "pandas.DataFrame.to_sql()"
+        <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html>`_.
+
+        Returns:
+            int: Number of rows affected by to_sql.
+
+        Example:
+            .. highlight:: python
+            .. code-block::  python
+                >>> import greenplumpython.pandas as pd
+                >>> rows = [(i,) for i in range(0, 10)]
+                >>> pd_df = pd.create_dataframe(rows=rows, column_names=["id"], db=db)
+                >>> pd_df
+                ----
+                 id
+                ----
+                  0
+                  1
+                  2
+                  3
+                  4
+                  5
+                  6
+                  7
+                  8
+                  9
+                ----
+                (10 rows)
+
+        """
         assert index is False, "DataFrame in GreenplumPython.pandas does not have an index column"
         table_name = name if schema is None else (schema + "." + name)
         with conn.connect() as connection:  # type: ignore
@@ -67,6 +111,12 @@ class DataFrame:
             return count
 
     def to_gp_dataframe(self) -> dataframe.DataFrame:
+        """
+        Convert a GreenplumPython Pandas compatible DataFrame to a GreenplumPython DataFrame.
+
+        Returns:
+            a GreenplumPython :class:`~greenplumpython.dataframe.Dataframe`.
+        """
         return self._dataframe
 
     def sort_values(
@@ -80,6 +130,31 @@ class DataFrame:
         ignore_index: bool = True,
         key: Optional[Callable[[Any], None]] = None,  # Not Used
     ) -> "DataFrame":
+        """
+        Sort by the values along columns.
+
+        This aligns with the function "pandas.DataFrame.sort_values()"
+        <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html>`_.
+
+        Returns:
+            :class:`Dataframe`: class:`DataFrame` order by the given arguments.
+
+        Example:
+            .. highlight:: python
+            .. code-block::  python
+                >>> columns = {"id": [3, 1, 2], "b": [1, 2, 3]}
+                >>> pd_df = pd.create_dataframe(columns=columns, db=db)
+                >>> pd_df.sort_values(["id"])
+                --------
+                 id | b
+                ----+---
+                  1 | 2
+                  2 | 3
+                  3 | 1
+                --------
+                (3 rows)
+
+        """
         assert inplace is False, "Cannot perform operation in place"
         assert (
             ignore_index is True
@@ -101,6 +176,31 @@ class DataFrame:
         inplace: bool = False,
         ignore_index: bool = True,
     ):
+        """
+        Return DataFrame with duplicate rows removed.
+
+        This aligns with the function "pandas.DataFrame.drop_duplicates()"
+        <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.drop_duplicates.html>`_.
+
+        Returns:
+            :class:`Dataframe`: class:`DataFrame` with duplicates removed.
+
+        Example:
+            .. highlight:: python
+            .. code-block::  python
+                >>> import greenplumpython.pandas as pd
+                >>> students = [("alice", 18), ("bob", 19), ("carol", 19)]
+                >>> student = pd.create_dataframe(rows=students, column_names=["name", "age"], db=db)
+                >>> student.drop_duplicates(subset=["age"])
+                -------------
+                 name  | age
+                -------+-----
+                 alice |  18
+                 bob   |  19
+                -------------
+                (2 rows)
+
+        """
         assert keep == "first", "Can only keep first occurrence"
         assert inplace is False, "Cannot perform operation in place"
         assert (
@@ -125,6 +225,42 @@ class DataFrame:
         indicator: bool = False,  # Not Used
         validate: Optional[str] = None,  # Not Used
     ):
+        """
+        Join the current :class:`DataFrame` with another using the given arguments.
+
+        N.B: This function can't handle yet automatically suffixes when having the same column names on both sides.
+
+        This aligns with the function "pandas.DataFrame.merge()"
+        <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.merge.html>`_.
+
+        Returns:
+            :class:`Dataframe`: class:`DataFrame` of the two merged class:`DataFrame`.
+
+        Example:
+            .. highlight:: python
+            .. code-block::  python
+                >>> import greenplumpython.pandas as pd
+                >>> students = [("alice", 18), ("bob", 19), ("carol", 19)]
+                >>> student = pd.create_dataframe(rows=students, column_names=["name_1", "age_1"], db=db)
+                >>> student_2 = pd.create_dataframe(rows=students, column_names=["name_2", "age_2"], db=db)
+                >>> student.merge(
+                        student_2,
+                        how="inner",
+                        left_on="age_1",
+                        right_on="age_2",
+                    )
+                    ---------------------------------
+                     name_1 | age_1 | name_2 | age_2
+                    --------+-------+--------+-------
+                     alice  |    18 | alice  |    18
+                     bob    |    19 | carol  |    19
+                     bob    |    19 | bob    |    19
+                     carol  |    19 | carol  |    19
+                     carol  |    19 | bob    |    19
+                    ---------------------------------
+                    (5 rows)
+
+        """
         how = "full" if how == "outer" else how
         assert (
             suffixes == ""
@@ -144,7 +280,14 @@ class DataFrame:
     def groupby(self, by: Union[str, List[str]]):
         return DataFrameGroupBy(self._dataframe.group_by(by))
 
-    def head(self, n: int):
+    def head(self, n: int) -> "DataFrame":
+        """
+        Return the first n unordered rows.
+
+        Returns:
+            :class:`Dataframe`: The first n unordered rows of class:`DataFrame`.
+
+        """
         df = self._dataframe[:n]
         return DataFrame(df)
 

@@ -1,1 +1,1 @@
-from greenplumpython.pandas.dataframe import DataFrame
+from greenplumpython.pandas.dataframe import DataFrame, create_dataframe
