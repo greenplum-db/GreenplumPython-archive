@@ -1,12 +1,19 @@
 """
 This module creates a Python object Func which able creation and calling of Greenplum UDF and UDA.
 """
+import ast
+import base64
 import functools
 import inspect
-import re
-import textwrap
-from typing import Any, Callable, Dict, Optional, Set, Tuple
+import json
+import sys
+from textwrap import dedent
+from typing import Any, Callable, List, Optional, Set, Tuple
 from uuid import uuid4
+
+import dill  # type: ignore reportMissingTypeStubs
+
+dill.settings["recurse"] = True
 
 from greenplumpython.col import Column
 from greenplumpython.dataframe import DataFrame
@@ -261,6 +268,13 @@ class NormalFunction(_AbstractFunction):
             return
         assert self._created_in_dbs is not None
         if db not in self._created_in_dbs:
+            func_src: str = dill.source.getsource(self._wrapped_func)
+            func_ast: ast.FunctionDef = ast.parse(dedent(func_src)).body[0]
+            # TODO: Lambda expressions are NOT supported since inspect.signature()
+            # does not work as expected.
+            assert isinstance(
+                func_ast, ast.FunctionDef
+            ), f"{self._wrapped_func} is not a function. (lambda is not supported.)"
             func_sig = inspect.signature(self._wrapped_func)
             func_args = ",".join(
                 [
@@ -268,34 +282,50 @@ class NormalFunction(_AbstractFunction):
                     for param in func_sig.parameters.values()
                 ]
             )
-            # make inspect.getsource can run in Python REPL(IPython do not have this issue)
-
-            # CPython issue https://github.com/python/cpython/issues/57129
-            # TODO: in the future, we might want to use `dill.dumps(func, recurse=True)`
-            # to send the function to the DBMS with dependencies like imports.
-            try:
-                source: str = inspect.getsource(self._wrapped_func)
-                # if run inspect.getsource(func) in REPL will raise IOError
-                # that func is not buildin
-            except IOError:
-                # use dill library to bypass that
-                from dill.source import getsource  # type: ignore
-
-                source = getsource(self._wrapped_func)
-
-            # -- Loading Python code of Function
-            # FIXME: include things in func.__closure__
-            func_lines = textwrap.dedent(source).split("\n")
-            func_body = "\n".join([line for line in func_lines if re.match(r"^\s", line)])
+            func_arg_names = ",".join(
+                [f"{param.name}={param.name}" for param in func_sig.parameters.values()]
+            )
             return_type = to_pg_type(func_sig.return_annotation, db, for_return=True)
+            func_pickled: bytes = dill.dumps(self._wrapped_func)
+            # Modify the AST of the wrapped function to minify dependency: (1-3)
+            # 1. Apply random renaming to avoid name conflict. (TODO: Support
+            #    calling another UDF in the current UDF directly.)
+            func_ast.name = "__" + self._qualified_name.split(".")[-1]
+            # 2. Clear decorators and type annotations to avoid import.
+            func_ast.decorator_list.clear()
+            for arg in func_ast.args.args:
+                arg.annotation = None
+            func_ast.returns = None
+            # 3. Prepend imports for modules referred to in the body.
+            global_objects: List[Any] = dill.detect.globalvars(self._wrapped_func).values()
+            importables: List[str] = [dill.source.getimportable(obj) for obj in global_objects]
+            importables_ast: List[ast.Import] = ast.parse(dedent("".join(importables))).body
+            func_ast.body = importables_ast + func_ast.body
+            pickle_lib_name: str = "__lib_" + uuid4().hex
+            sys_lib_name: str = "__lib_" + uuid4().hex
+            python_version = (sys.version_info.major, sys.version_info.minor)
+            encode_lib_name: str = "__lib_" + uuid4().hex
             assert (
                 db.execute(
                     (
                         f"CREATE FUNCTION {self._qualified_name} ({func_args}) "
                         f"RETURNS {return_type} "
                         f"AS $$\n"
-                        f"{textwrap.dedent(func_body)} $$"
-                        f"LANGUAGE {self._language_handler};"
+                        f"try:\n"
+                        f"    return GD['{func_ast.name}']({func_arg_names})\n"
+                        f"except KeyError:\n"
+                        f"    try:\n"
+                        f"        import dill as {pickle_lib_name}\n"
+                        f"        import sys as {sys_lib_name}\n"
+                        f"        import base64 as {encode_lib_name}\n"
+                        f"        if ({sys_lib_name}.version_info.major, {sys_lib_name}.version_info.minor) != {python_version}:\n"
+                        f"            raise ModuleNotFoundError\n"
+                        f"        GD['{func_ast.name}'] = {pickle_lib_name}.loads({encode_lib_name}.b64decode({base64.b64encode(func_pickled)}))\n"
+                        f"    except ModuleNotFoundError:\n"
+                        f"        exec({json.dumps(ast.unparse(func_ast))}, globals())\n"
+                        f"        GD['{func_ast.name}'] = globals()['{func_ast.name}']\n"
+                        f"    return GD['{func_ast.name}']({func_arg_names})\n"
+                        f"$$ LANGUAGE {self._language_handler};"
                     ),
                     has_results=False,
                 )
@@ -310,9 +340,10 @@ class NormalFunction(_AbstractFunction):
 
 def function(name: str, schema: Optional[str] = None) -> NormalFunction:
     """
-    A wrap in order to call function
+    A wrap in order to call function (Predefined in-Database UDF) on :class:`~db.Dataframe`.
 
     Example:
+        Get a wrapper of the in-Database function `generate_series`
         .. code-block::  Python
 
             generate_series = gp.function("generate_series")
@@ -370,12 +401,12 @@ class AggregateFunction(_AbstractFunction):
             )
             # -- Creation of UDA in Greenplum
             db.execute(
-                f"""
-                CREATE AGGREGATE {self.qualified_name} ({args_string}) (
-                    SFUNC = {self.transition_function.qualified_name},
-                    STYPE = {to_pg_type(state_param.annotation, db)}
-                )
-                """,
+                (
+                    f"CREATE AGGREGATE {self.qualified_name} ({args_string}) (\n"
+                    f"    SFUNC = {self.transition_function.qualified_name},\n"
+                    f"    STYPE = {to_pg_type(state_param.annotation, db)}\n"
+                    f");\n"
+                ),
                 has_results=False,
             )
             self._created_in_dbs.add(db)
@@ -402,7 +433,7 @@ class AggregateFunction(_AbstractFunction):
 
 def aggregate_function(name: str, schema: Optional[str] = None) -> AggregateFunction:
     """
-    A wrap in order to call an aggregate function
+    A wrap in order to call an aggregate function (Predefined in-Database UDA).
 
     Example:
         .. code-block::  Python
@@ -417,8 +448,7 @@ def create_function(
     wrapped_func: Optional[Callable[..., Any]] = None, language_handler: str = "plpython3u"
 ) -> NormalFunction:
     """
-    Creates a User Defined Function (UDF) in database from the given Python
-    function.
+    Creates a User Defined Function (UDF) in database from the given Python function.
 
     Args:
         wrapped_func : the Python function to be wrapped into a database function
@@ -456,8 +486,7 @@ def create_aggregate(
     transition_func: Optional[Callable[..., Any]] = None, language_handler: str = "plpython3u"
 ) -> AggregateFunction:
     """
-    Creates a User Defined Aggregate (UDA) in Database using the given Python
-    function as the state transition function.
+    Creates a User Defined Aggregate (UDA) in Database using the given Python function as the state transition function.
 
     Args:
         transition_func : python function
@@ -511,8 +540,7 @@ def create_array_function(
     wrapped_func: Optional[Callable[..., Any]] = None, language_handler: str = "plpython3u"
 ) -> ArrayFunction:
     """
-    Creates a User Defined Array Function in database from the given Python
-    function.
+    Creates a User Defined Array Function in database from the given Python function.
 
     Args:
         wrapped_func: python function
