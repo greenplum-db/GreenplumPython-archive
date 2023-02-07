@@ -18,12 +18,24 @@ if TYPE_CHECKING:
     from greenplumpython.func import FunctionExpr
 
 
-class DataFrameGroupingSets:
-    """Represent a group of rows in a :class:`~dataframe.DataFrame`."""
+class DataFrameGroupingSet:
+    """
+    Represent a set of groups of a :class:`~dataframe.DataFrame`.
 
-    def __init__(self, dataframe: "DataFrame", grouping_sets: List[Iterable["Expr"]]) -> None:
-        """Construct an instance of this class."""
+    It can be created from:
+
+    - :meth:`~dataframe.DataFrame.group_by`, or
+    - :meth:`DataFrameGroupingSet.union` of multiple :meth:`~dataframe.DataFrame.group_by`.
+
+    An :class:`~func.AggregateFunction` can be applied to each of the groups in
+    :class:`DataFrameGroupingSet` to obtain a summary.
+    """
+
+    def __init__(self, dataframe: "DataFrame", grouping_sets: List[List["Expr"]]) -> None:
+        # noqa: D400
+        """:meta private:"""
         self._dataframe = dataframe
+        # _grouping_sets should be an ordered set to maintain stable column display order
         self._grouping_sets = grouping_sets
 
     def apply(
@@ -100,7 +112,7 @@ class DataFrameGroupingSets:
         Args:
             new_columns: a :class:`dict` whose keys are column names and values are
                          :class:`Callable`. The :class:`Callable` will be applied to the current
-                         :class:`DataFrameGroupingSets` and return the column data.
+                         :class:`DataFrameGroupingSet` and return the column data.
 
         Returns:
             :class:`~dataframe.DataFrame` with the new columns.
@@ -110,13 +122,13 @@ class DataFrameGroupingSets:
             .. highlight:: python
             .. code-block::  python
 
-                >>> rows = [(1,) for _ in range(10)]
-                >>> numbers = db.create_dataframe(rows=rows, column_names=["val"])
+                >>> rows = [(i, i % 2 == 0) for i in range(10)]
+                >>> numbers = db.create_dataframe(rows=rows, column_names=["val", "is_even"])
                 >>> count = gp.aggregate_function("count")
                 >>> sum = gp.aggregate_function("sum")
                 >>> results = numbers.group_by("is_even").assign(
-                        count=lambda t: count(t["val"]),
-                        sum=lambda t: sum(t["val"]))
+                ...     count=lambda t: count(t["val"]),
+                ...     sum=lambda t: sum(t["val"]))
                 >>> results
                 -----------------------
                  is_even | count | sum
@@ -124,10 +136,11 @@ class DataFrameGroupingSets:
                        1 |     5 |  20
                        0 |     5 |  25
                 -----------------------
+                (2 rows)
         """
         from greenplumpython.dataframe import DataFrame
 
-        targets: List[str] = list(self.flatten())
+        targets: List[str] = self.flatten()
         for k, f in new_columns.items():
             v: Any = f(self.dataframe).bind(group_by=self)
             if isinstance(v, Expr) and not (v.dataframe is None or v.dataframe == self.dataframe):
@@ -139,10 +152,10 @@ class DataFrameGroupingSets:
         )
 
     def union(
-        self, other: Callable[["DataFrame"], "DataFrameGroupingSets"]
-    ) -> "DataFrameGroupingSets":
+        self, other: Callable[["DataFrame"], "DataFrameGroupingSet"]
+    ) -> "DataFrameGroupingSet":
         """
-        Union with another :class:`DataFrameGroupingSets`.
+        Union with another :class:`DataFrameGroupingSet`.
 
         So that when applying an aggregate function to the list, the function will be applied to
         each grouping set individually.
@@ -153,7 +166,7 @@ class DataFrameGroupingSets:
                    :class:`~dataframe.DataFrame`.
 
         Returns:
-            a new instance of :class:`DataFrameGroupingSets`.
+            a new instance of :class:`DataFrameGroupingSet`.
 
         Example:
             .. highlight:: python
@@ -162,13 +175,11 @@ class DataFrameGroupingSets:
                 >>> rows = [(i, i % 2 == 0, i % 3 == 0) for i in range(6)]  # 0, 1, 2, 3, 4, 5
                 >>> numbers = db.create_dataframe(rows=rows, column_names=["val", "is_even", "is_multiple_of_3"])
                 >>> count = gp.aggregate_function("count")
-                >>>
                 >>> results = (
                 ...     numbers.group_by("is_even")
                 ...     .union(lambda t: t.group_by("is_multiple_of_3"))
                 ...     .assign(count=lambda t: count(t["val"]))
                 ... )
-                >>>
                 >>> results
                 ------------------------------------
                  is_even | is_multiple_of_3 | count
@@ -180,20 +191,22 @@ class DataFrameGroupingSets:
                 ------------------------------------
                 (4 rows)
         """
-        return DataFrameGroupingSets(
+        return DataFrameGroupingSet(
             self._dataframe,
             self._grouping_sets + other(self._dataframe)._grouping_sets,
         )
 
-    def flatten(self) -> Set[str]:
+    def flatten(self) -> List[str]:
         # noqa: D400
         """:meta private:"""
-        item_set: MutableSet[Expr] = set()
+        item_list: List[str] = list()
+        # Remove the duplicates and keep the input order
         for grouping_set in self._grouping_sets:
             for item in grouping_set:
                 assert isinstance(item, str), f"Grouping item {item} is not a column name."
-                item_set.add(item)
-        return item_set
+                if item not in item_list:
+                    item_list.append(item)
+        return item_list
 
     @property
     def dataframe(self) -> "DataFrame":

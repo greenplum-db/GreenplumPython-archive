@@ -54,7 +54,7 @@ from psycopg2.extras import RealDictRow
 from greenplumpython.col import Column, Expr
 from greenplumpython.db import Database
 from greenplumpython.expr import serialize
-from greenplumpython.group import DataFrameGroupingSets
+from greenplumpython.group import DataFrameGroupingSet
 from greenplumpython.order import DataFrameOrdering
 from greenplumpython.row import Row
 
@@ -807,7 +807,7 @@ class DataFrame:
         assert results is not None
         return results
 
-    def group_by(self, *column_names: str) -> DataFrameGroupingSets:
+    def group_by(self, *column_names: str) -> DataFrameGroupingSet:
         """
         Group the current GreenplumPython :class:`DataFrame` by `column_names`.
 
@@ -815,14 +815,14 @@ class DataFrame:
             column_names: one or more column names of the :class:`DataFrame`.
 
         Returns:
-            DataFrameGroupingSets: a list of grouping sets. Each group is identified
+            DataFrameGroupingSet: a list of grouping sets. Each group is identified
             by a different set of values of the columns in the arguments.
         """
         #  State transition diagram:
-        #  DataFrame --group_by()-> DataFrameGroupingSets --aggregate()-> FunctionExpr
+        #  DataFrame --group_by()-> DataFrameGroupingSet --aggregate()-> FunctionExpr
         #    ^                                                             |
         #    |------------------------- assign() or apply() ---------------|
-        return DataFrameGroupingSets(self, [column_names])
+        return DataFrameGroupingSet(self, [column_names])
 
     def distinct_on(self, *column_names: str) -> "DataFrame":
         """

@@ -142,3 +142,20 @@ def test_group_empty_assign_empty(db: gp.Database):
     # NOTE: len(results) == 1 on PostgreSQL, while == 10 on Greenplum
     for row in results:
         assert len(row) == 0
+
+
+def test_group_flattern(db: gp.Database):
+    # Create a fake grouping set
+    rows = [{i} for i in range(6)]  # 0, 1, 2, 3, 4, 5
+    numbers = db.create_dataframe(rows=rows, column_names=["id"])
+    gset = numbers.group_by("id")
+
+    # Duplicates should be removed
+    gset._grouping_sets = [["1", "2", "3"], ["1", "2", "3"]]
+    result = gset.flatten()
+    assert result == ["1", "2", "3"]
+
+    # Input order should be respected
+    gset._grouping_sets = [["1", "2", "3"], ["4", "2", "1", "3"]]
+    result = gset.flatten()
+    assert result == ["1", "2", "3", "4"]

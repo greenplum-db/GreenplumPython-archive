@@ -12,7 +12,7 @@ from greenplumpython.col import Column
 from greenplumpython.dataframe import DataFrame
 from greenplumpython.db import Database
 from greenplumpython.expr import Expr, serialize
-from greenplumpython.group import DataFrameGroupingSets
+from greenplumpython.group import DataFrameGroupingSet
 from greenplumpython.type import to_pg_type
 
 
@@ -28,7 +28,7 @@ class FunctionExpr(Expr):
         self,
         func: "_AbstractFunction",
         args: Tuple[Any] = [],
-        group_by: Optional[DataFrameGroupingSets] = None,
+        group_by: Optional[DataFrameGroupingSet] = None,
         dataframe: Optional[DataFrame] = None,
         db: Optional[Database] = None,
         distinct: bool = False,
@@ -49,7 +49,7 @@ class FunctionExpr(Expr):
 
     def bind(
         self,
-        group_by: Optional[DataFrameGroupingSets] = None,
+        group_by: Optional[DataFrameGroupingSet] = None,
         dataframe: Optional[DataFrame] = None,
         db: Optional[Database] = None,
     ):
@@ -183,7 +183,7 @@ class ArrayFunctionExpr(FunctionExpr):
 
     def bind(
         self,
-        group_by: Optional[DataFrameGroupingSets] = None,
+        group_by: Optional[DataFrameGroupingSet] = None,
         dataframe: Optional[DataFrame] = None,
         db: Optional[Database] = None,
     ):

@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.9
-  
+
       - name: Install dependencies
         run: |
           sudo apt-get install -y libpq-dev pandoc
@@ -29,7 +29,11 @@ jobs:
         run:  |
           python -m pip install --upgrade pip
           pip install tox==3.25.0
-  
+
+      - name: docstyle check
+        run: |
+          tox -e docstyle
+
       - name: Build the docs
         run: |
           export TAG_REF=${{ github.ref }}
