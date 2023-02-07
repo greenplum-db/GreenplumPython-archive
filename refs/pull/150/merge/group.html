@@ -117,7 +117,7 @@
 <p>Definitions for the result of grouping <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="group.DataFrameGroupingSets">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">group.</span></span><span class="sig-name descname"><span class="pre">DataFrameGroupingSets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataframe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><span class="pre">DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping_sets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="expr.html#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#group.DataFrameGroupingSets" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">group.</span></span><span class="sig-name descname"><span class="pre">DataFrameGroupingSets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataframe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><span class="pre">DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping_sets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="expr.html#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#group.DataFrameGroupingSets" title="Permalink to this definition"></a></dt>
 <dd><p>Represent a group of rows in a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="group.DataFrameGroupingSets.apply">
@@ -152,7 +152,7 @@
 <span class="go">     5 |       0</span>
 <span class="go">-----------------</span>
 <span class="go">(2 rows)</span>
-
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">numbers</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;is_even&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="n">count</span><span class="p">(),</span> <span class="n">as_name</span><span class="o">=</span><span class="s1">&#39;cnt&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">results</span>
 <span class="go">---------------</span>
@@ -162,7 +162,7 @@
 <span class="go">   5 |       0</span>
 <span class="go">---------------</span>
 <span class="go">(2 rows)</span>
-
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">array_sum</span><span class="p">:</span>
 <span class="gp">... </span>    <span class="nb">sum</span><span class="p">:</span> <span class="nb">int</span>
 <span class="gp">... </span>    <span class="n">count</span><span class="p">:</span> <span class="nb">int</span>
@@ -200,13 +200,13 @@
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">numbers</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">])</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">numbers</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">,</span> <span class="s2">&quot;is_even&quot;</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">count</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">aggregate_function</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">sum</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">aggregate_function</span><span class="p">(</span><span class="s2">&quot;sum&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">numbers</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;is_even&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-<span class="go">        count=lambda t: count(t[&quot;val&quot;]),</span>
-<span class="go">        sum=lambda t: sum(t[&quot;val&quot;]))</span>
+<span class="gp">... </span>    <span class="n">count</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">count</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="nb">sum</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">results</span>
 <span class="go">-----------------------</span>
 <span class="go"> is_even | count | sum</span>
@@ -214,6 +214,7 @@
 <span class="go">       1 |     5 |  20</span>
 <span class="go">       0 |     5 |  25</span>
 <span class="go">-----------------------</span>
+<span class="go">(2 rows)</span>
 </pre></div>
 </div>
 </dd></dl>
