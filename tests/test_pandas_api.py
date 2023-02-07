@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 
 import greenplumpython as gp
 import greenplumpython.pandas.dataframe as pd
-from tests import con, db
+from tests import conn, db
 
 
 def test_df_to_pddf(db: gp.Database):
@@ -25,20 +25,36 @@ def test_columns_to_pddf(db: gp.Database):
     assert sum(row["val"] for row in pddf_from_df) == 10
 
 
-def test_to_sql(db: gp.Database, con):
+def test_to_sql(db: gp.Database, conn):
     columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
     df = db.create_dataframe(columns=columns)
     pd_df = pd.DataFrame(df)
     db.execute("DROP TABLE IF EXISTS test.test_to_sql", has_results=False)
     db.execute("DROP SCHEMA IF EXISTS test; CREATE SCHEMA test", has_results=False)
-    rowcount = pd_df.to_sql(name="test_to_sql", con=con, schema="test")
+    # 1st try: Create Table
+    rowcount = pd_df.to_sql(name="test_to_sql", conn=conn, schema="test")
     assert rowcount == 3
+    # 2nd try: Raise Error if_exists = Fail
     with pytest.raises(Exception) as exc_info:
-        pd_df.to_sql(name="test_to_sql", con=con, schema="test")
+        pd_df.to_sql(name="test_to_sql", conn=conn, schema="test")
     assert 'relation "test_to_sql" already exists' in str(exc_info)
-    pd_df.to_sql(name="test_to_sql", con=con, schema="test", if_exists="replace")
+    # 3rd Try: Replace existing table
+    pd_df.to_sql(name="test_to_sql", conn=conn, schema="test", if_exists="replace")
     df = db.create_dataframe(table_name="test.test_to_sql")
     assert sorted([tuple(row.values()) for row in df]) == [(1, 1), (2, 2), (3, 3)]
+    assert list(next(iter(df)).keys()) == ["a", "b"]
+    # 4th try: Insert to exist table
+    rowcount = pd_df.to_sql(name="test_to_sql", conn=conn, schema="test", if_exists="append")
+    assert rowcount == 3
+    df = db.create_dataframe(table_name="test.test_to_sql")
+    assert sorted([tuple(row.values()) for row in df]) == [
+        (1, 1),
+        (1, 1),
+        (2, 2),
+        (2, 2),
+        (3, 3),
+        (3, 3),
+    ]
     assert list(next(iter(df)).keys()) == ["a", "b"]
 
 
@@ -113,13 +129,13 @@ def test_merge_same_column_name(db: gp.Database):
     assert str(exc_info.value) == "Can't support duplicate columns name in both DataFrame"
 
 
-def test_read_sql(db: gp.Database, con):
+def test_read_sql(db: gp.Database, conn):
     db.execute("DROP TABLE IF EXISTS test_read_sql", has_results=False)
     columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
     db.create_dataframe(columns=columns).save_as("test_read_sql", column_names=["a", "b"])
 
-    pd_df = pd.read_sql("test_read_sql", con)
+    pd_df = pd.read_sql("test_read_sql", conn)
     assert sorted([tuple(row.values()) for row in list(pd_df)]) == [(1, 1), (2, 2), (3, 3)]
 
-    pd_df = pd.read_sql("SELECT * FROM test_read_sql", con)
+    pd_df = pd.read_sql("SELECT * FROM test_read_sql", conn)
     assert sorted([tuple(row.values()) for row in list(pd_df)]) == [(1, 1), (2, 2), (3, 3)]

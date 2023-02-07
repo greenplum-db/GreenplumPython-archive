@@ -15,21 +15,21 @@ class DataFrame:
             dataframe.DataFrame, List[Union[Tuple[Any, ...], Dict[str, Any]]], Dict[str, List[Any]]
         ],
         columns: Optional[List[str]] = None,
-        con: Optional[db.Database] = None,
+        conn: Optional[db.Database] = None,
     ) -> None:
         if isinstance(data, dataframe.DataFrame):
-            self._proxy = data
+            self._dataframe = data
         else:
-            assert con is not None
+            assert conn is not None
             if isinstance(data, Dict):
-                self._proxy = con.create_dataframe(columns=data)
+                self._dataframe = conn.create_dataframe(columns=data)
             else:
-                self._proxy = con.create_dataframe(rows=data, column_names=columns)
+                self._dataframe = conn.create_dataframe(rows=data, column_names=columns)
 
     def to_sql(
         self,
         name: str,
-        con: engine,
+        conn: engine,
         schema: Union[str, None] = None,
         if_exists: Literal["fail", "replace", "append"] = "fail",
         index: bool = False,  # Not Used
@@ -39,26 +39,35 @@ class DataFrame:
         method: Literal[None, "multi"] = None,  # Not Used  # type: ignore
     ) -> int:
         assert index is False, "DataFrame in GreenplumPython.pandas does not have an index column"
-        assert if_exists in ["fail", "replace"], "Only support if_exists = 'fail' or 'replace'"
         table_name = name if schema is None else (schema + "." + name)
-        with con.connect() as connexion:  # type: ignore
-            if if_exists == "replace":
-                connexion.execute(text(f"DROP TABLE IF EXISTS {table_name}"))
-            query = self._proxy._build_full_query()  # type: ignore
-            result = connexion.execute(  # type: ignore
-                text(
-                    f"""
-                        CREATE TABLE {table_name}
-                        AS {query}
-                    """
+        with conn.connect() as connection:  # type: ignore
+            query = self._dataframe._build_full_query()  # type: ignore
+            if if_exists == "append":
+                result = connection.execute(  # type: ignore
+                    text(
+                        f"""
+                            INSERT INTO {table_name}
+                            {query}
+                        """
+                    )
                 )
-            )
-            connexion.commit()
+            else:
+                if if_exists == "replace":
+                    connection.execute(text(f"DROP TABLE IF EXISTS {table_name}"))
+                result = connection.execute(  # type: ignore
+                    text(
+                        f"""
+                            CREATE TABLE {table_name}
+                            AS {query}
+                        """
+                    )
+                )
+            connection.commit()
             count: int = result.rowcount
             return count
 
     def to_gp_dataframe(self) -> dataframe.DataFrame:
-        return self._proxy
+        return self._dataframe
 
     def sort_values(
         self,
@@ -77,7 +86,7 @@ class DataFrame:
         ), "DataFrame in GreenplumPython.pandas does not have an index column"
         nulls_first = True if na_position == "first" else False
         df = orderby.DataFrameOrdering(
-            self._proxy,
+            self._dataframe,
             by if isinstance(by, list) else [by],
             ascending if isinstance(ascending, list) else [ascending],
             len(by) * [nulls_first] if isinstance(by, list) else [nulls_first],
@@ -98,7 +107,7 @@ class DataFrame:
             ignore_index is True
         ), "DataFrame in GreenplumPython.pandas does not have an index column"
         assert subset is not None  # FIXME: select distinct *
-        df = self._proxy.distinct_on(*subset)
+        df = self._dataframe.distinct_on(*subset)
         return DataFrame(df)
 
     def merge(
@@ -127,24 +136,24 @@ class DataFrame:
             left_index is False and right_index is False
         ), "DataFrame in GreenplumPython.pandas does not have an index column"
         assert on is None, "Can't support duplicate columns name in both DataFrame"
-        df = self._proxy.join(right._proxy, how=how, cond=lambda s, o: s[left_on] == o[right_on])
+        df = self._dataframe.join(right._dataframe, how=how, cond=lambda s, o: s[left_on] == o[right_on])
         return DataFrame(df)
 
     def groupby(self, by: Union[str, List[str]]):
-        return DataFrameGroupBy(self._proxy.group_by(by))
+        return DataFrameGroupBy(self._dataframe.group_by(by))
 
     def head(self, n: int):
-        df = self._proxy[:n]
+        df = self._dataframe[:n]
         return DataFrame(df)
 
     def __repr__(self):
-        return self._proxy.__repr__()
+        return self._dataframe.__repr__()
 
     def _repr_html_(self):
-        return self._proxy._repr_html_()  # type: ignore
+        return self._dataframe._repr_html_()  # type: ignore
 
     def __iter__(self):
-        return self._proxy.__iter__()
+        return self._dataframe.__iter__()
 
     def apply(self):
         pass
@@ -155,7 +164,7 @@ class DataFrame:
 
 def read_sql(
     sql: str,
-    con: engine,
+    conn: engine,
     index_col: Union[str, list[str]] = None,
     coerce_float: bool = True,
     params: Optional[List[str]] = None,
@@ -163,11 +172,11 @@ def read_sql(
     columns: Optional[list[str]] = None,
     chunksize: Optional[int] = None,
 ):
-    database = db.Database(url=str(con.url))
+    database = db.Database(url=str(conn.url))
     try:
         database.execute(f"SELECT * FROM {sql}")
         df = database.create_dataframe(table_name=sql)
-        return DataFrame(df, con=database)
+        return DataFrame(df, conn=database)
     except:
         return DataFrame(dataframe.DataFrame(query=sql, db=database))
 
@@ -220,13 +229,13 @@ def create_dataframe(
     assert db is not None, "Need provide database"
     assert rows is None or columns is None, "Only one data format is allowed."
     if rows is not None:
-        return DataFrame(data=rows, con=db, columns=column_names)
-    return DataFrame(data=columns, con=db)
+        return DataFrame(data=rows, conn=db, columns=column_names)
+    return DataFrame(data=columns, conn=db)
 
 
 class DataFrameGroupBy:
     def __init__(self, df_groupby: groupby.DataFrameGroupingSets):
-        self._proxy = df_groupby
+        self._dataframe = df_groupby
 
     def agg(self):
         pass

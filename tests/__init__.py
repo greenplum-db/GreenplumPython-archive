@@ -20,11 +20,11 @@ def db():
 
 
 @pytest.fixture()
-def con():
+def conn():
     host = "localhost"
     dbname = environ.get("TESTDB", "gpadmin")
-    con = create_engine(f"postgresql://{host}/{dbname}")
-    yield con
+    conn = create_engine(f"postgresql://{host}/{dbname}")
+    yield conn
 
 
 gp.config.print_sql = True
