@@ -288,7 +288,7 @@ class DataFrame:
     # FIXME: Add test
     def where(self, predicate: Callable[["DataFrame"], "Expr"]) -> "DataFrame":
         """
-        Used when want to filter the :class:`DataFrame` by applying conditions.
+        Filter the :class:`DataFrame` by applying conditions.
 
         Return the :class:`DataFrame` filtered by :class:`~expr.Expr`.
 
@@ -417,7 +417,7 @@ class DataFrame:
 
     def assign(self, **new_columns: Callable[["DataFrame"], Any]) -> "DataFrame":
         """
-        Used when want to combine new columns with the current :class:`DataFrame`.
+        Combine new columns with the current :class:`DataFrame`.
 
         Assign new columns to the current :class:`DataFrame`. Existing columns cannot be reassigned.
 
@@ -481,7 +481,7 @@ class DataFrame:
         operator: Optional[str] = None,
     ) -> DataFrameOrdering:
         """
-        Used when want to sort :class:`DataFrame` by values using the given arguments.
+        Sort :class:`DataFrame` by values using the given arguments.
 
         Return :class:`DataFrame` order by the given arguments.
 
@@ -786,9 +786,10 @@ class DataFrame:
 
     def refresh(self) -> "DataFrame":
         """
-        After displayed dataframe, its content has been cached in local.
-        This function refresh the local cache of :class:`DataFrame`, otherwise, all modifications made between last
-        cache and this refresh are not updated in local.
+        Refresh the local cache of :class:`DataFrame`.
+
+        After displayed dataframe, its content has been cached in local. All modifications made
+        between last cache and this refresh are not updated in local.
 
         The local cache if used to iterate the :class:`DataFrame` instance locally.
 
