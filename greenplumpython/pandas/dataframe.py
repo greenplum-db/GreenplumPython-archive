@@ -136,7 +136,9 @@ class DataFrame:
             left_index is False and right_index is False
         ), "DataFrame in GreenplumPython.pandas does not have an index column"
         assert on is None, "Can't support duplicate columns name in both DataFrame"
-        df = self._dataframe.join(right._dataframe, how=how, cond=lambda s, o: s[left_on] == o[right_on])
+        df = self._dataframe.join(
+            right._dataframe, how=how, cond=lambda s, o: s[left_on] == o[right_on]
+        )
         return DataFrame(df)
 
     def groupby(self, by: Union[str, List[str]]):
