@@ -403,8 +403,8 @@ div.rendered_html tbody tr:hover {
 <h2>Fetch data from ML data repository<a class="headerlink" href="#Fetch-data-from-ML-data-repository" title="Permalink to this heading"></a></h2>
 <p>The training data is located on the website. Thanks for Greenplum’s <a class="reference external" href="https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-admin_guide-external-g-creating-and-using-web-external-tables.html">external table</a>, accessing CSV data from a HTTP server is easy.</p>
 <p>First, connect to the database. You may want to change the connect string like <code class="docutils literal notranslate"><span class="pre">postgresql://&lt;user&gt;&#64;&lt;host&gt;:&lt;port&gt;/&lt;db_name&gt;</span></code> to fit your needs.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> sql
@@ -412,18 +412,9 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-The sql extension is already loaded. To reload it, use:
-  %reload_ext sql
-</pre></div></div>
-</div>
 <p>Then, create the external table:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">sql</span>
@@ -439,7 +430,7 @@ The sql extension is already loaded. To reload it, use:
 <span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">viscera_weight</span><span class="w"> </span><span class="n">float8</span>
 <span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">shell_weight</span><span class="w"> </span><span class="n">float8</span>
 <span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">rings</span><span class="w"> </span><span class="nb">integer</span><span class="w"> </span><span class="c1">-- target variable to predict</span>
-<span class="p">)</span><span class="w"> </span><span class="k">location</span><span class="p">(</span><span class="s1">&#39;http://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data&#39;</span><span class="p">)</span>
+<span class="p">)</span><span class="w"> </span><span class="k">EXECUTE</span><span class="w"> </span><span class="s1">&#39;curl http://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data&#39;</span>
 <span class="n">format</span><span class="w"> </span><span class="s1">&#39;CSV&#39;</span>
 <span class="p">(</span><span class="k">null</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="s1">&#39;?&#39;</span><span class="p">);</span>
 </pre></div>
@@ -456,7 +447,7 @@ Done.
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -465,7 +456,7 @@ Done.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">sql</span>
@@ -478,20 +469,23 @@ Done.
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
+<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
  * postgresql://localhost/gpadmin
 Done.
-(psycopg2.errors.ConnectionFailure) http response code 404 from gpfdist (http://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data): HTTP/1.1 404 Not Found  (seg0 slice1 127.0.0.1:6002 pid=22746)
-
-[SQL: CREATE TABLE abalone AS (
-    SELECT ROW_NUMBER() OVER() AS id, *
-    FROM abalone_external
-) DISTRIBUTED BY (sex);]
-(Background on this error at: https://sqlalche.me/e/14/e3q8)
+12531 rows affected.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[]
 </pre></div></div>
 </div>
 </section>
@@ -543,14 +537,14 @@ Done.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
- * postgresql://127.0.0.1:6000/gpadmin
-4177 rows affected.
+ * postgresql://localhost/gpadmin
+12531 rows affected.
 3 rows affected.
 3 rows affected.
 Done.
-3343 rows affected.
+10026 rows affected.
 Done.
-837 rows affected.
+2508 rows affected.
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -714,12 +708,12 @@ Done.
             <th>gp_segment_id</th>
     </tr>
     <tr>
-            <td>2870</td>
-            <td>1</td>
+            <td>3921</td>
+            <td>2</td>
     </tr>
     <tr>
-            <td>1307</td>
-            <td>2</td>
+            <td>8610</td>
+            <td>1</td>
     </tr>
 </table></div>
 </div>
@@ -865,23 +859,23 @@ Done.
     <tr>
             <td>F</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[25.214525177099, -8.13516176003671]</td>
-            <td>0.155903008984469</td>
-            <td>2023-01-18 20:20:15.911128</td>
+            <td>[24.7681195974799, -8.09646975899078]</td>
+            <td>0.348169899531181</td>
+            <td>2023-02-08 00:54:53.027124</td>
     </tr>
     <tr>
             <td>I</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[16.0937167348806, -0.277297553836529]</td>
-            <td>1.06519379419403</td>
-            <td>2023-01-18 20:20:15.924544</td>
+            <td>[15.4640644388656, 0.370793353609802]</td>
+            <td>1.20076747928796</td>
+            <td>2023-02-08 00:54:53.028040</td>
     </tr>
     <tr>
             <td>M</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[23.8277243968678, -6.74027973741311]</td>
-            <td>0.277948645598155</td>
-            <td>2023-01-18 20:20:15.926368</td>
+            <td>[23.3204116000927, -6.46471606661911]</td>
+            <td>0.419912208927418</td>
+            <td>2023-02-08 00:54:53.031458</td>
     </tr>
 </table></div>
 </div>
@@ -923,47 +917,47 @@ Done.
     <tr>
             <td>F</td>
             <td>length</td>
-            <td>25.2145251770991</td>
+            <td>24.7681195974799</td>
     </tr>
     <tr>
             <td>F</td>
             <td>shucked_weight</td>
-            <td>-8.13516176003671</td>
+            <td>-8.09646975899079</td>
     </tr>
     <tr>
             <td>F</td>
             <td>intercept</td>
-            <td>0.155903008984463</td>
+            <td>0.348169899531175</td>
     </tr>
     <tr>
             <td>I</td>
             <td>length</td>
-            <td>16.0937167348806</td>
+            <td>15.4640644388656</td>
     </tr>
     <tr>
             <td>I</td>
             <td>shucked_weight</td>
-            <td>-0.277297553836528</td>
+            <td>0.370793353609802</td>
     </tr>
     <tr>
             <td>I</td>
             <td>intercept</td>
-            <td>1.06519379419403</td>
+            <td>1.20076747928795</td>
     </tr>
     <tr>
             <td>M</td>
             <td>length</td>
-            <td>23.8277243968678</td>
+            <td>23.3204116000927</td>
     </tr>
     <tr>
             <td>M</td>
             <td>shucked_weight</td>
-            <td>-6.74027973741311</td>
+            <td>-6.46471606661911</td>
     </tr>
     <tr>
             <td>M</td>
             <td>intercept</td>
-            <td>0.277948645598151</td>
+            <td>0.419912208927423</td>
     </tr>
 </table></div>
 </div>
@@ -1068,34 +1062,34 @@ Done.
             <th>rings_pred</th>
     </tr>
     <tr>
+            <td>17</td>
+            <td>I</td>
+            <td>7</td>
+            <td>6.72573572367818</td>
+    </tr>
+    <tr>
+            <td>44</td>
+            <td>I</td>
+            <td>5</td>
+            <td>4.38035591977245</td>
+    </tr>
+    <tr>
             <td>45</td>
             <td>I</td>
             <td>4</td>
-            <td>4.44002160132682</td>
+            <td>4.4547098951379</td>
     </tr>
     <tr>
-            <td>46</td>
-            <td>I</td>
-            <td>7</td>
-            <td>7.31747978483678</td>
-    </tr>
-    <tr>
-            <td>51</td>
-            <td>I</td>
-            <td>8</td>
-            <td>9.36779102974194</td>
-    </tr>
-    <tr>
-            <td>125</td>
+            <td>70</td>
             <td>I</td>
             <td>6</td>
-            <td>6.83647071689029</td>
+            <td>6.01798743661371</td>
     </tr>
     <tr>
-            <td>126</td>
+            <td>113</td>
             <td>I</td>
-            <td>5</td>
-            <td>5.40259433232746</td>
+            <td>9</td>
+            <td>7.98269832320555</td>
     </tr>
 </table></div>
 </div>
@@ -1190,24 +1184,24 @@ Done.
     </tr>
     <tr>
             <td>F</td>
-            <td>2.07916732311501</td>
-            <td>19.0318170341858</td>
-            <td>8.04647876678667</td>
-            <td>0.138682114304443</td>
+            <td>1.98645973331242</td>
+            <td>17.8127253851688</td>
+            <td>7.2512599457486</td>
+            <td>0.13165267486645</td>
     </tr>
     <tr>
             <td>I</td>
-            <td>1.30612047270036</td>
-            <td>16.1458759880454</td>
-            <td>3.65555421316371</td>
-            <td>0.481159217581736</td>
+            <td>1.30704615482363</td>
+            <td>16.3135744525477</td>
+            <td>3.74717160134921</td>
+            <td>0.478718495840409</td>
     </tr>
     <tr>
             <td>M</td>
-            <td>2.26969012372248</td>
-            <td>20.9666196214235</td>
-            <td>8.94939932664624</td>
-            <td>0.171649418612848</td>
+            <td>2.06918266296922</td>
+            <td>19.3289820490793</td>
+            <td>7.53891738858427</td>
+            <td>0.1752474684607</td>
     </tr>
 </table></div>
 </div>
