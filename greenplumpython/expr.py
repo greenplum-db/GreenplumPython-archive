@@ -1,9 +1,9 @@
 """
 This module creates a Python object Expr.
 """
-from uuid import uuid4
 from functools import singledispatchmethod
 from typing import TYPE_CHECKING, Any, List, Optional, Union, overload
+from uuid import uuid4
 
 from greenplumpython.db import Database
 
