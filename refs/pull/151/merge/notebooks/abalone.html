@@ -403,18 +403,27 @@ div.rendered_html tbody tr:hover {
 <h2>Fetch data from ML data repository<a class="headerlink" href="#Fetch-data-from-ML-data-repository" title="Permalink to this heading"></a></h2>
 <p>The training data is located on the website. Thanks for Greenplum’s <a class="reference external" href="https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-admin_guide-external-g-creating-and-using-web-external-tables.html">external table</a>, accessing CSV data from a HTTP server is easy.</p>
 <p>First, connect to the database. You may want to change the connect string like <code class="docutils literal notranslate"><span class="pre">postgresql://&lt;user&gt;&#64;&lt;host&gt;:&lt;port&gt;/&lt;db_name&gt;</span></code> to fit your needs.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> sql
-<span class="o">%</span><span class="k">sql</span> postgresql://${PGHOST}:${PGPORT}/gpadmin
+<span class="o">%</span><span class="k">sql</span> postgresql://localhost/gpadmin
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+The sql extension is already loaded. To reload it, use:
+  %reload_ext sql
+</pre></div></div>
+</div>
 <p>Then, create the external table:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">sql</span>
@@ -441,13 +450,13 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
- * postgresql://127.0.0.1:6000/gpadmin
+ * postgresql://localhost/gpadmin
 Done.
 Done.
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -456,7 +465,7 @@ Done.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">sql</span>
@@ -469,23 +478,20 @@ Done.
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
+<div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
- * postgresql://127.0.0.1:6000/gpadmin
+ * postgresql://localhost/gpadmin
 Done.
-4177 rows affected.
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-[]
+(psycopg2.errors.ConnectionFailure) http response code 404 from gpfdist (http://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data): HTTP/1.1 404 Not Found  (seg0 slice1 127.0.0.1:6002 pid=22746)
+
+[SQL: CREATE TABLE abalone AS (
+    SELECT ROW_NUMBER() OVER() AS id, *
+    FROM abalone_external
+) DISTRIBUTED BY (sex);]
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
 </pre></div></div>
 </div>
 </section>
@@ -751,7 +757,9 @@ Done.
 <span class="c1">#    , created_dt text</span>
 <span class="c1"># );</span>
 
+<span class="kn">import</span> <span class="nn">dataclasses</span>
 
+<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
 <span class="k">class</span> <span class="nc">LinregType</span><span class="p">:</span>
     <span class="n">col_nm</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">coef</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
@@ -765,7 +773,7 @@ Done.
 <span class="c1"># -- Will add argument to change language extensions, currently plpython3u by default</span>
 
 
-<span class="nd">@gp</span><span class="o">.</span><span class="n">create_array_function</span>
+<span class="nd">@gp</span><span class="o">.</span><span class="n">create_column_function</span>
 <span class="k">def</span> <span class="nf">linreg_func</span><span class="p">(</span><span class="n">length</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">shucked_weight</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">rings</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">LinregType</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
     <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -785,13 +793,13 @@ Done.
     <span class="n">pickle</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">moves</span><span class="o">.</span><span class="n">cPickle</span>
     <span class="n">serialized_linreg_model</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">linreg_fit</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;col_nm&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">,</span> <span class="s2">&quot;shucked_weight&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;coef&quot;</span><span class="p">:</span> <span class="n">linreg_coef</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="s2">&quot;intercept&quot;</span><span class="p">:</span> <span class="n">linreg_intercept</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="s2">&quot;serialized_linreg_model&quot;</span><span class="p">:</span> <span class="n">serialized_linreg_model</span><span class="p">,</span>
-        <span class="s2">&quot;created_dt&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()),</span>
-    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">LinregType</span><span class="p">(</span>
+        <span class="n">col_nm</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">,</span> <span class="s2">&quot;shucked_weight&quot;</span><span class="p">],</span>
+        <span class="n">coef</span><span class="o">=</span><span class="n">linreg_coef</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">intercept</span><span class="o">=</span><span class="n">linreg_intercept</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">serialized_linreg_model</span><span class="o">=</span><span class="n">serialized_linreg_model</span><span class="p">,</span>
+        <span class="n">created_dt</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()),</span>
+    <span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1108,7 +1116,7 @@ Done.
 <span class="c1">#    , r2_score float8</span>
 <span class="c1"># );</span>
 
-
+<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
 <span class="k">class</span> <span class="nc">linreg_eval_type</span><span class="p">:</span>
     <span class="n">mae</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">mape</span><span class="p">:</span> <span class="nb">float</span>
@@ -1124,7 +1132,7 @@ Done.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_array_function</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_column_function</span>
 <span class="k">def</span> <span class="nf">linreg_eval</span><span class="p">(</span><span class="n">y_actual</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">y_pred</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">linreg_eval_type</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span><span class="p">,</span> <span class="n">mean_squared_error</span><span class="p">,</span> <span class="n">r2_score</span>
     <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -1138,7 +1146,7 @@ Done.
 
     <span class="c1"># eval_score = [mae, mape, mse, r2_score]</span>
 
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;mae&quot;</span><span class="p">:</span> <span class="n">mae</span><span class="p">,</span> <span class="s2">&quot;mape&quot;</span><span class="p">:</span> <span class="n">mape</span><span class="p">,</span> <span class="s2">&quot;mse&quot;</span><span class="p">:</span> <span class="n">mse</span><span class="p">,</span> <span class="s2">&quot;r2_score&quot;</span><span class="p">:</span> <span class="n">r2_score</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">linreg_eval_type</span><span class="p">(</span><span class="n">mae</span><span class="p">,</span> <span class="n">mape</span><span class="p">,</span> <span class="n">mse</span><span class="p">,</span> <span class="n">r2_score</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
