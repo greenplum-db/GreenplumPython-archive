@@ -1,6 +1,7 @@
 """
 This module creates a Python object Expr.
 """
+from uuid import uuid4
 from functools import singledispatchmethod
 from typing import TYPE_CHECKING, Any, List, Optional, Union, overload
 
@@ -488,9 +489,18 @@ class InExpr(Expr):
     def serialize(self) -> str:
         if isinstance(self._container, Expr):
             assert self.other_dataframe is not None, "DataFrame of container is unknown."
-        container_str = (
-            f"SELECT {self._container.serialize()} FROM {self.other_dataframe.name}"
+        # Using either IN or = any() will violate
+        # https://wiki.postgresql.org/wiki/Don't_Do_This#Don.27t_use_NOT_IN
+        # when combining with `～` (bitwise not) operator.
+        container_name: str = "cte_" + uuid4().hex
+        return (
+            (
+                f"(EXISTS (SELECT FROM {self.other_dataframe.name}"
+                f" WHERE ({self._container.serialize()} = {self._item.serialize()})))"
+            )
             if isinstance(self._container, Expr) and self.other_dataframe is not None
-            else serialize(self._container)
+            else (
+                f'(EXISTS (SELECT FROM unnest({serialize(self._container)}) AS "{container_name}"'
+                f' WHERE ("{container_name}" = {self._item.serialize()})))'
+            )
         )
-        return f"{self._item.serialize()} = ANY({container_str})"
