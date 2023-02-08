@@ -8,17 +8,29 @@ GreenplumPython DataFrame, which means: Data is located and manipulated on a rem
 N.B.: This package contains fewer functions than GreenplumPython DataFrame, but it is easy the conversion between
 these two DataFrame.
 """
-from typing import Any, Callable, Dict, Iterable, List, Literal, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, Union
 
+from pglast import parser  # type: ignore
 from sqlalchemy import engine, text
 
 import greenplumpython.dataframe as dataframe
 import greenplumpython.db as db
-import greenplumpython.group as groupby
 import greenplumpython.order as orderby
 
 
 class DataFrame:
+    @classmethod
+    def from_sql(cls, sql: str, conn: engine):
+        c = super().__new__(cls)
+        database = db.Database(url=str(conn.url))
+        try:
+            parser.parse_sql(sql)
+            c._dataframe = dataframe.DataFrame(query=sql, db=database)
+        except:
+            df = database.create_dataframe(table_name=sql)
+            c._dataframe = df
+        return c
+
     def __init__(
         self,
         data: Union[
@@ -62,51 +74,47 @@ class DataFrame:
             .. highlight:: python
             .. code-block::  python
                 >>> import greenplumpython.pandas as pd
-                >>> rows = [(i,) for i in range(0, 10)]
-                >>> pd_df = pd.create_dataframe(rows=rows, column_names=["id"], db=db)
-                >>> pd_df
-                ----
-                 id
-                ----
-                  0
-                  1
-                  2
-                  3
-                  4
-                  5
-                  6
-                  7
-                  8
-                  9
-                ----
-                (10 rows)
+                >>> pd_df = pd.read_sql('SELECT unnest(ARRAY[1,2,3]) AS "a",unnest(ARRAY[1,2,3]) AS "b"', conn)
+                >>> pd_df.to_sql(name="test_to_sql", conn=conn)
+                3
+                >>> pd.read_sql("test_to_sql", conn=conn)
+                -------
+                 a | b
+                ---+---
+                 1 | 1
+                 2 | 2
+                 3 | 3
+                -------
+                (3 rows)
 
         """
         assert index is False, "DataFrame in GreenplumPython.pandas does not have an index column"
-        table_name = name if schema is None else (schema + "." + name)
+        table_name = f'"{name}"' if schema is None else f"{schema}.{name}"
         with conn.connect() as connection:  # type: ignore
             query = self._dataframe._build_full_query()  # type: ignore
             if if_exists == "append":
-                result = connection.execute(  # type: ignore
-                    text(
-                        f"""
-                            INSERT INTO {table_name}
-                            {query}
-                        """
+                with connection.begin():
+                    result = connection.execute(  # type: ignore
+                        text(
+                            f"""
+                                INSERT INTO {table_name}
+                                {query}
+                            """
+                        )
                     )
-                )
             else:
                 if if_exists == "replace":
-                    connection.execute(text(f"DROP TABLE IF EXISTS {table_name}"))
-                result = connection.execute(  # type: ignore
-                    text(
-                        f"""
-                            CREATE TABLE {table_name}
-                            AS {query}
-                        """
+                    with connection.begin():
+                        connection.execute(text(f"DROP TABLE IF EXISTS {table_name}"))
+                with connection.begin():
+                    result = connection.execute(  # type: ignore
+                        text(
+                            f"""
+                                CREATE TABLE {table_name}
+                                AS {query}
+                            """
+                        )
                     )
-                )
-            connection.commit()
             count: int = result.rowcount
             return count
 
@@ -142,8 +150,7 @@ class DataFrame:
         Example:
             .. highlight:: python
             .. code-block::  python
-                >>> columns = {"id": [3, 1, 2], "b": [1, 2, 3]}
-                >>> pd_df = pd.create_dataframe(columns=columns, db=db)
+                >>> pd_df = pd.read_sql('SELECT unnest(ARRAY[3, 1, 2]) AS "id",unnest(ARRAY[1,2,3]) AS "b"', conn)
                 >>> pd_df.sort_values(["id"])
                 --------
                  id | b
@@ -190,7 +197,8 @@ class DataFrame:
             .. code-block::  python
                 >>> import greenplumpython.pandas as pd
                 >>> students = [("alice", 18), ("bob", 19), ("carol", 19)]
-                >>> student = pd.create_dataframe(rows=students, column_names=["name", "age"], db=db)
+                >>> db.create_dataframe(rows=students, column_names=["name", "age"]).save_as("student", column_names=["name", "age"])
+                >>> student = pd.read_sql("student", conn)
                 >>> student.drop_duplicates(subset=["age"])
                 -------------
                  name  | age
@@ -241,8 +249,10 @@ class DataFrame:
             .. code-block::  python
                 >>> import greenplumpython.pandas as pd
                 >>> students = [("alice", 18), ("bob", 19), ("carol", 19)]
-                >>> student = pd.create_dataframe(rows=students, column_names=["name_1", "age_1"], db=db)
-                >>> student_2 = pd.create_dataframe(rows=students, column_names=["name_2", "age_2"], db=db)
+                >>> db.create_dataframe(rows=students, column_names=["name", "age"]).save_as("student", column_names=["name_1", "age_1"])
+                >>> db.create_dataframe(rows=students, column_names=["name", "age"]).save_as("student_2", column_names=["name_2", "age_2"])
+                >>> student = pd.read_sql("student", conn)
+                >>> student_2 = pd.read_sql("student_2", conn)
                 >>> student.merge(
                         student_2,
                         how="inner",
@@ -276,9 +286,6 @@ class DataFrame:
             right._dataframe, how=how, cond=lambda s, o: s[left_on] == o[right_on]
         )
         return DataFrame(df)
-
-    def groupby(self, by: Union[str, List[str]]):
-        return DataFrameGroupBy(self._dataframe.group_by(by))
 
     def head(self, n: int) -> "DataFrame":
         """
@@ -317,47 +324,31 @@ def read_sql(
     columns: Optional[list[str]] = None,
     chunksize: Optional[int] = None,
 ):
-    database = db.Database(url=str(conn.url))
-    try:
-        database.execute(f"SELECT * FROM {sql}")
-        df = database.create_dataframe(table_name=sql)
-        return DataFrame(df, conn=database)
-    except:
-        return DataFrame(dataframe.DataFrame(query=sql, db=database))
-
-
-def create_dataframe(
-    dataframe: Optional[dataframe.DataFrame] = None,
-    rows: Optional[List[Union[Tuple[Any, ...], Dict[str, Any]]]] = None,
-    columns: Optional[Dict[str, List[Any]]] = None,
-    column_names: Optional[Iterable[str]] = None,
-    db: Optional[db.Database] = None,
-):
     """
-    Returns a GreenplumPython Pandas compatible :class:`~dataframe.DataFrame` using GreenplumPython
-    :class:`~greenplumpython.dataframe.DataFrame`, list of values given by rows or columns
+    Read SQL query or database table into a :class:`DataFrame`.
 
-    Example:
-        .. highlight:: python
-        .. code-block::  python
+        This aligns with the function "pandas.read_sql()"
+        <https://pandas.pydata.org/docs/reference/api/pandas.read_sql.html?highlight=read_sql>`_.
 
-            >>> import greenplumpython.pandas as pd
-            >>> df = db.create_dataframe(table_name="pg_class")
-            >>> pd_df_from_df = pd.create_dataframe(dataframe=df)
-            >>> rows = [(1,), (2,), (3,)]
-            >>> pd_df_from_rows = pd.create_dataframe(rows=rows, column_names=["id"])
-            >>> pd_df_from_rows
-            ----
-             id
-            ----
-              1
-              2
-              3
-            ----
-            (3 rows)
+        Returns:
+            :class:`Dataframe`.
+
+        Example:
+            .. highlight:: python
+            .. code-block::  python
+
             >>> columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
-            >>> pd_df_from_columns = pd.create_dataframe(columns=columns)
-            >>> pd_df_from_columns
+            >>> db.create_dataframe(columns=columns).save_as("test_read_sql", column_names=["a", "b"])
+            >>> pd.read_sql("test_read_sql", conn)
+            -------
+             a | b
+            ---+---
+             2 | 2
+             3 | 3
+             1 | 1
+            -------
+            (3 rows)
+            >>> pd.read_sql('SELECT unnest(ARRAY[1, 2, 3]) AS "a",unnest(ARRAY[1,2,3]) AS "b"', conn)
             -------
              a | b
             ---+---
@@ -368,22 +359,4 @@ def create_dataframe(
             (3 rows)
 
     """
-    if dataframe is not None:
-        assert columns is None and rows is None, "Only one data format is allowed."
-        return DataFrame(data=dataframe)
-    assert db is not None, "Need provide database"
-    assert rows is None or columns is None, "Only one data format is allowed."
-    if rows is not None:
-        return DataFrame(data=rows, conn=db, columns=column_names)
-    return DataFrame(data=columns, conn=db)
-
-
-class DataFrameGroupBy:
-    def __init__(self, df_groupby: groupby.DataFrameGroupingSets):
-        self._dataframe = df_groupby
-
-    def agg(self):
-        pass
-
-    def apply(self):
-        pass
+    return DataFrame.from_sql(sql, conn)

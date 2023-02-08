@@ -6,47 +6,25 @@ import greenplumpython.pandas.dataframe as pd
 from tests import conn, db
 
 
-def test_df_to_pddf(db: gp.Database):
-    rows = [(1,) for _ in range(10)]
-    df = db.create_dataframe(rows=rows, column_names=["val"])
-    pddf_from_df = pd.create_dataframe(dataframe=df)
-    assert sum(row["val"] for row in pddf_from_df) == 10
-
-
-def test_rows_to_pddf(db: gp.Database):
-    rows = [(1,) for _ in range(10)]
-    pddf_from_df = pd.create_dataframe(rows=rows, column_names=["val"], db=db)
-    assert sum(row["val"] for row in pddf_from_df) == 10
-
-
-def test_columns_to_pddf(db: gp.Database):
-    columns = {"val": [(1,) for _ in range(10)]}
-    pddf_from_df = pd.create_dataframe(columns=columns, db=db)
-    assert sum(row["val"] for row in pddf_from_df) == 10
-
-
 def test_to_sql(db: gp.Database, conn):
-    columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
-    df = db.create_dataframe(columns=columns)
-    pd_df = pd.DataFrame(df)
-    db.execute("DROP TABLE IF EXISTS test.test_to_sql", has_results=False)
-    db.execute("DROP SCHEMA IF EXISTS test; CREATE SCHEMA test", has_results=False)
+    db.execute('DROP TABLE IF EXISTS "test_to_sql"', has_results=False)
+    pd_df = pd.read_sql('SELECT unnest(ARRAY[1,2,3]) AS "a",unnest(ARRAY[1,2,3]) AS "b"', conn)
     # 1st try: Create Table
-    rowcount = pd_df.to_sql(name="test_to_sql", conn=conn, schema="test")
+    rowcount = pd_df.to_sql(name="test_to_sql", conn=conn)
     assert rowcount == 3
     # 2nd try: Raise Error if_exists = Fail
     with pytest.raises(Exception) as exc_info:
-        pd_df.to_sql(name="test_to_sql", conn=conn, schema="test")
+        pd_df.to_sql(name="test_to_sql", conn=conn)
     assert 'relation "test_to_sql" already exists' in str(exc_info)
     # 3rd Try: Replace existing table
-    pd_df.to_sql(name="test_to_sql", conn=conn, schema="test", if_exists="replace")
-    df = db.create_dataframe(table_name="test.test_to_sql")
+    pd_df.to_sql(name="test_to_sql", conn=conn, if_exists="replace")
+    df = db.create_dataframe(table_name="test_to_sql")
     assert sorted([tuple(row.values()) for row in df]) == [(1, 1), (2, 2), (3, 3)]
     assert list(next(iter(df)).keys()) == ["a", "b"]
     # 4th try: Insert to exist table
-    rowcount = pd_df.to_sql(name="test_to_sql", conn=conn, schema="test", if_exists="append")
+    rowcount = pd_df.to_sql(name="test_to_sql", conn=conn, if_exists="append")
     assert rowcount == 3
-    df = db.create_dataframe(table_name="test.test_to_sql")
+    df = db.create_dataframe(table_name="test_to_sql")
     assert sorted([tuple(row.values()) for row in df]) == [
         (1, 1),
         (1, 1),
@@ -58,31 +36,39 @@ def test_to_sql(db: gp.Database, conn):
     assert list(next(iter(df)).keys()) == ["a", "b"]
 
 
-def test_pddf_to_df(db: gp.Database):
+def test_pddf_to_df(db: gp.Database, conn):
     columns = {"val": [(1,) for _ in range(10)]}
-    pddf_from_df = pd.create_dataframe(columns=columns, db=db)
-    df = pddf_from_df.to_gp_dataframe()
+    db.execute("DROP TABLE IF EXISTS test_pddf_to_df", has_results=False)
+    db.create_dataframe(columns=columns).save_as(table_name="test_pddf_to_df", column_names=["val"])
+    pd_df = pd.read_sql("test_pddf_to_df", conn)
+    df = pd_df.to_gp_dataframe()
     assert sum(row["val"] for row in df) == 10
 
 
-def test_sort_values(db: gp.Database):
+def test_sort_values(db: gp.Database, conn):
+    db.execute("DROP TABLE IF EXISTS test_sort_values", has_results=False)
     # fmt: off
     rows = [(1, "Mona Lisa", None), (5, "The Birth of Venus", None),
             (3, "The Scream", 1889, ), (2, "The Starry Night", 1889,),
             (4, "The Night Watch", 1642,)]
     # fmt: on
-    df = db.create_dataframe(rows=rows, column_names=["id", "painting", "year"])
-    pd_df = pd.DataFrame(df)
+    df = db.create_dataframe(rows=rows, column_names=["id", "painting", "year"]).save_as(
+        "test_sort_values", column_names=["id", "painting", "year"]
+    )
+    pd_df = pd.read_sql("test_sort_values", conn)
     ret = list(pd_df.sort_values(["year", "id"], ascending=[False, True], na_position="first"))
     assert ret[0]["year"] is None and ret[0]["id"] == 1
     assert ret[1]["year"] is None and ret[1]["id"] == 5
     assert ret[-1]["year"] == 1642
 
 
-def test_drop_duplicates(db: gp.Database):
+def test_drop_duplicates(db: gp.Database, conn):
+    db.execute("DROP TABLE IF EXISTS test_drop_duplicates", has_results=False)
     rows = [(i, 1) for i in range(10)]
-    df = db.create_dataframe(rows=rows, column_names=["i", "j"])
-    pd_df = pd.DataFrame(df)
+    db.create_dataframe(rows=rows, column_names=["i", "j"]).save_as(
+        "test_drop_duplicates", column_names=["i", "j"]
+    )
+    pd_df = pd.read_sql("test_drop_duplicates", conn)
 
     result = list(pd_df.drop_duplicates(subset=["i", "j"]))
     assert len(result) == len(rows)
@@ -95,15 +81,21 @@ def test_drop_duplicates(db: gp.Database):
         assert "i" in row and "j" in row
 
 
-def test_merge(db: gp.Database):
+def test_merge(db: gp.Database, conn):
+    db.execute("DROP TABLE IF EXISTS zoo_1_df", has_results=False)
+    db.execute("DROP TABLE IF EXISTS zoo_2_df", has_results=False)
     # fmt: off
     rows1 = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
     rows2 = [(1, "Tiger",), (2, "Lion",), (3, "Rhino",), (4, "Panther")]
     # fmt: on
-    zoo_1_df = db.create_dataframe(rows=rows1, column_names=["zoo1_id", "zoo1_animal"])
-    zoo_2_df = db.create_dataframe(rows=rows2, column_names=["zoo2_id", "zoo2_animal"])
-    zoo_1_pd_df = pd.DataFrame(zoo_1_df)
-    zoo_2_pd_df = pd.DataFrame(zoo_2_df)
+    db.create_dataframe(rows=rows1, column_names=["zoo1_id", "zoo1_animal"]).save_as(
+        "zoo_1_df", column_names=["zoo1_id", "zoo1_animal"]
+    )
+    db.create_dataframe(rows=rows2, column_names=["zoo2_id", "zoo2_animal"]).save_as(
+        "zoo_2_df", column_names=["zoo2_id", "zoo2_animal"]
+    )
+    zoo_1_pd_df = pd.read_sql("zoo_1_df", conn)
+    zoo_2_pd_df = pd.read_sql("zoo_2_df", conn)
 
     ret: pd.DataFrame = zoo_1_pd_df.merge(
         zoo_2_pd_df, how="inner", left_on="zoo1_animal", right_on="zoo2_animal"
@@ -114,15 +106,21 @@ def test_merge(db: gp.Database):
         assert row["zoo1_animal"] == "Lion" or row["zoo1_animal"] == "Tiger"
 
 
-def test_merge_same_column_name(db: gp.Database):
+def test_merge_same_column_name(db: gp.Database, conn):
+    db.execute("DROP TABLE IF EXISTS zoo_1_df", has_results=False)
+    db.execute("DROP TABLE IF EXISTS zoo_2_df", has_results=False)
     # fmt: off
     rows1 = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
     rows2 = [(1, "Tiger",), (2, "Lion",), (3, "Rhino",), (4, "Panther")]
     # fmt: on
-    zoo_1_df = db.create_dataframe(rows=rows1, column_names=["zoo1_id", "animal"])
-    zoo_2_df = db.create_dataframe(rows=rows2, column_names=["zoo2_id", "animal"])
-    zoo_1_pd_df = pd.DataFrame(zoo_1_df)
-    zoo_2_pd_df = pd.DataFrame(zoo_2_df)
+    db.create_dataframe(rows=rows1, column_names=["zoo1_id", "zoo1_animal"]).save_as(
+        "zoo_1_df", column_names=["zoo1_id", "animal"]
+    )
+    db.create_dataframe(rows=rows2, column_names=["zoo2_id", "zoo2_animal"]).save_as(
+        "zoo_2_df", column_names=["zoo2_id", "animal"]
+    )
+    zoo_1_pd_df = pd.read_sql("zoo_1_df", conn)
+    zoo_2_pd_df = pd.read_sql("zoo_2_df", conn)
 
     with pytest.raises(Exception) as exc_info:
         zoo_1_pd_df.merge(zoo_2_pd_df, how="inner", on="animal")

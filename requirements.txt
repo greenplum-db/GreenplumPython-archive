@@ -4,3 +4,4 @@ psycopg2-binary==2.9.5
 setuptools==65.5.1
 dill==0.3.6
 sqlalchemy==2.0.1
+pglast==3.10

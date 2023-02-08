@@ -1,1 +1,1 @@
-from greenplumpython.pandas.dataframe import DataFrame, create_dataframe
+from greenplumpython.pandas.dataframe import DataFrame, read_sql
