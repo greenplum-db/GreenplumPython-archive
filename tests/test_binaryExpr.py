@@ -197,3 +197,10 @@ def test_column_in_list(db: gp.Database):
 
     assert len(list(t[lambda t: t["x"].in_([1, 2, 3])])) == 3
     assert len(list(t[lambda t: ~t["x"].in_([1, 2, 3])])) == 7
+
+def test_column_in_none_values(db: gp.Database):
+    rows = [(i,) for i in range(10)]
+    t = db.create_dataframe(rows=rows, column_names=["x"])
+
+    assert len(list(t[lambda t: t["x"].in_([1, None])])) == 1
+    assert len(list(t[lambda t: ~t["x"].in_([1, None])])) == 9
