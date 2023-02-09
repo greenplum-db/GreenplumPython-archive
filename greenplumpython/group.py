@@ -40,25 +40,24 @@ class DataFrameGroupingSets:
         set.
 
         The arguemnts and the return type is the same as
-        :meth:`DataFrame.apply`.
+        :meth:`~dataframe.DataFrame.apply`.
 
         The differences between them are
 
-        - :meth:`DataFrame.apply` operates on the entire :class:`DataFrame`, while
+        - :meth:`~dataframe.DataFrame.apply` operates on the entire :class:`~dataframe.DataFrame`, while\
             this method operate on only one group.
-        - For :meth:`DataFrame.apply`, the resulting :class:`DataFrame` will only
-            contain the return value of the function, while for this method, the
-            resulting :class:`DataFrame` will contain the grouping attributes as
+        - For :meth:`~dataframe.DataFrame.apply`, the resulting :class:`~dataframe.DataFrame` will only\
+            contain the return value of the function, while for this method, the\
+            resulting :class:`~dataframe.DataFrame` will contain the grouping attributes as\
             columns.
 
         Warning:
             An exception will be raised when the data of the resulting
-            :class:`DataFrame` is observed if there is name conflict, possibly
+            :class:`~dataframe.DataFrame` is observed if there is name conflict, possibly
             due to
 
             - The assigned column name in :code:`column_name` or
-            - The names of members in the composite type if :code:`expend` is
-                :code:`True`
+            - The names of members in the composite type if :code:`expend` is :code:`True`
 
             conflict with the name of the grouping attributes.
 
@@ -78,11 +77,11 @@ class DataFrameGroupingSets:
 
         Args:
             new_columns: a :class:`dict` whose keys are column names and values
-                are :class:`Callable`s returning column data when applied to the
-                current :class:`DataFrameGroupingSets`.
+                are :class:`Callable`'s returning column data when applied to the
+                current :class:`~group.DataFrameGroupingSets`.
 
         Returns:
-            GreenplumPython :class:`DataFrame` with the new columns.
+            GreenplumPython :class:`~dataframe.DataFrame` with the new columns.
 
 
         Example:
@@ -119,13 +118,13 @@ class DataFrameGroupingSets:
         self, other: Callable[["DataFrame"], "DataFrameGroupingSets"]
     ) -> "DataFrameGroupingSets":
         """
-        Union with another :class:`DataFrameGroupingSets` so that when applying an
+        Union with another :class:`~group.DataFrameGroupingSets` so that when applying an
         agggregate function to the list, the function will be applied to
         each grouping set individually.
 
         Args:
-            other: a :class:`Callable` returning the result of
-                :func:`DataFrame.group_by()`when applied to the current :class:`DataFrame`.
+            other: a :class:`Callable` returning the result of\
+                :func:`~dataframe.DataFrame.group_by()` when applied to the current :class:`~dataframe.DataFrame`.
         """
         return DataFrameGroupingSets(
             self._dataframe,

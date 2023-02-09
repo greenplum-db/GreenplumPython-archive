@@ -40,7 +40,7 @@ class Database:
         """
         :meta private:
 
-        Return the result of SQL query executed in :class:`Database`
+        Return the result of SQL query executed in :class:`~db.Database`
 
         Args:
             query: str : SQL query
@@ -128,12 +128,12 @@ class Database:
     ) -> "DataFrame":
         """
         Apply a dataframe function in database without depending on a
-        :class:`DataFrame`.
+        :class:`~dataframe.DataFrame`.
 
-        This is primarily for appling functions on adaptable Python objects
+        This is primarily for applying functions on adaptable Python objects
         as constants in database.
 
-        The arguments and return type is similar to :meth:`DataFrame.apply`
+        The arguments and return type is similar to :meth:`~dataframe.DataFrame.apply`
         except that parameter :code:`func` takes no argument.
 
         Example:

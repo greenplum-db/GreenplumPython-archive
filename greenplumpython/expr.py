@@ -36,7 +36,7 @@ class Expr:
         """
         Operator **&**
 
-        Returns a Binary Expression AND between self and another :class:`Expr` or constant
+        Returns a Binary Expression AND between self and another :class:`~expr.Expr` or constant
 
         Example:
             .. code-block::  Python
@@ -50,7 +50,7 @@ class Expr:
         """
         Operator **|**
 
-        Returns a Binary Expression OR between self and another :class:`Expr` or constant
+        Returns a Binary Expression OR between self and another :class:`~expr.Expr` or constant
 
         Example:
             .. code-block::  Python
@@ -63,7 +63,7 @@ class Expr:
         """
         Operator **==**
 
-        Returns a Binary Expression EQUAL between self and another :class:`Expr` or constant
+        Returns a Binary Expression EQUAL between self and another :class:`~expr.Expr` or constant
 
         Example:
             .. code-block::  Python
@@ -78,7 +78,7 @@ class Expr:
         """
         Operator **<**
 
-        Returns a Binary Expression LESS THAN between self and another :class:`Expr` or constant
+        Returns a Binary Expression LESS THAN between self and another :class:`~expr.Expr` or constant
 
         Example:
             .. code-block::  Python
@@ -93,7 +93,7 @@ class Expr:
         """
         Operator **<=**
 
-        Returns a Binary Expression LESS EQUAL between self and another :class:`Expr` or constant
+        Returns a Binary Expression LESS EQUAL between self and another :class:`~expr.Expr` or constant
 
         Example:
             .. code-block::  Python
@@ -106,7 +106,7 @@ class Expr:
         """
         Operator **>**
 
-        Returns a Binary Expression GREATER THAN between self and another :class:`Expr` or constant
+        Returns a Binary Expression GREATER THAN between self and another :class:`~expr.Expr` or constant
 
         Example:
             .. code-block::  Python
@@ -119,7 +119,7 @@ class Expr:
         """
         Operator **>=**
 
-        Returns a Binary Expression GREATER EQUAL between self and another :class:`Expr` or constant
+        Returns a Binary Expression GREATER EQUAL between self and another :class:`~expr.Expr` or constant
 
         Example:
             .. code-block::  Python
@@ -132,7 +132,7 @@ class Expr:
         """
         Operator **!=**
 
-        Returns a Binary Expression NOT EQUAL between self and another :class:`Expr` or constant
+        Returns a Binary Expression NOT EQUAL between self and another :class:`~expr.Expr` or constant
 
         Example:
             .. code-block::  Python
@@ -145,7 +145,7 @@ class Expr:
         """
         Operator **%**
 
-        Returns a Binary Expression Modulo between an :class:`Expr` and another :class:`Expr` or constant
+        Returns a Binary Expression Modulo between an :class:`~expr.Expr` and another :class:`~expr.Expr` or constant
 
         Example:
             .. code-block::  Python
@@ -158,7 +158,7 @@ class Expr:
         """
         Operator **+**
 
-        Returns a Binary Expression Addition between an :class:`Expr` and another :class:`Expr` or constant
+        Returns a Binary Expression Addition between an :class:`~expr.Expr` and another :class:`~expr.Expr` or constant
 
         Example:
             .. code-block::  Python
@@ -171,7 +171,8 @@ class Expr:
         """
         Operator **-**
 
-        Returns a Binary Expression Subtraction between an :class:`Expr` and another :class:`Expr` or constant
+        Returns a Binary Expression Subtraction between an :class:`~expr.Expr` and another :class:`~expr.Expr`
+        or constant
 
         Example:
             .. code-block::  Python
@@ -184,7 +185,8 @@ class Expr:
         """
         Operator *****
 
-        Returns a Binary Expression Multiplication between an :class:`Expr` and another :class:`Expr` or constant
+        Returns a Binary Expression Multiplication between an :class:`~expr.Expr` and another :class:`~expr.Expr`
+        or constant
 
         Example:
             .. code-block::  Python
@@ -197,7 +199,7 @@ class Expr:
         """
         Operator **/**
 
-        Returns a Binary Expression Division between an :class:`Expr` and another :class:`Expr` or constant.
+        Returns a Binary Expression Division between an :class:`~expr.Expr` and another :class:`~expr.Expr` or constant.
         It results integer division between two integers, and true division if one of the arguments is a float.
 
         Example:
@@ -294,7 +296,7 @@ class Expr:
         Returns Expr associated :class:`~db.Database`
 
         Returns:
-            Optional[:class:`~db.Database`]: Database associated with :class:`Expr`
+            Optional[:class:`~db.Database`]: Database associated with :class:`~expr.Expr`
         """
         return self._db
 
@@ -304,7 +306,7 @@ class Expr:
         Returns Expr associated :class:`~dataframe.DataFrame`
 
         Returns:
-            Optional[:class:`~dataframe.DataFrame`]: GreenplumPython DataFrame associated with :class:`Expr`
+            Optional[:class:`~dataframe.DataFrame`]: GreenplumPython DataFrame associated with :class:`~expr.Expr`
         """
         return self._dataframe
 
@@ -320,19 +322,19 @@ class Expr:
     # nested IN expressions.
     def in_(self, container: Union["Expr", List[Any]]) -> "InExpr":
         """
-        Tests whether each value of current :class:`Expr` is in the container.
+        Tests whether each value of current :class:`~expr.Expr` is in the container.
 
         It is analogous to the built-in `in` operator of Python and SQL.
 
         Args:
             container: A collection of values. It can either be another
-                :class:`Expr` representing a transformed column of
-                GreenplumPython :class:`DataFrame`, or a `list` of values of the same type as the
-                current `Expr`.
+                :class:`~expr.Expr` representing a transformed column of
+                GreenplumPython :class:`~dataframe.DataFrame`, or a `list` of values of the same type as the
+                current :class:`~expr.Expr`.
 
         Returns:
-            :class:`InExpr`: A boolean :class:`Expr` whose values are of the
-                same length as the current :class:`Expr`.
+            :class:`~expr.InExpr`: A boolean :class:`~expr.Expr` whose values are of the\
+                same length as the current :class:`~expr.Expr`.
         """
         return InExpr(self, container, self.dataframe, self.db)
 

@@ -16,11 +16,11 @@ except that:
     - | They might be modified concurrently by other users of the database system. You might
         need to use :meth:`~dataframe.DataFrame.refresh()` to sync the updates if the data becomes stale.
 
-In the database world, a :class:`DataFrame` is similar to a **materialized view** in a database system
+In the database world, a :class:`~dataframe.DataFrame` is similar to a **materialized view** in a database system
 in that:
 
 - They both result from a possibly complex query.
-- They both hold data, as oppose to views.
+- They both hold data, as opposed to views.
 - The data can become stale due to concurrent modification. And the :meth:`~dataframe.DataFrame.refresh()` method
   is similar to the :code:`REFRESH MATERIALIZED VIEW` `command in PostgreSQL
   <https://www.postgresql.org/docs/current/sql-refreshmaterializedview.html>`_ for syncing updates.
@@ -147,11 +147,11 @@ class DataFrame:
 
     def __getitem__(self, _):
         """
-        Select parts of the :class:`DataFrame`.
+        Select parts of the :class:`~dataframe.DataFrame`.
 
-        Returns: :class:`~col.Column` or :class:`DataFrame`
+        Returns: :class:`~col.Column` or :class:`~dataframe.DataFrame`
 
-            - Returns: a :class:`~col.Column` of the current :class:`DataFrame`
+            - Returns: a :class:`~col.Column` of the current :class:`~dataframe.DataFrame`
 
               When want to use :class:`~col.Column` for computation rather for observing data:
 
@@ -162,24 +162,24 @@ class DataFrame:
                id_col = dataframe["id"]
 
 
-            - Returns: a new :class:`DataFrame` from the current :class:`DataFrame` per the type of key:
+            - Returns: a new :class:`~dataframe.DataFrame` from the current :class:`~dataframe.DataFrame` per the type of key:
 
-                - When want to retrieve some columns of :class:`DataFrame`:
+                - When want to retrieve some columns of :class:`~dataframe.DataFrame`:
 
                   Args: key: :class:`list` of columns
 
-                  Returns: :class:`DataFrame` with the subset of columns, a.k.a. targets
+                  Returns: :class:`~dataframe.DataFrame` with the subset of columns, a.k.a. targets
 
                 .. code-block::  python
 
                    id_dataframe = dataframe[["id"]]
 
 
-                - When want to filter :class:`DataFrame` on :class:`~col.Column` with conditions:
+                - When want to filter :class:`~dataframe.DataFrame` on :class:`~col.Column` with conditions:
 
                   Args: key: :class:`~expr.Expr`
 
-                  Returns: :class:`DataFrame` with subset of rows per the value of the Expr
+                  Returns: :class:`~dataframe.DataFrame` with subset of rows per the value of the Expr
 
                 .. code-block::  python
 
@@ -190,7 +190,7 @@ class DataFrame:
 
                   Args: key: :class:`slice`
 
-                  Returns: :class:`DataFrame` with the portion of consecutive rows
+                  Returns: :class:`~dataframe.DataFrame` with the portion of consecutive rows
 
                 .. code-block::  python
 
@@ -288,9 +288,9 @@ class DataFrame:
     # FIXME: Add test
     def where(self, predicate: Callable[["DataFrame"], "Expr"]) -> "DataFrame":
         """
-        Used when want to filter the :class:`DataFrame` by applying conditions.
+        Used when want to filter the :class:`~dataframe.DataFrame` by applying conditions.
 
-        Return the :class:`DataFrame` filtered by :class:`~expr.Expr`.
+        Return the :class:`~dataframe.DataFrame` filtered by :class:`~expr.Expr`.
 
         Args:
             predicate: :class:`~expr.Expr` : where condition statement.
@@ -336,23 +336,23 @@ class DataFrame:
         column_name: Optional[str] = None,
     ) -> "DataFrame":
         """
-        Apply a dataframe function to the self :class:`DataFrame`.
+        Apply a dataframe function to the self :class:`~dataframe.DataFrame`.
 
         Args:
             func: A Python function that
 
-                - takes the self :class:`DataFrame` as the only parameter, and
-                - returns the result of a dataframe function, which can be a
-                    :class:`NormalFunction`, a :class:`AggregateFunction` or a
-                    :class:`ColumnFunction`
+                - takes the self :class:`~dataframe.DataFrame` as the only parameter, and
+                - returns the result of a dataframe function, which can be a\
+                    :class:`~func.NormalFunction`, a :class:`~func.AggregateFunction` or a\
+                    :class:`~func.ColumnFunction`
 
             expand: whether to expand the multi-valued result into columns of
-                the resulting :class:`DataFrame`.
+                the resulting :class:`~dataframe.DataFrame`.
             column_name: name of the column of the return value in the
-                resulting :class:`DataFrame`.
+                resulting :class:`~dataframe.DataFrame`.
 
         Returns:
-            A :class:`DataFrame` of returned values of the function.
+            A :class:`~dataframe.DataFrame` of returned values of the function.
 
         Example:
 
@@ -424,16 +424,16 @@ class DataFrame:
 
     def assign(self, **new_columns: Callable[["DataFrame"], Any]) -> "DataFrame":
         """
-        Used when want to combine new columns with the current :class:`DataFrame`.
+        Used when want to combine new columns with the current :class:`~dataframe.DataFrame`.
 
-        Assign new columns to the current :class:`DataFrame`. Existing columns cannot be reassigned.
+        Assign new columns to the current :class:`~dataframe.DataFrame`. Existing columns cannot be reassigned.
 
         Args:
             new_columns: a `dict` whose keys are column names and values are :class:`Callable` which
-                         returns column data when is applied to the current :class:`DataFrame`.
+                         returns column data when is applied to the current :class:`~dataframe.DataFrame`.
 
         Returns:
-            DataFrame: a new :class:`DataFrame` including the new assigned columns.
+            DataFrame: a new :class:`~dataframe.DataFrame` including the new assigned columns.
 
         Example:
             .. highlight:: python
@@ -488,9 +488,9 @@ class DataFrame:
         operator: Optional[str] = None,
     ) -> DataFrameOrdering:
         """
-        Used when want to sort :class:`DataFrame` by values using the given arguments.
+        Used when want to sort :class:`~dataframe.DataFrame` by values using the given arguments.
 
-        Return :class:`DataFrame` order by the given arguments.
+        Return :class:`~dataframe.DataFrame` order by the given arguments.
 
         Args:
             column_name: name of column to order the dataframe by.
@@ -499,7 +499,7 @@ class DataFrame:
             operator: Optional[str]: Define order by using operator. **Can't combine with ascending.**
 
         Returns:
-            DataFrameOrdering : :class:`DataFrame` ordered by the given arguments.
+            DataFrameOrdering : :class:`~dataframe.DataFrame` ordered by the given arguments.
 
         Example:
             .. highlight:: python
@@ -542,11 +542,11 @@ class DataFrame:
         other_columns: Union[Dict[str, Optional[str]], Set[str]] = {"*"},
     ) -> "DataFrame":
         """
-        Join the current :class:`DataFrame` with another using the given arguments.
+        Join the current :class:`~dataframe.DataFrame` with another using the given arguments.
 
         Args:
-            other: :class:`DataFrame` to join with
-            how: How the two :class:`DataFrame` are joined. The value can be one of:
+            other: :class:`~dataframe.DataFrame` to join with
+            how: How the two :class:`~dataframe.DataFrame` are joined. The value can be one of:
 
                 - `"INNER"`: inner join,
                 - `"LEFT"`: left outer join,
@@ -564,7 +564,7 @@ class DataFrame:
                 dataframe. The value, if not `None`, is used for renaming
                 the corresponding key to avoid name conflicts. Asterisk :code:`"*"`
                 can be used as a key to indicate all columns.
-            other_columns: Same as `self_columns`, but for the **other** :class:`DataFrame`.
+            other_columns: Same as `self_columns`, but for the **other** :class:`~dataframe.DataFrame`.
 
         Note:
             When using :code:`"*"` as key in `self_columns` or `other_columns`,
@@ -639,57 +639,57 @@ class DataFrame:
 
     inner_join = partialmethod(join, how="INNER")
     """
-    Inner joins the current :class:`DataFrame` with another :class:`DataFrame`.
+    Inner joins the current :class:`~dataframe.DataFrame` with another :class:`~dataframe.DataFrame`.
 
-    Equivalent to calling :meth:`DataFrame.join` with `how="INNER"`.
+    Equivalent to calling :meth:`~dataframe.DataFrame.join` with `how="INNER"`.
     """
 
     left_join = partialmethod(join, how="LEFT")
     """
-    Left-outer joins the current :class:`DataFrame` with another :class:`DataFrame`.
+    Left-outer joins the current :class:`~dataframe.DataFrame` with another :class:`~dataframe.DataFrame`.
 
-    Equivalent to calling :meth:`DataFrame.join` with `how="LEFT"`.
+    Equivalent to calling :meth:`~dataframe.DataFrame.join` with `how="LEFT"`.
     """
 
     right_join = partialmethod(join, how="RIGHT")
     """
-    Right-outer joins the current :class:`DataFrame` with another :class:`DataFrame`.
+    Right-outer joins the current :class:`~dataframe.DataFrame` with another :class:`~dataframe.DataFrame`.
 
-    Equivalent to calling :meth:`DataFrame.join` with `how="RIGHT"`.
+    Equivalent to calling :meth:`~dataframe.DataFrame.join` with `how="RIGHT"`.
     """
 
     full_join = partialmethod(join, how="FULL")
     """
-    Full-outer joins the current :class:`DataFrame` with another :class:`DataFrame`.
+    Full-outer joins the current :class:`~dataframe.DataFrame` with another :class:`~dataframe.DataFrame`.
 
-    Equivalent to calling :meth:`DataFrame.join` with argutment `how="FULL"`.
+    Equivalent to calling :meth:`~dataframe.DataFrame.join` with argutment `how="FULL"`.
     """
 
     cross_join = partialmethod(join, how="CROSS", cond=None, on=None)
     """
-    Cross joins the current :class:`DataFrame` with another :class:`DataFrame`,
+    Cross joins the current :class:`~dataframe.DataFrame` with another :class:`~dataframe.DataFrame`,
     i.e. the Cartesian product.
 
-    Equivalent to calling :meth:`DataFrame.join` with `how="CROSS"`.
+    Equivalent to calling :meth:`~dataframe.DataFrame.join` with `how="CROSS"`.
     """
 
     @property
     def name(self) -> str:
         """
-        Return the name of :class:`DataFrame`.
+        Return the name of :class:`~dataframe.DataFrame`.
 
         Returns:
-            str: :class:`DataFrame`'s name.
+            str: :class:`~dataframe.DataFrame`'s name.
         """
         return self._name
 
     @property
     def db(self) -> Optional[Database]:
         """
-        Return :class:`~db.Database` associated with GreenplumPython :class:`DataFrame`.
+        Return :class:`~db.Database` associated with GreenplumPython :class:`~dataframe.DataFrame`.
 
         Returns:
-            Optional[Database]: database associated with GreenplumPython :class:`DataFrame`.
+            Optional[:class:`~db.Database`]: database associated with GreenplumPython :class:`~dataframe.DataFrame`.
         """
         return self._db
 
@@ -794,10 +794,10 @@ class DataFrame:
     def refresh(self) -> "DataFrame":
         """
         After displayed dataframe, its content has been cached in local.
-        This function refresh the local cache of :class:`DataFrame`, otherwise, all modifications made between last
-        cache and this refresh are not updated in local.
+        This function refresh the local cache of :class:`~dataframe.DataFrame`, otherwise, all modifications made
+        between last cache and this refresh are not updated in local.
 
-        The local cache if used to iterate the :class:`DataFrame` instance locally.
+        The local cache if used to iterate the :class:`~dataframe.DataFrame` instance locally.
 
         Returns:
             self
@@ -851,7 +851,7 @@ class DataFrame:
 
     def _fetch(self, is_all: bool = True) -> Iterable[Tuple[Any]]:
         """
-        Fetch rows of this GreenplumPython :class:`DataFrame`.
+        Fetch rows of this GreenplumPython :class:`~dataframe.DataFrame`.
 
         - if is_all is True, fetch all rows at once
         - otherwise, open a CURSOR and FETCH one row at a time
@@ -877,12 +877,12 @@ class DataFrame:
         self, table_name: str, column_names: List[str] = [], temp: bool = False
     ) -> "DataFrame":
         """
-        Save the GreenplumPython :class:`Dataframe` as a *table* into the database.
+        Save the GreenplumPython :class:`~dataframe.Dataframe` as a *table* into the database.
 
-        And return a new instance of :class:`DataFrame` that represents the newly saved *table*.
+        And return a new instance of :class:`~dataframe.DataFrame` that represents the newly saved *table*.
 
         After running this function, if `temp is False`, you can also use
-        :func:`~db.Database.create_dataframe(table_name)` to create a new :class:`Dataframe` next time.
+        :func:`~db.Database.create_dataframe(table_name)` to create a new :class:`~dataframe.Dataframe` next time.
 
         Args:
             dataframe_name : str
@@ -890,7 +890,7 @@ class DataFrame:
             column_names : List : list of column names
 
         Returns:
-            DataFrame : :class:`DataFrame` represents the newly saved table
+            DataFrame : :class:`~dataframe.DataFrame` represents the newly saved table
 
         Example:
             .. highlight:: python
@@ -954,7 +954,7 @@ class DataFrame:
 
     def _explain(self, format: str = "TEXT") -> Iterable[Tuple[str]]:
         """
-        Explain the GreenplumPython :class:`DataFrame`'s execution plan.
+        Explain the GreenplumPython :class:`~dataframe.DataFrame`'s execution plan.
 
         Args:
             format: str: the format of the explain result. It can be one of "TEXT"/"XML"/"JSON"/"YAML".
@@ -969,13 +969,13 @@ class DataFrame:
 
     def group_by(self, *column_names: str) -> DataFrameGroupingSets:
         """
-        Group the current GreenplumPython :class:`DataFrame` by `column_names`.
+        Group the current GreenplumPython :class:`~dataframe.DataFrame` by `column_names`.
 
         Args:
-            column_names: one or more column names of the :class:`DataFrame`.
+            column_names: one or more column names of the :class:`~dataframe.DataFrame`.
 
         Returns:
-            DataFrameGroupingSets: a list of grouping sets. Each group is identified
+            :class:`~group.DataFrameGroupingSets`: a list of grouping sets. Each group is identified
             by a different set of values of the columns in the arguments.
         """
         #  State transition diagram:
@@ -991,10 +991,11 @@ class DataFrame:
         This function follows the `DISTINCT ON` syntax in PostgreSQL.
 
         Args:
-            column_names: names of the current :class:`DataFrame`'s columns.
+            column_names: names of the current :class:`~dataframe.DataFrame`'s columns.
 
         Returns:
-            :class:`DataFrame`: the :class:`DataFrame` containing only the distinct values of the given columns.
+            :class:`~dataframe.DataFrame`: the :class:`~dataframe.DataFrame` containing only the distinct values of\
+            the given columns.
 
         Example:
             .. highlight:: python
@@ -1020,7 +1021,7 @@ class DataFrame:
     @classmethod
     def from_table(cls, table_name: str, db: Database) -> "DataFrame":
         """
-        Return a :class:`DataFrame` which represents the given table in the :class:`~db.Database`.
+        Return a :class:`~dataframe.DataFrame` which represents the given table in the :class:`~db.Database`.
 
         Args:
             table_name: str: table name
@@ -1041,18 +1042,18 @@ class DataFrame:
         column_names: Optional[List[str]] = None,
     ) -> "DataFrame":
         """
-        Return a :class:`DataFrame` using a given list of values.
+        Return a :class:`~dataframe.DataFrame` using a given list of values.
 
         Args:
             rows:
                 - Iterable[Tuple[Any]]: a list of row values.
                 - Iterable[Dict[str, Any]]: a list of key value pairs to determine the columns and rows. The column
                   names are decided by the keys of the first dictionary element if the *column_names* is not specified.
-            db: :class:`~db.Database`: database which will be associated with the :class:`DataFrame`.
+            db: :class:`~db.Database`: database which will be associated with the :class:`~dataframe.DataFrame`.
             column_names: Iterable[str]: list of given column names.
 
         Returns:
-            :class:`DataFrame`: :class:`DataFrame` generated with given values.
+            :class:`~dataframe.DataFrame`: :class:`~dataframe.DataFrame` generated with given values.
 
         .. highlight:: python
         .. code-block::  python
@@ -1099,14 +1100,14 @@ class DataFrame:
     @classmethod
     def from_columns(cls, columns: Dict[str, Iterable[Any]], db: Database) -> "DataFrame":
         """
-        Return a :class:`DataFrame` using list of columns values given.
+        Return a :class:`~dataframe.DataFrame` using list of columns values given.
 
         Args:
             columns: Dict[str, List[Any]]: List of column values.
-            db: :class:`~db.Database`: database which will be associated with the :class:`DataFrame`.
+            db: :class:`~db.Database`: database which will be associated with the :class:`~dataframe.DataFrame`.
 
         Returns:
-            :class:`DataFrame`: the :class:`DataFrame` generated with given values.
+            :class:`~dataframe.DataFrame`: the :class:`~dataframe.DataFrame` generated with given values.
 
         Example:
             .. highlight:: python

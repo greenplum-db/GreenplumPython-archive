@@ -160,7 +160,7 @@ class FunctionExpr(Expr):
 
 class ArrayFunctionExpr(FunctionExpr):
     """
-    Inherited from :class:`FunctionExpr`.
+    Inherited from :class:`~func.FunctionExpr`.
 
     Specialized for an Array Function.
     It will array aggregate all the columns given by the user.
@@ -244,20 +244,20 @@ class NormalFunction(_AbstractFunction):
     """
     Represents a (normal) dataframe function that can be applied to
 
-    - a :class:`DataFrame with :meth:`DataFrame.assign` or
-      :meth:`DataFrame.apply`;
-    - a :class:`Database` when no :class:`DataFrame is involved with
-      :meth:`Database.assign` or :meth:`Database.apply`.
+    - a :class:`~dataframe.DataFrame` with :meth:`~dataframe.DataFrame.assign` or
+      :meth:`~dataframe.DataFrame.apply`;
+    - a :class:`~db.Database` when no :class:`~dataframe.DataFrame` is involved with
+      :meth:`~db.Database.assign` or :meth:`~db.Database.apply`.
 
-    A :class:`NormalFunction` is mapped to a User-Defined Function (UDF) in
+    A :class:`~func.NormalFunction` is mapped to a User-Defined Function (UDF) in
     database.
 
-    When called, the arguments of an :class:`AggregateFunction` can be
+    When called, the arguments of an :class:`~func.AggregateFunction` can be
 
-    - :class:`Column`s of a :class:`DataFrame`, or
+    - :class:`~col.Column` of a :class:`~dataframe.DataFrame`; or
     - constant values represented as Python objects
 
-    and the :class:`AggregateFunction` returns one value of the return type
+    and the :class:`~func.AggregateFunction` returns one value of the return type
     for each row of values in its arguments.
     """
 
@@ -358,14 +358,14 @@ class NormalFunction(_AbstractFunction):
 
 def function(name: str, schema: Optional[str] = None) -> NormalFunction:
     """
-    Get access to a predefined dataframe :class:`NormalFunction` from database.
+    Get access to a predefined dataframe :class:`~func.NormalFunction` from database.
 
     Args:
         name: Name of the function.
         schema: Schema (a.k.a namespace) of the function in database.
 
     Returns
-        The :class:`NormalFunction` with the specified :code:`name`
+        The :class:`~func.NormalFunction` with the specified :code:`name`
         and :code:`schema`.
 
     Example:
@@ -381,23 +381,24 @@ class AggregateFunction(_AbstractFunction):
     """
     Represents an aggregate function that can be applied to
 
-    - a :class:`DataFrame` with :meth:`DataFrame.apply`, where the function
+    - a :class:`~dataframe.DataFrame` with :meth:`~dataframe.DataFrame.apply`, where the function\
         will aggregate data in the entire dataframe;
-    - a :class:`DataFrameGroupingSets` with :meth:`DataFrameGroupingSets.assign`
-        or :meth:`DataFrameGroupingSets.apply`, where the function will
+    - a :class:`~group.DataFrameGroupingSets` with :meth:`~group.DataFrameGroupingSets.assign`\
+        or :meth:`~group.DataFrameGroupingSets.apply`, where the function will\
         aggregate each group of data.
 
-    An :class:`AggregateFunction` is mapped to a User-Defined Aggregate (UDA)
+    An :class:`~func.AggregateFunction` is mapped to a User-Defined Aggregate (UDA)
     function in database.
 
-    When called, the arguments of an :class:`AggregateFunction` can be
+    When called, the arguments of an :class:`~func.AggregateFunction` can be
 
-    - :class:`Column`s of a :class:`DataFrame`; or
+    - :class:`~col.Column` of a :class:`~dataframe.DataFrame`; or
+
     - constant values represented as Python objects.
 
-    and the :class:`AggregateFunction` returns one value aggregating data in all
-    rows of the :class:`DataFrame` or a group in the
-    :class:`DataFrameGroupingSets`.
+    and the :class:`~func.AggregateFunction` returns one value aggregating data in all
+    rows of the :class:`~dataframe.DataFrame` or a group in the
+    :class:`~group.DataFrameGroupingSets`.
     """
 
     def __init__(
@@ -458,7 +459,7 @@ class AggregateFunction(_AbstractFunction):
         arguments.
 
         For example, `count.distinct(t['a'])` means applying the
-        `count()` function to each distinct value of :class:`Column` `t['a']`.
+        `count()` function to each distinct value of :class:`~col.Column` `t['a']`.
 
         Args:
             args: Argument of the aggregate function.
@@ -474,15 +475,15 @@ class AggregateFunction(_AbstractFunction):
 
 def aggregate_function(name: str, schema: Optional[str] = None) -> AggregateFunction:
     """
-    Get access to a predefined dataframe :class:`AggregateFunction` from
+    Get access to a predefined dataframe :class:`~func.AggregateFunction` from
     database.
 
     Args:
         name: Name of the aggregate function.
         schema: Schema (a.k.a namespace) of the aggregate function in database.
 
-    Returns
-        The :class:`AggregateFunction` with the specified :code:`name`
+    Returns:
+        The :class:`~func.AggregateFunction` with the specified :code:`name`
         and :code:`schema`.
 
     Example:
@@ -506,44 +507,44 @@ def create_function(
     wrapped_func: Optional[Callable[..., Any]] = None, language_handler: str = "plpython3u"
 ) -> NormalFunction:
     """
-    Creates a :class:`NormalFunction` from the given Python function.
+    Creates a :class:`~func.NormalFunction` from the given Python function.
 
     Args:
         wrapped_func: the Python function carrying out the computation. Its
             definition need to follow the conventions below:
 
-            - The function needs to be defined with the :code:`def` keyword.
-                Lambda expressions as the wrapped function are not supported
+            - The function needs to be defined with the :code:`def` keyword.\
+                Lambda expressions as the wrapped function are not supported\
                 yet.
-            - Each parameter and the return value needs to be annotated with
-                native Python type. The type annotations will be mapped to
+            - Each parameter and the return value needs to be annotated with\
+                native Python type. The type annotations will be mapped to\
                 the types in database automatically.
-            - A :class:`NormalFunction` can return multiple values. In that
-                case, the return type of the wrapped Python function needs
-                to be a Python :code:`class` with members annotated. It is
-                recommended to use :class:`dataclasses.dataclass` as return
+            - A :class:`~func.NormalFunction` can return multiple values. In that\
+                case, the return type of the wrapped Python function needs\
+                to be a Python :code:`class` with members annotated. It is\
+                recommended to use :class:`dataclasses.dataclass` as return\
                 type.
 
         language_handler: language handler to run the function in database,
             defaults to plpython3u, will also support plcontainer later.
 
     Returns:
-        The newly created :class:`NormalFunction`.
+        The newly created :class:`~func.NormalFunction`.
 
     Note:
         The created function is actually executed on the remote database
         server. To send it to the server, when creating the dataframe function,
 
-        - Package `dill <https://dill.readthedocs.io/en/latest/>`, by the
-            Uncertainty Quantification Foundation, is used to serialize the
-            wrapped Python function and its dependencies when applicable.
-            Therefore, it is recommended to install dill on the host of the
+        - Package `dill <https://dill.readthedocs.io/en/latest/>`_, by the\
+            Uncertainty Quantification Foundation, is used to serialize the\
+            wrapped Python function and its dependencies when applicable.\
+            Therefore, it is recommended to install dill on the host of the\
             backing database server.
-        - If dill is not installed on the server, or the Python versions
-            between client and server does not match, the source code of
-            the wrapped Python function will be transmitted to the server,
-            along with all the import statements for dependencies used by the
-            function. In that case, the modules imported need to be installed
+        - If dill is not installed on the server, or the Python versions\
+            between client and server does not match, the source code of\
+            the wrapped Python function will be transmitted to the server,\
+            along with all the import statements for dependencies used by the\
+            function. In that case, the modules imported need to be installed\
             on server in advance.
 
     Example:
@@ -574,19 +575,19 @@ def create_aggregate(
     transition_func: Optional[Callable[..., Any]] = None, language_handler: str = "plpython3u"
 ) -> AggregateFunction:
     """
-    Creates an :class:`AggregateFunction` from the given Python function.
+    Creates an :class:`~func.AggregateFunction` from the given Python function.
 
     Args:
         transition_func : the wrapped Python function carrying out the state
             transition. It needs to follow the same convention as the
-            :code:`wrapped_func` parameter of :func:`create_function`, and the
+            :code:`wrapped_func` parameter of :func:`~func.create_function`, and the
             notes on serialization also applied here.
 
         language_handler : language handler to run the function in database,
             defaults to plpython3u, will also support plcontainer later.
 
     Returns:
-        The newly created :class:`AggregateFunction`.
+        The newly created :class:`~func.AggregateFunction`.
 
     Example:
         .. highlight:: python
@@ -626,26 +627,26 @@ class ColumnFunction(NormalFunction):
     """
     Represents a dataframe column function that can be applied to
 
-    - a :class:`DataFrame` with :meth:`DataFrame.apply`, where the function
+    - a :class:`~dataframe.DataFrame` with :meth:`~dataframe.DataFrame.apply`, where the function\
         will operate on columns in the entire dataframe;
-    - a :class:`DataFrameGroupingSets` with :meth:`DataFrameGroupingSets.assign`
-        or :meth:`DataFrameGroupingSets.apply`, where the function will operate
+    - a :class:`~group.DataFrameGroupingSets` with :meth:`~group.DataFrameGroupingSets.assign`\
+        or :meth:`~group.DataFrameGroupingSets.apply`, where the function will operate\
         on columns of each group of data.
 
-    As :class:`NormalFunction`, a :class:`ColumnFunction` is mapped to a UDF in
+    As :class:`~func.NormalFunction`, a :class:`~func.ColumnFunction` is mapped to a UDF in
     database.
 
-    The calling convention of a :class:`ColumnFunction` is the same as a
-    :class:`AggregateFunction`. However, rather than operating on one row at a
+    The calling convention of a :class:`~func.ColumnFunction` is the same as a
+    :class:`~func.AggregateFunction`. However, rather than operating on one row at a
     time, all rows of the entire column are aggregated into a :code:`list`
-    before passing to :class:`ColumnFunction` as argument, except when the
-    column is used as the grouping attribute in :meth:`DataFrame.group_by`.
+    before passing to :class:`~func.ColumnFunction` as argument, except when the
+    column is used as the grouping attribute in :meth:`~dataframe.DataFrame.group_by`.
 
-    A :class:`ColumnFunction` returns
+    A :class:`~func.ColumnFunction` returns
 
-    - One value of the return type when applied to a :class:`DataFrame`; or
-    - One value for each group when applied to a a
-        :class:`DataFrameGroupingSets`.
+    - One value of the return type when applied to a :class:`~dataframe.DataFrame`; or
+    - One value for each group when applied to a\
+        :class:`~group.DataFrameGroupingSets`.
 
     Note:
         The primary use case for column function is to implement complex
@@ -653,23 +654,25 @@ class ColumnFunction(NormalFunction):
 
         Inside a column function, the user can operate on all the data, rather
         than only part of it. As a result, the operation does **not** to satisfy
-        certain restrictions such as
-        `Additivity<https://en.wikipedia.org/wiki/Sigma-additive_set_function>`.
+        certain restrictions such as `Additivity`_.
         This makes it possible to implement complex functions.
 
     Warning:
         However, such good usability comes at the cost of scalability.
 
-        - Gathering data into one place makes it hard to exploit inter-machine
-            parallelism when backed by an MPP database system like Greenplum,
-            especially when the number of groups is small. Fortunately, this
+        - Gathering data into one place makes it hard to exploit inter-machine\
+            parallelism when backed by an MPP database system like Greenplum,\
+            especially when the number of groups is small. Fortunately, this\
             can be alleviated because many Python packages are SIMD optimized.
-        - When the backing database system is PostgreSQL-derived, such as
-            Greenplum, the size of one value cannot be larger then 1 GB. This
-            limits the size of problems column functions can solve. Currently,
-            one way to mitigate this issue is to break a large
-            :class:`DataFrame` into more smaller groups and somehow combine
+
+        - When the backing database system is PostgreSQL-derived, such as\
+            Greenplum, the size of one value cannot be larger than 1 GB. This\
+            limits the size of problems column functions can solve. Currently,\
+            one way to mitigate this issue is to break a large\
+            :class:`~dataframe.DataFrame` into smaller groups and somehow combine\
             the results of the column function for all groups.
+
+        .. _Additivity: https://en.wikipedia.org/wiki/Sigma-additive_set_function
     """
 
     def __call__(self, *args: Any) -> ArrayFunctionExpr:
@@ -681,19 +684,19 @@ def create_column_function(
     wrapped_func: Optional[Callable[..., Any]] = None, language_handler: str = "plpython3u"
 ) -> ColumnFunction:
     """
-    Creates an :class:`ColumnFunction` from the given Python function.
+    Creates an :class:`~func.ColumnFunction` from the given Python function.
 
     Args:
         wrapped_func: the wrapped Python function carrying out computation on
             columns. It needs to follow the same convention as the
-            :code:`wrapped_func` parameter of :func:`create_function`, and the
+            :code:`wrapped_func` parameter of :func:`~func.create_function`, and the
             notes on serialization also applied here.
 
         language_handler : language handler to run the function in database,
             defaults to plpython3u, will also support plcontainer later.
 
     Returns:
-        The newly created :class:`ColumnFunction`.
+        The newly created :class:`~func.ColumnFunction`.
 
     Example:
             .. highlight:: python

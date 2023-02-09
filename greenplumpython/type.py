@@ -62,14 +62,14 @@ class Type:
 
     It is mapped to a type in database, including
 
-        - A predefined type, such as :code:`integer` for :class:`int` and
-            :code:`text` for :class:`str` in Python. In this case,
+        - A predefined type, such as :code:`integer` for :class:`int` and\
+            :code:`text` for :class:`str` in Python. In this case,\
             `name` is specified for its name in database.
-        - A user-defined composite type, for Python :code:`class`. In this
-            case, a type annotation object is provided such as the defined
+        - A user-defined composite type, for Python :code:`class`. In this\
+            case, a type annotation object is provided such as the defined\
             :code:`class`.
 
-    A :class:`Type` object is callable. when called, it casts the object in
+    A :class:`~type.Type` object is callable. when called, it casts the object in
     the argument to the mapped type in database.
     """
 
@@ -146,7 +146,7 @@ def type_(name: str) -> Type:
         name: str: name of type
 
     Returns:
-        The predefined type as a :class:`Type` object.
+        The predefined type as a :class:`~type.Type` object.
     """
 
     return Type(name)
