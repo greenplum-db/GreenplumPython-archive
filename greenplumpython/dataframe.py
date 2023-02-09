@@ -55,7 +55,7 @@ from psycopg2.extras import RealDictRow
 from greenplumpython.col import Column, Expr
 from greenplumpython.db import Database
 from greenplumpython.expr import serialize
-from greenplumpython.group import DataFrameGroupingSets
+from greenplumpython.group import DataFrameGroupingSet
 from greenplumpython.order import DataFrameOrdering
 from greenplumpython.row import Row
 
@@ -221,6 +221,7 @@ class DataFrame:
         for row in contents:
             for name, val in row.items():
                 widths[name] = max(widths[name], len(str(val)))
+
         # For Python >= 3.7, dict.items() and dict.values() will preserves the
         # input order.
         def line(sep: str) -> str:
@@ -289,7 +290,7 @@ class DataFrame:
     # FIXME: Add test
     def where(self, predicate: Callable[["DataFrame"], "Expr"]) -> "DataFrame":
         """
-        Used when want to filter the :class:`DataFrame` by applying conditions.
+        Filter the :class:`DataFrame` by applying conditions.
 
         Return the :class:`DataFrame` filtered by :class:`~expr.Expr`.
 
@@ -418,7 +419,7 @@ class DataFrame:
 
     def assign(self, **new_columns: Callable[["DataFrame"], Any]) -> "DataFrame":
         """
-        Used when want to combine new columns with the current :class:`DataFrame`.
+        Combine new columns with the current :class:`DataFrame`.
 
         Assign new columns to the current :class:`DataFrame`. Existing columns cannot be reassigned.
 
@@ -482,7 +483,7 @@ class DataFrame:
         operator: Optional[str] = None,
     ) -> DataFrameOrdering:
         """
-        Used when want to sort :class:`DataFrame` by values using the given arguments.
+        Sort :class:`DataFrame` by values using the given arguments.
 
         Return :class:`DataFrame` order by the given arguments.
 
@@ -787,9 +788,10 @@ class DataFrame:
 
     def refresh(self) -> "DataFrame":
         """
-        After displayed dataframe, its content has been cached in local.
-        This function refresh the local cache of :class:`DataFrame`, otherwise, all modifications made between last
-        cache and this refresh are not updated in local.
+        Refresh the local cache of :class:`DataFrame`.
+
+        After displayed dataframe, its content has been cached in local. All modifications made
+        between last cache and this refresh are not updated in local.
 
         The local cache if used to iterate the :class:`DataFrame` instance locally.
 
@@ -961,7 +963,7 @@ class DataFrame:
         assert results is not None
         return results
 
-    def group_by(self, *column_names: str) -> DataFrameGroupingSets:
+    def group_by(self, *column_names: str) -> DataFrameGroupingSet:
         """
         Group the current GreenplumPython :class:`DataFrame` by `column_names`.
 
@@ -969,14 +971,14 @@ class DataFrame:
             column_names: one or more column names of the :class:`DataFrame`.
 
         Returns:
-            DataFrameGroupingSets: a list of grouping sets. Each group is identified
+            DataFrameGroupingSet: a list of grouping sets. Each group is identified
             by a different set of values of the columns in the arguments.
         """
         #  State transition diagram:
-        #  DataFrame --group_by()-> DataFrameGroupingSets --aggregate()-> FunctionExpr
+        #  DataFrame --group_by()-> DataFrameGroupingSet --aggregate()-> FunctionExpr
         #    ^                                                             |
         #    |------------------------- assign() or apply() ---------------|
-        return DataFrameGroupingSets(self, [column_names])
+        return DataFrameGroupingSet(self, [column_names])
 
     def distinct_on(self, *column_names: str) -> "DataFrame":
         """

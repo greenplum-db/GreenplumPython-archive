@@ -19,7 +19,7 @@ from greenplumpython.col import Column
 from greenplumpython.dataframe import DataFrame
 from greenplumpython.db import Database
 from greenplumpython.expr import Expr, serialize
-from greenplumpython.group import DataFrameGroupingSets
+from greenplumpython.group import DataFrameGroupingSet
 from greenplumpython.type import to_pg_type
 
 
@@ -35,7 +35,7 @@ class FunctionExpr(Expr):
         self,
         func: "_AbstractFunction",
         args: Tuple[Any] = [],
-        group_by: Optional[DataFrameGroupingSets] = None,
+        group_by: Optional[DataFrameGroupingSet] = None,
         dataframe: Optional[DataFrame] = None,
         db: Optional[Database] = None,
         distinct: bool = False,
@@ -56,7 +56,7 @@ class FunctionExpr(Expr):
 
     def bind(
         self,
-        group_by: Optional[DataFrameGroupingSets] = None,
+        group_by: Optional[DataFrameGroupingSet] = None,
         dataframe: Optional[DataFrame] = None,
         db: Optional[Database] = None,
     ):
@@ -190,7 +190,7 @@ class ArrayFunctionExpr(FunctionExpr):
 
     def bind(
         self,
-        group_by: Optional[DataFrameGroupingSets] = None,
+        group_by: Optional[DataFrameGroupingSet] = None,
         dataframe: Optional[DataFrame] = None,
         db: Optional[Database] = None,
     ):
@@ -268,7 +268,13 @@ class NormalFunction(_AbstractFunction):
             return
         assert self._created_in_dbs is not None
         if db not in self._created_in_dbs:
-            func_src: str = dill.source.getsource(self._wrapped_func)
+            # tricky way to run if the code run in doctest
+            # if it runs in doctest, there is bug about dill
+            # we need to pass it
+            if "doctest" in sys.modules:
+                func_src: str = inspect.getsource(self._wrapped_func)
+            else:
+                func_src: str = dill.source.getsource(self._wrapped_func)
             func_ast: ast.FunctionDef = ast.parse(dedent(func_src)).body[0]
             # TODO: Lambda expressions are NOT supported since inspect.signature()
             # does not work as expected.
