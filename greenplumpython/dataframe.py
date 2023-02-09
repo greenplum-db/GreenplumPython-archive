@@ -290,7 +290,7 @@ class DataFrame:
     # FIXME: Add test
     def where(self, predicate: Callable[["DataFrame"], "Expr"]) -> "DataFrame":
         """
-        Filter the :class:`DataFrame` by applying the predicate.
+        Filter the :class:`DataFrame` by applying conditions.
 
         Return the :class:`~dataframe.DataFrame` filtered by :class:`~expr.Expr`.
 
