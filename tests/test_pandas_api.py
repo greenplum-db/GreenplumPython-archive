@@ -81,8 +81,8 @@ def test_merge(db: gp.Database):
     # fmt: on
     zoo_1_df = db.create_dataframe(rows=rows1, column_names=["zoo1_id", "zoo1_animal"])
     zoo_2_df = db.create_dataframe(rows=rows2, column_names=["zoo2_id", "zoo2_animal"])
-    zoo_1_pd_df = pd.DataFrame(zoo_1_df)
-    zoo_2_pd_df = pd.DataFrame(zoo_2_df)
+    zoo_1_pd_df = pd.DataFrame._from_native(zoo_1_df)
+    zoo_2_pd_df = pd.DataFrame._from_native(zoo_2_df)
 
     ret: pd.DataFrame = zoo_1_pd_df.merge(
         zoo_2_pd_df, how="inner", left_on="zoo1_animal", right_on="zoo2_animal"

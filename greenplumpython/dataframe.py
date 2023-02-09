@@ -418,7 +418,7 @@ class DataFrame:
         # We need to support calling functions with constant args or even no
         # arg. For example: SELECT count(*) FROM t; In that case, the
         # arguments do not contain information on any dataframe or any database.
-        # As a result, the generated SQL cannot be executed.
+        # As a result, the generated SQL cannot be _executed.
         #
         # To fix this, we need to pass the dataframe to the resulting FunctionExpr
         # explicitly.

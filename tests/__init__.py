@@ -1,7 +1,6 @@
 from os import environ
 
 import pytest
-from sqlalchemy import create_engine
 
 import greenplumpython as gp
 

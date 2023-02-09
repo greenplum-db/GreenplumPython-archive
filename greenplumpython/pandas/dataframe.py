@@ -230,7 +230,6 @@ class DataFrame:
         This aligns with the function
         `pandas.DataFrame.merge() <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.merge.html>`_.
 
-        Returns:
             :class:`~pandas.dataframe.Dataframe`: :class:`~pandas.dataframe.DataFrame` of the two merged class:`DataFrame`.
 
         Example:
