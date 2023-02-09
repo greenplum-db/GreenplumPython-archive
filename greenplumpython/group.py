@@ -204,7 +204,7 @@ class DataFrameGroupingSet:
             for item in grouping_set:
                 assert isinstance(item, str), f"Grouping item {item} is not a column name."
                 if item not in item_list:
-                    item_list.append(f'"{item}"')
+                    item_list.append(item)
         return item_list
 
     @property
