@@ -261,7 +261,7 @@ each grouping set individually.</p>
 <span class="gp">... </span>    <span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;is_multiple_of_3&quot;</span><span class="p">))</span>
 <span class="gp">... </span>    <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">count</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]))</span>
 <span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)[:]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;is_even&quot;</span><span class="p">)[:]</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)[:]</span>
 <span class="go">------------------------------------</span>
 <span class="go"> is_even | is_multiple_of_3 | count</span>
 <span class="go">---------+------------------+-------</span>
