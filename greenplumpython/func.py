@@ -268,7 +268,13 @@ class NormalFunction(_AbstractFunction):
             return
         assert self._created_in_dbs is not None
         if db not in self._created_in_dbs:
-            func_src: str = dill.source.getsource(self._wrapped_func)
+            # tricky way to run if the code run in doctest
+            # if it runs in doctest, there is bug about dill
+            # we need to pass it
+            if "doctest" in sys.modules:
+                func_src: str = inspect.getsource(self._wrapped_func)
+            else:
+                func_src: str = dill.source.getsource(self._wrapped_func)
             func_ast: ast.FunctionDef = ast.parse(dedent(func_src)).body[0]
             # TODO: Lambda expressions are NOT supported since inspect.signature()
             # does not work as expected.

@@ -220,6 +220,7 @@ class DataFrame:
         for row in contents:
             for name, val in row.items():
                 widths[name] = max(widths[name], len(str(val)))
+
         # For Python >= 3.7, dict.items() and dict.values() will preserves the
         # input order.
         def line(sep: str) -> str:

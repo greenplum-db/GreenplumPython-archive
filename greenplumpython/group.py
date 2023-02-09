@@ -62,24 +62,23 @@ class DataFrameGroupingSet:
                 >>> rows = [(i, i % 2 == 0) for i in range(10)]
                 >>> numbers = db.create_dataframe(rows=rows, column_names=["val", "is_even"])
                 >>> count = gp.aggregate_function("count")
-
-                >>> results = numbers.group_by("is_even").apply(lambda _: count())
-                >>> results
+                >>> results = numbers.group_by("is_even").apply(lambda row: count(row["*"]))
+                >>> results.order_by("is_even")[:]
                 -----------------
                  count | is_even
                 -------+---------
-                     5 |       1
                      5 |       0
+                     5 |       1
                 -----------------
                 (2 rows)
 
-                >>> results = numbers.group_by("is_even").apply(lambda _: count(), as_name='cnt')
-                >>> results
+                >>> results = numbers.group_by("is_even").apply(lambda row: count(row["*"]), as_name='cnt')
+                >>> results.order_by("is_even")[:]
                 ---------------
                  cnt | is_even
                 -----+---------
-                   5 |       1
                    5 |       0
+                   5 |       1
                 ---------------
                 (2 rows)
 
@@ -129,12 +128,12 @@ class DataFrameGroupingSet:
                 >>> results = numbers.group_by("is_even").assign(
                 ...     count=lambda t: count(t["val"]),
                 ...     sum=lambda t: sum(t["val"]))
-                >>> results
+                >>> results.order_by("is_even")[:]
                 -----------------------
                  is_even | count | sum
                 ---------+-------+-----
-                       1 |     5 |  20
                        0 |     5 |  25
+                       1 |     5 |  20
                 -----------------------
                 (2 rows)
         """
@@ -180,14 +179,14 @@ class DataFrameGroupingSet:
                 ...     .union(lambda t: t.group_by("is_multiple_of_3"))
                 ...     .assign(count=lambda t: count(t["val"]))
                 ... )
-                >>> results
+                >>> results.order_by("count")[:]
                 ------------------------------------
                  is_even | is_multiple_of_3 | count
                 ---------+------------------+-------
                          |                1 |     2
-                         |                0 |     4
                        0 |                  |     3
                        1 |                  |     3
+                         |                0 |     4
                 ------------------------------------
                 (4 rows)
         """

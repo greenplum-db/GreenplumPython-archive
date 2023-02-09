@@ -202,7 +202,6 @@ def add_one(num: int) -> int:
 
 
 def test_dataframe_assign_expr(db: gp.Database):
-
     nums = db.create_dataframe(rows=[(i,) for i in range(10)], column_names=["num"])
     # FIXME: How to remove the intermdeiate variable `nums`?
     # FIXME: How to support functions returning more than one column?
