@@ -144,7 +144,7 @@ def test_group_empty_assign_empty(db: gp.Database):
         assert len(row) == 0
 
 
-def test_group_flattern(db: gp.Database):
+def test_group_flatten(db: gp.Database):
     # Create a fake grouping set
     rows = [{i} for i in range(6)]  # 0, 1, 2, 3, 4, 5
     numbers = db.create_dataframe(rows=rows, column_names=["id"])
