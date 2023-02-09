@@ -5,13 +5,9 @@ This package contains classes and functions having same names and parameters as 
 provide a Data Scientist familiar syntax. And at the same time, its DataFrame has same specifications as
 GreenplumPython DataFrame, which means: Data is located and manipulated on a remote database system.
 
-N.B.: This package contains fewer functions than GreenplumPython DataFrame, but it is easy the conversion between
-these two DataFrame.
+N.B.: This package contains fewer functions than GreenplumPython DataFrame, it is easy to convert to it.
 """
-from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, Union
-
-from pglast import parser  # type: ignore
-from sqlalchemy import engine, text
+from typing import Any, Callable, Dict, List, Literal, Optional, Union
 
 import greenplumpython.dataframe as dataframe
 import greenplumpython.db as db
@@ -19,39 +15,32 @@ import greenplumpython.order as orderby
 
 
 class DataFrame:
+    """Representation of GreenplumPython Pandas Compatible DataFrame object."""
+
     @classmethod
-    def from_sql(cls, sql: str, conn: engine):
+    def from_sql(cls, sql: str, conn: str):
         c = super().__new__(cls)
-        database = db.Database(url=str(conn.url))
-        try:
-            parser.parse_sql(sql)
-            c._dataframe = dataframe.DataFrame(query=sql, db=database)
-        except:
-            df = database.create_dataframe(table_name=sql)
-            c._dataframe = df
+        database = db.Database(url=conn)
+        c._dataframe = dataframe.DataFrame(query=sql, db=database)
         return c
 
-    def __init__(
-        self,
-        data: Union[
-            dataframe.DataFrame, List[Union[Tuple[Any, ...], Dict[str, Any]]], Dict[str, List[Any]]
-        ],
-        columns: Optional[List[str]] = None,
-        conn: Optional[db.Database] = None,
-    ) -> None:
-        if isinstance(data, dataframe.DataFrame):
-            self._dataframe = data
-        else:
-            assert conn is not None
-            if isinstance(data, Dict):
-                self._dataframe = conn.create_dataframe(columns=data)
-            else:
-                self._dataframe = conn.create_dataframe(rows=data, column_names=columns)
+    @classmethod
+    def _from_native(cls, df: dataframe.DataFrame):
+        """
+        :meta private:
+        """
+        c = super().__new__(cls)
+        c._dataframe = df
+        return c
+
+    def __init__(self) -> None:
+        self._dataframe: dataframe.DataFrame = None
+        raise NotImplementedError
 
     def to_sql(
         self,
         name: str,
-        conn: engine,
+        conn: str,
         schema: Union[str, None] = None,
         if_exists: Literal["fail", "replace", "append"] = "fail",
         index: bool = False,  # Not Used
@@ -73,6 +62,7 @@ class DataFrame:
         Example:
             .. highlight:: python
             .. code-block::  python
+
                 >>> import greenplumpython.pandas as pd
                 >>> pd_df = pd.read_sql('SELECT unnest(ARRAY[1,2,3]) AS "a",unnest(ARRAY[1,2,3]) AS "b"', conn)
                 >>> pd_df.to_sql(name="test_to_sql", conn=conn)
@@ -90,35 +80,29 @@ class DataFrame:
         """
         assert index is False, "DataFrame in GreenplumPython.pandas does not have an index column"
         table_name = f'"{name}"' if schema is None else f"{schema}.{name}"
-        with conn.connect() as connection:  # type: ignore
-            query = self._dataframe._build_full_query()  # type: ignore
-            if if_exists == "append":
-                with connection.begin():
-                    result = connection.execute(  # type: ignore
-                        text(
-                            f"""
-                                INSERT INTO {table_name}
-                                {query}
-                            """
-                        )
-                    )
-            else:
-                if if_exists == "replace":
-                    with connection.begin():
-                        connection.execute(text(f"DROP TABLE IF EXISTS {table_name}"))
-                with connection.begin():
-                    result = connection.execute(  # type: ignore
-                        text(
-                            f"""
-                                CREATE TABLE {table_name}
-                                AS {query}
-                            """
-                        )
-                    )
-            count: int = result.rowcount
-            return count
+        database = db.Database(url=conn)
+        query = self._dataframe._build_full_query()  # type: ignore
+        if if_exists == "append":
+            rowcount = database._execute(  # type: ignore
+                f"""
+                    INSERT INTO {table_name}
+                    {query}
+                """,
+                has_results=False,
+            )
+        else:
+            if if_exists == "replace":
+                database._execute(f"DROP TABLE IF EXISTS {table_name}", has_results=False)  # type: ignore
+            rowcount = database._execute(  # type: ignore
+                f"""
+                        CREATE TABLE {table_name}
+                        AS {query}
+                    """,
+                has_results=False,
+            )
+        return rowcount
 
-    def to_gp_dataframe(self) -> dataframe.DataFrame:
+    def to_native(self) -> dataframe.DataFrame:
         """
         Convert a GreenplumPython Pandas compatible DataFrame to a GreenplumPython DataFrame.
 
@@ -145,11 +129,12 @@ class DataFrame:
         <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html>`_.
 
         Returns:
-            :class:`Dataframe`: class:`DataFrame` order by the given arguments.
+            :class:`~pandas.dataframe.Dataframe`: class:`~pandas.dataframe.DataFrame` order by the given arguments.
 
         Example:
             .. highlight:: python
             .. code-block::  python
+
                 >>> pd_df = pd.read_sql('SELECT unnest(ARRAY[3, 1, 2]) AS "id",unnest(ARRAY[1,2,3]) AS "b"', conn)
                 >>> pd_df.sort_values(["id"])
                 --------
@@ -174,7 +159,7 @@ class DataFrame:
             len(by) * [nulls_first] if isinstance(by, list) else [nulls_first],
             len(by) * [None],
         )[:]
-        return DataFrame(df)
+        return DataFrame._from_native(df)
 
     def drop_duplicates(
         self,
@@ -190,11 +175,12 @@ class DataFrame:
         <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.drop_duplicates.html>`_.
 
         Returns:
-            :class:`Dataframe`: class:`DataFrame` with duplicates removed.
+            :class:`~pandas.dataframe.Dataframe`: class:`~pandas.dataframe.DataFrame` with duplicates removed.
 
         Example:
             .. highlight:: python
             .. code-block::  python
+
                 >>> import greenplumpython.pandas as pd
                 >>> students = [("alice", 18), ("bob", 19), ("carol", 19)]
                 >>> db.create_dataframe(rows=students, column_names=["name", "age"]).save_as("student", column_names=["name", "age"])
@@ -215,8 +201,8 @@ class DataFrame:
             ignore_index is True
         ), "DataFrame in GreenplumPython.pandas does not have an index column"
         assert subset is not None  # FIXME: select distinct *
-        df = self._dataframe.distinct_on(*subset)
-        return DataFrame(df)
+        df: dataframe.DataFrame = self._dataframe.distinct_on(*subset)
+        return DataFrame._from_native(df)
 
     def merge(
         self,
@@ -234,7 +220,7 @@ class DataFrame:
         validate: Optional[str] = None,  # Not Used
     ):
         """
-        Join the current :class:`DataFrame` with another using the given arguments.
+        Join the current :class:`~pandas.dataframe.DataFrame` with another using the given arguments.
 
         N.B: This function can't handle yet automatically suffixes when having the same column names on both sides.
 
@@ -242,11 +228,12 @@ class DataFrame:
         <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.merge.html>`_.
 
         Returns:
-            :class:`Dataframe`: class:`DataFrame` of the two merged class:`DataFrame`.
+            :class:`~pandas.dataframe.Dataframe`: class:`~pandas.dataframe.DataFrame` of the two merged class:`DataFrame`.
 
         Example:
             .. highlight:: python
             .. code-block::  python
+
                 >>> import greenplumpython.pandas as pd
                 >>> students = [("alice", 18), ("bob", 19), ("carol", 19)]
                 >>> db.create_dataframe(rows=students, column_names=["name", "age"]).save_as("student", column_names=["name_1", "age_1"])
@@ -282,26 +269,26 @@ class DataFrame:
             left_index is False and right_index is False
         ), "DataFrame in GreenplumPython.pandas does not have an index column"
         assert on is None, "Can't support duplicate columns name in both DataFrame"
-        df = self._dataframe.join(
+        df: dataframe.DataFrame = self._dataframe.join(
             right._dataframe, how=how, cond=lambda s, o: s[left_on] == o[right_on]
         )
-        return DataFrame(df)
+        return DataFrame._from_native(df)
 
     def head(self, n: int) -> "DataFrame":
         """
         Return the first n unordered rows.
 
         Returns:
-            :class:`Dataframe`: The first n unordered rows of class:`DataFrame`.
+            :class:`~pandas.dataframe.Dataframe`: The first n unordered rows of class:`~pandas.dataframe.DataFrame`.
 
         """
-        df = self._dataframe[:n]
-        return DataFrame(df)
+        df: dataframe.DataFrame = self._dataframe[:n]
+        return DataFrame._from_native(df)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self._dataframe.__repr__()
 
-    def _repr_html_(self):
+    def _repr_html_(self) -> str:
         return self._dataframe._repr_html_()  # type: ignore
 
     def __iter__(self):
@@ -316,7 +303,7 @@ class DataFrame:
 
 def read_sql(
     sql: str,
-    conn: engine,
+    conn: str,
     index_col: Union[str, list[str]] = None,
     coerce_float: bool = True,
     params: Optional[List[str]] = None,
@@ -325,21 +312,21 @@ def read_sql(
     chunksize: Optional[int] = None,
 ):
     """
-    Read SQL query or database table into a :class:`DataFrame`.
+    Read SQL query or database table into a :class:`~pandas.dataframe.DataFrame`.
 
-        This aligns with the function "pandas.read_sql()"
-        <https://pandas.pydata.org/docs/reference/api/pandas.read_sql.html?highlight=read_sql>`_.
+    This aligns with the function "pandas.read_sql()"
+    <https://pandas.pydata.org/docs/reference/api/pandas.read_sql.html?highlight=read_sql>`_.
 
-        Returns:
-            :class:`Dataframe`.
+    Returns:
+        :class:`~pandas.dataframe.Dataframe`.
 
-        Example:
-            .. highlight:: python
-            .. code-block::  python
+    Example:
+        .. highlight:: python
+        .. code-block::  python
 
             >>> columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
             >>> db.create_dataframe(columns=columns).save_as("test_read_sql", column_names=["a", "b"])
-            >>> pd.read_sql("test_read_sql", conn)
+            >>> pd.read_sql("SELECT * FROM test_read_sql", conn)
             -------
              a | b
             ---+---

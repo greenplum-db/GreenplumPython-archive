@@ -410,7 +410,7 @@ class DataFrame:
         # We need to support calling functions with constant args or even no
         # arg. For example: SELECT count(*) FROM t; In that case, the
         # arguments do not contain information on any dataframe or any database.
-        # As a result, the generated SQL cannot be executed.
+        # As a result, the generated SQL cannot be _executed.
         #
         # To fix this, we need to pass the dataframe to the resulting FunctionExpr
         # explicitly.
@@ -813,7 +813,7 @@ class DataFrame:
                    4
                 -----
                 (5 rows)
-                >>> db.execute("INSERT INTO const_table(num) VALUES (5);", has_results=False)
+                >>> db._execute("INSERT INTO const_table(num) VALUES (5);", has_results=False)
                 >>> df
                 -----
                  num
@@ -864,7 +864,7 @@ class DataFrame:
             f"SELECT to_json({output_name})::TEXT FROM {self.name} AS {output_name}",
             parents=[self],
         )
-        result = self._db.execute(to_json_dataframe._build_full_query())
+        result = self._db._execute(to_json_dataframe._build_full_query())  # type: ignore
         return result if result is not None else []
 
     def save_as(
@@ -919,7 +919,7 @@ class DataFrame:
         assert self._db is not None
         # TODO: Remove assertion below after implementing schema inference.
         assert len(column_names) > 0, "Column names of new dataframe are unknown."
-        self._db.execute(
+        self._db._execute(  # type: ignore
             f"""
             CREATE {'TEMP' if temp else ''} TABLE "{table_name}" ({','.join(column_names)}) 
             AS {self._build_full_query()}
@@ -941,7 +941,7 @@ class DataFrame:
     #     index_name: str = name if name is not None else "idx_" + uuid4().hex
     #     indexed_cols = ",".join([str(col) for col in columns])
     #     assert self._db is not None
-    #     self._db.execute(
+    #     self._db._execute(
     #         f"CREATE INDEX {index_name} ON {self.name} USING {method} ({indexed_cols})",
     #         has_results=False,
     #     )
@@ -957,7 +957,7 @@ class DataFrame:
             Iterable[Tuple[str]]: The results of *EXPLAIN* query.
         """
         assert self._db is not None
-        results = self._db.execute(f"EXPLAIN (FORMAT {format}) {self._build_full_query()}")
+        results = self._db._execute(f"EXPLAIN (FORMAT {format}) {self._build_full_query()}")  # type: ignore
         assert results is not None
         return results
 

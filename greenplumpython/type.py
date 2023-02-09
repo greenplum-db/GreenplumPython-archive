@@ -92,7 +92,7 @@ class Type:
                 for name, type_t in get_type_hints(self._annotation).items()
             ]
         )
-        db.execute(
+        db._execute(  # type: ignore
             f"CREATE TYPE {schema}.{self._name} AS (\n" f"{att_type_str}\n" f");",
             has_results=False,
         )

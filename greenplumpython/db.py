@@ -41,31 +41,16 @@ class Database:
         )
         self._conn.set_session(autocommit=True)
 
-    def execute(self, query: str, has_results: bool = True) -> Optional[Iterable[Tuple[Any]]]:
+    def _execute(self, query: str, has_results: bool = True) -> Optional[Iterable[Tuple[Any]]]:
         """
-        Return the result of SQL query executed in :class:`Database`
-
-        Args:
-            query: str : SQL query
-            has_results: bool : whether return None or results
-
-        Returns:
-            Optional[Iterable]: None or result of SQL query
-
-        Example:
-            .. highlight:: python
-            .. code-block::  python
-
-                >>> version = db.execute("SELECT version()")
-                >>> db.assign(version=lambda: version())
-                PostgreSQL 12.9 (Debian 12.9-1.pgdg110+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 10.2.1-6) 10.2.1 20210110, 64-bit
+        :meta private:
         """
 
         with self._conn.cursor() as cursor:
             if config.print_sql:
                 print(query)
             cursor.execute(query)
-            return cursor.fetchall() if has_results else None
+            return cursor.fetchall() if has_results else cursor.rowcount
 
     def close(self) -> None:
         """

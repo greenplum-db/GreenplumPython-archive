@@ -1,7 +1,6 @@
 from os import environ
 
 import pytest
-from sqlalchemy import create_engine
 
 import greenplumpython as gp
 
@@ -23,7 +22,7 @@ def db():
 def conn():
     host = "localhost"
     dbname = environ.get("TESTDB", "gpadmin")
-    conn = create_engine(f"postgresql://{host}/{dbname}")
+    conn = f"postgresql://{host}/{dbname}"
     yield conn
 
 

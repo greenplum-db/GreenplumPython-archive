@@ -306,7 +306,7 @@ class NormalFunction(_AbstractFunction):
             python_version = (sys.version_info.major, sys.version_info.minor)
             encode_lib_name: str = "__lib_" + uuid4().hex
             assert (
-                db.execute(
+                db._execute(  # type: ignore
                     (
                         f"CREATE FUNCTION {self._qualified_name} ({func_args}) "
                         f"RETURNS {return_type} "
@@ -329,7 +329,7 @@ class NormalFunction(_AbstractFunction):
                     ),
                     has_results=False,
                 )
-                is None
+                == -1
             )
             self._created_in_dbs.add(db)
 
@@ -400,7 +400,7 @@ class AggregateFunction(_AbstractFunction):
                 [f"{param.name} {to_pg_type(param.annotation, db)}" for param in param_list]
             )
             # -- Creation of UDA in Greenplum
-            db.execute(
+            db._execute(  # type: ignore
                 (
                     f"CREATE AGGREGATE {self.qualified_name} ({args_string}) (\n"
                     f"    SFUNC = {self.transition_function.qualified_name},\n"
