@@ -149,24 +149,23 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">numbers</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">,</span> <span class="s2">&quot;is_even&quot;</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">count</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">aggregate_function</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">numbers</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;is_even&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="n">count</span><span class="p">())</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">numbers</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;is_even&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">count</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;is_even&quot;</span><span class="p">)[:]</span>
 <span class="go">-----------------</span>
 <span class="go"> count | is_even</span>
 <span class="go">-------+---------</span>
-<span class="go">     5 |       1</span>
 <span class="go">     5 |       0</span>
+<span class="go">     5 |       1</span>
 <span class="go">-----------------</span>
 <span class="go">(2 rows)</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">numbers</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;is_even&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="n">count</span><span class="p">(),</span> <span class="n">as_name</span><span class="o">=</span><span class="s1">&#39;cnt&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">numbers</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;is_even&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">count</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">]),</span> <span class="n">as_name</span><span class="o">=</span><span class="s1">&#39;cnt&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;is_even&quot;</span><span class="p">)[:]</span>
 <span class="go">---------------</span>
 <span class="go"> cnt | is_even</span>
 <span class="go">-----+---------</span>
-<span class="go">   5 |       1</span>
 <span class="go">   5 |       0</span>
+<span class="go">   5 |       1</span>
 <span class="go">---------------</span>
 <span class="go">(2 rows)</span>
 
@@ -214,12 +213,12 @@
 <span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">numbers</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;is_even&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">count</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">count</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]),</span>
 <span class="gp">... </span>    <span class="nb">sum</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;is_even&quot;</span><span class="p">)[:]</span>
 <span class="go">-----------------------</span>
 <span class="go"> is_even | count | sum</span>
 <span class="go">---------+-------+-----</span>
-<span class="go">       1 |     5 |  20</span>
 <span class="go">       0 |     5 |  25</span>
+<span class="go">       1 |     5 |  20</span>
 <span class="go">-----------------------</span>
 <span class="go">(2 rows)</span>
 </pre></div>
@@ -262,14 +261,14 @@ each grouping set individually.</p>
 <span class="gp">... </span>    <span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;is_multiple_of_3&quot;</span><span class="p">))</span>
 <span class="gp">... </span>    <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">count</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]))</span>
 <span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)[:]</span>
 <span class="go">------------------------------------</span>
 <span class="go"> is_even | is_multiple_of_3 | count</span>
 <span class="go">---------+------------------+-------</span>
 <span class="go">         |                1 |     2</span>
-<span class="go">         |                0 |     4</span>
 <span class="go">       0 |                  |     3</span>
 <span class="go">       1 |                  |     3</span>
+<span class="go">         |                0 |     4</span>
 <span class="go">------------------------------------</span>
 <span class="go">(4 rows)</span>
 </pre></div>
