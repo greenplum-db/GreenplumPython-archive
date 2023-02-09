@@ -197,7 +197,6 @@ def database(
     password: Optional[str] = None,
     port: Optional[int] = None,
 ) -> Database:
-
     """
     Create a connection using psycopg2 with given arguments.
 
