@@ -1,5 +1,5 @@
 """
-This package supports pandas compatible API which involves `greenplumpython.pandas.DataFrame`.
+This package supports pandas compatible API which involves :class:`~pandas.dataframe.Dataframe`.
 
 This package contains classes and functions having same names and parameters as the equivalence in pandas to
 provide a Data Scientist familiar syntax. And at the same time, its DataFrame has same specifications as
@@ -34,6 +34,9 @@ class DataFrame:
         return c
 
     def __init__(self) -> None:
+        """
+        :meta private:
+        """
         self._dataframe: dataframe.DataFrame = None
         raise NotImplementedError
 
@@ -51,13 +54,14 @@ class DataFrame:
     ) -> int:
         """
         Write records stored in a DataFrame to a SQL database.
+
         Tables in database can be newly created, appended to, or overwritten.
 
-        This aligns with the function "pandas.DataFrame.to_sql()"
-        <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html>`_.
+        This aligns with the function
+        `pandas.DataFrame.to_sql() <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html>`_.
 
         Returns:
-            int: Number of rows affected by to_sql.
+            int: Number of rows affected by this function.
 
         Example:
             .. highlight:: python
@@ -107,7 +111,7 @@ class DataFrame:
         Convert a GreenplumPython Pandas compatible DataFrame to a GreenplumPython DataFrame.
 
         Returns:
-            a GreenplumPython :class:`~greenplumpython.dataframe.Dataframe`.
+            a GreenplumPython :class:`~dataframe.Dataframe`.
         """
         return self._dataframe
 
@@ -125,11 +129,12 @@ class DataFrame:
         """
         Sort by the values along columns.
 
-        This aligns with the function "pandas.DataFrame.sort_values()"
-        <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html>`_.
+        This aligns with the function
+        `pandas.DataFrame.sort_values() <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html>`_.
 
         Returns:
-            :class:`~pandas.dataframe.Dataframe`: class:`~pandas.dataframe.DataFrame` order by the given arguments.
+            :class:`~pandas.dataframe.Dataframe`: :class:`~pandas.dataframe.Dataframe`
+            order by the given arguments.
 
         Example:
             .. highlight:: python
@@ -171,11 +176,12 @@ class DataFrame:
         """
         Return DataFrame with duplicate rows removed.
 
-        This aligns with the function "pandas.DataFrame.drop_duplicates()"
-        <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.drop_duplicates.html>`_.
+        This aligns with the function
+        `pandas.DataFrame.drop_duplicates() <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.drop_duplicates.html>`_.
 
         Returns:
-            :class:`~pandas.dataframe.Dataframe`: class:`~pandas.dataframe.DataFrame` with duplicates removed.
+            :class:`~pandas.dataframe.Dataframe`: :class:`~pandas.dataframe.Dataframe`
+            with duplicates removed.
 
         Example:
             .. highlight:: python
@@ -224,11 +230,11 @@ class DataFrame:
 
         N.B: This function can't handle yet automatically suffixes when having the same column names on both sides.
 
-        This aligns with the function "pandas.DataFrame.merge()"
-        <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.merge.html>`_.
+        This aligns with the function
+        `pandas.DataFrame.merge() <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.merge.html>`_.
 
         Returns:
-            :class:`~pandas.dataframe.Dataframe`: class:`~pandas.dataframe.DataFrame` of the two merged class:`DataFrame`.
+            :class:`~pandas.dataframe.Dataframe`: :class:`~pandas.dataframe.DataFrame` of the two merged class:`DataFrame`.
 
         Example:
             .. highlight:: python
@@ -314,8 +320,8 @@ def read_sql(
     """
     Read SQL query or database table into a :class:`~pandas.dataframe.DataFrame`.
 
-    This aligns with the function "pandas.read_sql()"
-    <https://pandas.pydata.org/docs/reference/api/pandas.read_sql.html?highlight=read_sql>`_.
+    This aligns with the function
+    `pandas.read_sql() <https://pandas.pydata.org/docs/reference/api/pandas.read_sql.html?highlight=read_sql>`_.
 
     Returns:
         :class:`~pandas.dataframe.Dataframe`.

@@ -74,8 +74,8 @@ suppress_warnings = [
     # resolves this open issue:
     #    https://github.com/sphinx-doc/sphinx/issues/4961
     # Squelch mostly ignorable warnings resembling:
-    #     WARNING: more than one target found for cross-reference 'TypeHint':
-    #     beartype.door._doorcls.TypeHint, beartype.door.TypeHint
+    #     WARNING: more than one target found for cross-reference 'DataFrame':
+    #     dataframe.DataFrame, pandas.dataframe.DataFrame
     #
     # Sphinx currently emits *HUNDREDS* of these warnings against our
     # documentation. All of these warnings appear to be ignorable. Although we
@@ -84,5 +84,6 @@ suppress_warnings = [
     # of these warnings when parsing PEP-compliant type hints via static
     # analysis. Since those hints are actual hints that *CANNOT* by definition
     # by canonicalized, our only recourse is to squelch warnings altogether.
+    # In consequence, some DataFrame references in our doc are not correct.
     "ref.python",
 ]
