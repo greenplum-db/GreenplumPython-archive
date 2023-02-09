@@ -179,7 +179,7 @@ class DataFrameGroupingSet:
                 ...     .union(lambda t: t.group_by("is_multiple_of_3"))
                 ...     .assign(count=lambda t: count(t["val"]))
                 ... )
-                >>> results.order_by("count")[:]
+                >>> results.order_by("is_even")[:].order_by("count")[:]
                 ------------------------------------
                  is_even | is_multiple_of_3 | count
                 ---------+------------------+-------
