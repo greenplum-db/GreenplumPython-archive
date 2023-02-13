@@ -659,9 +659,9 @@ def test_agg_composite_type(db: gp.Database):
     def sum_count(result: sum_count_type, val: int) -> sum_count_type:
         if result is None:
             return SimpleNamespace(sum=val, count=1)
-        return SimpleNamespace(sum=result["count"] + val, count=result["count"] + 1)
+        return SimpleNamespace(sum=result["sum"] + val, count=result["count"] + 1)
 
-    rows = [(1,) for _ in range(10)]
+    rows = [(i,) for i in range(10)]
     numbers = db.create_dataframe(rows=rows, column_names=["val"])
     result = numbers.group_by().apply(lambda t: sum_count(t["val"]), expand=True)
     for row in result:
