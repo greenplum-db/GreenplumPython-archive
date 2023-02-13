@@ -19,9 +19,7 @@ class DataFrame:
 
     @classmethod
     def _from_sql(cls, sql: str, con: str):
-        """
-        :meta
-        """
+        """:meta private:."""
         c = super().__new__(cls)
         database = db.Database(url=con)
         c._dataframe = dataframe.DataFrame(query=sql, db=database)
@@ -29,17 +27,13 @@ class DataFrame:
 
     @classmethod
     def _from_native(cls, df: dataframe.DataFrame):
-        """
-        :meta private:
-        """
+        """:meta private:."""
         c = super().__new__(cls)
         c._dataframe = df
         return c
 
     def __init__(self) -> None:
-        """
-        :meta private:
-        """
+        """:meta private:."""
         self._dataframe: dataframe.DataFrame = None
         raise NotImplementedError
 
@@ -295,12 +289,14 @@ class DataFrame:
         return DataFrame._from_native(df)
 
     def __repr__(self) -> str:
+        """:meta private:."""
         return self._dataframe.__repr__()
 
     def _repr_html_(self) -> str:
         return self._dataframe._repr_html_()  # type: ignore
 
     def __iter__(self):
+        """:meta private:."""
         return self._dataframe.__iter__()
 
 
