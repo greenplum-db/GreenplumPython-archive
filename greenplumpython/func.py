@@ -389,8 +389,8 @@ class AggregateFunction(_AbstractFunction):
 
     - a :class:`~dataframe.DataFrame` with :meth:`~dataframe.DataFrame.apply`, where the function\
         will aggregate data in the entire dataframe;
-    - a :class:`~group.DataFrameGroupingSets` with :meth:`~group.DataFrameGroupingSets.assign`\
-        or :meth:`~group.DataFrameGroupingSets.apply`, where the function will\
+    - a :class:`~group.DataFrameGroupingSet` with :meth:`~group.DataFrameGroupingSet.assign`\
+        or :meth:`~group.DataFrameGroupingSet.apply`, where the function will\
         aggregate each group of data.
 
     An :class:`~func.AggregateFunction` is mapped to a User-Defined Aggregate (UDA)
@@ -404,7 +404,7 @@ class AggregateFunction(_AbstractFunction):
 
     and the :class:`~func.AggregateFunction` returns one value aggregating data in all
     rows of the :class:`~dataframe.DataFrame` or a group in the
-    :class:`~group.DataFrameGroupingSets`.
+    :class:`~group.DataFrameGroupingSet`.
     """
 
     def __init__(
@@ -464,8 +464,9 @@ class AggregateFunction(_AbstractFunction):
         Apply the current aggregate function to only each distinct set of the
         arguments.
 
-        For example, `count.distinct(t['a'])` means applying the
-        `count()` function to each distinct value of :class:`~col.Column` `t['a']`.
+        For example, :code:`count.distinct(t['a'])` means applying the
+        :code:`count()` function to each distinct value of :class:`~col.Column`
+        :code:`t['a']`.
 
         Args:
             args: Argument of the aggregate function.
@@ -635,8 +636,8 @@ class ColumnFunction(NormalFunction):
 
     - a :class:`~dataframe.DataFrame` with :meth:`~dataframe.DataFrame.apply`, where the function\
         will operate on columns in the entire dataframe;
-    - a :class:`~group.DataFrameGroupingSets` with :meth:`~group.DataFrameGroupingSets.assign`\
-        or :meth:`~group.DataFrameGroupingSets.apply`, where the function will operate\
+    - a :class:`~group.DataFrameGroupingSet` with :meth:`~group.DataFrameGroupingSet.assign`\
+        or :meth:`~group.DataFrameGroupingSet.apply`, where the function will operate\
         on columns of each group of data.
 
     As :class:`~func.NormalFunction`, a :class:`~func.ColumnFunction` is mapped to a UDF in
@@ -652,7 +653,7 @@ class ColumnFunction(NormalFunction):
 
     - One value of the return type when applied to a :class:`~dataframe.DataFrame`; or
     - One value for each group when applied to a\
-        :class:`~group.DataFrameGroupingSets`.
+        :class:`~group.DataFrameGroupingSet`.
 
     Note:
         The primary use case for column function is to implement complex
