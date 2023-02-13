@@ -13,9 +13,9 @@ if TYPE_CHECKING:
 
 class ColumnField(Expr):
     """
-    Inherited from :class:`Expr`.
+    Inherited from :class:`~expr.Expr`.
 
-    Representation of a field of a :class:`.Column` of composite type. This type
+    Representation of a field of a :class:`~col.Column` of composite type. This type
     allows to access to the fields in a dict-like manner.
     """
 
@@ -41,9 +41,9 @@ class ColumnField(Expr):
 
 class Column(Expr):
     """
-    Inherited from :class:`Expr`.
+    Inherited from :class:`~expr.Expr`.
 
-    Representation of a Python object :class:`.Column`.
+    Representation of a Python object :class:`~col.Column`.
     """
 
     def __init__(self, name: str, dataframe: "DataFrame") -> None:
@@ -63,7 +63,7 @@ class Column(Expr):
     @property
     def name(self) -> str:
         """
-        Returns :class:`Column` name
+        Returns :class:`~col.Column` name
 
         Returns:
             str: column name
@@ -73,17 +73,17 @@ class Column(Expr):
     @property
     def dataframe(self) -> Optional["DataFrame"]:
         """
-        Returns :class:`Column` associated :class:`~dataframe.DataFrame`
+        Returns :class:`~col.Column` associated :class:`~dataframe.DataFrame`
 
         Returns:
-            Optional[DataFrame]: :class:`~dataframe.DataFrame` associated with :class:`Column`
+            Optional[DataFrame]: :class:`~dataframe.DataFrame` associated with :class:`~col.Column`
         """
         return self._dataframe
 
     def __getitem__(self, field_name: str) -> ColumnField:
         """
         Used when want to use Field of Column for computation.
-        Returns :class:`ColumnField` of self by matching field_name
+        Returns :class:`~col.ColumnField` of self by matching field_name
 
         Args:
             field_name: str

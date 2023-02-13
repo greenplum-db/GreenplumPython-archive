@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Set, Tuple, get_type_hints
+from typing import Any, Dict, List, Optional, Set, Tuple, get_type_hints
 from uuid import uuid4
 
 from greenplumpython.db import Database
@@ -7,9 +7,7 @@ from greenplumpython.expr import Expr, serialize
 
 class TypeCast(Expr):
     """
-    Inherited from :class:`~expr.Expr`.
-
-    Representation of a Type Casting.
+    An expression of type casting.
 
     Example:
             .. highlight:: python
@@ -17,21 +15,21 @@ class TypeCast(Expr):
 
                 >>> rows = [(i,) for i in range(10)]
                 >>> series = db.create_dataframe(rows=rows, column_names=["val"]).save_as("series", column_names=["val"])
-                >>> regclass = gp.get_type("regclass")
+                >>> regclass = gp.type_("regclass")
                 >>> dataframe_name = series.assign(dataframe_name=lambda t: regclass(t["tableoid"]))
                 ----------------------
                  val | dataframe_name
                 -----+----------------
-                   0 | serie
-                   1 | serie
-                   2 | serie
-                   3 | serie
-                   4 | serie
-                   5 | serie
-                   6 | serie
-                   7 | serie
-                   8 | serie
-                   9 | serie
+                   0 | series
+                   1 | series
+                   2 | series
+                   3 | series
+                   4 | series
+                   5 | series
+                   6 | series
+                   7 | series
+                   8 | series
+                   9 | series
                 ----------------------
                 (10 rows)
     """
@@ -60,7 +58,19 @@ class TypeCast(Expr):
 
 class Type:
     """
-    A Type object in Greenplum database.
+    Represents a type of values in a :class:`DataFrame`.
+
+    It is mapped to a type in database, including
+
+        - A predefined type, such as :code:`integer` for :class:`int` and\
+            :code:`text` for :class:`str` in Python. In this case,\
+            `name` is specified for its name in database.
+        - A user-defined composite type, for Python :code:`class`. In this\
+            case, a type annotation object is provided such as the defined\
+            :code:`class`.
+
+    A :class:`~type.Type` object is callable. when called, it casts the object in
+    the argument to the mapped type in database.
     """
 
     def __init__(self, name: str, annotation: Optional[type] = None) -> None:
@@ -86,11 +96,11 @@ class Type:
         if self._created_in_dbs is None or db in self._created_in_dbs:
             return
         schema = "pg_temp"
+        members = get_type_hints(self._annotation)
+        if len(members) == 0:
+            raise Exception(f"Failed to get annotations for type {self._annotation}")
         att_type_str = ",\n".join(
-            [
-                f"{name} {to_pg_type(type_t, db)}"
-                for name, type_t in get_type_hints(self._annotation).items()
-            ]
+            [f"{name} {to_pg_type(type_t, db)}" for name, type_t in members.items()]
         )
         db.execute(
             f"CREATE TYPE {schema}.{self._name} AS (\n" f"{att_type_str}\n" f");",
@@ -98,7 +108,18 @@ class Type:
         )
         self._created_in_dbs.add(db)
 
-    def __call__(self, obj: object) -> TypeCast:
+    def __call__(self, obj: Any) -> TypeCast:
+        """
+        Cast the argument :code:`obj` to the corresponding type in database.
+
+        Args:
+            obj: the object to be casted. It can be one of the following
+
+                - Any adaptable Python object, or
+                - A :class:`Column` of a :class:`DataFrame`, or
+                - Any :class:`Expr` consisting of adaptable Python objects and
+                    :class:`Column`s of a :class:`DataFrame`.
+        """
         return TypeCast(obj, self._name)
 
     @property
@@ -117,16 +138,15 @@ _defined_types: Dict[Optional[type], Type] = {
 }
 
 
-def get_type(name: str) -> Type:
+def type_(name: str) -> Type:
     """
-    Returns the type corresponding to the name in the :class:`~db.Database` given.
+    Get access to a type predefined in database.
 
     Args:
         name: str: name of type
-        db: :class:`~db.Database`: database where stored type
 
     Returns:
-        Type: :class:`Type`
+        The predefined type as a :class:`~type.Type` object.
     """
 
     return Type(name)
@@ -140,7 +160,7 @@ def to_pg_type(
     """
     :meta private:
 
-    Conversion of Type from Python to Greenplum
+    Converts a Python type annotation to a SQL type.
 
     Args:
         annotation: type annotation in Python
