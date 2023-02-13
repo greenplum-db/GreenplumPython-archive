@@ -120,35 +120,27 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">AggregateFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transition_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><span class="pre">NormalFunction</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.AggregateFunction" title="Permalink to this definition"></a></dt>
 <dd><p>Represents an aggregate function that can be applied to</p>
 <ul class="simple">
-<li><dl class="simple">
-<dt>a <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> with <code class="xref py py-meth docutils literal notranslate"><span class="pre">DataFrame.apply()</span></code>, where the function</dt><dd><p>will aggregate data in the entire dataframe;</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>a <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSets</span></code> with <code class="xref py py-meth docutils literal notranslate"><span class="pre">DataFrameGroupingSets.assign()</span></code></dt><dd><p>or <code class="xref py py-meth docutils literal notranslate"><span class="pre">DataFrameGroupingSets.apply()</span></code>, where the function will
-aggregate each group of data.</p>
-</dd>
-</dl>
-</li>
+<li><p>a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with <a class="reference internal" href="dataframe.html#dataframe.DataFrame.apply" title="dataframe.DataFrame.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a>, where the function        will aggregate data in the entire dataframe;</p></li>
+<li><p>a <a class="reference internal" href="group.html#group.DataFrameGroupingSet" title="group.DataFrameGroupingSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSet</span></code></a> with <a class="reference internal" href="group.html#group.DataFrameGroupingSet.assign" title="group.DataFrameGroupingSet.assign"><code class="xref py py-meth docutils literal notranslate"><span class="pre">assign()</span></code></a>        or <a class="reference internal" href="group.html#group.DataFrameGroupingSet.apply" title="group.DataFrameGroupingSet.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a>, where the function will        aggregate each group of data.</p></li>
 </ul>
 <p>An <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> is mapped to a User-Defined Aggregate (UDA)
 function in database.</p>
 <p>When called, the arguments of an <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> can be</p>
 <ul class="simple">
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Column`s</span> <span class="pre">of</span> <span class="pre">a</span> <span class="pre">:class:`DataFrame</span></code>; or</p></li>
+<li><p><a class="reference internal" href="col.html#col.Column" title="col.Column"><code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code></a> of a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>; or</p></li>
 <li><p>constant values represented as Python objects.</p></li>
 </ul>
 <p>and the <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> returns one value aggregating data in all
-rows of the <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> or a group in the
-<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSets</span></code>.</p>
+rows of the <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> or a group in the
+<a class="reference internal" href="group.html#group.DataFrameGroupingSet" title="group.DataFrameGroupingSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSet</span></code></a>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="func.AggregateFunction.distinct">
 <span class="sig-name descname"><span class="pre">distinct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#func.FunctionExpr" title="func.FunctionExpr"><span class="pre">FunctionExpr</span></a></span></span><a class="headerlink" href="#func.AggregateFunction.distinct" title="Permalink to this definition"></a></dt>
 <dd><p>Apply the current aggregate function to only each distinct set of the
 arguments.</p>
-<p>For example, <cite>count.distinct(t[‘a’])</cite> means applying the
-<cite>count()</cite> function to each distinct value of <code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code> <cite>t[‘a’]</cite>.</p>
+<p>For example, <code class="code docutils literal notranslate"><span class="pre">count.distinct(t['a'])</span></code> means applying the
+<code class="code docutils literal notranslate"><span class="pre">count()</span></code> function to each distinct value of <a class="reference internal" href="col.html#col.Column" title="col.Column"><code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code></a>
+<code class="code docutils literal notranslate"><span class="pre">t['a']</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>args</strong> – Argument of the aggregate function.</p>
@@ -172,7 +164,7 @@ arguments.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="func.ArrayFunctionExpr">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">ArrayFunctionExpr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_AbstractFunction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrameGroupingSets</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataframe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Database</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distinct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.ArrayFunctionExpr" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">ArrayFunctionExpr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_AbstractFunction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrameGroupingSet</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataframe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Database</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distinct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.ArrayFunctionExpr" title="Permalink to this definition"></a></dt>
 <dd><p>Inherited from <a class="reference internal" href="#func.FunctionExpr" title="func.FunctionExpr"><code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionExpr</span></code></a>.</p>
 <p>Specialized for an Array Function.
 It will array aggregate all the columns given by the user.</p>
@@ -183,17 +175,8 @@ It will array aggregate all the columns given by the user.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">ColumnFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wrapped_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'plpython3u'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.ColumnFunction" title="Permalink to this definition"></a></dt>
 <dd><p>Represents a dataframe column function that can be applied to</p>
 <ul class="simple">
-<li><dl class="simple">
-<dt>a <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> with <code class="xref py py-meth docutils literal notranslate"><span class="pre">DataFrame.apply()</span></code>, where the function</dt><dd><p>will operate on columns in the entire dataframe;</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>a <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSets</span></code> with <code class="xref py py-meth docutils literal notranslate"><span class="pre">DataFrameGroupingSets.assign()</span></code></dt><dd><p>or <code class="xref py py-meth docutils literal notranslate"><span class="pre">DataFrameGroupingSets.apply()</span></code>, where the function will operate
-on columns of each group of data.</p>
-</dd>
-</dl>
-</li>
+<li><p>a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with <a class="reference internal" href="dataframe.html#dataframe.DataFrame.apply" title="dataframe.DataFrame.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a>, where the function        will operate on columns in the entire dataframe;</p></li>
+<li><p>a <a class="reference internal" href="group.html#group.DataFrameGroupingSet" title="group.DataFrameGroupingSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSet</span></code></a> with <a class="reference internal" href="group.html#group.DataFrameGroupingSet.assign" title="group.DataFrameGroupingSet.assign"><code class="xref py py-meth docutils literal notranslate"><span class="pre">assign()</span></code></a>        or <a class="reference internal" href="group.html#group.DataFrameGroupingSet.apply" title="group.DataFrameGroupingSet.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a>, where the function will operate        on columns of each group of data.</p></li>
 </ul>
 <p>As <a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalFunction</span></code></a>, a <a class="reference internal" href="#func.ColumnFunction" title="func.ColumnFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFunction</span></code></a> is mapped to a UDF in
 database.</p>
@@ -201,15 +184,11 @@ database.</p>
 <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a>. However, rather than operating on one row at a
 time, all rows of the entire column are aggregated into a <code class="code docutils literal notranslate"><span class="pre">list</span></code>
 before passing to <a class="reference internal" href="#func.ColumnFunction" title="func.ColumnFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFunction</span></code></a> as argument, except when the
-column is used as the grouping attribute in <code class="xref py py-meth docutils literal notranslate"><span class="pre">DataFrame.group_by()</span></code>.</p>
+column is used as the grouping attribute in <a class="reference internal" href="dataframe.html#dataframe.DataFrame.group_by" title="dataframe.DataFrame.group_by"><code class="xref py py-meth docutils literal notranslate"><span class="pre">group_by()</span></code></a>.</p>
 <p>A <a class="reference internal" href="#func.ColumnFunction" title="func.ColumnFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFunction</span></code></a> returns</p>
 <ul class="simple">
-<li><p>One value of the return type when applied to a <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>; or</p></li>
-<li><dl class="simple">
-<dt>One value for each group when applied to a a</dt><dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSets</span></code>.</p>
-</dd>
-</dl>
-</li>
+<li><p>One value of the return type when applied to a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>; or</p></li>
+<li><p>One value for each group when applied to a        <a class="reference internal" href="group.html#group.DataFrameGroupingSet" title="group.DataFrameGroupingSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSet</span></code></a>.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -217,37 +196,22 @@ column is used as the grouping attribute in <code class="xref py py-meth docutil
 analytics such as machine learning using your favorite Python packages.</p>
 <p>Inside a column function, the user can operate on all the data, rather
 than only part of it. As a result, the operation does <strong>not</strong> to satisfy
-certain restrictions such as
-<cite>Additivity&lt;https://en.wikipedia.org/wiki/Sigma-additive_set_function&gt;</cite>.
+certain restrictions such as <a class="reference external" href="https://en.wikipedia.org/wiki/Sigma-additive_set_function">Additivity</a>.
 This makes it possible to implement complex functions.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>However, such good usability comes at the cost of scalability.</p>
 <ul class="simple">
-<li><dl class="simple">
-<dt>Gathering data into one place makes it hard to exploit inter-machine</dt><dd><p>parallelism when backed by an MPP database system like Greenplum,
-especially when the number of groups is small. Fortunately, this
-can be alleviated because many Python packages are SIMD optimized.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>When the backing database system is PostgreSQL-derived, such as</dt><dd><p>Greenplum, the size of one value cannot be larger then 1 GB. This
-limits the size of problems column functions can solve. Currently,
-one way to mitigate this issue is to break a large
-<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> into more smaller groups and somehow combine
-the results of the column function for all groups.</p>
-</dd>
-</dl>
-</li>
+<li><p>Gathering data into one place makes it hard to exploit inter-machine            parallelism when backed by an MPP database system like Greenplum,            especially when the number of groups is small. Fortunately, this            can be alleviated because many Python packages are SIMD optimized.</p></li>
+<li><p>When the backing database system is PostgreSQL-derived, such as            Greenplum, the size of one value cannot be larger than 1 GB. This            limits the size of problems column functions can solve. Currently,            one way to mitigate this issue is to break a large            <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> into smaller groups and somehow combine            the results of the column function for all groups.</p></li>
 </ul>
 </div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="func.FunctionExpr">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">FunctionExpr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_AbstractFunction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrameGroupingSets</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataframe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Database</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distinct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.FunctionExpr" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">FunctionExpr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_AbstractFunction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrameGroupingSet</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataframe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Database</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distinct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.FunctionExpr" title="Permalink to this definition"></a></dt>
 <dd><p>Inherited from <a class="reference internal" href="expr.html#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a>.</p>
 <p>A Function Expression object associated with a Greenplum function which can be called and applied to
 Greenplum data.</p>
@@ -258,16 +222,16 @@ Greenplum data.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">NormalFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wrapped_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'plpython3u'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.NormalFunction" title="Permalink to this definition"></a></dt>
 <dd><p>Represents a (normal) dataframe function that can be applied to</p>
 <ul class="simple">
-<li><p>a <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span> <span class="pre">with</span> <span class="pre">:meth:`DataFrame.assign</span></code> or
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">DataFrame.apply()</span></code>;</p></li>
-<li><p>a <code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code> when no <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span> <span class="pre">is</span> <span class="pre">involved</span> <span class="pre">with</span>
-<span class="pre">:meth:`Database.assign</span></code> or <code class="xref py py-meth docutils literal notranslate"><span class="pre">Database.apply()</span></code>.</p></li>
+<li><p>a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with <a class="reference internal" href="dataframe.html#dataframe.DataFrame.assign" title="dataframe.DataFrame.assign"><code class="xref py py-meth docutils literal notranslate"><span class="pre">assign()</span></code></a> or
+<a class="reference internal" href="dataframe.html#dataframe.DataFrame.apply" title="dataframe.DataFrame.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a>;</p></li>
+<li><p>a <a class="reference internal" href="db.html#db.Database" title="db.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a> when no <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> is involved with
+<a class="reference internal" href="db.html#db.Database.assign" title="db.Database.assign"><code class="xref py py-meth docutils literal notranslate"><span class="pre">assign()</span></code></a> or <a class="reference internal" href="db.html#db.Database.apply" title="db.Database.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a>.</p></li>
 </ul>
 <p>A <a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalFunction</span></code></a> is mapped to a User-Defined Function (UDF) in
 database.</p>
 <p>When called, the arguments of an <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> can be</p>
 <ul class="simple">
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Column`s</span> <span class="pre">of</span> <span class="pre">a</span> <span class="pre">:class:`DataFrame</span></code>, or</p></li>
+<li><p><a class="reference internal" href="col.html#col.Column" title="col.Column"><code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code></a> of a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>; or</p></li>
 <li><p>constant values represented as Python objects</p></li>
 </ul>
 <p>and the <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> returns one value of the return type
@@ -292,9 +256,8 @@ database.</p>
 <li><p><strong>schema</strong> – Schema (a.k.a namespace) of the aggregate function in database.</p></li>
 </ul>
 </dd>
-</dl>
-<dl class="simple">
-<dt>Returns</dt><dd><p>The <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> with the specified <code class="code docutils literal notranslate"><span class="pre">name</span></code>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> with the specified <code class="code docutils literal notranslate"><span class="pre">name</span></code>
 and <code class="code docutils literal notranslate"><span class="pre">schema</span></code>.</p>
 </dd>
 </dl>
@@ -400,26 +363,9 @@ defaults to plpython3u, will also support plcontainer later.</p></li>
 <li><p><strong>wrapped_func</strong> – <p>the Python function carrying out the computation. Its
 definition need to follow the conventions below:</p>
 <ul>
-<li><dl class="simple">
-<dt>The function needs to be defined with the <code class="code docutils literal notranslate"><span class="pre">def</span></code> keyword.</dt><dd><p>Lambda expressions as the wrapped function are not supported
-yet.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>Each parameter and the return value needs to be annotated with</dt><dd><p>native Python type. The type annotations will be mapped to
-the types in database automatically.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>A <a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalFunction</span></code></a> can return multiple values. In that</dt><dd><p>case, the return type of the wrapped Python function needs
-to be a Python <code class="code docutils literal notranslate"><span class="pre">class</span></code> with members annotated. It is
-recommended to use <code class="xref py py-class docutils literal notranslate"><span class="pre">dataclasses.dataclass</span></code> as return
-type.</p>
-</dd>
-</dl>
-</li>
+<li><p>The function needs to be defined with the <code class="code docutils literal notranslate"><span class="pre">def</span></code> keyword.                Lambda expressions as the wrapped function are not supported                yet.</p></li>
+<li><p>Each parameter and the return value needs to be annotated with                native Python type. The type annotations will be mapped to                the types in database automatically.</p></li>
+<li><p>A <a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalFunction</span></code></a> can return multiple values. In that                case, the return type of the wrapped Python function needs                to be a Python <code class="code docutils literal notranslate"><span class="pre">class</span></code> with members annotated. It is                recommended to use <code class="xref py py-class docutils literal notranslate"><span class="pre">dataclasses.dataclass</span></code> as return                type.</p></li>
 </ul>
 </p></li>
 <li><p><strong>language_handler</strong> – language handler to run the function in database,
@@ -435,23 +381,8 @@ defaults to plpython3u, will also support plcontainer later.</p></li>
 <p>The created function is actually executed on the remote database
 server. To send it to the server, when creating the dataframe function,</p>
 <ul class="simple">
-<li><dl class="simple">
-<dt>Package <cite>dill &lt;https://dill.readthedocs.io/en/latest/&gt;</cite>, by the</dt><dd><p>Uncertainty Quantification Foundation, is used to serialize the
-wrapped Python function and its dependencies when applicable.
-Therefore, it is recommended to install dill on the host of the
-backing database server.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>If dill is not installed on the server, or the Python versions</dt><dd><p>between client and server does not match, the source code of
-the wrapped Python function will be transmitted to the server,
-along with all the import statements for dependencies used by the
-function. In that case, the modules imported need to be installed
-on server in advance.</p>
-</dd>
-</dl>
-</li>
+<li><p>Package <a class="reference external" href="https://dill.readthedocs.io/en/latest/">dill</a>, by the            Uncertainty Quantification Foundation, is used to serialize the            wrapped Python function and its dependencies when applicable.            Therefore, it is recommended to install dill on the host of the            backing database server.</p></li>
+<li><p>If dill is not installed on the server, or the Python versions            between client and server does not match, the source code of            the wrapped Python function will be transmitted to the server,            along with all the import statements for dependencies used by the            function. In that case, the modules imported need to be installed            on server in advance.</p></li>
 </ul>
 </div>
 <p class="rubric">Example</p>
