@@ -975,7 +975,7 @@ class DataFrame:
 
         Returns:
             :class:`~group.DataFrameGroupingSet`: a set of groups of the current
-            :class:`~dataframe.DataFrame`. Each group is identified by a different 
+            :class:`~dataframe.DataFrame`. Each group is identified by a different
             set of values of the columns in the arguments.
         """
         #  State transition diagram:

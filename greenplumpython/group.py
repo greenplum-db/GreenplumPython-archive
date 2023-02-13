@@ -45,8 +45,7 @@ class DataFrameGroupingSet:
         column_name: Optional[str] = None,
     ) -> "DataFrame":
         """
-        Apply a dataframe function to each group of the :code:`self` grouping
-        set.
+        Apply a dataframe function to each group of the :code:`self` grouping set.
 
         The arguemnts and the return type is the same as
         :meth:`~dataframe.DataFrame.apply`.
