@@ -392,15 +392,16 @@ class DataFrame:
                 >>> rows = [(i,) for i in range(10)]
                 >>> series = db.create_dataframe(rows=rows, column_names=["id"])
                 >>> @gp.create_function
-                >>> def label(prefix: str, id: int) -> str:
-                >>>     prefix = "id"
-                >>>     return f"{prefix}_{id}"
+                ... def label(prefix: str, id: int) -> str:
+                ...     prefix = "id"
+                ...     return f"{prefix}_{id}"
 
-                >>> result = series.apply(lambda t: label("label", t["id"]))
+                >>> result = series.apply(lambda t: label("label", t["id"]),
+                ...                       column_name = "label")
                 >>> result
-                ---------------------------------------
-                 func_d3da7bdf5c294e8cbaddac65e7027e69
-                ---------------------------------------
+                -------
+                 label
+                -------
                  id_0
                  id_1
                  id_2
@@ -411,7 +412,7 @@ class DataFrame:
                  id_7
                  id_8
                  id_9
-                ---------------------------------------
+                -------
                 (10 rows)
         """
         # We need to support calling functions with constant args or even no
@@ -504,9 +505,9 @@ class DataFrame:
             .. code-block::  Python
 
                 >>> columns = {"id": [3, 1, 2], "b": [1, 2, 3]}
-                >>> t = gp.DataFrame.from_columns(columns, db=db
-                >>> t.order_by("id")[:]
-                >>> t
+                >>> t = gp.DataFrame.from_columns(columns, db=db)
+                >>> result = t.order_by("id")[:]
+                >>> result
                 --------
                  id | b
                 ----+---
@@ -577,20 +578,21 @@ class DataFrame:
                 >>> students = [("alice", 18), ("bob", 19), ("carol", 19)]
                 >>> student = gp.DataFrame.from_rows(students, column_names=["name", "age"], db=db)
                 >>> student_2 = student.save_as(table_name="students_2", column_names=["name", "age"], temp=True)
-                >>> student.join(
-                        student_2,
-                        on="age",
-                        self_columns={"*"},
-                        other_columns={"name": "name_2"},
-                    )
+                >>> result = student.join(
+                ...     student_2,
+                ...     on="age",
+                ...     self_columns={"*"},
+                ...     other_columns={"name": "name_2"})
+                >>> result = result.order_by("age").order_by("name").order_by("name_2")[:]
+                >>> result
                 ----------------------
                  name  | age | name_2
                 -------+-----+--------
-                 carol |  19 | bob
-                 bob   |  19 | bob
                  alice |  18 | alice
-                 carol |  19 | carol
+                 bob   |  19 | bob
                  bob   |  19 | carol
+                 carol |  19 | bob
+                 carol |  19 | carol
                 ----------------------
                 (5 rows)
         """
@@ -903,7 +905,7 @@ class DataFrame:
 
                 >>> nums = db.create_dataframe(rows=[(i,) for i in range(5)], column_names=["num"])
                 >>> df = nums.save_as("const_table", column_names=["num"], temp=True)
-                >>> df
+                >>> df.order_by("num")[:]
                 -----
                  num
                 -----
@@ -1017,13 +1019,13 @@ class DataFrame:
 
                 >>> students = [("alice", 18), ("bob", 19), ("carol", 19)]
                 >>> student = gp.DataFrame.from_rows(students, column_names=["name", "age"], db=db)
-                >>> student.distinct_on("age")
-                -------------
-                 name  | age
-                -------+-----
-                 alice |  18
-                 bob   |  19
-                -------------
+                >>> student.distinct_on("age")[['age']]
+                -----
+                 age
+                -----
+                  18
+                  19
+                -----
                 (2 rows)
         """
         cols = [Column(name, self).serialize() for name in column_names]
