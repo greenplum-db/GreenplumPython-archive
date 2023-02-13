@@ -1,0 +1,5 @@
+Operator
+========
+
+.. automodule:: op
+   :members:
