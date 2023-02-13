@@ -492,7 +492,7 @@ class InExpr(Expr):
         container_name: str = "cte_" + uuid4().hex
         return (
             (
-                f'(EXISTS (SELECT FROM "{self.other_dataframe.name}"'
+                f"(EXISTS (SELECT FROM {self.other_dataframe.name}"
                 f" WHERE ({self._container.serialize()} = {self._item.serialize()})))"
             )
             if isinstance(self._container, Expr) and self.other_dataframe is not None

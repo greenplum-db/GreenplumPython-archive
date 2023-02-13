@@ -67,6 +67,7 @@ class DataFrame:
         query: str,
         parents: List["DataFrame"] = [],
         name: Optional[str] = None,
+        schema: Optional[str] = None,
         db: Optional[Database] = None,
         columns: Optional[Iterable[Column]] = None,
     ) -> None:
@@ -74,6 +75,7 @@ class DataFrame:
         # noqa
         self._query = query
         self._parents = parents
+        self._schema = schema
         self._name = "cte_" + uuid4().hex if name is None else name
         self._columns = columns
         self._contents: Optional[Iterable[RealDictRow]] = None
@@ -679,7 +681,17 @@ class DataFrame:
         Returns:
             str: :class:`~dataframe.DataFrame`'s name.
         """
-        return self._name
+        return self._name if self._schema is None else f"{self._schema}.{self._name}"
+
+    @property
+    def _serialize(self) -> str:
+        """
+        Return the name of :class:`~dataframe.DataFrame`.
+
+        Returns:
+            str: :class:`~dataframe.DataFrame`'s name.
+        """
+        return f'"{self._name}"' if self._schema is None else f'"{self._schema}"."{self._name}"'
 
     @property
     def db(self) -> Optional[Database]:
@@ -874,7 +886,8 @@ class DataFrame:
 
     def save_as(
         self,
-        table_name: str,
+        dataframe_name: str,
+        schema_name: str = None,
         column_names: List[str] = [],
         temp: bool = False,
         storage_params: dict[str, Any] = {},
@@ -889,6 +902,7 @@ class DataFrame:
 
         Args:
             dataframe_name : str
+            schema_name: str by default is public if None
             temp : bool : if table is temporary
             column_names : List : list of column names
             storage_params: dict: storage_parameter of gpdb, reference
@@ -936,16 +950,19 @@ class DataFrame:
         storage_parameters = (
             f"WITH ({','.join([f'{key}={storage_params[key]}' for key in storage_params.keys()])})"
         )
+        df_full_name = (
+            f'"{dataframe_name}"' if schema_name is None else f'"{schema_name}"."{dataframe_name}"'
+        )
         self._db.execute(
             f"""
-            CREATE {'TEMP' if temp else ''} TABLE "{table_name}"
+            CREATE {'TEMP' if temp else ''} TABLE {df_full_name}
             ({','.join(column_names)})
             {storage_parameters if storage_params else ''}
             AS {self._build_full_query()}
             """,
             has_results=False,
         )
-        return DataFrame.from_table(table_name, self._db)
+        return DataFrame.from_table(dataframe_name, self._db)
 
     # TODO: Uncomment or remove this.
     #
@@ -1033,7 +1050,7 @@ class DataFrame:
 
     # dataframe_name can be table/view name
     @classmethod
-    def from_table(cls, table_name: str, db: Database) -> "DataFrame":
+    def from_table(cls, table_name: str, db: Database, schema_name: str = None) -> "DataFrame":
         """
         Return a :class:`~dataframe.DataFrame` which represents the given table in the :class:`~db.Database`.
 
@@ -1046,7 +1063,9 @@ class DataFrame:
             df = gp.DataFrame.from_table("pg_class", db=db)
 
         """
-        return DataFrame(f'TABLE "{table_name}"', name=table_name, db=db)
+        return DataFrame(
+            f'TABLE "{schema_name}"."{table_name}"', name=table_name, schema=schema_name, db=db
+        )
 
     @classmethod
     def from_rows(

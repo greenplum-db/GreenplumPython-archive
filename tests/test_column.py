@@ -30,3 +30,9 @@ def test_expr_column_str_in_query(db: gp.Database, dataframe: gp.DataFrame):
     tr = gp.DataFrame(query=query, db=db)
     for row in tr:
         assert list(row.keys()) == ["id"]
+
+
+def test_table_with_schema(db: gp.Database):
+    pg_class = db.create_dataframe(table_name="pg_class", schema_name="pg_catalog")
+    result = pg_class.order_by("oid")[:1][["oid"]]
+    assert result["oid"] == 112

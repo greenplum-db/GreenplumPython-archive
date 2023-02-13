@@ -55,9 +55,9 @@ class Column(Expr):
         assert self.dataframe is not None
         # Quote both dataframe name and column name to avoid SQL injection.
         return (
-            f'"{self.dataframe.name}"."{self.name}"'
+            f'{self.dataframe._serialize}."{self.name}"'
             if self.name != "*"
-            else f'"{self.dataframe.name}".*'
+            else f"{self.dataframe._serialize}.*"
         )
 
     @property
