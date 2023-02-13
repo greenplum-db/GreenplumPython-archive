@@ -87,7 +87,7 @@ class DataFrameGroupingSet:
                 -----------------
                 (2 rows)
 
-                >>> results = numbers.group_by("is_even").apply(lambda row: count(row["*"]), as_name='cnt')
+                >>> results = numbers.group_by("is_even").apply(lambda row: count(row["*"]), column_name='cnt')
                 >>> results.order_by("is_even")[:]
                 ---------------
                  cnt | is_even
