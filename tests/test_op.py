@@ -25,9 +25,9 @@ def test_op_index(db: gp.Database):
     student = db.create_dataframe(rows=rows, column_names=["info"]).save_as(
         "student", temp=True, column_names=["info"]
     )
-    db.execute("CREATE INDEX student_name ON student USING gin (info)", has_results=False)
+    db._execute("CREATE INDEX student_name ON student USING gin (info)", has_results=False)
 
-    db.execute("SET enable_seqscan TO False", has_results=False)
+    db._execute("SET enable_seqscan TO False", has_results=False)
     json_contains = gp.operator("@>", db)
     results = student[lambda t: json_contains(t["info"], json.dumps({"name": "john"}))]._explain()
     uses_index_scan = False

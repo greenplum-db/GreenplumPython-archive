@@ -35,8 +35,8 @@ class ColumnField(Expr):
     def column(self) -> "Column":
         return self._column
 
-    def serialize(self) -> str:
-        return f'({self.column.serialize()})."{self._field_name}"'
+    def _serialize(self) -> str:
+        return f'({self.column._serialize()})."{self._field_name}"'  # type: ignore
 
 
 class Column(Expr):
@@ -51,7 +51,7 @@ class Column(Expr):
         self._name = name
         self._type: Optional[Type] = None  # TODO: Add type inference
 
-    def serialize(self) -> str:
+    def _serialize(self) -> str:
         assert self.dataframe is not None
         # Quote both dataframe name and column name to avoid SQL injection.
         return (
