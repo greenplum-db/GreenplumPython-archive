@@ -327,7 +327,7 @@ def test_table_non_default_schema(db: gp.Database):
 
 
 def test_table_with_ao(db: gp.Database):
-    result = db.execute("SELECT VERSION();")
+    result = db._execute("SELECT VERSION();")
 
     if not result:
         return
@@ -346,7 +346,7 @@ def test_table_with_ao(db: gp.Database):
 
 
 def test_table_with_aoco(db: gp.Database):
-    result = db.execute("SELECT VERSION();")
+    result = db._execute("SELECT VERSION();")
 
     if not result:
         return
