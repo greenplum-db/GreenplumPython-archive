@@ -1,5 +1,5 @@
 """
-This module creates a Python object :class:`Row` for GreenplumPython DataFrame iteration.
+This module creates a Python object :class:`~row.Row` for GreenplumPython DataFrame iteration.
 """
 from typing import Any, Dict, Iterable, List, Tuple, Union
 
@@ -8,7 +8,7 @@ class Row:
     """
     Represents a row of :class:`~dataframe.DataFrame`.
 
-    A :class:`Row` is conceptually an immutable :class:`dict`.
+    A :class:`~row.Row` is conceptually an immutable :class:`dict`.
     """
 
     def __init__(self, contents: Dict[str, Union[Any, List[Any]]]):

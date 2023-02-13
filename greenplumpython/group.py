@@ -42,18 +42,32 @@ class DataFrameGroupingSet:
         self,
         func: Callable[["DataFrame"], "FunctionExpr"],
         expand: bool = False,
-        as_name: Optional[str] = None,
+        column_name: Optional[str] = None,
     ) -> "DataFrame":
         """
-        Apply a function to the grouping set.
+        Apply a dataframe function to each group of the :code:`self` grouping set.
 
-        Args:
-            func: an aggregate function to apply.
-            expand: expand fields if `func` returns composite type.
-            as_name: rename returning column.
+        The arguemnts and the return type is the same as
+        :meth:`~dataframe.DataFrame.apply`.
 
-        Returns:
-            DataFrame: resulted :class:`~dataframe:DataFrame`.
+        The differences between them are
+
+        - :meth:`~dataframe.DataFrame.apply` operates on the entire :class:`~dataframe.DataFrame`, while\
+            this method operate on only one group.
+        - For :meth:`~dataframe.DataFrame.apply`, the resulting :class:`~dataframe.DataFrame` will only\
+            contain the return value of the function, while for this method, the\
+            resulting :class:`~dataframe.DataFrame` will contain the grouping attributes as\
+            columns.
+
+        Warning:
+            An exception will be raised when the data of the resulting
+            :class:`~dataframe.DataFrame` is observed if there is name conflict, possibly
+            due to
+
+            - The assigned column name in :code:`column_name` or
+            - The names of members in the composite type if :code:`expend` is :code:`True`
+
+            conflict with the name of the grouping attributes.
 
         Example:
             .. highlight::  python
@@ -72,7 +86,7 @@ class DataFrameGroupingSet:
                 -----------------
                 (2 rows)
 
-                >>> results = numbers.group_by("is_even").apply(lambda row: count(row["*"]), as_name='cnt')
+                >>> results = numbers.group_by("is_even").apply(lambda row: count(row["*"]), column_name='cnt')
                 >>> results.order_by("is_even")[:]
                 ---------------
                  cnt | is_even
@@ -86,7 +100,7 @@ class DataFrameGroupingSet:
                 ...     sum: int
                 ...     count: int
                 ...
-                >>> @gp.create_array_function
+                >>> @gp.create_column_function
                 ... def my_count_sum(val_list: List[int]) -> array_sum:
                 ...     return {"sum": sum(val_list), "count": len(val_list)}
                 ...
@@ -100,18 +114,20 @@ class DataFrameGroupingSet:
                 -----------------------
                 (2 rows)
         """
-        return func(self._dataframe).bind(group_by=self).apply(expand=expand, as_name=as_name)
+        return (
+            func(self._dataframe).bind(group_by=self).apply(expand=expand, column_name=column_name)
+        )
 
     def assign(self, **new_columns: Callable[["DataFrame"], Any]) -> "DataFrame":
         """
-        Assign new columns to the current grouping sets.
+        Assign new columns to the current grouping set.
 
         **NOTE:** Existing columns cannot be reassigned.
 
         Args:
-            new_columns: a :class:`dict` whose keys are column names and values are
-                         :class:`Callable`. The :class:`Callable` will be applied to the current
-                         :class:`DataFrameGroupingSet` and return the column data.
+            new_columns: a :class:`dict` whose keys are column names and values
+                are :class:`Callable`'s returning column data when applied to the
+                current :class:`~group.DataFrameGroupingSet`.
 
         Returns:
             :class:`~dataframe.DataFrame` with the new columns.
@@ -156,8 +172,8 @@ class DataFrameGroupingSet:
         """
         Union with another :class:`DataFrameGroupingSet`.
 
-        So that when applying an aggregate function to the list, the function will be applied to
-        each grouping set individually.
+        When applying an aggregate function to the list, the function will be applied to
+        each group in the grouping set individually.
 
         Args:
             other: a :class:`Callable` returning the result of
