@@ -328,6 +328,16 @@ def test_table_non_default_schema(db: gp.Database):
 
 
 def test_table_with_ao(db: gp.Database):
+    result = db.execute("SELECT VERSION();")
+
+    if not result:
+        return
+
+    version: str = result[0]["version"]
+
+    if "Greenplum" not in version:
+        return
+
     columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
     t = db.create_dataframe(columns=columns)
     # pass if no error
@@ -337,6 +347,16 @@ def test_table_with_ao(db: gp.Database):
 
 
 def test_table_with_aoco(db: gp.Database):
+    result = db.execute("SELECT VERSION();")
+
+    if not result:
+        return
+
+    version: str = result[0]["version"]
+
+    if "Greenplum" not in version:
+        return
+
     columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
     t = db.create_dataframe(columns=columns)
     # pass if no error
