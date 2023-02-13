@@ -368,7 +368,7 @@ div.rendered_html tbody tr:hover {
 <h1>Prepare Data<a class="headerlink" href="#Prepare-Data" title="Permalink to this heading"></a></h1>
 <p>First, connect to the <code class="docutils literal notranslate"><span class="pre">gpadmin</span></code> database and populate some data into <code class="docutils literal notranslate"><span class="pre">demo</span></code> table.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> sql
@@ -386,7 +386,7 @@ The sql extension is already loaded. To reload it, use:
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">sql</span>
@@ -410,7 +410,7 @@ Done.
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -423,7 +423,7 @@ Done.
 <h1>Selecting the Database of Your Data<a class="headerlink" href="#Selecting-the-Database-of-Your-Data" title="Permalink to this heading"></a></h1>
 <p>To begin with, we need to select the database that contains the data we want:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">greenplumpython</span> <span class="k">as</span> <span class="nn">gp</span>
@@ -437,7 +437,7 @@ Done.
 <h1>Accessing a DataFrame in the Database<a class="headerlink" href="#Accessing-a-DataFrame-in-the-Database" title="Permalink to this heading"></a></h1>
 <p>After selecting the database, we can access a dataframe in the database by specifying its name:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;demo&quot;</span><span class="p">)</span>
@@ -446,7 +446,7 @@ Done.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -457,19 +457,14 @@ Done.
             <th>k</th>
     </tr>
     <tr>
-            <td>1</td>
-            <td>1</td>
-            <td>1</td>
+            <td>4</td>
+            <td>4</td>
+            <td>4</td>
     </tr>
     <tr>
-            <td>5</td>
-            <td>5</td>
-            <td>5</td>
-    </tr>
-    <tr>
-            <td>4</td>
-            <td>4</td>
-            <td>4</td>
+            <td>7</td>
+            <td>7</td>
+            <td>7</td>
     </tr>
     <tr>
             <td>6</td>
@@ -492,6 +487,11 @@ Done.
             <td>0</td>
     </tr>
     <tr>
+            <td>1</td>
+            <td>1</td>
+            <td>1</td>
+    </tr>
+    <tr>
             <td>2</td>
             <td>2</td>
             <td>2</td>
@@ -502,15 +502,15 @@ Done.
             <td>3</td>
     </tr>
     <tr>
-            <td>7</td>
-            <td>7</td>
-            <td>7</td>
+            <td>5</td>
+            <td>5</td>
+            <td>5</td>
     </tr>
 </table></div>
 </div>
 <p>And of course, we can <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> the first ordered N rows of a dataframe, like this:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span>
@@ -518,7 +518,7 @@ Done.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -586,7 +586,7 @@ Done.
 <p>Now we have a dataframe. We can do basic data manipulation on it, just like in SQL.</p>
 <p>For example, we can <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> a subset of its columns:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_ij</span> <span class="o">=</span> <span class="n">t</span><span class="p">[[</span><span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="s2">&quot;j&quot;</span><span class="p">]]</span>
@@ -595,7 +595,7 @@ Done.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -605,8 +605,20 @@ Done.
             <th>j</th>
     </tr>
     <tr>
+            <td>0</td>
+            <td>0</td>
+    </tr>
+    <tr>
             <td>1</td>
             <td>1</td>
+    </tr>
+    <tr>
+            <td>2</td>
+            <td>2</td>
+    </tr>
+    <tr>
+            <td>3</td>
+            <td>3</td>
     </tr>
     <tr>
             <td>5</td>
@@ -615,6 +627,10 @@ Done.
     <tr>
             <td>4</td>
             <td>4</td>
+    </tr>
+    <tr>
+            <td>7</td>
+            <td>7</td>
     </tr>
     <tr>
             <td>6</td>
@@ -627,28 +643,12 @@ Done.
     <tr>
             <td>9</td>
             <td>9</td>
-    </tr>
-    <tr>
-            <td>0</td>
-            <td>0</td>
-    </tr>
-    <tr>
-            <td>2</td>
-            <td>2</td>
-    </tr>
-    <tr>
-            <td>3</td>
-            <td>3</td>
-    </tr>
-    <tr>
-            <td>7</td>
-            <td>7</td>
     </tr>
 </table></div>
 </div>
 <p>And we can also <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> a subset of its rows. Say we want all the even numbers:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_even</span> <span class="o">=</span> <span class="n">t_ij</span><span class="p">[</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;i&quot;</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
@@ -657,7 +657,7 @@ Done.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -667,14 +667,6 @@ Done.
             <th>j</th>
     </tr>
     <tr>
-            <td>0</td>
-            <td>0</td>
-    </tr>
-    <tr>
-            <td>2</td>
-            <td>2</td>
-    </tr>
-    <tr>
             <td>4</td>
             <td>4</td>
     </tr>
@@ -685,12 +677,20 @@ Done.
     <tr>
             <td>8</td>
             <td>8</td>
+    </tr>
+    <tr>
+            <td>0</td>
+            <td>0</td>
+    </tr>
+    <tr>
+            <td>2</td>
+            <td>2</td>
     </tr>
 </table></div>
 </div>
 <p>For a quick glance, we can <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> the first unordered N rows of a dataframe, like this:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_n</span> <span class="o">=</span> <span class="n">t_even</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
@@ -699,7 +699,7 @@ Done.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -724,7 +724,7 @@ Done.
 </div>
 <p>Finally when we are done, we can save the resulting dataframe to the database, either temporarily or persistently:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_n</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;t_n&quot;</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="s2">&quot;j&quot;</span><span class="p">],</span> <span class="n">temp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -732,7 +732,7 @@ Done.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -760,7 +760,7 @@ Done.
 <h1><code class="docutils literal notranslate"><span class="pre">JOIN</span></code>-ing Two DataFrames<a class="headerlink" href="#JOIN-ing-Two-DataFrames" title="Permalink to this heading"></a></h1>
 <p>We can also <code class="docutils literal notranslate"><span class="pre">JOIN</span></code> two dataframes with GreenplumPython. For example, suppose we have two dataframes like this:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[</span>
@@ -775,7 +775,7 @@ Done.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -803,7 +803,7 @@ Done.
 </table></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[</span>
@@ -818,7 +818,7 @@ Done.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -847,7 +847,7 @@ Done.
 </div>
 <p>We can <code class="docutils literal notranslate"><span class="pre">JOIN</span></code> the two dataframe like this:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_join</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -867,7 +867,7 @@ Done.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -910,7 +910,7 @@ Done.
 <p>Calling functions is essential for data analytics. GreenplumPython supports creating Greenplum UDFs and UDAs from Python functions and calling them in Python.</p>
 <p>Suppose we have a dataframe of numbers:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
@@ -920,7 +920,7 @@ Done.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -962,7 +962,7 @@ Done.
 </div>
 <p>If we want to get the square of each number, we can write a function to do that:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_function</span>
@@ -970,12 +970,12 @@ Done.
     <span class="k">return</span> <span class="n">a</span><span class="o">**</span><span class="mi">2</span>
 
 
-<span class="n">numbers</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">square</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]),</span> <span class="n">as_name</span><span class="o">=</span><span class="s2">&quot;square&quot;</span><span class="p">)</span>
+<span class="n">numbers</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">square</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]),</span> <span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;square&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1018,7 +1018,7 @@ Done.
 <p>Note that this function is called in exactly the same way as ordinary Python functions.</p>
 <p>If we also want to get the sum of these numbers, what we need is to write an aggregate function like this:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_aggregate</span>
@@ -1028,12 +1028,12 @@ Done.
     <span class="k">return</span> <span class="n">result</span> <span class="o">+</span> <span class="n">val</span>
 
 
-<span class="n">numbers</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">my_sum</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]),</span> <span class="n">as_name</span><span class="o">=</span><span class="s2">&quot;sum&quot;</span><span class="p">)</span>
+<span class="n">numbers</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">my_sum</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]),</span> <span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;sum&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">

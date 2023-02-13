@@ -128,23 +128,26 @@
 <a class="reference internal" href="#group.DataFrameGroupingSet" title="group.DataFrameGroupingSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSet</span></code></a> to obtain a summary.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="group.DataFrameGroupingSet.apply">
-<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><span class="pre">DataFrame</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="func.html#func.FunctionExpr" title="func.FunctionExpr"><span class="pre">FunctionExpr</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><span class="pre">DataFrame</span></a></span></span><a class="headerlink" href="#group.DataFrameGroupingSet.apply" title="Permalink to this definition"></a></dt>
-<dd><p>Apply a function to the grouping set.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>func</strong> – an aggregate function to apply.</p></li>
-<li><p><strong>expand</strong> – expand fields if <cite>func</cite> returns composite type.</p></li>
-<li><p><strong>as_name</strong> – rename returning column.</p></li>
+<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><span class="pre">DataFrame</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="func.html#func.FunctionExpr" title="func.FunctionExpr"><span class="pre">FunctionExpr</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><span class="pre">DataFrame</span></a></span></span><a class="headerlink" href="#group.DataFrameGroupingSet.apply" title="Permalink to this definition"></a></dt>
+<dd><p>Apply a dataframe function to each group of the <code class="code docutils literal notranslate"><span class="pre">self</span></code> grouping set.</p>
+<p>The arguemnts and the return type is the same as
+<a class="reference internal" href="dataframe.html#dataframe.DataFrame.apply" title="dataframe.DataFrame.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a>.</p>
+<p>The differences between them are</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="dataframe.html#dataframe.DataFrame.apply" title="dataframe.DataFrame.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a> operates on the entire <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>, while            this method operate on only one group.</p></li>
+<li><p>For <a class="reference internal" href="dataframe.html#dataframe.DataFrame.apply" title="dataframe.DataFrame.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a>, the resulting <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> will only            contain the return value of the function, while for this method, the            resulting <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> will contain the grouping attributes as            columns.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>resulted <code class="xref py py-class docutils literal notranslate"><span class="pre">dataframe:DataFrame</span></code>.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame">DataFrame</a></p>
-</dd>
-</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>An exception will be raised when the data of the resulting
+<a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> is observed if there is name conflict, possibly
+due to</p>
+<ul class="simple">
+<li><p>The assigned column name in <code class="code docutils literal notranslate"><span class="pre">column_name</span></code> or</p></li>
+<li><p>The names of members in the composite type if <code class="code docutils literal notranslate"><span class="pre">expend</span></code> is <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+</ul>
+<p>conflict with the name of the grouping attributes.</p>
+</div>
 <p class="rubric">Example</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">numbers</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">,</span> <span class="s2">&quot;is_even&quot;</span><span class="p">])</span>
@@ -159,7 +162,7 @@
 <span class="go">-----------------</span>
 <span class="go">(2 rows)</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">numbers</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;is_even&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">count</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">]),</span> <span class="n">as_name</span><span class="o">=</span><span class="s1">&#39;cnt&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">numbers</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;is_even&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">count</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">]),</span> <span class="n">column_name</span><span class="o">=</span><span class="s1">&#39;cnt&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;is_even&quot;</span><span class="p">)[:]</span>
 <span class="go">---------------</span>
 <span class="go"> cnt | is_even</span>
@@ -173,7 +176,7 @@
 <span class="gp">... </span>    <span class="nb">sum</span><span class="p">:</span> <span class="nb">int</span>
 <span class="gp">... </span>    <span class="n">count</span><span class="p">:</span> <span class="nb">int</span>
 <span class="gp">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_array_function</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_column_function</span>
 <span class="gp">... </span><span class="k">def</span> <span class="nf">my_count_sum</span><span class="p">(</span><span class="n">val_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">array_sum</span><span class="p">:</span>
 <span class="gp">... </span>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;sum&quot;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="n">val_list</span><span class="p">),</span> <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">val_list</span><span class="p">)}</span>
 <span class="gp">...</span>
@@ -193,13 +196,13 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="group.DataFrameGroupingSet.assign">
 <span class="sig-name descname"><span class="pre">assign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">new_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><span class="pre">DataFrame</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><span class="pre">DataFrame</span></a></span></span><a class="headerlink" href="#group.DataFrameGroupingSet.assign" title="Permalink to this definition"></a></dt>
-<dd><p>Assign new columns to the current grouping sets.</p>
+<dd><p>Assign new columns to the current grouping set.</p>
 <p><strong>NOTE:</strong> Existing columns cannot be reassigned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>new_columns</strong> – a <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> whose keys are column names and values are
-<code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code>. The <code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code> will be applied to the current
-<a class="reference internal" href="#group.DataFrameGroupingSet" title="group.DataFrameGroupingSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSet</span></code></a> and return the column data.</p>
+<dd class="field-odd"><p><strong>new_columns</strong> – a <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> whose keys are column names and values
+are <code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code>’s returning column data when applied to the
+current <a class="reference internal" href="#group.DataFrameGroupingSet" title="group.DataFrameGroupingSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSet</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with the new columns.</p>
@@ -240,8 +243,8 @@
 <dt class="sig sig-object py" id="group.DataFrameGroupingSet.union">
 <span class="sig-name descname"><span class="pre">union</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><span class="pre">DataFrame</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#group.DataFrameGroupingSet" title="group.DataFrameGroupingSet"><span class="pre">DataFrameGroupingSet</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#group.DataFrameGroupingSet" title="group.DataFrameGroupingSet"><span class="pre">DataFrameGroupingSet</span></a></span></span><a class="headerlink" href="#group.DataFrameGroupingSet.union" title="Permalink to this definition"></a></dt>
 <dd><p>Union with another <a class="reference internal" href="#group.DataFrameGroupingSet" title="group.DataFrameGroupingSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSet</span></code></a>.</p>
-<p>So that when applying an aggregate function to the list, the function will be applied to
-each grouping set individually.</p>
+<p>When applying an aggregate function to the list, the function will be applied to
+each group in the grouping set individually.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>other</strong> – a <code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code> returning the result of
