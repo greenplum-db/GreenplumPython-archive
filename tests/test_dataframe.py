@@ -327,6 +327,27 @@ def test_table_non_default_schema(db: gp.Database):
     assert len(list(pg_class)) > 0
 
 
+def test_table_with_ao(db: gp.Database):
+    columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
+    t = db.create_dataframe(columns=columns)
+    # pass if no error
+    t.save_as(
+        "ao_dataframe", column_names=["a", "b"], temp=True, storage_params={"appendoptimized": True}
+    )
+
+
+def test_table_with_aoco(db: gp.Database):
+    columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
+    t = db.create_dataframe(columns=columns)
+    # pass if no error
+    t.save_as(
+        "aoco_dataframe",
+        column_names=["a", "b"],
+        temp=True,
+        storage_params={"appendoptimized": True, "orientation": "column"},
+    )
+
+
 import pandas as pd
 
 
