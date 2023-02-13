@@ -18,9 +18,12 @@ class DataFrame:
     """Representation of GreenplumPython Pandas Compatible DataFrame object."""
 
     @classmethod
-    def from_sql(cls, sql: str, conn: str):
+    def _from_sql(cls, sql: str, con: str):
+        """
+        :meta
+        """
         c = super().__new__(cls)
-        database = db.Database(url=conn)
+        database = db.Database(url=con)
         c._dataframe = dataframe.DataFrame(query=sql, db=database)
         return c
 
@@ -43,7 +46,7 @@ class DataFrame:
     def to_sql(
         self,
         name: str,
-        conn: str,
+        con: str,
         schema: Union[str, None] = None,
         if_exists: Literal["fail", "replace", "append"] = "fail",
         index: bool = False,  # Not Used
@@ -68,10 +71,10 @@ class DataFrame:
             .. code-block::  python
 
                 >>> import greenplumpython.pandas as pd
-                >>> pd_df = pd.read_sql('SELECT unnest(ARRAY[1,2,3]) AS "a",unnest(ARRAY[1,2,3]) AS "b"', conn)
-                >>> pd_df.to_sql(name="test_to_sql", conn=conn)
+                >>> pd_df = pd.read_sql('SELECT unnest(ARRAY[1,2,3]) AS "a",unnest(ARRAY[1,2,3]) AS "b"', con)
+                >>> pd_df.to_sql(name="test_to_sql", con=con)
                 3
-                >>> pd.read_sql("test_to_sql", conn=conn)
+                >>> pd.read_sql("test_to_sql", con=con)
                 -------
                  a | b
                 ---+---
@@ -84,7 +87,7 @@ class DataFrame:
         """
         assert index is False, "DataFrame in GreenplumPython.pandas does not have an index column"
         table_name = f'"{name}"' if schema is None else f"{schema}.{name}"
-        database = db.Database(url=conn)
+        database = db.Database(url=con)
         query = self._dataframe._build_full_query()  # type: ignore
         if if_exists == "append":
             rowcount = database._execute(  # type: ignore
@@ -108,10 +111,10 @@ class DataFrame:
 
     def to_native(self) -> dataframe.DataFrame:
         """
-        Convert a GreenplumPython Pandas compatible DataFrame to a GreenplumPython DataFrame.
+        Convert a pandas-compatible :class:`DataFrame` to a native :class:`~dataframe.Dataframe`.
 
         Returns:
-            a GreenplumPython :class:`~dataframe.Dataframe`.
+            a native:class:`~dataframe.Dataframe`.
         """
         return self._dataframe
 
@@ -140,7 +143,7 @@ class DataFrame:
             .. highlight:: python
             .. code-block::  python
 
-                >>> pd_df = pd.read_sql('SELECT unnest(ARRAY[3, 1, 2]) AS "id",unnest(ARRAY[1,2,3]) AS "b"', conn)
+                >>> pd_df = pd.read_sql('SELECT unnest(ARRAY[3, 1, 2]) AS "id",unnest(ARRAY[1,2,3]) AS "b"', con)
                 >>> pd_df.sort_values(["id"])
                 --------
                  id | b
@@ -190,7 +193,7 @@ class DataFrame:
                 >>> import greenplumpython.pandas as pd
                 >>> students = [("alice", 18), ("bob", 19), ("carol", 19)]
                 >>> db.create_dataframe(rows=students, column_names=["name", "age"]).save_as("student", column_names=["name", "age"])
-                >>> student = pd.read_sql("student", conn)
+                >>> student = pd.read_sql("student", con)
                 >>> student.drop_duplicates(subset=["age"])
                 -------------
                  name  | age
@@ -244,8 +247,8 @@ class DataFrame:
                 >>> students = [("alice", 18), ("bob", 19), ("carol", 19)]
                 >>> db.create_dataframe(rows=students, column_names=["name", "age"]).save_as("student", column_names=["name_1", "age_1"])
                 >>> db.create_dataframe(rows=students, column_names=["name", "age"]).save_as("student_2", column_names=["name_2", "age_2"])
-                >>> student = pd.read_sql("student", conn)
-                >>> student_2 = pd.read_sql("student_2", conn)
+                >>> student = pd.read_sql("student", con)
+                >>> student_2 = pd.read_sql("student_2", con)
                 >>> student.merge(
                         student_2,
                         how="inner",
@@ -300,16 +303,10 @@ class DataFrame:
     def __iter__(self):
         return self._dataframe.__iter__()
 
-    def apply(self):
-        pass
-
-    def agg(self):
-        pass
-
 
 def read_sql(
     sql: str,
-    conn: str,
+    con: str,
     index_col: Union[str, list[str]] = None,
     coerce_float: bool = True,
     params: Optional[List[str]] = None,
@@ -332,7 +329,7 @@ def read_sql(
 
             >>> columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
             >>> db.create_dataframe(columns=columns).save_as("test_read_sql", column_names=["a", "b"])
-            >>> pd.read_sql("SELECT * FROM test_read_sql", conn)
+            >>> pd.read_sql("SELECT * FROM test_read_sql", con)
             -------
              a | b
             ---+---
@@ -341,7 +338,7 @@ def read_sql(
              1 | 1
             -------
             (3 rows)
-            >>> pd.read_sql('SELECT unnest(ARRAY[1, 2, 3]) AS "a",unnest(ARRAY[1,2,3]) AS "b"', conn)
+            >>> pd.read_sql('SELECT unnest(ARRAY[1, 2, 3]) AS "a",unnest(ARRAY[1,2,3]) AS "b"', con)
             -------
              a | b
             ---+---
@@ -352,4 +349,4 @@ def read_sql(
             (3 rows)
 
     """
-    return DataFrame.from_sql(sql, conn)
+    return DataFrame._from_sql(sql, con)  # type: ignore
