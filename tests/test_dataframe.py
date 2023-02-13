@@ -326,6 +326,9 @@ def test_table_non_default_schema(db: gp.Database):
     assert len(list(pg_class)) > 0
 
 
+# TODO: add save_as testcase for non default schema
+
+
 def test_table_with_ao(db: gp.Database):
     result = db.execute("SELECT VERSION();")
 

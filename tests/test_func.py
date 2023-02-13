@@ -744,3 +744,6 @@ def test_func_one_liner(db: gp.Database):
     with pytest.raises(AssertionError) as exc_info:
         df = db.apply(lambda: gp.create_function(add_one)(1), column_name="x")
     assert "is not a function" in str(exc_info.value)
+
+
+# TODO: add save_as testcase for non default schema
