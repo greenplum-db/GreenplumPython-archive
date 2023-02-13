@@ -44,6 +44,15 @@ class Database:
     def _execute(self, query: str, has_results: bool = True) -> Optional[Iterable[Tuple[Any]]]:
         """
         :meta private:
+
+        Return the result of SQL query executed in :class:`~db.Database`
+
+        Args:
+            query: str : SQL query
+            has_results: bool : whether return None or results
+
+        Returns:
+            Optional[Iterable]: rowcount or result of SQL query
         """
 
         with self._conn.cursor() as cursor:
