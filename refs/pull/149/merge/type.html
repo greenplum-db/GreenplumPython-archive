@@ -118,32 +118,40 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="type.Type">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">type.</span></span><span class="sig-name descname"><span class="pre">Type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#type.Type" title="Permalink to this definition"></a></dt>
-<dd><p>A Type object in Greenplum database.</p>
+<dd><p>Represents a type of values in a <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>.</p>
+<p>It is mapped to a type in database, including</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>A predefined type, such as <code class="code docutils literal notranslate"><span class="pre">integer</span></code> for <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> and            <code class="code docutils literal notranslate"><span class="pre">text</span></code> for <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> in Python. In this case,            <cite>name</cite> is specified for its name in database.</p></li>
+<li><p>A user-defined composite type, for Python <code class="code docutils literal notranslate"><span class="pre">class</span></code>. In this            case, a type annotation object is provided such as the defined            <code class="code docutils literal notranslate"><span class="pre">class</span></code>.</p></li>
+</ul>
+</div></blockquote>
+<p>A <a class="reference internal" href="#type.Type" title="type.Type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code></a> object is callable. when called, it casts the object in
+the argument to the mapped type in database.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="type.TypeCast">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">type.</span></span><span class="sig-name descname"><span class="pre">TypeCast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Database</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#type.TypeCast" title="Permalink to this definition"></a></dt>
-<dd><p>Inherited from <a class="reference internal" href="expr.html#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a>.</p>
-<p>Representation of a Type Casting.</p>
+<dd><p>An expression of type casting.</p>
 <p class="rubric">Example</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">series</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="s2">&quot;series&quot;</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">])</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">regclass</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">get_type</span><span class="p">(</span><span class="s2">&quot;regclass&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">regclass</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">type_</span><span class="p">(</span><span class="s2">&quot;regclass&quot;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">dataframe_name</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">dataframe_name</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">regclass</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;tableoid&quot;</span><span class="p">]))</span>
 <span class="o">----------------------</span>
  <span class="n">val</span> <span class="o">|</span> <span class="n">dataframe_name</span>
 <span class="o">-----+----------------</span>
-   <span class="mi">0</span> <span class="o">|</span> <span class="n">serie</span>
-   <span class="mi">1</span> <span class="o">|</span> <span class="n">serie</span>
-   <span class="mi">2</span> <span class="o">|</span> <span class="n">serie</span>
-   <span class="mi">3</span> <span class="o">|</span> <span class="n">serie</span>
-   <span class="mi">4</span> <span class="o">|</span> <span class="n">serie</span>
-   <span class="mi">5</span> <span class="o">|</span> <span class="n">serie</span>
-   <span class="mi">6</span> <span class="o">|</span> <span class="n">serie</span>
-   <span class="mi">7</span> <span class="o">|</span> <span class="n">serie</span>
-   <span class="mi">8</span> <span class="o">|</span> <span class="n">serie</span>
-   <span class="mi">9</span> <span class="o">|</span> <span class="n">serie</span>
+   <span class="mi">0</span> <span class="o">|</span> <span class="n">series</span>
+   <span class="mi">1</span> <span class="o">|</span> <span class="n">series</span>
+   <span class="mi">2</span> <span class="o">|</span> <span class="n">series</span>
+   <span class="mi">3</span> <span class="o">|</span> <span class="n">series</span>
+   <span class="mi">4</span> <span class="o">|</span> <span class="n">series</span>
+   <span class="mi">5</span> <span class="o">|</span> <span class="n">series</span>
+   <span class="mi">6</span> <span class="o">|</span> <span class="n">series</span>
+   <span class="mi">7</span> <span class="o">|</span> <span class="n">series</span>
+   <span class="mi">8</span> <span class="o">|</span> <span class="n">series</span>
+   <span class="mi">9</span> <span class="o">|</span> <span class="n">series</span>
 <span class="o">----------------------</span>
 <span class="p">(</span><span class="mi">10</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
@@ -151,21 +159,15 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="type.get_type">
-<span class="sig-prename descclassname"><span class="pre">type.</span></span><span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#type.Type" title="type.Type"><span class="pre">Type</span></a></span></span><a class="headerlink" href="#type.get_type" title="Permalink to this definition"></a></dt>
-<dd><p>Returns the type corresponding to the name in the <a class="reference internal" href="db.html#db.Database" title="db.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a> given.</p>
+<dt class="sig sig-object py" id="type.type_">
+<span class="sig-prename descclassname"><span class="pre">type.</span></span><span class="sig-name descname"><span class="pre">type_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#type.Type" title="type.Type"><span class="pre">Type</span></a></span></span><a class="headerlink" href="#type.type_" title="Permalink to this definition"></a></dt>
+<dd><p>Get access to a type predefined in database.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – str: name of type</p></li>
-<li><p><strong>db</strong> – <a class="reference internal" href="db.html#db.Database" title="db.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a>: database where stored type</p></li>
-</ul>
+<dd class="field-odd"><p><strong>name</strong> – str: name of type</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><a class="reference internal" href="#type.Type" title="type.Type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code></a></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#type.Type" title="type.Type">Type</a></p>
+<dd class="field-even"><p>The predefined type as a <a class="reference internal" href="#type.Type" title="type.Type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code></a> object.</p>
 </dd>
 </dl>
 </dd></dl>
