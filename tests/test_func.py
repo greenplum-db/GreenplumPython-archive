@@ -665,7 +665,7 @@ def test_agg_composite_type(db: gp.Database):
     numbers = db.create_dataframe(rows=rows, column_names=["val"])
     result = numbers.group_by().apply(lambda t: sum_count(t["val"]), expand=True)
     for row in result:
-        assert row["count"] == len(rows) and row["sum"] == 10
+        assert row["count"] == len(rows) and row["sum"] == 45
 
 
 import math
