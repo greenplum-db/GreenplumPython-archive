@@ -101,7 +101,7 @@ class DataFrameGroupingSet:
                 ...     sum: int
                 ...     count: int
                 ...
-                >>> @gp.create_array_function
+                >>> @gp.create_column_function
                 ... def my_count_sum(val_list: List[int]) -> array_sum:
                 ...     return {"sum": sum(val_list), "count": len(val_list)}
                 ...
