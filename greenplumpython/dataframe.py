@@ -54,7 +54,7 @@ from psycopg2.extras import RealDictRow
 from greenplumpython.col import Column, Expr
 from greenplumpython.db import Database
 from greenplumpython.expr import serialize
-from greenplumpython.group import DataFrameGroupingSets
+from greenplumpython.group import DataFrameGroupingSet
 from greenplumpython.order import DataFrameOrdering
 from greenplumpython.row import Row
 
@@ -220,6 +220,7 @@ class DataFrame:
         for row in contents:
             for name, val in row.items():
                 widths[name] = max(widths[name], len(str(val)))
+
         # For Python >= 3.7, dict.items() and dict.values() will preserves the
         # input order.
         def line(sep: str) -> str:
@@ -288,7 +289,7 @@ class DataFrame:
     # FIXME: Add test
     def where(self, predicate: Callable[["DataFrame"], "Expr"]) -> "DataFrame":
         """
-        Used when want to filter the :class:`~dataframe.DataFrame` by applying conditions.
+        Filter the :class:`DataFrame` by applying the predicate.
 
         Return the :class:`~dataframe.DataFrame` filtered by :class:`~expr.Expr`.
 
@@ -424,9 +425,7 @@ class DataFrame:
 
     def assign(self, **new_columns: Callable[["DataFrame"], Any]) -> "DataFrame":
         """
-        Used when want to combine new columns with the current :class:`~dataframe.DataFrame`.
-
-        Assign new columns to the current :class:`~dataframe.DataFrame`. Existing columns cannot be reassigned.
+        Add new columns to the current :class:`~dataframe.DataFrame`. Existing columns cannot be reassigned.
 
         Args:
             new_columns: a `dict` whose keys are column names and values are :class:`Callable` which
@@ -488,18 +487,17 @@ class DataFrame:
         operator: Optional[str] = None,
     ) -> DataFrameOrdering:
         """
-        Used when want to sort :class:`~dataframe.DataFrame` by values using the given arguments.
-
-        Return :class:`~dataframe.DataFrame` order by the given arguments.
+        Sort :class:`DataFrame` based on the configuration.
 
         Args:
             column_name: name of column to order the dataframe by.
-            ascending: Optional[Bool]: Define ascending of order, True = ASC / False = DESC.
-            nulls_first: Optional[bool]: Define if nulls will be ordered first or last, True = First / False = Last.
-            operator: Optional[str]: Define order by using operator. **Can't combine with ascending.**
+            ascending: Define ascending of order, True = ASC / False = DESC.
+            nulls_first: Define if nulls will be ordered first or last, True = First / False = Last.
+            operator: Define order by using operator. **Can't combine with ascending.**
 
         Returns:
-            DataFrameOrdering : :class:`~dataframe.DataFrame` ordered by the given arguments.
+            :class:`~order.DataFrameOrdering`: Specification on ordering of the
+            current :class:`~dataframe.DataFrame`.
 
         Example:
             .. highlight:: python
@@ -793,8 +791,9 @@ class DataFrame:
 
     def refresh(self) -> "DataFrame":
         """
-        After displayed dataframe, its content has been cached in local.
-        This function refresh the local cache of :class:`~dataframe.DataFrame`, otherwise, all modifications made
+        Refresh the local cache of :class:`DataFrame`.
+
+        After displayed dataframe, its content has been cached in local. All modifications made
         between last cache and this refresh are not updated in local.
 
         The local cache if used to iterate the :class:`~dataframe.DataFrame` instance locally.
@@ -967,7 +966,7 @@ class DataFrame:
         assert results is not None
         return results
 
-    def group_by(self, *column_names: str) -> DataFrameGroupingSets:
+    def group_by(self, *column_names: str) -> DataFrameGroupingSet:
         """
         Group the current GreenplumPython :class:`~dataframe.DataFrame` by `column_names`.
 
@@ -975,14 +974,15 @@ class DataFrame:
             column_names: one or more column names of the :class:`~dataframe.DataFrame`.
 
         Returns:
-            :class:`~group.DataFrameGroupingSets`: a list of grouping sets. Each group is identified
-            by a different set of values of the columns in the arguments.
+            :class:`~group.DataFrameGroupingSet`: a set of groups of the current
+            :class:`~dataframe.DataFrame`. Each group is identified by a different 
+            set of values of the columns in the arguments.
         """
         #  State transition diagram:
-        #  DataFrame --group_by()-> DataFrameGroupingSets --aggregate()-> FunctionExpr
+        #  DataFrame --group_by()-> DataFrameGroupingSet --aggregate()-> FunctionExpr
         #    ^                                                             |
         #    |------------------------- assign() or apply() ---------------|
-        return DataFrameGroupingSets(self, [column_names])
+        return DataFrameGroupingSet(self, [column_names])
 
     def distinct_on(self, *column_names: str) -> "DataFrame":
         """
