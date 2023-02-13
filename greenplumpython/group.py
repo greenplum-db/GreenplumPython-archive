@@ -233,7 +233,6 @@ class DataFrameGroupingSet:
         """
         return self._dataframe
 
-    # FIXME: Make this function package-private
     def _clause(self) -> str:
         # noqa: D400
         """:meta private:"""
