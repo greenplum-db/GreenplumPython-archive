@@ -808,7 +808,7 @@ class DataFrame:
             .. code-block::  Python
 
                 >>> nums = db.create_dataframe(rows=[(i,) for i in range(5)], column_names=["num"])
-                >>> df = nums.save_as("const_table", column_names=["num"], temp=True)
+                >>> df = nums.save_as("const_table", column_names=["num"], temp=True).order_by("num")[:]
                 >>> df
                 -----
                  num
@@ -917,7 +917,7 @@ class DataFrame:
                 -----
                 (5 rows)
                 >>> const_table = db.create_dataframe(table_name="const_table")
-                >>> const_table
+                >>> const_table.order_by("num")[:]
                 -----
                  num
                 -----
