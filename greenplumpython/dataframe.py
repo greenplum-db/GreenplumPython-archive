@@ -874,7 +874,11 @@ class DataFrame:
         return result if result is not None else []
 
     def save_as(
-        self, table_name: str, column_names: List[str] = [], temp: bool = False
+        self,
+        table_name: str,
+        column_names: List[str] = [],
+        temp: bool = False,
+        storage_params: dict[str, Any] = {},
     ) -> "DataFrame":
         """
         Save the GreenplumPython :class:`~dataframe.Dataframe` as a *table* into the database.
@@ -888,6 +892,8 @@ class DataFrame:
             dataframe_name : str
             temp : bool : if table is temporary
             column_names : List : list of column names
+            storage_params: dict: storage_parameter of gpdb, reference
+                https://docs.vmware.com/en/VMware-Tanzu-Greenplum/7/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html
 
         Returns:
             DataFrame : :class:`~dataframe.DataFrame` represents the newly saved table
@@ -925,9 +931,17 @@ class DataFrame:
         assert self._db is not None
         # TODO: Remove assertion below after implementing schema inference.
         assert len(column_names) > 0, "Column names of new dataframe are unknown."
+
+        # build string from parameter dict, such as from {'a': 1, 'b': 2} to
+        # 'WITH (a=1, b=2)'
+        storage_parameters = (
+            f"WITH ({','.join([f'{key}={storage_params[key]}' for key in storage_params.keys()])})"
+        )
         self._db._execute(  # type: ignore
             f"""
-            CREATE {'TEMP' if temp else ''} TABLE "{table_name}" ({','.join(column_names)}) 
+            CREATE {'TEMP' if temp else ''} TABLE "{table_name}"
+            ({','.join(column_names)})
+            {storage_parameters if storage_params else ''}
             AS {self._build_full_query()}
             """,
             has_results=False,
