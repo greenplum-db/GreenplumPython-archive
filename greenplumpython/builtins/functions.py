@@ -82,7 +82,7 @@ def max(
             >>> df = db.create_dataframe(rows=rows, column_names=["a"])
             >>> df.group_by().assign(max=lambda t: F.max(t["a"]))
             -----
-             min
+             max
             -----
                9
             -----
@@ -136,7 +136,7 @@ def sum(
             >>> df = db.create_dataframe(rows=rows, column_names=["a"])
             >>> df.group_by().assign(sum=lambda t: F.sum(t["a"]))
             -----
-             avg
+             sum
             -----
               45
             -----
