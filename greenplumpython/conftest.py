@@ -18,7 +18,6 @@ _DBPSWD = environ.get("PGPASSWORD")
 def init_namepsace(doctest_namespace: Dict[str, Any]):
     # for the connection both work for GitHub Actions and concourse
     con = f"postgresql://{_DBHOST}/{_DBNAME}"
-    
     db = gp.database(host=_DBHOST, port=_DBPORT, dbname=_DBNAME, user=_DBUSER, password=_DBPSWD)
 
     conn = psycopg2.connect(
@@ -27,6 +26,10 @@ def init_namepsace(doctest_namespace: Dict[str, Any]):
     conn.set_session(autocommit=True)
 
     cursor = conn.cursor()
+
+    db._execute("DROP TABLE IF EXISTS student")
+    db._execute("DROP TABLE IF EXISTS student_1")
+    db._execute("DROP TABLE IF EXISTS student_2")
 
     doctest_namespace["db"] = db
     doctest_namespace["con"] = con
