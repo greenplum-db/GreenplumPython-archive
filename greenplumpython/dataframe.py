@@ -577,13 +577,17 @@ class DataFrame:
 
                 >>> id_rows = [("alice", 1), ("bob", 2), ("carol", 3)]
                 >>> age_rows = [("alice", 18), ("bob", 19), ("carol", 19)]
-                >>> student_id = gp.DataFrame.from_rows(id_rows, column_names=["name", "id"], db=db)
-                >>> student_age = gp.DataFrame.from_rows(age_rows, column_names=["name", "age"], db=db)
+                >>> student_id = gp.DataFrame.from_rows(
+                ...     id_rows, column_names=["name", "id"], db=db)
+                >>> student_age = gp.DataFrame.from_rows(
+                ...     age_rows, column_names=["name", "age"], db=db)
                 >>> result = student_id.join(
                 ...     student_age,
                 ...     on="name",
                 ...     self_columns={"*"},
                 ...     other_columns={"name": "name_2", "age": "age"})
+                >>> # Without order_by(), result is printable as well. Use order_by() to get a
+                >>> # stable result.
                 >>> result = result.order_by("id")[:]
                 >>> result
                 ---------------------------
@@ -1009,8 +1013,8 @@ class DataFrame:
             column_names: names of the current :class:`~dataframe.DataFrame`'s columns.
 
         Returns:
-            :class:`~dataframe.DataFrame`: the :class:`~dataframe.DataFrame` containing only the distinct values of\
-            the given columns.
+            :class:`~dataframe.DataFrame`: the :class:`~dataframe.DataFrame` containing only the
+            distinct values of the given columns.
 
         Example:
             .. highlight:: python
@@ -1018,6 +1022,9 @@ class DataFrame:
 
                 >>> students = [("alice", 18), ("bob", 19), ("carol", 19)]
                 >>> student = gp.DataFrame.from_rows(students, column_names=["name", "age"], db=db)
+                >>> # Since both "bob" and "carol" have the same age 19, student.distinct_on("age")
+                >>> # will randomly pick one of them for the name column. Use "[['age']]" to make
+                >>> # sure the result is stable.
                 >>> student.distinct_on("age")[['age']]
                 -----
                  age
