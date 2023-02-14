@@ -10,7 +10,7 @@ def db():
     # for the connection both work for GitHub Actions and concourse
     db = gp.database(
         host="localhost",
-        dbname=environ.get("TESTDB", "pandas"),
+        dbname=environ.get("TESTDB", "gpadmin"),
         user=environ.get("PGUSER"),
         password=environ.get("PGPASSWORD"),
     )
