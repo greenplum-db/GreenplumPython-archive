@@ -103,7 +103,7 @@ class Type:
             [f"{name} {to_pg_type(type_t, db)}" for name, type_t in members.items()]
         )
         db._execute(
-            f"CREATE TYPE {schema}.{self._name} AS (\n" f"{att_type_str}\n" f");",
+            f'CREATE TYPE "{schema}"."{self._name}" AS (\n' f"{att_type_str}\n" f");",
             has_results=False,
         )
         self._created_in_dbs.add(db)
@@ -113,7 +113,7 @@ class Type:
         Cast the argument :code:`obj` to the corresponding type in database.
 
         Args:
-            obj: the object to be casted. It can be one of the following
+            obj: the object to be cast. It can be one of the following
 
                 - Any adaptable Python object, or
                 - A :class:`Column` of a :class:`DataFrame`, or

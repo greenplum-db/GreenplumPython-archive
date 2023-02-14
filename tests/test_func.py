@@ -742,8 +742,29 @@ def test_func_one_liner(db: gp.Database):
     # TODO: Lambda expressions are not supported.
     add_one: Callable[[int], int] = lambda x: x + 1
     with pytest.raises(AssertionError) as exc_info:
-        df = db.apply(lambda: gp.create_function(add_one)(1), column_name="x")
+        db.apply(lambda: gp.create_function(add_one)(1), column_name="x")
     assert "is not a function" in str(exc_info.value)
 
 
-# TODO: add save_as testcase for non default schema
+def test_func_non_default_schema(db: gp.Database):
+    db._execute(
+        "DROP SCHEMA IF EXISTS test_save CASCADE; CREATE SCHEMA test_save", has_results=False
+    )
+    rows = [(i,) for i in range(-10, 0)]
+    db.create_dataframe(rows=rows, column_names=["id"]).save_as(
+        table_name="test_func_schema", column_names=["id"], schema="test_save"
+    )
+    series = db.create_dataframe(table_name="test_func_schema", schema="test_save")
+    abs = gp.function("abs")
+
+    # -- WITH ASSIGN FUNC
+    results = series.assign(abs=lambda nums: abs(nums["id"]))
+    assert sorted([row["abs"] for row in results]) == list(range(1, 11))
+
+    # -- WITH APPLY FUNC
+    results2 = series.apply(lambda nums: abs(nums["id"]))
+    assert sorted([row["abs"] for row in results2]) == list(range(1, 11))
+
+    db._execute(
+        "DROP SCHEMA IF EXISTS test_save CASCADE; CREATE SCHEMA test_save", has_results=False
+    )

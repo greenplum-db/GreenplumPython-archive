@@ -92,7 +92,12 @@ class FunctionExpr(Expr):
             expand and column_name is not None
         ), "Cannot assign single column name when expanding multi-valued results."
         self.function.create_in_db(self._db)
-        from_clause = f"FROM {self.dataframe.name}" if self.dataframe is not None else ""
+        if self.dataframe is not None:
+            schema, df_name = self.dataframe.qualified_name
+            df_qualified_name = f'"{schema}"."{df_name}"' if schema is not None else f'"{df_name}"'
+            from_clause = f"FROM {df_qualified_name}"
+        else:
+            from_clause = ""
         group_by_clause = self._group_by._clause() if self._group_by is not None else ""
         if expand and column_name is None:
             column_name = "func_" + uuid4().hex
@@ -147,8 +152,10 @@ class FunctionExpr(Expr):
             else f"{','.join(rebased_grouping_cols)}, ({column_name}).*"
         )
 
+        schema, df_name = orig_func_dataframe.qualified_name
+        orig_df_qualified_name = f'"{schema}"."{df_name}"' if schema is not None else f'"{df_name}"'
         return DataFrame(
-            f"SELECT {str(results)} FROM {orig_func_dataframe.name}",
+            f"SELECT {str(results)} FROM {orig_df_qualified_name}",
             db=self._db,
             parents=[orig_func_dataframe],
         )

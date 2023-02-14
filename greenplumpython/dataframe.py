@@ -478,8 +478,10 @@ class DataFrame:
                         if v.other_dataframe.name not in other_parents:
                             other_parents[v.other_dataframe.name] = v.other_dataframe
                 targets.append(f"{_serialize(v)} AS {k}")
+            schema, df_name = self.qualified_name
+            qualified_name = f'"{schema}"."{df_name}"' if schema is not None else f'"{df_name}"'
             return DataFrame(
-                f"SELECT *, {','.join(targets)} FROM {self.name}",
+                f"SELECT *, {','.join(targets)} FROM {qualified_name}",
                 parents=[self] + list(other_parents.values()),
             )
 
@@ -887,8 +889,10 @@ class DataFrame:
             raise NotImplementedError()
         assert self._db is not None
         output_name = "cte_" + uuid4().hex
+        schema, name = self.qualified_name
+        qualified_name = f'"{name}"' if schema is None else f'"{schema}"."{name}"'
         to_json_dataframe = DataFrame(
-            f"SELECT to_json({output_name})::TEXT FROM {self.name} AS {output_name}",
+            f"SELECT to_json({output_name})::TEXT FROM {qualified_name} AS {output_name}",
             parents=[self],
         )
         result = self._db._execute(to_json_dataframe._build_full_query())
