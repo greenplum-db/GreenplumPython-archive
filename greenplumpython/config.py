@@ -1,9 +1,6 @@
-"""
-This file contains all the variables to configure GreenplumPython, users can directly set them by assigning value.
-
-"""
+"""Global configurations for GreenplumPython."""
 
 print_sql: bool = False
 """
-    This variable configure to display or not the SQL query sent by GreenplumPython to Database behind each command.
+Enable this to display the SQL query sent by GreenplumPython to Database behind each command.
 """
