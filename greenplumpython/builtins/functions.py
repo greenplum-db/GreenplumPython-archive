@@ -1,5 +1,5 @@
 """
-This page contains a list of Aggregate Functions methods that are currently available in GreenplumPython.
+This module contains a list of Functions methods that are currently available in GreenplumPython.
 """
 from typing import Any, Optional
 
@@ -150,7 +150,7 @@ def generate_series(
     start: Any, stop: Any, step: Optional[Any] = None, db: Optional[Database] = None
 ) -> FunctionExpr:
     """
-    The aggregate function in database that generates a series of values from :code:`start` to :code:`stop`,
+    The function in database that generates a series of values from :code:`start` to :code:`stop`,
     with a step size of :code:`step`.
 
     :code:`step` defaults to 1.
@@ -160,7 +160,6 @@ def generate_series(
         .. code-block::  python
 
             >>> import greenplumpython.builtins.functions as F
-            >>> df = db.create_dataframe(rows=rows, column_names=["a"])
             >>> db.assign(id=lambda: F.generate_series(0, 9))
             ----
              id
