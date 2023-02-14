@@ -82,9 +82,9 @@ class DataFrame:
         assert index is False, "DataFrame in GreenplumPython.pandas does not have an index column"
         table_name = f'"{name}"' if schema is None else f"{schema}.{name}"
         database = db.Database(url=con)
-        query = self._dataframe._build_full_query()  # type: ignore
+        query = self._dataframe._build_full_query()
         if if_exists == "append":
-            rowcount = database._execute(  # type: ignore
+            rowcount = database._execute(
                 f"""
                     INSERT INTO {table_name}
                     {query}
@@ -93,8 +93,8 @@ class DataFrame:
             )
         else:
             if if_exists == "replace":
-                database._execute(f"DROP TABLE IF EXISTS {table_name}", has_results=False)  # type: ignore
-            rowcount = database._execute(  # type: ignore
+                database._execute(f"DROP TABLE IF EXISTS {table_name}", has_results=False)
+            rowcount = database._execute(
                 f"""
                         CREATE TABLE {table_name}
                         AS {query}
@@ -292,7 +292,7 @@ class DataFrame:
         return self._dataframe.__repr__()
 
     def _repr_html_(self) -> str:
-        return self._dataframe._repr_html_()  # type: ignore
+        return self._dataframe._repr_html_()
 
     def __iter__(self):
         """:meta private:."""
@@ -344,4 +344,4 @@ def read_sql(
             (3 rows)
 
     """
-    return DataFrame._from_sql(sql, con)  # type: ignore
+    return DataFrame._from_sql(sql, con)

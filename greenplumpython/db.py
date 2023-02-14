@@ -41,7 +41,7 @@ class Database:
         )
         self._conn.set_session(autocommit=True)
 
-    def _execute(self, query: str, has_results: bool = True) -> Optional[Iterable[Tuple[Any]]]:
+    def _execute(self, query: str, has_results: bool = True) -> Union[Iterable[Tuple[Any]], int]:
         """
         :meta private:
 
