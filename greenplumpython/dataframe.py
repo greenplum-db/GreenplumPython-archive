@@ -895,7 +895,7 @@ class DataFrame:
 
     def save_as(
         self,
-        dataframe_name: str,
+        table_name: str,
         schema_name: str = None,
         column_names: List[str] = [],
         temp: bool = False,
@@ -910,7 +910,7 @@ class DataFrame:
         :func:`~db.Database.create_dataframe(table_name)` to create a new :class:`~dataframe.Dataframe` next time.
 
         Args:
-            dataframe_name : str
+            table_name : str
             schema_name: str by default is public if None
             temp : bool : if table is temporary
             column_names : List : list of column names
@@ -960,9 +960,9 @@ class DataFrame:
             f"WITH ({','.join([f'{key}={storage_params[key]}' for key in storage_params.keys()])})"
         )
         df_full_name = (
-            f'"{dataframe_name}"' if schema_name is None else f'"{schema_name}"."{dataframe_name}"'
+            f'"{table_name}"' if schema_name is None else f'"{schema_name}"."{table_name}"'
         )
-        self._db.execute(
+        self._db._execute(
             f"""
             CREATE {'TEMP' if temp else ''} TABLE {df_full_name}
             ({','.join(column_names)})
@@ -971,7 +971,7 @@ class DataFrame:
             """,
             has_results=False,
         )
-        return DataFrame.from_table(dataframe_name, self._db)
+        return DataFrame.from_table(table_name, self._db)
 
     # TODO: Uncomment or remove this.
     #
