@@ -307,15 +307,16 @@ resulting <a class="reference internal" href="#dataframe.DataFrame" title="dataf
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">series</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_function</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;id&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="gp">... </span><span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;id&quot;</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">label</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">label</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]),</span>
+<span class="gp">... </span>                      <span class="n">column_name</span> <span class="o">=</span> <span class="s2">&quot;label&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">result</span>
-<span class="go">---------------------------------------</span>
-<span class="go"> func_d3da7bdf5c294e8cbaddac65e7027e69</span>
-<span class="go">---------------------------------------</span>
+<span class="go">-------</span>
+<span class="go"> label</span>
+<span class="go">-------</span>
 <span class="go"> id_0</span>
 <span class="go"> id_1</span>
 <span class="go"> id_2</span>
@@ -326,7 +327,7 @@ resulting <a class="reference internal" href="#dataframe.DataFrame" title="dataf
 <span class="go"> id_7</span>
 <span class="go"> id_8</span>
 <span class="go"> id_9</span>
-<span class="go">---------------------------------------</span>
+<span class="go">-------</span>
 <span class="go">(10 rows)</span>
 </pre></div>
 </div>
@@ -396,9 +397,9 @@ current <a class="reference internal" href="#dataframe.DataFrame" title="datafra
 </dl>
 <p class="rubric">Example</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]}</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">t</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_columns</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">t</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)[:]</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">t</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">t</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_columns</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)[:]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">result</span>
 <span class="o">--------</span>
  <span class="nb">id</span> <span class="o">|</span> <span class="n">b</span>
 <span class="o">----+---</span>
@@ -449,23 +450,23 @@ same name by applying proper renaming. Otherwise, there will be an
 error.</p>
 </div>
 <p class="rubric">Example</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">students</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;alice&quot;</span><span class="p">,</span> <span class="mi">18</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;bob&quot;</span><span class="p">,</span> <span class="mi">19</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;carol&quot;</span><span class="p">,</span> <span class="mi">19</span><span class="p">)]</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">student</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_rows</span><span class="p">(</span><span class="n">students</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">],</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">student_2</span> <span class="o">=</span> <span class="n">student</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;students_2&quot;</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">],</span> <span class="n">temp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">student</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="n">student_2</span><span class="p">,</span>
-        <span class="n">on</span><span class="o">=</span><span class="s2">&quot;age&quot;</span><span class="p">,</span>
-        <span class="n">self_columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;*&quot;</span><span class="p">},</span>
-        <span class="n">other_columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;name_2&quot;</span><span class="p">},</span>
-    <span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">age_rows</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;alice&quot;</span><span class="p">,</span> <span class="mi">18</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;bob&quot;</span><span class="p">,</span> <span class="mi">19</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;carol&quot;</span><span class="p">,</span> <span class="mi">19</span><span class="p">)]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">student</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_rows</span><span class="p">(</span>
+<span class="o">...</span>     <span class="n">age_rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">],</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">student</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+<span class="o">...</span>     <span class="n">student</span><span class="p">,</span>
+<span class="o">...</span>     <span class="n">on</span><span class="o">=</span><span class="s2">&quot;age&quot;</span><span class="p">,</span>
+<span class="o">...</span>     <span class="n">self_columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;*&quot;</span><span class="p">},</span>
+<span class="o">...</span>     <span class="n">other_columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;name_2&quot;</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">result</span>
 <span class="o">----------------------</span>
  <span class="n">name</span>  <span class="o">|</span> <span class="n">age</span> <span class="o">|</span> <span class="n">name_2</span>
 <span class="o">-------+-----+--------</span>
- <span class="n">carol</span> <span class="o">|</span>  <span class="mi">19</span> <span class="o">|</span> <span class="n">bob</span>
- <span class="n">bob</span>   <span class="o">|</span>  <span class="mi">19</span> <span class="o">|</span> <span class="n">bob</span>
  <span class="n">alice</span> <span class="o">|</span>  <span class="mi">18</span> <span class="o">|</span> <span class="n">alice</span>
- <span class="n">carol</span> <span class="o">|</span>  <span class="mi">19</span> <span class="o">|</span> <span class="n">carol</span>
  <span class="n">bob</span>   <span class="o">|</span>  <span class="mi">19</span> <span class="o">|</span> <span class="n">carol</span>
+ <span class="n">bob</span>   <span class="o">|</span>  <span class="mi">19</span> <span class="o">|</span> <span class="n">bob</span>
+ <span class="n">carol</span> <span class="o">|</span>  <span class="mi">19</span> <span class="o">|</span> <span class="n">carol</span>
+ <span class="n">carol</span> <span class="o">|</span>  <span class="mi">19</span> <span class="o">|</span> <span class="n">bob</span>
 <span class="o">----------------------</span>
 <span class="p">(</span><span class="mi">5</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
@@ -550,7 +551,7 @@ between last cache and this refresh are not updated in local.</p>
 </dl>
 <p class="rubric">Example</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">nums</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)],</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">])</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span> <span class="o">=</span> <span class="n">nums</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="s2">&quot;const_table&quot;</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">],</span> <span class="n">temp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span> <span class="o">=</span> <span class="n">nums</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="s2">&quot;const_table&quot;</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">],</span> <span class="n">temp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;num&quot;</span><span class="p">)[:]</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">df</span>
 <span class="o">-----</span>
  <span class="n">num</span>
@@ -562,7 +563,7 @@ between last cache and this refresh are not updated in local.</p>
    <span class="mi">4</span>
 <span class="o">-----</span>
 <span class="p">(</span><span class="mi">5</span> <span class="n">rows</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;INSERT INTO const_table(num) VALUES (5);&quot;</span><span class="p">,</span> <span class="n">has_results</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;INSERT INTO const_table(num) VALUES (5);&quot;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">df</span>
 <span class="o">-----</span>
  <span class="n">num</span>
@@ -586,7 +587,15 @@ between last cache and this refresh are not updated in local.</p>
    <span class="mi">5</span>
 <span class="o">-----</span>
 <span class="p">(</span><span class="mi">6</span> <span class="n">rows</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;DROP TABLE const_table;&quot;</span><span class="p">)</span>
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><cite>cursor</cite> is a predefined <a class="reference external" href="https://www.psycopg.org/docs/cursor.html">Psycopg Cursor</a>
+which connects to the same database in another session with
+<a class="reference external" href="https://www.psycopg.org/docs/connection.html?highlight=autocommit#connection.autocommit">auto-commit</a>
+enabled.</p>
 </div>
 </dd></dl>
 
@@ -617,7 +626,7 @@ between last cache and this refresh are not updated in local.</p>
 <p class="rubric">Example</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">nums</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)],</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">])</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">df</span> <span class="o">=</span> <span class="n">nums</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="s2">&quot;const_table&quot;</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">],</span> <span class="n">temp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;num&quot;</span><span class="p">)[:]</span>
 <span class="o">-----</span>
  <span class="n">num</span>
 <span class="o">-----</span>
@@ -629,7 +638,7 @@ between last cache and this refresh are not updated in local.</p>
 <span class="o">-----</span>
 <span class="p">(</span><span class="mi">5</span> <span class="n">rows</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">const_table</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;const_table&quot;</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">const_table</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">const_table</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;num&quot;</span><span class="p">)[:]</span>
 <span class="o">-----</span>
  <span class="n">num</span>
 <span class="o">-----</span>
@@ -673,7 +682,8 @@ set of values of the columns in the arguments.</p>
 <dd class="field-odd"><p><strong>column_names</strong> – names of the current <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>’s columns.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> containing only the distinct values of            the given columns.</p>
+<dd class="field-even"><p>the <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> containing only the
+distinct values of the given columns.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></p>
@@ -682,15 +692,21 @@ set of values of the columns in the arguments.</p>
 <p class="rubric">Example</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">students</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;alice&quot;</span><span class="p">,</span> <span class="mi">18</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;bob&quot;</span><span class="p">,</span> <span class="mi">19</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;carol&quot;</span><span class="p">,</span> <span class="mi">19</span><span class="p">)]</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">student</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_rows</span><span class="p">(</span><span class="n">students</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">],</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">student</span><span class="o">.</span><span class="n">distinct_on</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">)</span>
-<span class="o">-------------</span>
- <span class="n">name</span>  <span class="o">|</span> <span class="n">age</span>
-<span class="o">-------+-----</span>
- <span class="n">alice</span> <span class="o">|</span>  <span class="mi">18</span>
- <span class="n">bob</span>   <span class="o">|</span>  <span class="mi">19</span>
-<span class="o">-------------</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">student</span><span class="o">.</span><span class="n">distinct_on</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">)[[</span><span class="s1">&#39;age&#39;</span><span class="p">]]</span>
+<span class="o">-----</span>
+ <span class="n">age</span>
+<span class="o">-----</span>
+  <span class="mi">18</span>
+  <span class="mi">19</span>
+<span class="o">-----</span>
 <span class="p">(</span><span class="mi">2</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Since both “bob” and “carol” have the same age 19, student.distinct_on(“age”)
+will randomly pick one of them for the name column. Use “[[‘age’]]” to make
+sure the result is stable.</p>
 </div>
 </dd></dl>
 
