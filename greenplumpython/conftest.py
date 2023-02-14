@@ -1,8 +1,8 @@
 from os import environ
 from typing import Any, Dict
 
-import pytest
 import psycopg2
+import pytest
 
 import greenplumpython as gp
 
@@ -16,19 +16,11 @@ _DBPSWD = environ.get("PGPASSWORD")
 @pytest.fixture(autouse=True)
 def init_namepsace(doctest_namespace: Dict[str, Any]):
     # for the connection both work for GitHub Actions and concourse
-    db = gp.database(
-        host=_DBHOST,
-        port=_DBPORT,
-        dbname=_DBNAME,
-        user=_DBUSER,
-        password=_DBPSWD
-    )
+    db = gp.database(host=_DBHOST, port=_DBPORT, dbname=_DBNAME, user=_DBUSER, password=_DBPSWD)
 
-    conn = psycopg2.connect(host=_DBHOST,
-                            port=_DBPORT,
-                            user=_DBUSER,
-                            password=_DBPSWD,
-                            database=_DBNAME)
+    conn = psycopg2.connect(
+        host=_DBHOST, port=_DBPORT, user=_DBUSER, password=_DBPSWD, database=_DBNAME
+    )
     conn.set_session(autocommit=True)
 
     cursor = conn.cursor()
