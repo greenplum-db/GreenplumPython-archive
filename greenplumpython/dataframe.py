@@ -575,26 +575,25 @@ class DataFrame:
             .. highlight:: python
             .. code-block::  Python
 
-                >>> students = [("alice", 18), ("bob", 19), ("carol", 19)]
-                >>> student = gp.DataFrame.from_rows(students, column_names=["name", "age"], db=db)
-                >>> student_2 = student.save_as(table_name="students_2", column_names=["name", "age"], temp=True)
-                >>> result = student.join(
-                ...     student_2,
-                ...     on="age",
+                >>> id_rows = [("alice", 1), ("bob", 2), ("carol", 3)]
+                >>> age_rows = [("alice", 18), ("bob", 19), ("carol", 19)]
+                >>> student_id = gp.DataFrame.from_rows(id_rows, column_names=["name", "id"], db=db)
+                >>> student_age = gp.DataFrame.from_rows(age_rows, column_names=["name", "age"], db=db)
+                >>> result = student_id.join(
+                ...     student_age,
+                ...     on="name",
                 ...     self_columns={"*"},
-                ...     other_columns={"name": "name_2"})
-                >>> result = result.order_by("age").order_by("name").order_by("name_2")[:]
+                ...     other_columns={"name": "name_2", "age": "age"})
+                >>> result = result.order_by("id")[:]
                 >>> result
-                ----------------------
-                 name  | age | name_2
-                -------+-----+--------
-                 alice |  18 | alice
-                 bob   |  19 | bob
-                 bob   |  19 | carol
-                 carol |  19 | bob
-                 carol |  19 | carol
-                ----------------------
-                (5 rows)
+                ---------------------------
+                 name  | id | name_2 | age
+                -------+----+--------+-----
+                 alice |  1 | alice  |  18
+                 bob   |  2 | bob    |  19
+                 carol |  3 | carol  |  19
+                ---------------------------
+                (3 rows)
         """
         # FIXME : Raise Error if target columns don't exist
         assert how.upper() in [
