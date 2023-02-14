@@ -11,7 +11,7 @@ from typing import (
     Set,
 )
 
-from greenplumpython.expr import Expr, serialize
+from greenplumpython.expr import Expr, _serialize
 
 if TYPE_CHECKING:
     from greenplumpython.dataframe import DataFrame
@@ -155,14 +155,14 @@ class DataFrameGroupingSet:
         """
         from greenplumpython.dataframe import DataFrame
 
-        targets: List[str] = self.flatten()
+        targets: List[str] = self._flatten()
         for k, f in new_columns.items():
             v: Any = f(self.dataframe).bind(group_by=self)
             if isinstance(v, Expr) and not (v.dataframe is None or v.dataframe == self.dataframe):
                 raise Exception("Newly included columns must be based on the current dataframe")
-            targets.append(f"{serialize(v)} AS {k}")
+            targets.append(f"{_serialize(v)} AS {k}")
         return DataFrame(
-            f"SELECT {','.join(targets)} FROM {self.dataframe.name} {self.clause()}",
+            f"SELECT {','.join(targets)} FROM {self.dataframe.name} {self._clause()}",
             parents=[self.dataframe],
         )
 
@@ -211,7 +211,7 @@ class DataFrameGroupingSet:
             self._grouping_sets + other(self._dataframe)._grouping_sets,
         )
 
-    def flatten(self) -> List[str]:
+    def _flatten(self) -> List[str]:
         # noqa: D400
         """:meta private:"""
         item_list: List[str] = list()
@@ -233,8 +233,7 @@ class DataFrameGroupingSet:
         """
         return self._dataframe
 
-    # FIXME: Make this function package-private
-    def clause(self) -> str:
+    def _clause(self) -> str:
         # noqa: D400
         """:meta private:"""
         grouping_sets_str = [

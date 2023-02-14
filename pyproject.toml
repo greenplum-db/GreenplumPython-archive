@@ -18,4 +18,5 @@ reportOverlappingOverload = false
 reportGeneralTypeIssues = false
 reportUnusedImport = false
 reportImportCycles = false
+reportPrivateUsage = false
 

@@ -271,7 +271,7 @@ def test_table_refresh_add_rows(db: gp.Database):
     t = nums.save_as("const_table", column_names=["num"], temp=True)
     assert len(list(t)) == 10
 
-    db.execute("INSERT INTO const_table(num) VALUES (10);", has_results=False)
+    db._execute("INSERT INTO const_table(num) VALUES (10);", has_results=False)
 
     assert len(list(t)) == 10
     t.refresh()
@@ -286,7 +286,7 @@ def test_table_refresh_add_columns(db: gp.Database):
     assert sorted(row["num"] for row in t) == sorted(list(range(10)))
 
     # Add a new column
-    db.execute("ALTER TABLE const_table ADD num_copy int;", has_results=False)
+    db._execute("ALTER TABLE const_table ADD num_copy int;", has_results=False)
     assert len(next(iter(t)).keys()) == 1
     for row in next(iter(t)).keys():
         assert row == "num"
@@ -297,7 +297,7 @@ def test_table_refresh_add_columns(db: gp.Database):
         assert row["num_copy"] is None
 
     # Update column
-    db.execute("UPDATE const_table SET num_copy=num;", has_results=False)
+    db._execute("UPDATE const_table SET num_copy=num;", has_results=False)
     for row in t:
         assert row["num_copy"] is None
     # Refresh DataFrame contents
@@ -327,7 +327,7 @@ def test_table_non_default_schema(db: gp.Database):
 
 
 def test_table_with_ao(db: gp.Database):
-    result = db.execute("SELECT VERSION();")
+    result = db._execute("SELECT VERSION();")
 
     if not result:
         return
@@ -346,7 +346,7 @@ def test_table_with_ao(db: gp.Database):
 
 
 def test_table_with_aoco(db: gp.Database):
-    result = db.execute("SELECT VERSION();")
+    result = db._execute("SELECT VERSION();")
 
     if not result:
         return
