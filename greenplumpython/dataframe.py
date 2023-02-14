@@ -848,7 +848,9 @@ class DataFrame:
 
         Note:
             `cursor` is a predefined `Psycopg Cursor <https://www.psycopg.org/docs/cursor.html>`_
-            with `auto-commit connection <https://www.psycopg.org/docs/connection.html?highlight=autocommit#connection.autocommit>`_.
+            which connects to the same database in another session with
+            `auto-commit <https://www.psycopg.org/docs/connection.html?highlight=autocommit#connection.autocommit>`_
+            enabled.
         """
         assert self._db is not None
         self._contents = self._fetch()
