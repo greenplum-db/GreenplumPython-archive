@@ -64,11 +64,10 @@ class DataFrame:
             .. highlight:: python
             .. code-block::  python
 
-                >>> import greenplumpython.pandas as pd
                 >>> pd_df = pd.read_sql('SELECT unnest(ARRAY[1,2,3]) AS "a",unnest(ARRAY[1,2,3]) AS "b"', con)
                 >>> pd_df.to_sql(name="test_to_sql", con=con)
                 3
-                >>> pd.read_sql("test_to_sql", con=con)
+                >>> pd.read_sql("SELECT * FROM test_to_sql", con=con).sort_values("a")
                 -------
                  a | b
                 ---+---
@@ -157,7 +156,9 @@ class DataFrame:
         df = orderby.DataFrameOrdering(
             self._dataframe,
             by if isinstance(by, list) else [by],
-            ascending if isinstance(ascending, list) else [ascending],
+            ascending
+            if isinstance(ascending, list)
+            else ([ascending] if not isinstance(by, list) else len(by) * [ascending]),
             len(by) * [nulls_first] if isinstance(by, list) else [nulls_first],
             len(by) * [None],
         )[:]
@@ -184,11 +185,10 @@ class DataFrame:
             .. highlight:: python
             .. code-block::  python
 
-                >>> import greenplumpython.pandas as pd
-                >>> students = [("alice", 18), ("bob", 19), ("carol", 19)]
-                >>> db.create_dataframe(rows=students, column_names=["name", "age"]).save_as("student", column_names=["name", "age"])
-                >>> student = pd.read_sql("student", con)
-                >>> student.drop_duplicates(subset=["age"])
+                >>> students = [("alice", 18), ("bob", 19), ("bob", 19)]
+                >>> df = db.create_dataframe(rows=students, column_names=["name", "age"]).save_as("student", column_names=["name", "age"])
+                >>> student = pd.read_sql("SELECT * FROM student", con)
+                >>> student.drop_duplicates(subset=["name", "age"]).sort_values("name")
                 -------------
                  name  | age
                 -------+-----
@@ -236,28 +236,27 @@ class DataFrame:
             .. highlight:: python
             .. code-block::  python
 
-                >>> import greenplumpython.pandas as pd
                 >>> students = [("alice", 18), ("bob", 19), ("carol", 19)]
-                >>> db.create_dataframe(rows=students, column_names=["name", "age"]).save_as("student", column_names=["name_1", "age_1"])
-                >>> db.create_dataframe(rows=students, column_names=["name", "age"]).save_as("student_2", column_names=["name_2", "age_2"])
-                >>> student = pd.read_sql("student", con)
-                >>> student_2 = pd.read_sql("student_2", con)
-                >>> student.merge(
-                        student_2,
-                        how="inner",
-                        left_on="age_1",
-                        right_on="age_2",
-                    )
-                    ---------------------------------
-                     name_1 | age_1 | name_2 | age_2
-                    --------+-------+--------+-------
-                     alice  |    18 | alice  |    18
-                     bob    |    19 | carol  |    19
-                     bob    |    19 | bob    |    19
-                     carol  |    19 | carol  |    19
-                     carol  |    19 | bob    |    19
-                    ---------------------------------
-                    (5 rows)
+                >>> df_1 = db.create_dataframe(rows=students, column_names=["name", "age"]).save_as("student_1", column_names=["name_1", "age_1"])
+                >>> df_2 = db.create_dataframe(rows=students, column_names=["name", "age"]).save_as("student_2", column_names=["name_2", "age_2"])
+                >>> student_1 = pd.read_sql("SELECT * FROM student_1", con)
+                >>> student_2 = pd.read_sql("SELECT * FROM student_2", con)
+                >>> student_1.merge(
+                ...        student_2,
+                ...        how="inner",
+                ...        left_on="age_1",
+                ...        right_on="age_2",
+                ...    ).sort_values(["name_1", "name_2"])
+                ---------------------------------
+                 name_1 | age_1 | name_2 | age_2
+                --------+-------+--------+-------
+                alice  |    18 | alice  |    18
+                bob    |    19 | bob    |    19
+                bob    |    19 | carol  |    19
+                carol  |    19 | bob    |    19
+                carol  |    19 | carol  |    19
+                ---------------------------------
+                (5 rows)
 
         """
         how = "full" if how == "outer" else how
@@ -323,17 +322,17 @@ def read_sql(
         .. code-block::  python
 
             >>> columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
-            >>> db.create_dataframe(columns=columns).save_as("test_read_sql", column_names=["a", "b"])
-            >>> pd.read_sql("SELECT * FROM test_read_sql", con)
+            >>> df = db.create_dataframe(columns=columns).save_as("test_read_sql", column_names=["a", "b"])
+            >>> pd.read_sql("SELECT * FROM test_read_sql", con).sort_values("a")
             -------
              a | b
             ---+---
+             1 | 1
              2 | 2
              3 | 3
-             1 | 1
             -------
             (3 rows)
-            >>> pd.read_sql('SELECT unnest(ARRAY[1, 2, 3]) AS "a",unnest(ARRAY[1,2,3]) AS "b"', con)
+            >>> pd.read_sql('SELECT unnest(ARRAY[1, 2, 3]) AS "a",unnest(ARRAY[1,2,3]) AS "b"', con).sort_values("a")
             -------
              a | b
             ---+---

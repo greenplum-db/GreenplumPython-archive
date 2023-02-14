@@ -4,19 +4,28 @@ from typing import Any, Dict
 import pytest
 
 import greenplumpython as gp
+import greenplumpython.pandas as pd
 
 
 @pytest.fixture(autouse=True)
 def init_namepsace(doctest_namespace: Dict[str, Any]):
     # for the connection both work for GitHub Actions and concourse
+    host = "localhost"
+    dbname = environ.get("TESTDB", "postgres")
+    user = environ.get("PGUSER")
+    password = environ.get("PGPASSWORD")
+
     db = gp.database(
-        host="localhost",
-        dbname=environ.get("TESTDB", "gpadmin"),
-        user=environ.get("PGUSER"),
-        password=environ.get("PGPASSWORD"),
+        host=host,
+        dbname=dbname,
+        user=user,
+        password=password,
     )
+    con = f"postgresql://{host}/{dbname}"
     doctest_namespace["db"] = db
+    doctest_namespace["con"] = con
     doctest_namespace["gp"] = gp
+    doctest_namespace["pd"] = pd
     yield db
     db.close()
 

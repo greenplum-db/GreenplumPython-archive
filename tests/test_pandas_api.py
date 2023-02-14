@@ -34,6 +34,7 @@ def test_to_sql(db: gp.Database, con):
         (3, 3),
     ]
     assert list(next(iter(df)).keys()) == ["a", "b"]
+    db._execute('DROP TABLE IF EXISTS "test_to_sql"', has_results=False)
 
 
 def test_pddf_to_df(db: gp.Database, con):
@@ -105,22 +106,7 @@ def test_merge_same_column_name(db: gp.Database):
 
     with pytest.raises(Exception) as exc_info:
         zoo_1_pd_df.merge(zoo_2_pd_df, how="inner", on="animal")
-    assert str(exc_info.value) == "Can't support duplicate columns name in both DataFrame"
-
-
-def test_merge_same_column_name(db: gp.Database, con):
-    # fmt: off
-    rows1 = [(1, "Lion",), (2, "Tiger",), (3, "Wolf",), (4, "Fox")]
-    rows2 = [(1, "Tiger",), (2, "Lion",), (3, "Rhino",), (4, "Panther")]
-    # fmt: on
-    zoo_1_df = db.create_dataframe(rows=rows1, column_names=["zoo1_id", "zoo1_animal"])
-    zoo_2_df = db.create_dataframe(rows=rows2, column_names=["zoo2_id", "zoo2_animal"])
-    zoo_1_pd_df = pd.DataFrame._from_native(zoo_1_df)
-    zoo_2_pd_df = pd.DataFrame._from_native(zoo_2_df)
-
-    with pytest.raises(Exception) as exc_info:
-        zoo_1_pd_df.merge(zoo_2_pd_df, how="inner", on="animal")
-    assert str(exc_info.value) == "Can't support duplicate columns name in both DataFrame"
+    assert "Can't support duplicate columns name in both DataFrame" in str(exc_info.value)
 
 
 def test_read_sql(db: gp.Database, con):
@@ -135,3 +121,4 @@ def test_read_sql(db: gp.Database, con):
 
     pd_df = pd.read_sql("SELECT * FROM test_read_sql", con)
     assert sorted([tuple(row.values()) for row in list(pd_df)]) == [(1, 1), (2, 2), (3, 3)]
+    db._execute("DROP TABLE IF EXISTS test_read_sql", has_results=False)
