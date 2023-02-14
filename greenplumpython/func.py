@@ -18,7 +18,7 @@ dill.settings["recurse"] = True
 from greenplumpython.col import Column
 from greenplumpython.dataframe import DataFrame
 from greenplumpython.db import Database
-from greenplumpython.expr import Expr, serialize
+from greenplumpython.expr import Expr, _serialize
 from greenplumpython.group import DataFrameGroupingSet
 from greenplumpython.type import to_pg_type
 
@@ -70,12 +70,12 @@ class FunctionExpr(Expr):
             distinct=self._distinct,
         )
 
-    def serialize(self) -> str:
+    def _serialize(self) -> str:
         """:meta private:"""
         self.function.create_in_db(self._db)
         distinct = "DISTINCT" if self._distinct else ""
         args_string = (
-            ",".join([serialize(arg) for arg in self._args if arg is not None])
+            ",".join([_serialize(arg) for arg in self._args if arg is not None])
             if any(self._args)
             else ""
         )
@@ -93,17 +93,17 @@ class FunctionExpr(Expr):
         ), "Cannot assign single column name when expanding multi-valued results."
         self.function.create_in_db(self._db)
         from_clause = f"FROM {self.dataframe.name}" if self.dataframe is not None else ""
-        group_by_clause = self._group_by.clause() if self._group_by is not None else ""
+        group_by_clause = self._group_by._clause() if self._group_by is not None else ""
         if expand and column_name is None:
             column_name = "func_" + uuid4().hex
         parents = [self.dataframe] if self.dataframe is not None else []
-        grouping_col_names = self._group_by.flatten() if self._group_by is not None else None
+        grouping_col_names = self._group_by._flatten() if self._group_by is not None else None
         # FIXME: The names of GROUP BY exprs can collide with names of fields in
         # the comosite type, making the column names of the resulting dataframe not
         # unique. This can be mitigated after we implement dataframe column
         # inference by raising an error when the function gets called.
         grouping_cols = (
-            [Column(name, self._dataframe).serialize() for name in grouping_col_names]
+            [Column(name, self._dataframe)._serialize() for name in grouping_col_names]
             if grouping_col_names is not None and len(grouping_col_names) != 0
             else None
         )
@@ -133,7 +133,7 @@ class FunctionExpr(Expr):
         # SELECT (result).* FROM func_call;
         # ```
         rebased_grouping_cols = (
-            [Column(name, orig_func_dataframe).serialize() for name in grouping_col_names]
+            [Column(name, orig_func_dataframe)._serialize() for name in grouping_col_names]
             if grouping_col_names is not None
             else None
         )
@@ -166,12 +166,12 @@ class ArrayFunctionExpr(FunctionExpr):
     It will array aggregate all the columns given by the user.
     """
 
-    def serialize(self) -> str:
+    def _serialize(self) -> str:
         """:meta private:"""
         self.function.create_in_db(self._db)
         args_string_list = []
         args_string = ""
-        grouping_col_names = self._group_by.flatten() if self._group_by is not None else None
+        grouping_col_names = self._group_by._flatten() if self._group_by is not None else None
         grouping_cols = (
             {Column(name, self._dataframe) for name in grouping_col_names}
             if grouping_col_names is not None
@@ -187,7 +187,7 @@ class ArrayFunctionExpr(FunctionExpr):
                     else:
                         s = str(self._args[i])  # type: ignore
                 else:
-                    s = serialize(self._args[i])  # type: ignore
+                    s = _serialize(self._args[i])
                 args_string_list.append(s)
             args_string = ",".join(args_string_list)
         return f"{self._func.qualified_name}({args_string})"
@@ -330,7 +330,7 @@ class NormalFunction(_AbstractFunction):
             python_version = (sys.version_info.major, sys.version_info.minor)
             encode_lib_name: str = "__lib_" + uuid4().hex
             assert (
-                db._execute(  # type: ignore
+                db._execute(
                     (
                         f"CREATE FUNCTION {self._qualified_name} ({func_args}) "
                         f"RETURNS {return_type} "
@@ -448,7 +448,7 @@ class AggregateFunction(_AbstractFunction):
                 [f"{param.name} {to_pg_type(param.annotation, db)}" for param in param_list]
             )
             # -- Creation of UDA in Greenplum
-            db._execute(  # type: ignore
+            db._execute(
                 (
                     f"CREATE AGGREGATE {self.qualified_name} ({args_string}) (\n"
                     f"    SFUNC = {self.transition_function.qualified_name},\n"

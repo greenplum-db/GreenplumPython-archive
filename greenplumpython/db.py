@@ -174,7 +174,7 @@ class Database:
                 (1 row)
         """
         from greenplumpython.dataframe import DataFrame
-        from greenplumpython.expr import Expr, serialize
+        from greenplumpython.expr import Expr, _serialize
         from greenplumpython.func import FunctionExpr
 
         targets: List[str] = []
@@ -184,7 +184,7 @@ class Database:
                 assert v.dataframe is None, "New column should not depend on any dataframe."
             if isinstance(v, FunctionExpr):
                 v = v.bind(db=self)
-            targets.append(f"{serialize(v)} AS {k}")
+            targets.append(f"{_serialize(v)} AS {k}")
         return DataFrame(f"SELECT {','.join(targets)}", db=self)
 
 
