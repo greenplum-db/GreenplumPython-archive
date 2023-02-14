@@ -459,6 +459,7 @@ class DataFrame:
                  -1  |   1
                 -----------
                 (10 rows)
+
         """
         if len(new_columns) == 0:
             return self
@@ -575,29 +576,25 @@ class DataFrame:
             .. highlight:: python
             .. code-block::  Python
 
-                >>> id_rows = [("alice", 1), ("bob", 2), ("carol", 3)]
                 >>> age_rows = [("alice", 18), ("bob", 19), ("carol", 19)]
-                >>> student_id = gp.DataFrame.from_rows(
-                ...     id_rows, column_names=["name", "id"], db=db)
-                >>> student_age = gp.DataFrame.from_rows(
+                >>> student = gp.DataFrame.from_rows(
                 ...     age_rows, column_names=["name", "age"], db=db)
-                >>> result = student_id.join(
-                ...     student_age,
-                ...     on="name",
+                >>> result = student.join(
+                ...     student,
+                ...     on="age",
                 ...     self_columns={"*"},
-                ...     other_columns={"name": "name_2", "age": "age"})
-                >>> # Without order_by(), result is printable as well. Use order_by() to get a
-                >>> # stable result.
-                >>> result = result.order_by("id")[:]
+                ...     other_columns={"name": "name_2"})
                 >>> result
-                ---------------------------
-                 name  | id | name_2 | age
-                -------+----+--------+-----
-                 alice |  1 | alice  |  18
-                 bob   |  2 | bob    |  19
-                 carol |  3 | carol  |  19
-                ---------------------------
-                (3 rows)
+                ----------------------
+                 name  | age | name_2
+                -------+-----+--------
+                 alice |  18 | alice
+                 bob   |  19 | carol
+                 bob   |  19 | bob
+                 carol |  19 | carol
+                 carol |  19 | bob
+                ----------------------
+                (5 rows)
         """
         # FIXME : Raise Error if target columns don't exist
         assert how.upper() in [
@@ -811,7 +808,7 @@ class DataFrame:
             .. code-block::  Python
 
                 >>> nums = db.create_dataframe(rows=[(i,) for i in range(5)], column_names=["num"])
-                >>> df = nums.save_as("const_table", column_names=["num"], temp=True).order_by("num")[:]
+                >>> df = nums.save_as("const_table", column_names=["num"], temp=False).order_by("num")[:]
                 >>> df
                 -----
                  num
@@ -823,7 +820,7 @@ class DataFrame:
                    4
                 -----
                 (5 rows)
-                >>> db.execute("INSERT INTO const_table(num) VALUES (5);", has_results=False)
+                >>> cursor.execute("INSERT INTO const_table(num) VALUES (5);")
                 >>> df
                 -----
                  num
@@ -847,6 +844,11 @@ class DataFrame:
                    5
                 -----
                 (6 rows)
+                >>> cursor.execute("DROP TABLE const_table;")
+
+        Note:
+            `cursor` is a predefined `Psycopg Cursor <https://www.psycopg.org/docs/cursor.html>`_
+            with `auto-commit connection <https://www.psycopg.org/docs/connection.html?highlight=autocommit#connection.autocommit>`_.
         """
         assert self._db is not None
         self._contents = self._fetch()
@@ -1022,9 +1024,6 @@ class DataFrame:
 
                 >>> students = [("alice", 18), ("bob", 19), ("carol", 19)]
                 >>> student = gp.DataFrame.from_rows(students, column_names=["name", "age"], db=db)
-                >>> # Since both "bob" and "carol" have the same age 19, student.distinct_on("age")
-                >>> # will randomly pick one of them for the name column. Use "[['age']]" to make
-                >>> # sure the result is stable.
                 >>> student.distinct_on("age")[['age']]
                 -----
                  age
@@ -1033,6 +1032,11 @@ class DataFrame:
                   19
                 -----
                 (2 rows)
+
+        Note:
+            Since both "bob" and "carol" have the same age 19, student.distinct_on("age")
+            will randomly pick one of them for the name column. Use "[['age']]" to make
+            sure the result is stable.
         """
         cols = [Column(name, self).serialize() for name in column_names]
         return DataFrame(
