@@ -1,33 +1,43 @@
 from os import environ
 from typing import Any, Dict
 
+import psycopg2
 import pytest
 
 import greenplumpython as gp
 import greenplumpython.pandas as pd
 
+_DBHOST = environ.get("PGHOST", "localhost")
+_DBPORT = environ.get("PGPORT", 5432)
+_DBNAME = environ.get("TESTDB", "gpadmin")
+_DBUSER = environ.get("PGUSER", "gpadmin")
+_DBPSWD = environ.get("PGPASSWORD")
+
 
 @pytest.fixture(autouse=True)
 def init_namepsace(doctest_namespace: Dict[str, Any]):
     # for the connection both work for GitHub Actions and concourse
-    host = "localhost"
-    dbname = environ.get("TESTDB", "postgres")
-    user = environ.get("PGUSER")
-    password = environ.get("PGPASSWORD")
+    con = f"postgresql://{_DBHOST}/{_DBNAME}"
+    
+    db = gp.database(host=_DBHOST, port=_DBPORT, dbname=_DBNAME, user=_DBUSER, password=_DBPSWD)
 
-    db = gp.database(
-        host=host,
-        dbname=dbname,
-        user=user,
-        password=password,
+    conn = psycopg2.connect(
+        host=_DBHOST, port=_DBPORT, user=_DBUSER, password=_DBPSWD, database=_DBNAME
     )
-    con = f"postgresql://{host}/{dbname}"
+    conn.set_session(autocommit=True)
+
+    cursor = conn.cursor()
+
     doctest_namespace["db"] = db
     doctest_namespace["con"] = con
     doctest_namespace["gp"] = gp
     doctest_namespace["pd"] = pd
-    yield db
+    doctest_namespace["cursor"] = cursor
+
+    yield db, cursor, conn
     db.close()
+    cursor.close()
+    conn.close()
 
 
 @pytest.fixture(autouse=True)

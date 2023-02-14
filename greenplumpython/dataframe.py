@@ -393,15 +393,16 @@ class DataFrame:
                 >>> rows = [(i,) for i in range(10)]
                 >>> series = db.create_dataframe(rows=rows, column_names=["id"])
                 >>> @gp.create_function
-                >>> def label(prefix: str, id: int) -> str:
-                >>>     prefix = "id"
-                >>>     return f"{prefix}_{id}"
+                ... def label(prefix: str, id: int) -> str:
+                ...     prefix = "id"
+                ...     return f"{prefix}_{id}"
 
-                >>> result = series.apply(lambda t: label("label", t["id"]))
+                >>> result = series.apply(lambda t: label("label", t["id"]),
+                ...                       column_name = "label")
                 >>> result
-                ---------------------------------------
-                 func_d3da7bdf5c294e8cbaddac65e7027e69
-                ---------------------------------------
+                -------
+                 label
+                -------
                  id_0
                  id_1
                  id_2
@@ -412,7 +413,7 @@ class DataFrame:
                  id_7
                  id_8
                  id_9
-                ---------------------------------------
+                -------
                 (10 rows)
         """
         # We need to support calling functions with constant args or even no
@@ -459,6 +460,7 @@ class DataFrame:
                  -1  |   1
                 -----------
                 (10 rows)
+
         """
         if len(new_columns) == 0:
             return self
@@ -505,9 +507,9 @@ class DataFrame:
             .. code-block::  Python
 
                 >>> columns = {"id": [3, 1, 2], "b": [1, 2, 3]}
-                >>> t = gp.DataFrame.from_columns(columns, db=db
-                >>> t.order_by("id")[:]
-                >>> t
+                >>> t = gp.DataFrame.from_columns(columns, db=db)
+                >>> result = t.order_by("id")[:]
+                >>> result
                 --------
                  id | b
                 ----+---
@@ -575,23 +577,23 @@ class DataFrame:
             .. highlight:: python
             .. code-block::  Python
 
-                >>> students = [("alice", 18), ("bob", 19), ("carol", 19)]
-                >>> student = gp.DataFrame.from_rows(students, column_names=["name", "age"], db=db)
-                >>> student_2 = student.save_as(table_name="students_2", column_names=["name", "age"], temp=True)
-                >>> student.join(
-                        student_2,
-                        on="age",
-                        self_columns={"*"},
-                        other_columns={"name": "name_2"},
-                    )
+                >>> age_rows = [("alice", 18), ("bob", 19), ("carol", 19)]
+                >>> student = gp.DataFrame.from_rows(
+                ...     age_rows, column_names=["name", "age"], db=db)
+                >>> result = student.join(
+                ...     student,
+                ...     on="age",
+                ...     self_columns={"*"},
+                ...     other_columns={"name": "name_2"})
+                >>> result
                 ----------------------
                  name  | age | name_2
                 -------+-----+--------
-                 carol |  19 | bob
-                 bob   |  19 | bob
                  alice |  18 | alice
-                 carol |  19 | carol
                  bob   |  19 | carol
+                 bob   |  19 | bob
+                 carol |  19 | carol
+                 carol |  19 | bob
                 ----------------------
                 (5 rows)
         """
@@ -807,7 +809,7 @@ class DataFrame:
             .. code-block::  Python
 
                 >>> nums = db.create_dataframe(rows=[(i,) for i in range(5)], column_names=["num"])
-                >>> df = nums.save_as("const_table", column_names=["num"], temp=True)
+                >>> df = nums.save_as("const_table", column_names=["num"], temp=False).order_by("num")[:]
                 >>> df
                 -----
                  num
@@ -819,7 +821,7 @@ class DataFrame:
                    4
                 -----
                 (5 rows)
-                >>> db._execute("INSERT INTO const_table(num) VALUES (5);", has_results=False)
+                >>> cursor.execute("INSERT INTO const_table(num) VALUES (5);")
                 >>> df
                 -----
                  num
@@ -843,6 +845,13 @@ class DataFrame:
                    5
                 -----
                 (6 rows)
+                >>> cursor.execute("DROP TABLE const_table;")
+
+        Note:
+            `cursor` is a predefined `Psycopg Cursor <https://www.psycopg.org/docs/cursor.html>`_
+            which connects to the same database in another session with
+            `auto-commit <https://www.psycopg.org/docs/connection.html?highlight=autocommit#connection.autocommit>`_
+            enabled.
         """
         assert self._db is not None
         self._contents = self._fetch()
@@ -904,7 +913,7 @@ class DataFrame:
 
                 >>> nums = db.create_dataframe(rows=[(i,) for i in range(5)], column_names=["num"])
                 >>> df = nums.save_as("const_table", column_names=["num"], temp=True)
-                >>> df
+                >>> df.order_by("num")[:]
                 -----
                  num
                 -----
@@ -916,7 +925,7 @@ class DataFrame:
                 -----
                 (5 rows)
                 >>> const_table = db.create_dataframe(table_name="const_table")
-                >>> const_table
+                >>> const_table.order_by("num")[:]
                 -----
                  num
                 -----
@@ -1009,8 +1018,8 @@ class DataFrame:
             column_names: names of the current :class:`~dataframe.DataFrame`'s columns.
 
         Returns:
-            :class:`~dataframe.DataFrame`: the :class:`~dataframe.DataFrame` containing only the distinct values of\
-            the given columns.
+            :class:`~dataframe.DataFrame`: the :class:`~dataframe.DataFrame` containing only the
+            distinct values of the given columns.
 
         Example:
             .. highlight:: python
@@ -1018,14 +1027,19 @@ class DataFrame:
 
                 >>> students = [("alice", 18), ("bob", 19), ("carol", 19)]
                 >>> student = gp.DataFrame.from_rows(students, column_names=["name", "age"], db=db)
-                >>> student.distinct_on("age")
-                -------------
-                 name  | age
-                -------+-----
-                 alice |  18
-                 bob   |  19
-                -------------
+                >>> student.distinct_on("age")[['age']]
+                -----
+                 age
+                -----
+                  18
+                  19
+                -----
                 (2 rows)
+
+        Note:
+            Since both "bob" and "carol" have the same age 19, student.distinct_on("age")
+            will randomly pick one of them for the name column. Use "[['age']]" to make
+            sure the result is stable.
         """
         cols = [Column(name, self)._serialize() for name in column_names]
         return DataFrame(
