@@ -1,6 +1,4 @@
-"""
-This module contains a list of Functions methods that are currently available in GreenplumPython.
-"""
+"""This module contains a list of Functions methods that are currently available in GreenplumPython."""
 from typing import Any, Optional
 
 from greenplumpython.db import Database
@@ -14,8 +12,7 @@ def count(
     db: Optional[Database] = None,
 ) -> FunctionExpr:
     """
-    The aggregate function in database that counts the number of rows or non-NULL values
-    against a specifield column or an entire table.
+    Count the number of rows or non-NULL values against a specifield column or an entire table.
 
     Example:
         .. highlight:: python
@@ -44,7 +41,7 @@ def min(
     db: Optional[Database] = None,
 ) -> FunctionExpr:
     """
-    The aggregate function in database that returns the minimum value in a set of values.
+    Return the minimum value in a set of values.
 
     Example:
         .. highlight:: python
@@ -71,7 +68,7 @@ def max(
     db: Optional[Database] = None,
 ) -> FunctionExpr:
     """
-    The aggregate function in database that returns the maximum value in a set of values.
+    Return the maximum value in a set of values.
 
     Example:
         .. highlight:: python
@@ -98,7 +95,7 @@ def avg(
     db: Optional[Database] = None,
 ) -> FunctionExpr:
     """
-    The aggregate function in database that computes the average value of a set.
+    Compute the average value of a set.
 
     Example:
         .. highlight:: python
@@ -125,7 +122,7 @@ def sum(
     db: Optional[Database] = None,
 ) -> FunctionExpr:
     """
-    The aggregate function in database that computes the sum of a set of values.
+    Compute the sum of a set of values.
 
     Example:
         .. highlight:: python
@@ -150,8 +147,7 @@ def generate_series(
     start: Any, stop: Any, step: Optional[Any] = None, db: Optional[Database] = None
 ) -> FunctionExpr:
     """
-    The function in database that generates a series of values from :code:`start` to :code:`stop`,
-    with a step size of :code:`step`.
+    Generate a series of values from :code:`start` to :code:`stop`, with a step size of :code:`step`.
 
     :code:`step` defaults to 1.
 
