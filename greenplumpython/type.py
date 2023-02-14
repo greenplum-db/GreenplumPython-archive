@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple, get_type_hints
 from uuid import uuid4
 
 from greenplumpython.db import Database
-from greenplumpython.expr import Expr, serialize
+from greenplumpython.expr import Expr, _serialize
 
 
 class TypeCast(Expr):
@@ -51,8 +51,8 @@ class TypeCast(Expr):
         self._obj = obj
         self._type_name = type_name
 
-    def serialize(self) -> str:
-        obj_str = serialize(self._obj)
+    def _serialize(self) -> str:
+        obj_str = _serialize(self._obj)
         return f"({obj_str}::{self._type_name})"
 
 
@@ -102,7 +102,7 @@ class Type:
         att_type_str = ",\n".join(
             [f"{name} {to_pg_type(type_t, db)}" for name, type_t in members.items()]
         )
-        db.execute(
+        db._execute(
             f"CREATE TYPE {schema}.{self._name} AS (\n" f"{att_type_str}\n" f");",
             has_results=False,
         )

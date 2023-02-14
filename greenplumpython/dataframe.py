@@ -53,7 +53,7 @@ from psycopg2.extras import RealDictRow
 
 from greenplumpython.col import Column, Expr
 from greenplumpython.db import Database
-from greenplumpython.expr import serialize
+from greenplumpython.expr import _serialize
 from greenplumpython.group import DataFrameGroupingSet
 from greenplumpython.order import DataFrameOrdering
 from greenplumpython.row import Row
@@ -92,7 +92,7 @@ class DataFrame:
 
     @_getitem.register(list)
     def _(self, column_names: List[str]) -> "DataFrame":
-        targets_str = [serialize(self[col]) for col in column_names]
+        targets_str = [_serialize(self[col]) for col in column_names]
         return DataFrame(
             f"""
                 SELECT {','.join(targets_str)}
@@ -328,7 +328,7 @@ class DataFrame:
         parents = [self]
         if v.other_dataframe is not None and self.name != v.other_dataframe.name:
             parents.append(v.other_dataframe)
-        return DataFrame(f"SELECT * FROM {self._name} WHERE {v.serialize()}", parents=parents)
+        return DataFrame(f"SELECT * FROM {self._name} WHERE {v._serialize()}", parents=parents)
 
     def apply(
         self,
@@ -475,7 +475,7 @@ class DataFrame:
                     if v.other_dataframe is not None and v.other_dataframe.name != self.name:
                         if v.other_dataframe.name not in other_parents:
                             other_parents[v.other_dataframe.name] = v.other_dataframe
-                targets.append(f"{serialize(v)} AS {k}")
+                targets.append(f"{_serialize(v)} AS {k}")
             return DataFrame(
                 f"SELECT *, {','.join(targets)} FROM {self.name}",
                 parents=[self] + list(other_parents.values()),
@@ -612,7 +612,7 @@ class DataFrame:
             for k in columns:
                 col: Column = t[k]
                 v = columns[k] if isinstance(columns, dict) else None
-                target_list.append(col.serialize() + (f' AS "{v}"' if v is not None else ""))
+                target_list.append(col._serialize() + (f' AS "{v}"' if v is not None else ""))
             return target_list
 
         other_name = other.name if self.name != other.name else "cte_" + uuid4().hex
@@ -621,7 +621,7 @@ class DataFrame:
             DataFrame(query="", name=other_name), other_columns
         )
         # ON clause in SQL uses argument `cond`.
-        sql_on_clause = f"ON {cond(self, other).serialize()}" if cond is not None else ""
+        sql_on_clause = f"ON {cond(self, other)._serialize()}" if cond is not None else ""
         join_column_names = (
             (f'"{on}"' if isinstance(on, str) else ",".join([f'"{name}"' for name in on]))
             if on is not None
@@ -876,7 +876,7 @@ class DataFrame:
             f"SELECT to_json({output_name})::TEXT FROM {self.name} AS {output_name}",
             parents=[self],
         )
-        result = self._db.execute(to_json_dataframe._build_full_query())
+        result = self._db._execute(to_json_dataframe._build_full_query())
         return result if result is not None else []
 
     def save_as(
@@ -943,7 +943,7 @@ class DataFrame:
         storage_parameters = (
             f"WITH ({','.join([f'{key}={storage_params[key]}' for key in storage_params.keys()])})"
         )
-        self._db.execute(
+        self._db._execute(
             f"""
             CREATE {'TEMP' if temp else ''} TABLE "{table_name}"
             ({','.join(column_names)})
@@ -967,7 +967,7 @@ class DataFrame:
     #     index_name: str = name if name is not None else "idx_" + uuid4().hex
     #     indexed_cols = ",".join([str(col) for col in columns])
     #     assert self._db is not None
-    #     self._db.execute(
+    #     self._db._execute(
     #         f"CREATE INDEX {index_name} ON {self.name} USING {method} ({indexed_cols})",
     #         has_results=False,
     #     )
@@ -983,7 +983,7 @@ class DataFrame:
             Iterable[Tuple[str]]: The results of *EXPLAIN* query.
         """
         assert self._db is not None
-        results = self._db.execute(f"EXPLAIN (FORMAT {format}) {self._build_full_query()}")
+        results = self._db._execute(f"EXPLAIN (FORMAT {format}) {self._build_full_query()}")
         assert results is not None
         return results
 
@@ -1038,7 +1038,7 @@ class DataFrame:
             will randomly pick one of them for the name column. Use "[['age']]" to make
             sure the result is stable.
         """
-        cols = [Column(name, self).serialize() for name in column_names]
+        cols = [Column(name, self)._serialize() for name in column_names]
         return DataFrame(
             f"SELECT DISTINCT ON ({','.join(cols)}) * FROM {self.name}", parents=[self]
         )
@@ -1114,7 +1114,7 @@ class DataFrame:
                 column_names = first_row.keys()
         assert column_names is not None, "Column names of the DataFrame is unknown."
         rows_string = ",".join(
-            [f"({','.join(serialize(datum) for datum in row)})" for row in row_tuples]
+            [f"({','.join(_serialize(datum) for datum in row)})" for row in row_tuples]
         )
         column_names = [f'"{name}"' for name in column_names]
         columns_string = f"({','.join(column_names)})"
@@ -1152,6 +1152,6 @@ class DataFrame:
                 (3 rows)
         """
         columns_string = ",".join(
-            [f'unnest({serialize(list(v))}) AS "{k}"' for k, v in columns.items()]
+            [f'unnest({_serialize(list(v))}) AS "{k}"' for k, v in columns.items()]
         )
         return DataFrame(f"SELECT {columns_string}", db=db)
