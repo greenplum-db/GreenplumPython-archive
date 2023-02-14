@@ -187,7 +187,7 @@ class ArrayFunctionExpr(FunctionExpr):
                     else:
                         s = str(self._args[i])  # type: ignore
                 else:
-                    s = _serialize(self._args[i])  # type: ignore
+                    s = _serialize(self._args[i])
                 args_string_list.append(s)
             args_string = ",".join(args_string_list)
         return f"{self._func.qualified_name}({args_string})"

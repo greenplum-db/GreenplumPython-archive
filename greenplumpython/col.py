@@ -36,7 +36,7 @@ class ColumnField(Expr):
         return self._column
 
     def _serialize(self) -> str:
-        return f'({self.column._serialize()})."{self._field_name}"'  # type: ignore
+        return f'({self.column._serialize()})."{self._field_name}"'
 
 
 class Column(Expr):
