@@ -683,17 +683,17 @@ class DataFrame:
         Returns:
             str: :class:`~dataframe.DataFrame`'s name.
         """
-        return self._name if self._schema is None else f"{self._schema}.{self._name}"
+        return self._name
 
     @property
-    def _serialize(self) -> str:
+    def qualified_name(self) -> Tuple[str, str]:
         """
         Return the name of :class:`~dataframe.DataFrame`.
 
         Returns:
             str: :class:`~dataframe.DataFrame`'s name.
         """
-        return f'"{self._name}"' if self._schema is None else f'"{self._schema}"."{self._name}"'
+        return self._schema, self._name
 
     @property
     def db(self) -> Optional[Database]:
@@ -819,6 +819,7 @@ class DataFrame:
             .. highlight:: python
             .. code-block::  Python
 
+                >>> cursor.execute("DROP TABLE IF EXISTS const_table;")
                 >>> nums = db.create_dataframe(rows=[(i,) for i in range(5)], column_names=["num"])
                 >>> df = nums.save_as("const_table", column_names=["num"], temp=False).order_by("num")[:]
                 >>> df
@@ -896,10 +897,10 @@ class DataFrame:
     def save_as(
         self,
         table_name: str,
-        schema_name: str = None,
         column_names: List[str] = [],
         temp: bool = False,
         storage_params: dict[str, Any] = {},
+        schema: Optional[str] = None,
     ) -> "DataFrame":
         """
         Save the GreenplumPython :class:`~dataframe.Dataframe` as a *table* into the database.
@@ -911,11 +912,11 @@ class DataFrame:
 
         Args:
             table_name : str
-            schema_name: str by default is public if None
             temp : bool : if table is temporary
             column_names : List : list of column names
             storage_params: dict: storage_parameter of gpdb, reference
                 https://docs.vmware.com/en/VMware-Tanzu-Greenplum/7/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html
+            schema: Optional[str] by default is public if None
 
         Returns:
             DataFrame : :class:`~dataframe.DataFrame` represents the newly saved table
@@ -959,9 +960,7 @@ class DataFrame:
         storage_parameters = (
             f"WITH ({','.join([f'{key}={storage_params[key]}' for key in storage_params.keys()])})"
         )
-        df_full_name = (
-            f'"{table_name}"' if schema_name is None else f'"{schema_name}"."{table_name}"'
-        )
+        df_full_name = f'"{table_name}"' if schema is None else f'"{schema}"."{table_name}"'
         self._db._execute(
             f"""
             CREATE {'TEMP' if temp else ''} TABLE {df_full_name}
@@ -1064,7 +1063,7 @@ class DataFrame:
 
     # dataframe_name can be table/view name
     @classmethod
-    def from_table(cls, table_name: str, db: Database, schema_name: str = None) -> "DataFrame":
+    def from_table(cls, table_name: str, db: Database, schema: str = None) -> "DataFrame":
         """
         Return a :class:`~dataframe.DataFrame` which represents the given table in the :class:`~db.Database`.
 
@@ -1077,9 +1076,7 @@ class DataFrame:
             df = gp.DataFrame.from_table("pg_class", db=db)
 
         """
-        return DataFrame(
-            f'TABLE "{schema_name}"."{table_name}"', name=table_name, schema=schema_name, db=db
-        )
+        return DataFrame(f'TABLE "{schema}"."{table_name}"', name=table_name, schema=schema, db=db)
 
     @classmethod
     def from_rows(

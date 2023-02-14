@@ -33,6 +33,6 @@ def test_expr_column_str_in_query(db: gp.Database, dataframe: gp.DataFrame):
 
 
 def test_table_with_schema(db: gp.Database):
-    pg_class = db.create_dataframe(table_name="pg_class", schema_name="pg_catalog")
+    pg_class = db.create_dataframe(table_name="pg_class", schema="pg_catalog")
     result = pg_class.order_by("oid")[:1][["oid"]]
     assert result["oid"] == 112

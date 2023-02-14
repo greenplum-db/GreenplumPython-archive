@@ -493,7 +493,7 @@ class InExpr(Expr):
         return (
             (
                 f"(EXISTS (SELECT FROM {self.other_dataframe.name}"
-                f" WHERE ({self._container.serialize()} = {self._item.serialize()})))"
+                f" WHERE ({self._container._serialize()} = {self._item._serialize()})))"
             )
             if isinstance(self._container, Expr) and self.other_dataframe is not None
             else (
