@@ -7,7 +7,7 @@ import pytest
 import greenplumpython as gp
 
 _DBHOST = environ.get("PGHOST", "localhost")
-_DBPORT = environ.get("PGPORT", 6000)
+_DBPORT = environ.get("PGPORT", 5432)
 _DBNAME = environ.get("TESTDB", "gpadmin")
 _DBUSER = environ.get("PGUSER", "gpadmin")
 _DBPSWD = environ.get("PGPASSWORD")
