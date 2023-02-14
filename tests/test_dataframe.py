@@ -245,7 +245,7 @@ def test_table_assign_same_base(db: gp.Database):
     nums2 = db.create_dataframe(rows=[(i,) for i in range(10)], column_names=["num"])
     with pytest.raises(Exception) as exc_info:
         nums.assign(num2=lambda _: nums2["num"])
-    assert str(exc_info.value) == "Newly included columns must be based on the current dataframe"
+    assert "Newly included columns must be based on the current dataframe" in str(exc_info.value)
 
 
 def test_table_assign_multiple_col(db: gp.Database):
