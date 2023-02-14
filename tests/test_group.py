@@ -152,10 +152,10 @@ def test_group_flatten(db: gp.Database):
 
     # Duplicates should be removed
     gset._grouping_sets = [["1", "2", "3"], ["1", "2", "3"]]
-    result = gset.flatten()
+    result = gset._flatten()
     assert result == ["1", "2", "3"]
 
     # Input order should be respected
     gset._grouping_sets = [["1", "2", "3"], ["4", "2", "1", "3"]]
-    result = gset.flatten()
+    result = gset._flatten()
     assert result == ["1", "2", "3", "4"]

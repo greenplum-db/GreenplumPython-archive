@@ -31,7 +31,7 @@ class Expr:
         self._db = db if db is not None else (dataframe.db if dataframe is not None else None)
 
     def __hash__(self) -> int:
-        return hash(self.serialize())
+        return hash(self._serialize())
 
     def __and__(self, other: Any) -> "Expr":
         """
@@ -286,9 +286,9 @@ class Expr:
         """
         Returns string statement of Expr
         """
-        return self.serialize()
+        return self._serialize()
 
-    def serialize(self) -> str:
+    def _serialize(self) -> str:
         raise NotImplementedError()
 
     @property
@@ -343,7 +343,7 @@ class Expr:
 from psycopg2.extensions import adapt  # type: ignore
 
 
-def serialize(value: Any) -> str:
+def _serialize(value: Any) -> str:
     """
     :meta private:
 
@@ -354,7 +354,7 @@ def serialize(value: Any) -> str:
         in Python 3 and Python 2 is EOL officially.
     """
     if isinstance(value, Expr):
-        return value.serialize()
+        return value._serialize()
     return adapt(value).getquoted().decode("utf-8")  # type: ignore
 
 
@@ -429,11 +429,11 @@ class BinaryExpr(Expr):
         """
         self._init(operator, left, right, db)
 
-    def serialize(self) -> str:
-        from greenplumpython.expr import serialize
+    def _serialize(self) -> str:
+        from greenplumpython.expr import _serialize
 
-        left_str = serialize(self.left)
-        right_str = serialize(self.right)
+        left_str = _serialize(self.left)
+        right_str = _serialize(self.right)
         return f"({left_str} {self.operator} {right_str})"
 
 
@@ -462,7 +462,7 @@ class UnaryExpr(Expr):
         self.operator = operator
         self.right = right
 
-    def serialize(self) -> str:
+    def _serialize(self) -> str:
         right_str = str(self.right)
         return f"{self.operator}({right_str})"
 
@@ -483,7 +483,7 @@ class InExpr(Expr):
         self._item = item
         self._container = container
 
-    def serialize(self) -> str:
+    def _serialize(self) -> str:
         if isinstance(self._container, Expr):
             assert self.other_dataframe is not None, "DataFrame of container is unknown."
         # Using either IN or = any() will violate
@@ -497,7 +497,7 @@ class InExpr(Expr):
             )
             if isinstance(self._container, Expr) and self.other_dataframe is not None
             else (
-                f'(EXISTS (SELECT FROM unnest({serialize(self._container)}) AS "{container_name}"'
-                f' WHERE ("{container_name}" = {self._item.serialize()})))'
+                f'(EXISTS (SELECT FROM unnest({_serialize(self._container)}) AS "{container_name}"'
+                f' WHERE ("{container_name}" = {self._item._serialize()})))'
             )
         )
