@@ -13,7 +13,7 @@ def test_db():
         user=environ.get("PGUSER"),
         password=environ.get("PGPASSWORD"),
     )
-    result = db.execute("SELECT version()")
+    result = db._execute("SELECT version()")
     for row in result:
         assert "Greenplum" in row["version"] or row["version"].startswith("PostgreSQL")
     db.close()
