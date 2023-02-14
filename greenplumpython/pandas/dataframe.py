@@ -64,6 +64,7 @@ class DataFrame:
             .. highlight:: python
             .. code-block::  python
 
+                >>> cursor.execute("DROP TABLE IF EXISTS test_to_sql")
                 >>> pd_df = pd.read_sql('SELECT unnest(ARRAY[1,2,3]) AS "a",unnest(ARRAY[1,2,3]) AS "b"', con)
                 >>> pd_df.to_sql(name="test_to_sql", con=con)
                 3
@@ -186,6 +187,7 @@ class DataFrame:
             .. code-block::  python
 
                 >>> students = [("alice", 18), ("bob", 19), ("bob", 19)]
+                >>> cursor.execute("DROP TABLE IF EXISTS student")
                 >>> df = db.create_dataframe(rows=students, column_names=["name", "age"]).save_as("student", column_names=["name", "age"])
                 >>> student = pd.read_sql("SELECT * FROM student", con)
                 >>> student.drop_duplicates(subset=["name", "age"]).sort_values("name")
@@ -196,6 +198,7 @@ class DataFrame:
                  bob   |  19
                 -------------
                 (2 rows)
+                >>> cursor.execute("DROP TABLE IF EXISTS student")
 
         """
         assert keep == "first", "Can only keep first occurrence"
@@ -237,6 +240,8 @@ class DataFrame:
             .. code-block::  python
 
                 >>> students = [("alice", 18), ("bob", 19), ("carol", 19)]
+                >>> cursor.execute("DROP TABLE IF EXISTS student_1")
+                >>> cursor.execute("DROP TABLE IF EXISTS student_2")
                 >>> df_1 = db.create_dataframe(rows=students, column_names=["name", "age"]).save_as("student_1", column_names=["name_1", "age_1"])
                 >>> df_2 = db.create_dataframe(rows=students, column_names=["name", "age"]).save_as("student_2", column_names=["name_2", "age_2"])
                 >>> student_1 = pd.read_sql("SELECT * FROM student_1", con)
@@ -257,6 +262,8 @@ class DataFrame:
                 carol  |    19 | carol  |    19
                 ---------------------------------
                 (5 rows)
+                >>> cursor.execute("DROP TABLE IF EXISTS student_1")
+                >>> cursor.execute("DROP TABLE IF EXISTS student_2")
 
         """
         how = "full" if how == "outer" else how
@@ -321,6 +328,7 @@ def read_sql(
         .. highlight:: python
         .. code-block::  python
 
+            >>> cursor.execute("DROP TABLE IF EXISTS test_read_sql")
             >>> columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
             >>> df = db.create_dataframe(columns=columns).save_as("test_read_sql", column_names=["a", "b"])
             >>> pd.read_sql("SELECT * FROM test_read_sql", con).sort_values("a")
@@ -341,6 +349,7 @@ def read_sql(
              3 | 3
             -------
             (3 rows)
+            >>> cursor.execute("DROP TABLE IF EXISTS test_read_sql")
 
     """
     return DataFrame._from_sql(sql, con)
