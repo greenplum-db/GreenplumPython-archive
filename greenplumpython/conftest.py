@@ -33,10 +33,6 @@ def init_namepsace(doctest_namespace: Dict[str, Any]):
     doctest_namespace["pd"] = pd
     doctest_namespace["cursor"] = cursor
 
-    db._execute("DROP TABLE IF EXISTS student", has_results=False)
-    db._execute("DROP TABLE IF EXISTS student_1", has_results=False)
-    db._execute("DROP TABLE IF EXISTS student_2", has_results=False)
-
     yield db, cursor, conn
     db.close()
     cursor.close()
