@@ -18,10 +18,13 @@ NOTE: This version is considered UNSTABLE. DON'T use it in the production enviro
 
 Stable version will be released soon.
 
-Since we are using `plpython3` in Greenplum/Postgres to better use GreenplumPython we also need
-to install the package in the server.
+GreenplumPython requires [plpython3](https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-analytics-pl_python.html) 
+extension to be installed on Greenplum/Postgres.
 
-If you are using Greenplum you may need to install the following package on the server(plpython3 side)
+[dill](https://github.com/uqfoundation/dill) as an optional dependency for GreenplumPython `plpython` side, 
+provides convenient features like auto-importing modules in the `plpython` functions. 
+Refer to [GPDB plpython document](https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-analytics-pl_python.html#pip39) 
+about how to install [dill](https://github.com/uqfoundation/dill) for Greenplum.
 
 .. code-block:: bash
 
