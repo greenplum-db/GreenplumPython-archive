@@ -1,4 +1,4 @@
-"""This module contains a list of Functions methods that are currently available in GreenplumPython."""
+"""This module contains a list of predefined dataframe functions in database."""
 from typing import Any, Optional
 
 from greenplumpython.db import Database
