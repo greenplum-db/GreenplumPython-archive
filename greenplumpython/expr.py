@@ -41,7 +41,7 @@ class Expr:
             .. highlight:: python
             .. code-block::  Python
 
-                >>> import greenplumpython.builtin.function as F
+                >>> import greenplumpython.builtins.functions as F
                 >>> df = db.assign(id=lambda: F.generate_series(0, 9))
                 >>> df[lambda t: (t["id"] >= 3) & (t["id"] < 8)].order_by("id")[:]
                 ----
