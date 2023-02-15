@@ -7,7 +7,7 @@ from greenplumpython.expr import BinaryExpr
 
 def operator(name: str, db: Database) -> Callable[[Any, Any], BinaryExpr]:
     """
-    Return a wrap of a Greenplum operator.
+    Get access to the operator in database.
 
     Args:
         name: `str`: the string that represents the operator
