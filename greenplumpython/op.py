@@ -1,3 +1,4 @@
+# noqa: D100
 from typing import Any, Callable
 
 from greenplumpython.db import Database
@@ -6,11 +7,11 @@ from greenplumpython.expr import BinaryExpr
 
 def operator(name: str, db: Database) -> Callable[[Any, Any], BinaryExpr]:
     """
-    Returns a wrap correspond to an operator in Greenplum
+    Get access to the operator in database.
 
     Args:
-        name: str: str of operator
-        db: :class:`~db.Database`: database where stored operator
+        name: `str`: the string that represents the operator
+        db: :class:`~db.Database`: the database where the operator is stored
 
     Returns:
         :class:`Callable`
@@ -21,7 +22,7 @@ def operator(name: str, db: Database) -> Callable[[Any, Any], BinaryExpr]:
         .. code-block::  python
 
             >>> regex_match = gp.operator("~", db)
-            >>> result = db.assign(is_matched=lambda: regex_match("hello", "h.*o")
+            >>> result = db.assign(is_matched=lambda: regex_match("hello", "h.*o"))
             >>> result
             ------------
              is_matched
