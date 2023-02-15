@@ -29,14 +29,19 @@ class Database:
     Each Database object has an instance **conn** which establishes a connection using psycopg2.
     """
 
-    def __init__(self, params: Dict[str, str]) -> None:
-        self._conn = psycopg2.connect(  # type: ignore
-            " ".join([f"{k}={v}" for k, v in params.items()]),
+    def __init__(self, params: Optional[Dict[str, str]] = None, url: Optional[str] = None) -> None:
+        assert (params is not None and url is None) or (params is None and url is not None)
+        if url is not None:
+            con_str = url
+        else:
+            con_str = " ".join([f"{k}={v}" for k, v in params.items()])  # type: ignore
+        self._conn = psycopg2.connect(
+            con_str,
             cursor_factory=psycopg2.extras.RealDictCursor,
         )
         self._conn.set_session(autocommit=True)
 
-    def _execute(self, query: str, has_results: bool = True) -> Optional[Iterable[Any]]:
+    def _execute(self, query: str, has_results: bool = True) -> Union[Iterable[Tuple[Any]], int]:
         """
         :meta private:
 
@@ -47,14 +52,14 @@ class Database:
             has_results: bool : whether return None or results
 
         Returns:
-            Optional[Iterable]: None or result of SQL query
+            Optional[Iterable]: rowcount or result of SQL query
         """
 
         with self._conn.cursor() as cursor:
             if config.print_sql:
                 print(query)
             cursor.execute(query)
-            return cursor.fetchall() if has_results else None
+            return cursor.fetchall() if has_results else cursor.rowcount
 
     def close(self) -> None:
         """
@@ -233,4 +238,4 @@ def database(
         params["user"] = user
     if password is not None:
         params["password"] = password
-    return Database(params)
+    return Database(params=params)

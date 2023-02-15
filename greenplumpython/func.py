@@ -359,7 +359,7 @@ class NormalFunction(_AbstractFunction):
                     ),
                     has_results=False,
                 )
-                is None
+                == -1
             )
             self._created_in_dbs.add(db)
 

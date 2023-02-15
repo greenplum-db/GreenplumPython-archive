@@ -12,8 +12,10 @@ The **GreenplumPython** library contains 5 main modules:
    col
    row
    func
+   builtins
    op
    type
    group
    order
+   pd_df
    config

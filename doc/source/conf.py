@@ -67,3 +67,23 @@ html_context = {
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 # html_static_path = ["_static"]
+
+suppress_warnings = [
+    # FIXME: *THIS IS TERRIBLE.* Generally speaking, we do want Sphinx to inform
+    # us about cross-referencing failures. Remove this hack entirely after Sphinx
+    # resolves this open issue:
+    #    https://github.com/sphinx-doc/sphinx/issues/4961
+    # Squelch mostly ignorable warnings resembling:
+    #     WARNING: more than one target found for cross-reference 'DataFrame':
+    #     dataframe.DataFrame, pandas.dataframe.DataFrame
+    #
+    # Sphinx currently emits *HUNDREDS* of these warnings against our
+    # documentation. All of these warnings appear to be ignorable. Although we
+    # could explicitly squelch *SOME* of these warnings by canonicalizing
+    # relative to absolute references in docstrings, Sphinx emits still others
+    # of these warnings when parsing PEP-compliant type hints via static
+    # analysis. Since those hints are actual hints that *CANNOT* by definition
+    # by canonicalized, our only recourse is to squelch warnings altogether.
+    # In consequence, some DataFrame references in our doc are not correct.
+    "ref.python",
+]
