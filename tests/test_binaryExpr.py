@@ -3,7 +3,7 @@ from typing import Callable
 import pytest
 
 import greenplumpython as gp
-from greenplumpython.builtin.function import generate_series
+from greenplumpython.builtins.functions import generate_series
 from tests import db
 
 

@@ -1,7 +1,7 @@
 import pytest
 
 import greenplumpython as gp
-import greenplumpython.builtin.function as F
+import greenplumpython.builtins.functions as F
 from tests import db
 
 
