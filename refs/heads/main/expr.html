@@ -52,6 +52,7 @@
 <li class="toctree-l2"><a class="reference internal" href="col.html">Column</a></li>
 <li class="toctree-l2"><a class="reference internal" href="row.html">Row</a></li>
 <li class="toctree-l2"><a class="reference internal" href="func.html">Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="builtins.html">Builtins Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="op.html">Operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="type.html">Type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="group.html">Grouping</a></li>
@@ -134,7 +135,7 @@
 <dd><p>Operator <strong>&amp;</strong></p>
 <p>Returns a Binary Expression AND between self and another <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> or constant</p>
 <p class="rubric">Example</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">greenplumpython.builtin.function</span> <span class="k">as</span> <span class="nn">F</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">greenplumpython.builtins.functions</span> <span class="k">as</span> <span class="nn">F</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">df</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">F</span><span class="o">.</span><span class="n">generate_series</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">df</span><span class="p">[</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">)]</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)[:]</span>
 <span class="o">----</span>
