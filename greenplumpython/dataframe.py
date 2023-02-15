@@ -37,6 +37,7 @@ from typing import (
     Iterable,
     Iterator,
     List,
+    Literal,
     Optional,
     Set,
     Tuple,
@@ -535,7 +536,7 @@ class DataFrame:
     def join(
         self,
         other: "DataFrame",
-        how: str = "",
+        how: Literal["", "left", "right", "outer", "inner", "cross"] = "",
         cond: Optional[Callable[["DataFrame", "DataFrame"], Expr]] = None,
         on: Optional[Union[str, Iterable[str]]] = None,
         self_columns: Union[Dict[str, Optional[str]], Set[str]] = {"*"},

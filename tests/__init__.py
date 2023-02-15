@@ -18,4 +18,12 @@ def db():
     db.close()
 
 
+@pytest.fixture()
+def con():
+    host = "localhost"
+    dbname = environ.get("TESTDB", "gpadmin")
+    con = f"postgresql://{host}/{dbname}"
+    yield con
+
+
 gp.config.print_sql = True
