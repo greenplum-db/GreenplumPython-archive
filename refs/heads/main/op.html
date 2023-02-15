@@ -117,12 +117,12 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="op.operator">
 <span class="sig-prename descclassname"><span class="pre">op.</span></span><span class="sig-name descname"><span class="pre">operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Database</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">BinaryExpr</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#op.operator" title="Permalink to this definition"></a></dt>
-<dd><p>Returns a wrap correspond to an operator in Greenplum</p>
+<dd><p>Get access to the operator in database.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – str: str of operator</p></li>
-<li><p><strong>db</strong> – <a class="reference internal" href="db.html#db.Database" title="db.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a>: database where stored operator</p></li>
+<li><p><strong>name</strong> – <cite>str</cite>: the string that represents the operator</p></li>
+<li><p><strong>db</strong> – <a class="reference internal" href="db.html#db.Database" title="db.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a>: the database where the operator is stored</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -131,7 +131,7 @@
 </dl>
 <p class="rubric">Example</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">regex_match</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">operator</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">,</span> <span class="n">db</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">is_matched</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">regex_match</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;h.*o&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">is_matched</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">regex_match</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;h.*o&quot;</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">result</span>
 <span class="go">------------</span>
 <span class="go"> is_matched</span>
