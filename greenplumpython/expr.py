@@ -1,6 +1,4 @@
-"""
-This module creates a Python object Expr.
-"""
+"""This module creates a Python object Expr."""
 from functools import singledispatchmethod
 from typing import TYPE_CHECKING, Any, List, Optional, Union, overload
 from uuid import uuid4
@@ -40,9 +38,22 @@ class Expr:
         Returns a Binary Expression AND between self and another :class:`~expr.Expr` or constant
 
         Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                t["type"] == "type_1" & t["val"] > 0
+                >>> import greenplumpython.builtin.function as F
+                >>> df = db.assign(id=lambda: F.generate_series(0, 9))
+                >>> df[lambda t: (t["id"] >= 3) & (t["id"] < 8)].order_by("id")[:]
+                ----
+                 id
+                ----
+                  3
+                  4
+                  5
+                  6
+                  7
+                ----
+                (5 rows)
 
         """
         return BinaryExpr("AND", self, other)
@@ -54,9 +65,19 @@ class Expr:
         Returns a Binary Expression OR between self and another :class:`~expr.Expr` or constant
 
         Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                t["type"] == "type_1" | t["type"] == "type_2"
+                >>> rows = [(1,), (2,), (3,), (-2,)]
+                >>> df = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> df[lambda t: (t["id"] >= 3) | (t["id"] < 0)].order_by("id")[:]
+                ----
+                 id
+                ----
+                 -2
+                  3
+                ----
+                (2 rows)
         """
         return BinaryExpr("OR", self, other)
 
@@ -67,9 +88,19 @@ class Expr:
         Returns a Binary Expression EQUAL between self and another :class:`~expr.Expr` or constant
 
         Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                t["type"] == "type_1"
+                >>> rows = [(1,), (2,), (3,), (2,)]
+                >>> df = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> df[lambda t: t["id"] == 2].order_by("id")[:]
+                ----
+                 id
+                ----
+                  2
+                  2
+                ----
+                (2 rows)
         """
         if other is None:
             return BinaryExpr("IS", self, other)
@@ -82,9 +113,19 @@ class Expr:
         Returns a Binary Expression LESS THAN between self and another :class:`~expr.Expr` or constant
 
         Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                t["val"] < 0
+                >>> rows = [(1,), (2,), (3,), (4,)]
+                >>> df = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> df[lambda t: t["id"] < 3].order_by("id")[:]
+                ----
+                 id
+                ----
+                  1
+                  2
+                ----
+                (2 rows)
         """
         if other is None:
             return BinaryExpr("IS NOT", self, other)
@@ -97,9 +138,20 @@ class Expr:
         Returns a Binary Expression LESS EQUAL between self and another :class:`~expr.Expr` or constant
 
         Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                t["val"] <= 0
+                >>> rows = [(1,), (2,), (3,), (4,)]
+                >>> df = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> df[lambda t: t["id"] <= 3].order_by("id")[:]
+                ----
+                 id
+                ----
+                  1
+                  2
+                  3
+                ----
+                (3 rows)
         """
         return BinaryExpr("<=", self, other)
 
@@ -110,9 +162,18 @@ class Expr:
         Returns a Binary Expression GREATER THAN between self and another :class:`~expr.Expr` or constant
 
         Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                t["val"] > 0
+                >>> rows = [(1,), (2,), (3,), (4,)]
+                >>> df = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> df[lambda t: t["id"] > 3].order_by("id")[:]
+                ----
+                 id
+                ----
+                  4
+                ----
+                (1 row)
         """
         return BinaryExpr(">", self, other)
 
@@ -123,9 +184,19 @@ class Expr:
         Returns a Binary Expression GREATER EQUAL between self and another :class:`~expr.Expr` or constant
 
         Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                t["val"] >= 0
+                >>> rows = [(1,), (2,), (3,), (4,)]
+                >>> df = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> df[lambda t: t["id"] >= 3].order_by("id")[:]
+                ----
+                 id
+                ----
+                  3
+                  4
+                ----
+                (2 rows)
         """
         return BinaryExpr(">=", self, other)
 
@@ -136,9 +207,19 @@ class Expr:
         Returns a Binary Expression NOT EQUAL between self and another :class:`~expr.Expr` or constant
 
         Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                t["val"] != 0
+                >>> rows = [(1,), (2,), (3,), (2,)]
+                >>> df = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> df[lambda t: t["id"] != 2].order_by("id")[:]
+                ----
+                 id
+                ----
+                  1
+                  3
+                ----
+                (2 rows)
         """
         return BinaryExpr("!=", self, other)
 
@@ -149,9 +230,21 @@ class Expr:
         Returns a Binary Expression Modulo between an :class:`~expr.Expr` and another :class:`~expr.Expr` or constant
 
         Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                t["val"] % 2
+                >>> rows = [(1,), (2,), (3,), (4,)]
+                >>> df = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> df.assign(mod2=lambda t: t["id"] % 2).order_by("id")[:]
+                -----------
+                 id | mod2
+                ----+------
+                  1 |    1
+                  2 |    0
+                  3 |    1
+                  4 |    0
+                -----------
+                (4 rows)
         """
         return BinaryExpr("%", self, other)
 
@@ -162,9 +255,21 @@ class Expr:
         Returns a Binary Expression Addition between an :class:`~expr.Expr` and another :class:`~expr.Expr` or constant
 
         Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                t["val"] + 2
+                >>> rows = [(1,), (2,), (3,), (4,)]
+                >>> df = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> df.assign(next=lambda t: t["id"] + 1).order_by("id")[:]
+                -----------
+                 id | next
+                ----+------
+                  1 |    2
+                  2 |    3
+                  3 |    4
+                  4 |    5
+                -----------
+                (4 rows)
         """
         return BinaryExpr("+", self, other)
 
@@ -176,9 +281,21 @@ class Expr:
         or constant
 
         Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                t["val"] - 2
+                >>> rows = [(1,), (2,), (3,), (4,)]
+                >>> df = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> df.assign(prev=lambda t: t["id"] - 1).order_by("id")[:]
+                -----------
+                 id | prev
+                ----+------
+                  1 |    0
+                  2 |    1
+                  3 |    2
+                  4 |    3
+                -----------
+                (4 rows)
         """
         return BinaryExpr("-", self, other)
 
@@ -190,9 +307,21 @@ class Expr:
         or constant
 
         Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                t["val"] * 2
+                >>> rows = [(1,), (2,), (3,), (4,)]
+                >>> df = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> df.assign(double=lambda t: t["id"] * 2).order_by("id")[:]
+                -------------
+                 id | double
+                ----+--------
+                  1 |      2
+                  2 |      4
+                  3 |      6
+                  4 |      8
+                -------------
+                (4 rows)
         """
         return BinaryExpr("*", self, other)
 
@@ -204,9 +333,21 @@ class Expr:
         It results integer division between two integers, and true division if one of the arguments is a float.
 
         Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                t["val"] / 2
+                >>> rows = [(1,), (2,), (3,), (4,)]
+                >>> df = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> df.assign(true_div=lambda t: t["id"] / 2).order_by("id")[:]
+                ---------------
+                 id | true_div
+                ----+----------
+                  1 |        0
+                  2 |        1
+                  3 |        1
+                  4 |        2
+                ---------------
+                (4 rows)
         """
         return BinaryExpr("/", self, other)
 
@@ -217,9 +358,22 @@ class Expr:
         Returns a Unary Expression POSITIVE of self
 
         Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                +t["val"]
+                >>> rows = [(1,), (2,), (-3,), (-2,)]
+                >>> df = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> df.assign(pos=lambda t: +t["id"]).order_by("id")[:]
+                ----------
+                 id | pos
+                ----+-----
+                 -3 |  -3
+                 -2 |  -2
+                  1 |   1
+                  2 |   2
+                ----------
+                (4 rows)
+
         """
         return UnaryExpr("+", self)
 
@@ -230,9 +384,21 @@ class Expr:
         Returns a Unary Expression NEGATIVE of self
 
         Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                -t["val"]
+                >>> rows = [(1,), (2,), (-3,), (-2,)]
+                >>> df = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> df.assign(neg=lambda t: -t["id"]).order_by("id")[:]
+                ----------
+                 id | neg
+                ----+-----
+                 -3 |   3
+                 -2 |   2
+                  1 |  -1
+                  2 |  -2
+                ----------
+                (4 rows)
         """
         return UnaryExpr("-", self)
 
@@ -243,9 +409,21 @@ class Expr:
         Returns a Unary Expression ABSOLUTE of self
 
         Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                abs(t["val"])
+                >>> rows = [(1,), (2,), (-3,), (-2,)]
+                >>> df = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> df.assign(abs=lambda t: abs(t["id"])).order_by("id")[:]
+                ----------
+                 id | abs
+                ----+-----
+                 -3 |   3
+                 -2 |   2
+                  1 |   1
+                  2 |   2
+                ----------
+                (4 rows)
         """
         return UnaryExpr("ABS", self)
 
@@ -256,9 +434,21 @@ class Expr:
         Returns a Unary Expression NOT of self
 
         Example:
+            .. highlight:: python
             .. code-block::  Python
 
-                not(t["val"])
+                >>> rows = [(1, True,), (2, False,), (3, False,), (4, True,)]
+                >>> df = db.create_dataframe(rows=rows, column_names=["id", "is"])
+                >>> df.assign(inv=lambda t: ~t["is"]).order_by("id")[:]
+                --------------------
+                 id | is    | inv
+                ----+-------+-------
+                  1 |     1 |     0
+                  2 |     0 |     1
+                  3 |     0 |     1
+                  4 |     1 |     0
+                --------------------
+                (4 rows)
         """
         return UnaryExpr("NOT", self)
 
@@ -273,12 +463,25 @@ class Expr:
             Expr
 
         Example:
-            Select rows where id begins with "a"
-
+            .. highlight:: python
             .. code-block::  Python
 
-                t[t["id"].like(r"a%")]
-
+                >>> rows = [("aaa",), ("bba",), ("acac",)]
+                >>> df = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> df.assign(
+                ...     a_start=lambda t: t["id"].like(r"a%"),
+                ...     a_end=lambda t: t["id"].like(r"%a"),
+                ...     a_middle=lambda t: t["id"].like(r"%a%"),
+                ...     a_sec_posi=lambda t: t["id"].like(r"_a%")
+                ... ).order_by("id")[:]
+                ------------------------------------------------
+                 id   | a_start | a_end | a_middle | a_sec_posi
+                ------+---------+-------+----------+------------
+                 aaa  |       1 |     1 |        1 |          1
+                 acac |       1 |     0 |        1 |          0
+                 bba  |       0 |     1 |        1 |          0
+                ------------------------------------------------
+                (3 rows)
         """
         return BinaryExpr("LIKE", self, pattern)
 
@@ -336,6 +539,24 @@ class Expr:
         Returns:
             :class:`~expr.InExpr`: A boolean :class:`~expr.Expr` whose values are of the\
                 same length as the current :class:`~expr.Expr`.
+
+        Example:
+            .. highlight:: python
+            .. code-block::  Python
+
+                >>> rows = [(i,) for i in range(5)]
+                >>> df = db.create_dataframe(rows=rows, column_names=["id"])
+                >>> df.assign(in_list=lambda t: t["id"].in_([1, 2, 3])).order_by("id")[:]
+                --------------
+                 id | in_list
+                ----+---------
+                  0 |       0
+                  1 |       1
+                  2 |       1
+                  3 |       1
+                  4 |       0
+                --------------
+                (5 rows)
         """
         return InExpr(self, container, self.dataframe, self.db)
 
