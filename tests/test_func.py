@@ -21,6 +21,29 @@ def test_plain_func(db: gp.Database):
         assert "Greenplum" in row["version"] or row["version"].startswith("PostgreSQL")
 
 
+def test_schema_func(db: gp.Database):
+    db._execute(
+        f"""
+        CREATE OR REPLACE FUNCTION test.test_schema_func(a int)
+        RETURNS INTEGER AS
+        $$
+        return a
+        $$
+        LANGUAGE plpython3u
+    """,
+        has_results=False,
+    )
+    test_func = gp.function("test_schema_func", schema="test")
+
+    # -- WITH ASSIGN FUNC
+    for row in db.assign(result=lambda: test_func(1)):
+        assert row["result"] == 1
+
+    # -- WITH APPLY FUNC
+    for row in db.apply(lambda: test_func(1), column_name="result"):
+        assert row["result"] == 1
+
+
 def test_set_returning_func(db: gp.Database):
     results = db.assign(id=lambda: generate_series(0, 9))
     assert sorted([row["id"] for row in results]) == list(range(10))

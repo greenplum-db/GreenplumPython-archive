@@ -24,8 +24,11 @@ def test_type_create(db: gp.Database):
         _first_name: str
         _last_name: str
 
-    type_name = to_pg_type(Person, db)
+    type_name = to_pg_type(Person, db=db)
     assert isinstance(type_name, str)
+
+
+# TODO: add test for using type with non default schema
 
 
 def test_type_no_annotation(db: gp.Database):
@@ -36,5 +39,5 @@ def test_type_no_annotation(db: gp.Database):
             self._last_name = _last_name
 
     with pytest.raises(Exception) as exc_info:
-        to_pg_type(Person, db)
+        to_pg_type(Person, db=db)
     assert "Failed to get annotations" in str(exc_info.value)

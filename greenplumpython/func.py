@@ -306,14 +306,14 @@ class NormalFunction(_AbstractFunction):
             func_sig = inspect.signature(self._wrapped_func)
             func_args = ",".join(
                 [
-                    f"{param.name} {to_pg_type(param.annotation, db)}"
+                    f"{param.name} {to_pg_type(param.annotation, db=db)}"
                     for param in func_sig.parameters.values()
                 ]
             )
             func_arg_names = ",".join(
                 [f"{param.name}={param.name}" for param in func_sig.parameters.values()]
             )
-            return_type = to_pg_type(func_sig.return_annotation, db, for_return=True)
+            return_type = to_pg_type(func_sig.return_annotation, db=db, for_return=True)
             func_pickled: bytes = dill.dumps(self._wrapped_func)
             schema, func_name = self.qualified_name
             qualified_name = f'"{schema}"."{func_name}"' if schema is not None else f'"{func_name}"'
@@ -453,7 +453,7 @@ class AggregateFunction(_AbstractFunction):
             param_list = iter(sig.parameters.values())
             state_param = next(param_list)
             args_string = ",".join(
-                [f"{param.name} {to_pg_type(param.annotation, db)}" for param in param_list]
+                [f"{param.name} {to_pg_type(param.annotation, db=db)}" for param in param_list]
             )
             agg_schema, agg_name = self.qualified_name
             agg_qualified_name = (
@@ -470,7 +470,7 @@ class AggregateFunction(_AbstractFunction):
                 (
                     f"CREATE AGGREGATE {agg_qualified_name} ({args_string}) (\n"
                     f"    SFUNC = {sfunc_qualified_name},\n"
-                    f"    STYPE = {to_pg_type(state_param.annotation, db)}\n"
+                    f"    STYPE = {to_pg_type(state_param.annotation, db=db)}\n"
                     f");\n"
                 ),
                 has_results=False,
@@ -552,6 +552,8 @@ def create_function(
 
         language_handler: language handler to run the function in database,
             defaults to plpython3u, will also support plcontainer later.
+
+        schema: schema name
 
     Returns:
         The newly created :class:`~func.NormalFunction`.

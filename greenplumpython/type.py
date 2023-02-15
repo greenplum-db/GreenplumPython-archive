@@ -38,6 +38,7 @@ class TypeCast(Expr):
         self,
         obj: object,
         type_name: str,
+        schema: Optional[str] = None,
         db: Optional[Database] = None,
     ) -> None:
         """
@@ -50,10 +51,17 @@ class TypeCast(Expr):
         super().__init__(dataframe, db=db)
         self._obj = obj
         self._type_name = type_name
+        self._schema = schema
 
     def _serialize(self) -> str:
         obj_str = _serialize(self._obj)
-        return f"({obj_str}::{self._type_name})"
+        schema, type_name = self.qualified_name
+        qualified_name = f'"{schema}"."{type_name}"' if schema is not None else f'"{type_name}"'
+        return f"({obj_str}::{qualified_name})"
+
+    @property
+    def qualified_name(self) -> Tuple[str, str]:
+        return self._schema, self._type_name
 
 
 class Type:
@@ -73,10 +81,13 @@ class Type:
     the argument to the mapped type in database.
     """
 
-    def __init__(self, name: str, annotation: Optional[type] = None) -> None:
+    def __init__(
+        self, name: str, annotation: Optional[type] = None, schema: Optional[str] = None
+    ) -> None:
         self._name = name
         self._annotation = annotation
         self._created_in_dbs: Optional[Set[Database]] = set() if annotation is not None else None
+        self._schema = schema
 
     # -- Creation of a composite type in Greenplum corresponding to the class_type given
     def create_in_db(self, db: Database):
@@ -120,36 +131,41 @@ class Type:
                 - Any :class:`Expr` consisting of adaptable Python objects and
                     :class:`Column`s of a :class:`DataFrame`.
         """
-        return TypeCast(obj, self._name)
+        return TypeCast(obj, self._name, self._schema)
 
     @property
     def name(self) -> str:
         return self._name
 
+    @property
+    def qualified_name(self) -> Tuple[str, str]:
+        return self._schema, self._name
+
 
 # -- Map between Python and Greenplum primitive types
 _defined_types: Dict[Optional[type], Type] = {
     None: Type(name="void"),
-    int: Type(name="integer"),
-    float: Type(name="double precision"),
-    bool: Type(name="boolean"),
+    int: Type(name="int4"),
+    float: Type(name="float8"),
+    bool: Type(name="bool"),
     str: Type(name="text"),
     bytes: Type(name="bytea"),
 }
 
 
-def type_(name: str) -> Type:
+def type_(name: str, schema: Optional[str] = None) -> Type:
     """
     Get access to a type predefined in database.
 
     Args:
         name: str: name of type
+        schema: Optional[str]: name of schema
 
     Returns:
         The predefined type as a :class:`~type.Type` object.
     """
 
-    return Type(name)
+    return Type(name, schema=schema)
 
 
 def to_pg_type(
@@ -164,6 +180,7 @@ def to_pg_type(
 
     Args:
         annotation: type annotation in Python
+        schema: schema name
         db: database that the type will be created in if not present.
         for_return: if the type is used as a function's return type
 
@@ -186,4 +203,8 @@ def to_pg_type(
             type_name = "type_" + uuid4().hex
             _defined_types[annotation] = Type(name=type_name, annotation=annotation)
         _defined_types[annotation].create_in_db(db)
-        return _defined_types[annotation].name
+        schema, type_name = _defined_types[annotation].qualified_name
+        type_qualified_name = (
+            f'"{schema}"."{type_name}"' if schema is not None else f'"{type_name}"'
+        )
+        return type_qualified_name
