@@ -12,7 +12,7 @@ def count(
     db: Optional[Database] = None,
 ) -> FunctionExpr:
     """
-    Count the number of rows or non-NULL values against a specifield column or an entire table.
+    Count the number of rows or non-NULL values against a specified column or an entire table.
 
     Example:
         .. highlight:: python
@@ -95,7 +95,7 @@ def avg(
     db: Optional[Database] = None,
 ) -> FunctionExpr:
     """
-    Compute the average value of a set.
+    Calculate the average value of a set.
 
     Example:
         .. highlight:: python
@@ -122,7 +122,7 @@ def sum(
     db: Optional[Database] = None,
 ) -> FunctionExpr:
     """
-    Compute the sum of a set of values.
+    Calculate the sum of a set of values.
 
     Example:
         .. highlight:: python
