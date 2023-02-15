@@ -328,16 +328,10 @@ def test_table_non_default_schema(db: gp.Database):
 
 def test_save_as_non_default_schema(db: gp.Database):
     columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
-    db._execute(
-        "DROP SCHEMA IF EXISTS test_save CASCADE; CREATE SCHEMA test_save", has_results=False
-    )
     t = db.create_dataframe(columns=columns)
-    t.save_as("const_dataframe", column_names=["a", "b"], schema="test_save")
-    t = db.create_dataframe(table_name="const_dataframe", schema="test_save")
+    t.save_as("const_dataframe", column_names=["a", "b"], schema="test")
+    t = db.create_dataframe(table_name="const_dataframe", schema="test")
     assert sorted([tuple(row.values()) for row in t]) == [(1, 1), (2, 2), (3, 3)]
-    db._execute(
-        "DROP SCHEMA IF EXISTS test_save CASCADE; CREATE SCHEMA test_save", has_results=False
-    )
 
 
 def test_table_with_ao(db: gp.Database):

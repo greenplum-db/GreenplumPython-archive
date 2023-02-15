@@ -1,5 +1,5 @@
 # noqa: D100
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 
 from greenplumpython.db import Database
 from greenplumpython.expr import BinaryExpr
