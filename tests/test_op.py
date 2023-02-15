@@ -71,6 +71,10 @@ def test_op_func_type_with_schema(db: gp.Database):
     result = db.assign(complex_add=lambda: (complex_op(complex("(1, 2)"), complex("(1, 2)"))))
     for row in result:
         assert row["complex_add"] == {"i": 4, "r": 2}
+    complex_add = gp.function("complex_add", schema="test")
+    result = db.apply(lambda: complex_add(complex("(1, 2)"), complex("(1, 2)")), expand=True)
+    for row in result:
+        assert row["r"] == 2 and row["i"] == 4
 
 
 # FIXME : Add test for unary operator
