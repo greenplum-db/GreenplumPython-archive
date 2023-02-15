@@ -24,8 +24,6 @@ def test_plain_func(db: gp.Database):
 def test_schema_func(db: gp.Database):
     db._execute(
         f"""
-        DROP SCHEMA IF EXISTS test CASCADE;
-        CREATE SCHEMA test;
         CREATE OR REPLACE FUNCTION test.test_schema_func(a int)
         RETURNS INTEGER AS
         $$
@@ -772,14 +770,11 @@ def test_func_one_liner(db: gp.Database):
 
 
 def test_func_non_default_schema(db: gp.Database):
-    db._execute(
-        "DROP SCHEMA IF EXISTS test_save CASCADE; CREATE SCHEMA test_save", has_results=False
-    )
     rows = [(i,) for i in range(-10, 0)]
     db.create_dataframe(rows=rows, column_names=["id"]).save_as(
-        table_name="test_func_schema", column_names=["id"], schema="test_save"
+        table_name="test_func_schema", column_names=["id"], schema="test"
     )
-    series = db.create_dataframe(table_name="test_func_schema", schema="test_save")
+    series = db.create_dataframe(table_name="test_func_schema", schema="test")
     abs = gp.function("abs")
 
     # -- WITH ASSIGN FUNC
@@ -789,7 +784,3 @@ def test_func_non_default_schema(db: gp.Database):
     # -- WITH APPLY FUNC
     results2 = series.apply(lambda nums: abs(nums["id"]))
     assert sorted([row["abs"] for row in results2]) == list(range(1, 11))
-
-    db._execute(
-        "DROP SCHEMA IF EXISTS test_save CASCADE; CREATE SCHEMA test_save", has_results=False
-    )

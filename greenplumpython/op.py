@@ -1,10 +1,12 @@
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 
 from greenplumpython.db import Database
 from greenplumpython.expr import BinaryExpr
 
 
-def operator(name: str, db: Database) -> Callable[[Any, Any], BinaryExpr]:
+def operator(
+    name: str, db: Database, schema: Optional[str] = None
+) -> Callable[[Any, Any], BinaryExpr]:
     """
     Returns a wrap correspond to an operator in Greenplum
 
@@ -32,6 +34,6 @@ def operator(name: str, db: Database) -> Callable[[Any, Any], BinaryExpr]:
     """
 
     def make_operator_expr(left: Any, right: Any) -> BinaryExpr:
-        return BinaryExpr(name, left=left, right=right, db=db)
+        return BinaryExpr(name, left=left, right=right, db=db, schema=schema)
 
     return make_operator_expr

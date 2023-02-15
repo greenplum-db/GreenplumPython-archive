@@ -28,9 +28,6 @@ def test_type_create(db: gp.Database):
     assert isinstance(type_name, str)
 
 
-# TODO: add test for using type with non default schema
-
-
 def test_type_no_annotation(db: gp.Database):
     # Classes with no annotations cannot be used to represent composite types.
     class Person:

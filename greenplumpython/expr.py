@@ -372,6 +372,7 @@ class BinaryExpr(Expr):
         left: Any,
         right: Any,
         db: Optional[Database] = None,
+        schema: Optional[str] = None,
     ):
         dataframe = left.dataframe if isinstance(left, Expr) else None
         if dataframe is not None and isinstance(right, Expr):
@@ -383,6 +384,7 @@ class BinaryExpr(Expr):
         self.operator = operator
         self.left = left
         self.right = right
+        self.schema = schema
 
     @overload
     def __init__(
@@ -391,6 +393,7 @@ class BinaryExpr(Expr):
         left: "Expr",
         right: "Expr",
         db: Optional[Database] = None,
+        schema: Optional[str] = None,
     ):
         ...
 
@@ -401,6 +404,7 @@ class BinaryExpr(Expr):
         left: "Expr",
         right: int,
         db: Optional[Database] = None,
+        schema: Optional[str] = None,
     ):
         ...
 
@@ -411,6 +415,7 @@ class BinaryExpr(Expr):
         left: "Expr",
         right: str,
         db: Optional[Database] = None,
+        schema: Optional[str] = None,
     ):
         ...
 
@@ -420,6 +425,7 @@ class BinaryExpr(Expr):
         left: Any,
         right: Any,
         db: Optional[Database] = None,
+        schema: Optional[str] = None,
     ):
         """
 
@@ -427,14 +433,17 @@ class BinaryExpr(Expr):
             left: Any : could be an :class:`Expr` or object in primitive types (int, str, etc)
             right: Any : could be an :class:`Expr` or object in primitive types (int, str, etc)
         """
-        self._init(operator, left, right, db)
+        self._init(operator, left, right, db, schema)
 
     def _serialize(self) -> str:
         from greenplumpython.expr import _serialize
 
         left_str = _serialize(self.left)
         right_str = _serialize(self.right)
-        return f"({left_str} {self.operator} {right_str})"
+        schema_str = f'"{self.schema}".' if self.schema is not None else ""
+        if self.operator in ["LIKE", "AND", "OR", "IS"] and self.schema is None:
+            return f"({left_str} {self.operator} {right_str})"
+        return f"({left_str} OPERATOR({schema_str}{self.operator}) {right_str})"
 
 
 class UnaryExpr(Expr):
