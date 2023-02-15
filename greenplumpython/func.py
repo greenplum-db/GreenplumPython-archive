@@ -79,7 +79,9 @@ class FunctionExpr(Expr):
             if any(self._args)
             else ""
         )
-        return f"{self._func.qualified_name}({distinct} {args_string})"
+        schema, func_name = self.function.qualified_name
+        qualified_name = f'"{schema}"."{func_name}"' if schema is not None else f'"{func_name}"'
+        return f"{qualified_name}({distinct} {args_string})"
 
     def apply(self, expand: bool = False, column_name: Optional[str] = None) -> DataFrame:
         """
@@ -197,7 +199,9 @@ class ArrayFunctionExpr(FunctionExpr):
                     s = _serialize(self._args[i])
                 args_string_list.append(s)
             args_string = ",".join(args_string_list)
-        return f"{self._func.qualified_name}({args_string})"
+        schema, func_name = self.function.qualified_name
+        qualified_name = f'"{schema}"."{func_name}"' if schema is not None else f'"{func_name}"'
+        return f"{qualified_name}({args_string})"
 
     def bind(
         self,
@@ -227,20 +231,13 @@ class _AbstractFunction:
         # if wrapped_func is None, the function object is obtained by
         # gp.function() rather than gp.create_function(). Otherwise a
         # Python function will be passed to wrapped_func.
-        _name = "func_" + uuid4().hex if wrapped_func is not None else name
-        assert _name is not None
-        qualified_name = (
-            f"pg_temp.{_name}"
-            if wrapped_func is not None
-            else _name
-            if schema is None
-            else f"{schema}.{_name}"
-        )
-        self._qualified_name = qualified_name
+        self._name = "func_" + uuid4().hex if wrapped_func is not None else name
+        assert self._name is not None
+        self._schema = "pg_temp" if wrapped_func is not None else None if schema is None else schema
 
     @property
-    def qualified_name(self) -> str:
-        return self._qualified_name
+    def qualified_name(self) -> Tuple[str, str]:
+        return self._schema, self._name
 
     def create_in_db(self, _: Database) -> None:
         """:meta private:"""
@@ -318,10 +315,12 @@ class NormalFunction(_AbstractFunction):
             )
             return_type = to_pg_type(func_sig.return_annotation, db, for_return=True)
             func_pickled: bytes = dill.dumps(self._wrapped_func)
+            schema, func_name = self.qualified_name
+            qualified_name = f'"{schema}"."{func_name}"' if schema is not None else f'"{func_name}"'
             # Modify the AST of the wrapped function to minify dependency: (1-3)
             # 1. Apply random renaming to avoid name conflict. (TODO: Support
             #    calling another UDF in the current UDF directly.)
-            func_ast.name = "__" + self._qualified_name.split(".")[-1]
+            func_ast.name = "__" + func_name
             # 2. Clear decorators and type annotations to avoid import.
             func_ast.decorator_list.clear()
             for arg in func_ast.args.args:
@@ -339,7 +338,7 @@ class NormalFunction(_AbstractFunction):
             assert (
                 db._execute(
                     (
-                        f"CREATE FUNCTION {self._qualified_name} ({func_args}) "
+                        f"CREATE FUNCTION {qualified_name} ({func_args}) "
                         f"RETURNS {return_type} "
                         f"AS $$\n"
                         f"try:\n"
@@ -433,9 +432,11 @@ class AggregateFunction(_AbstractFunction):
     @property
     def transition_function(self) -> NormalFunction:
         """Return the transition function of aggregate function"""
+        schema, func_name = self.qualified_name
+        qualified_name = f'"{schema}"."{func_name}"' if schema is not None else f'"{func_name}"'
         assert (
             self._transition_func is not None
-        ), f'Transition function of the aggregate function "{self.qualified_name}" is unknown.'
+        ), f"Transition function of the aggregate function {qualified_name} is unknown."
         return self._transition_func
 
     def create_in_db(self, db: Database) -> None:
@@ -454,11 +455,21 @@ class AggregateFunction(_AbstractFunction):
             args_string = ",".join(
                 [f"{param.name} {to_pg_type(param.annotation, db)}" for param in param_list]
             )
+            agg_schema, agg_name = self.qualified_name
+            agg_qualified_name = (
+                f'"{agg_schema}"."{agg_name}"' if agg_schema is not None else f'"{agg_name}"'
+            )
+            sfunc_schema, sfunc_name = self.transition_function.qualified_name
+            sfunc_qualified_name = (
+                f'"{sfunc_schema}"."{sfunc_name}"'
+                if sfunc_schema is not None
+                else f'"{sfunc_name}"'
+            )
             # -- Creation of UDA in Greenplum
             db._execute(
                 (
-                    f"CREATE AGGREGATE {self.qualified_name} ({args_string}) (\n"
-                    f"    SFUNC = {self.transition_function.qualified_name},\n"
+                    f"CREATE AGGREGATE {agg_qualified_name} ({args_string}) (\n"
+                    f"    SFUNC = {sfunc_qualified_name},\n"
                     f"    STYPE = {to_pg_type(state_param.annotation, db)}\n"
                     f");\n"
                 ),
