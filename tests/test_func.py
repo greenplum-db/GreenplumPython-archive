@@ -24,6 +24,8 @@ def test_plain_func(db: gp.Database):
 def test_schema_func(db: gp.Database):
     db._execute(
         f"""
+        DROP SCHEMA IF NOT EXISTS test CASCADE;
+        CREATE SCHEMA test;
         CREATE OR REPLACE FUNCTION test.test_schema_func(a int)
         RETURNS INTEGER AS
         $$
