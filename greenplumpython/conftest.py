@@ -32,6 +32,11 @@ def init_namepsace(doctest_namespace: Dict[str, Any]):
     doctest_namespace["gp"] = gp
     doctest_namespace["pd"] = pd
     doctest_namespace["cursor"] = cursor
+    doctest_namespace["db_host"] = _DBHOST
+    doctest_namespace["db_port"] = _DBPORT
+    doctest_namespace["db_name"] = _DBNAME
+    doctest_namespace["db_user"] = _DBUSER
+    doctest_namespace["db_password"] = _DBPSWD
 
     yield db, cursor, conn
     db.close()
