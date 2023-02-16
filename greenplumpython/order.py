@@ -77,7 +77,7 @@ class DataFrameOrdering:
             :class:`~dataframe.DataFrame` with the rows in order
 
         Example:
-            .. code-block::  Python 
+            .. code-block::  Python
                 >>> rows = [(4,), (3,), (2,), (1,)]
                 >>> df = db.create_dataframe(rows=rows, column_names=["id"])
                 >>> df.order_by("id")[:]
