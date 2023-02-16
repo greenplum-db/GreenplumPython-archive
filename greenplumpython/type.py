@@ -1,3 +1,4 @@
+# noqa: D100
 from typing import Any, Dict, List, Optional, Set, Tuple, get_type_hints
 from uuid import uuid4
 
@@ -13,25 +14,18 @@ class TypeCast(Expr):
             .. highlight:: python
             .. code-block::  Python
 
-                >>> rows = [(i,) for i in range(10)]
-                >>> series = db.create_dataframe(rows=rows, column_names=["val"]).save_as("series", column_names=["val"])
-                >>> regclass = gp.type_("regclass")
-                >>> dataframe_name = series.assign(dataframe_name=lambda t: regclass(t["tableoid"]))
-                ----------------------
-                 val | dataframe_name
-                -----+----------------
-                   0 | series
-                   1 | series
-                   2 | series
-                   3 | series
-                   4 | series
-                   5 | series
-                   6 | series
-                   7 | series
-                   8 | series
-                   9 | series
-                ----------------------
-                (10 rows)
+                >>> rows = [("01-01-1990",), ("05-01-98",)]
+                >>> df = db.create_dataframe(rows=rows, column_names=["date_str"])
+                >>> date_type = gp.type_("DATE")
+                >>> result = df.assign(date=lambda t: date_type(t["date_str"]))
+                >>> result
+                -------------------------
+                 date_str   | date
+                ------------+------------
+                 01-01-1990 | 1990-01-01
+                 05-01-98   | 1998-05-01
+                -------------------------
+                (2 rows)
     """
 
     def __init__(
@@ -41,8 +35,8 @@ class TypeCast(Expr):
         schema: Optional[str] = None,
         db: Optional[Database] = None,
     ) -> None:
+        # noqa: D205 D400
         """
-
         Args:
             obj: object : which will be applied type casting
             type_name : str : name of type which object will be cast
@@ -66,7 +60,7 @@ class TypeCast(Expr):
 
 class Type:
     """
-    Represents a type of values in a :class:`DataFrame`.
+    Represents a type of values in a :class:`~dataframe.DataFrame`.
 
     It is mapped to a type in database, including
 
@@ -84,6 +78,7 @@ class Type:
     def __init__(
         self, name: str, annotation: Optional[type] = None, schema: Optional[str] = None
     ) -> None:
+        # noqa: D107
         self._name = name
         self._annotation = annotation
         self._created_in_dbs: Optional[Set[Database]] = set() if annotation is not None else None
@@ -91,10 +86,11 @@ class Type:
 
     # -- Creation of a composite type in Greenplum corresponding to the class_type given
     def create_in_db(self, db: Database):
+        # noqa: D400
         """
         :meta private:
 
-        Creates a new composite type in database and returns its name
+        Create a new composite type in database and returns its name.
 
         Args:
             class_type : object : class which user want to reproduce in Greenplum
@@ -135,6 +131,7 @@ class Type:
 
     @property
     def name(self) -> str:
+        """Get the name of this :class:`Type`."""
         return self._name
 
     @property
@@ -173,10 +170,11 @@ def to_pg_type(
     db: Optional[Database] = None,
     for_return: bool = False,
 ) -> str:
+    # noqa: D400
     """
     :meta private:
 
-    Converts a Python type annotation to a SQL type.
+    Convert a Python type annotation to a SQL type.
 
     Args:
         annotation: type annotation in Python

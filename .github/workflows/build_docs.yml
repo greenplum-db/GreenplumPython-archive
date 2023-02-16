@@ -39,7 +39,7 @@ jobs:
           export TAG_REF=${{ github.ref }}
           tox -e docs
       - name: Save ref
-        run: echo "${{ github.ref }}" >> doc/build/ref.txt
+        run: echo "${{ github.ref }}" >> build/doc/ref.txt
 
       - name: Save docs artifact
         uses: actions/upload-artifact@v2
