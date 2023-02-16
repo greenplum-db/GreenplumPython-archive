@@ -13,7 +13,7 @@ def test_expr_bin_equal_int(db: gp.Database):
         "temp1", temp=True, column_names=["id"]
     )
     b1: Callable[[gp.DataFrame], gp.Expr] = lambda t: t["id"] == 2
-    assert str(b1(t)) == '("temp1"."id" OPERATOR(=) 2)'
+    assert str(b1(t)) == '("temp1"."id" = 2)'
     assert len(list(t[b1])) == 2
 
 
@@ -23,7 +23,7 @@ def test_expr_bin_equal_str(db: gp.Database):
         "temp2", temp=True, column_names=["id"]
     )
     b2: Callable[[gp.DataFrame], gp.Expr] = lambda t: t["id"] == "aaa"
-    assert str(b2(t)) == '("temp2"."id" OPERATOR(=) \'aaa\')'
+    assert str(b2(t)) == '("temp2"."id" = \'aaa\')'
     assert len(list(t[b2])) == 1
 
 
@@ -46,7 +46,7 @@ def test_expr_bin_equal_2expr(db: gp.Database):
         "temp5", temp=True, column_names=["id"]
     )
     b4: Callable[[gp.DataFrame, gp.DataFrame], gp.Expr] = lambda t1, t2: t1["id"] == t2["id"]
-    assert str(b4(t1, t2)) == '("temp4"."id" OPERATOR(=) "temp5"."id")'
+    assert str(b4(t1, t2)) == '("temp4"."id" = "temp5"."id")'
     assert len(list(t1.join(t2, on=["id"], other_columns={}))) == 3
 
 
@@ -56,7 +56,7 @@ def test_expr_bin_equal_bool(db: gp.Database):
         "temp1", temp=True, column_names=["id"]
     )
     b5: Callable[[gp.DataFrame], gp.Expr] = lambda t: t["id"] == True
-    assert str(b5(t)) == '("temp1"."id" OPERATOR(=) true)'
+    assert str(b5(t)) == '("temp1"."id" = true)'
     assert len(list(t[b5])) == 2
 
 

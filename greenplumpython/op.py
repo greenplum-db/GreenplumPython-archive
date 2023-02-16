@@ -5,11 +5,11 @@ from greenplumpython.db import Database
 from greenplumpython.expr import BinaryExpr
 
 
-def operator(
-    name: str, db: Database, schema: Optional[str] = None
-) -> Callable[[Any, Any], BinaryExpr]:
+def operator(name: str, db: Database) -> Callable[[Any, Any], BinaryExpr]:
     """
     Get access to the operator in database.
+
+    **NOTE:** Currently, support only operator in schema `pg_catalog`.
 
     Args:
         name: `str`: the string that represents the operator
@@ -35,6 +35,7 @@ def operator(
     """
 
     def make_operator_expr(left: Any, right: Any) -> BinaryExpr:
-        return BinaryExpr(name, left=left, right=right, db=db, schema=schema)
+        qualified_name = f'"pg_catalog".{name}'
+        return BinaryExpr(f"OPERATOR({qualified_name})", left=left, right=right, db=db)
 
     return make_operator_expr

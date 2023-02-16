@@ -1,5 +1,7 @@
 from typing import List
 
+import pytest
+
 import greenplumpython as gp
 from tests import db
 
@@ -39,42 +41,17 @@ def test_op_index(db: gp.Database):
 
 
 def test_op_func_type_with_schema(db: gp.Database):
-
-    db._execute(
-        f"""
-        DROP TYPE IF EXISTS test.complex_number CASCADE;
-        CREATE TYPE test.complex_number AS (r float8, i float8);
-        """,
-        has_results=False,
-    )
-    db._execute(
-        f"CREATE FUNCTION test.complex_add(a test.complex_number, b test.complex_number)"
-        f"RETURNS test.complex_number\n"
-        f"AS $$\n"
-        f"return {'{'}\n"
-        f"    'r': a['r'] + b['r'],\n"
-        f"    'i': a['i'] + b['i']\n"
-        f"{'}'}\n"
-        f"$$"
-        f"LANGUAGE plpython3u;\n"
-        f"DROP OPERATOR IF EXISTS test.+(complex_number, complex_number);\n"
-        f"CREATE OPERATOR test.+ ("
-        f"leftarg = test.complex_number,"
-        f"rightarg = test.complex_number,"
-        f"function = test.complex_add,"
-        f"commutator = +"
-        f");",
-        has_results=False,
-    )
-    complex = gp.type_("complex_number", schema="test")
-    complex_op = gp.operator("+", db=db, schema="test")
-    result = db.assign(complex_add=lambda: (complex_op(complex("(1, 2)"), complex("(1, 2)"))))
+    my_add = gp.operator("+", db=db)
+    result = db.assign(add=lambda: my_add(1, 2))
     for row in result:
-        assert row["complex_add"] == {"i": 4, "r": 2}
-    complex_add = gp.function("complex_add", schema="test")
-    result = db.apply(lambda: complex_add(complex("(1, 2)"), complex("(1, 2)")), expand=True)
-    for row in result:
-        assert row["r"] == 2 and row["i"] == 4
+        assert row["add"] == 3
+    wrong_add = gp.operator("pg_catalog.+", db=db)
+    result = db.assign(add=lambda: wrong_add(1, 2))
+    with pytest.raises(Exception) as exc_info:
+        print(result)
+    assert "cross-database references are not implemented: pg_catalog.pg_catalog." in str(
+        exc_info.value
+    )
 
 
 # FIXME : Add test for unary operator
