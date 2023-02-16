@@ -40,12 +40,12 @@ def test_op_index(db: gp.Database):
     assert uses_index_scan
 
 
-def test_op_func_type_with_schema(db: gp.Database):
-    my_add = gp.operator("+", db=db)
+def test_op_with_schema(db: gp.Database):
+    my_add = gp.operator("+", db)
     result = db.assign(add=lambda: my_add(1, 2))
     for row in result:
         assert row["add"] == 3
-    wrong_add = gp.operator("pg_catalog.+", db=db)
+    wrong_add = gp.operator("pg_catalog.+", db)
     result = db.assign(add=lambda: wrong_add(1, 2))
     with pytest.raises(Exception) as exc_info:
         print(result)
