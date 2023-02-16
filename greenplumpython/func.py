@@ -529,10 +529,11 @@ def aggregate_function(name: str, schema: Optional[str] = None) -> AggregateFunc
         and :code:`schema`.
 
     Example:
+        .. highlight:: python
         .. code-block::  Python
 
             >>> count = gp.aggregate_function("count")
-            >>> db.create_dataframe(columns={'x': range(10)}).apply(lambda t: count())
+            >>> db.create_dataframe( columns={'x': range(10)}).group_by().apply(lambda t: count())
             -------
              count
             -------
