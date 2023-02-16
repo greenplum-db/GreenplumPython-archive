@@ -11,7 +11,9 @@ if TYPE_CHECKING:
 
 class Expr:
     """
-    Representation of Expr. It can be
+    Representation of Expr.
+
+    It can be
 
         - a Column
         - an Operator
@@ -24,16 +26,18 @@ class Expr:
         other_dataframe: Optional["DataFrame"] = None,
         db: Optional[Database] = None,
     ) -> None:
+        # noqa: D107
         self._dataframe = dataframe
         self._other_dataframe = other_dataframe
         self._db = db if db is not None else (dataframe.db if dataframe is not None else None)
 
     def __hash__(self) -> int:
+        # noqa: D105
         return hash(self._serialize())
 
     def __and__(self, other: Any) -> "Expr":
         """
-        Operator **&**
+        Operator **&**.
 
         Returns a Binary Expression AND between self and another :class:`~expr.Expr` or constant
 
@@ -60,7 +64,7 @@ class Expr:
 
     def __or__(self, other: Any) -> "Expr":
         """
-        Operator **|**
+        Operator **|**.
 
         Returns a Binary Expression OR between self and another :class:`~expr.Expr` or constant
 
@@ -83,7 +87,7 @@ class Expr:
 
     def __eq__(self, other: Any) -> "Expr":
         """
-        Operator **==**
+        Operator **==**.
 
         Returns a Binary Expression EQUAL between self and another :class:`~expr.Expr` or constant
 
@@ -108,7 +112,7 @@ class Expr:
 
     def __lt__(self, other: Any) -> "Expr":
         """
-        Operator **<**
+        Operator **<**.
 
         Returns a Binary Expression LESS THAN between self and another :class:`~expr.Expr` or constant
 
@@ -133,7 +137,7 @@ class Expr:
 
     def __le__(self, other: Any) -> "Expr":
         """
-        Operator **<=**
+        Operator **<=**.
 
         Returns a Binary Expression LESS EQUAL between self and another :class:`~expr.Expr` or constant
 
@@ -157,7 +161,7 @@ class Expr:
 
     def __gt__(self, other: Any) -> "Expr":
         """
-        Operator **>**
+        Operator **>**.
 
         Returns a Binary Expression GREATER THAN between self and another :class:`~expr.Expr` or constant
 
@@ -179,7 +183,7 @@ class Expr:
 
     def __ge__(self, other: Any) -> "Expr":
         """
-        Operator **>=**
+        Operator **>=**.
 
         Returns a Binary Expression GREATER EQUAL between self and another :class:`~expr.Expr` or constant
 
@@ -202,7 +206,7 @@ class Expr:
 
     def __ne__(self, other: Any) -> "Expr":
         """
-        Operator **!=**
+        Operator **!=**.
 
         Returns a Binary Expression NOT EQUAL between self and another :class:`~expr.Expr` or constant
 
@@ -225,7 +229,7 @@ class Expr:
 
     def __mod__(self, other: Any) -> "Expr":
         """
-        Operator **%**
+        Operator **%**.
 
         Returns a Binary Expression Modulo between an :class:`~expr.Expr` and another :class:`~expr.Expr` or constant
 
@@ -250,7 +254,7 @@ class Expr:
 
     def __add__(self, other: Any) -> "Expr":
         """
-        Operator **+**
+        Operator **+**.
 
         Returns a Binary Expression Addition between an :class:`~expr.Expr` and another :class:`~expr.Expr` or constant
 
@@ -275,7 +279,7 @@ class Expr:
 
     def __sub__(self, other: Any) -> "Expr":
         """
-        Operator **-**
+        Operator **-**.
 
         Returns a Binary Expression Subtraction between an :class:`~expr.Expr` and another :class:`~expr.Expr`
         or constant
@@ -301,7 +305,7 @@ class Expr:
 
     def __mul__(self, other: Any) -> "Expr":
         """
-        Operator *****
+        Operator *****.
 
         Returns a Binary Expression Multiplication between an :class:`~expr.Expr` and another :class:`~expr.Expr`
         or constant
@@ -327,7 +331,7 @@ class Expr:
 
     def __truediv__(self, other: Any) -> "Expr":
         """
-        Operator **/**
+        Operator **/**.
 
         Returns a Binary Expression Division between an :class:`~expr.Expr` and another :class:`~expr.Expr` or constant.
         It results integer division between two integers, and true division if one of the arguments is a float.
@@ -353,7 +357,7 @@ class Expr:
 
     def __pos__(self) -> "Expr":
         """
-        Operator **+**
+        Operator **+**.
 
         Returns a Unary Expression POSITIVE of self
 
@@ -379,7 +383,7 @@ class Expr:
 
     def __neg__(self) -> "Expr":
         """
-        Operator **-**
+        Operator **-**.
 
         Returns a Unary Expression NEGATIVE of self
 
@@ -404,7 +408,7 @@ class Expr:
 
     def __abs__(self) -> "Expr":
         """
-        Operator **abs()**
+        Operator **abs()**.
 
         Returns a Unary Expression ABSOLUTE of self
 
@@ -429,7 +433,7 @@ class Expr:
 
     def __invert__(self) -> "Expr":
         """
-        Operator **~**
+        Operator **~**.
 
         Returns a Unary Expression NOT of self
 
@@ -454,7 +458,7 @@ class Expr:
 
     def like(self, pattern: str) -> "Expr":
         """
-        Returns BinaryExpr in order to apply LIKE statement on self with pattern
+        Return BinaryExpr in order to apply LIKE statement on self with pattern.
 
         Args:
             pattern: str: regex pattern
@@ -486,9 +490,7 @@ class Expr:
         return BinaryExpr("LIKE", self, pattern)
 
     def __str__(self) -> str:
-        """
-        Returns string statement of Expr
-        """
+        """Return string statement of Expr."""
         return self._serialize()
 
     def _serialize(self) -> str:
@@ -497,7 +499,7 @@ class Expr:
     @property
     def db(self) -> Optional[Database]:
         """
-        Returns Expr associated :class:`~db.Database`
+        Returns Expr associated :class:`~db.Database`.
 
         Returns:
             Optional[:class:`~db.Database`]: Database associated with :class:`~expr.Expr`
@@ -507,7 +509,7 @@ class Expr:
     @property
     def dataframe(self) -> Optional["DataFrame"]:
         """
-        Returns Expr associated :class:`~dataframe.DataFrame`
+        Returns Expr associated :class:`~dataframe.DataFrame`.
 
         Returns:
             Optional[:class:`~dataframe.DataFrame`]: GreenplumPython DataFrame associated with :class:`~expr.Expr`
@@ -516,6 +518,7 @@ class Expr:
 
     @property
     def other_dataframe(self) -> Optional["DataFrame"]:
+        # noqa: D102
         return self._other_dataframe
 
     # NOTE: We cannot use __contains__() because the return value will always
@@ -526,7 +529,7 @@ class Expr:
     # nested IN expressions.
     def in_(self, container: Union["Expr", List[Any]]) -> "InExpr":
         """
-        Tests whether each value of current :class:`~expr.Expr` is in the container.
+        Test whether each value of current :class:`~expr.Expr` is in the container.
 
         It is analogous to the built-in `in` operator of Python and SQL.
 
@@ -565,6 +568,7 @@ from psycopg2.extensions import adapt  # type: ignore
 
 
 def _serialize(value: Any) -> str:
+    # noqa: D400
     """
     :meta private:
 
@@ -594,6 +598,7 @@ class BinaryExpr(Expr):
         right: Any,
         db: Optional[Database] = None,
     ):
+        # noqa: D107
         dataframe = left.dataframe if isinstance(left, Expr) else None
         if dataframe is not None and isinstance(right, Expr):
             dataframe = right.dataframe
@@ -613,6 +618,7 @@ class BinaryExpr(Expr):
         right: "Expr",
         db: Optional[Database] = None,
     ):
+        # noqa: D107
         ...
 
     @overload
@@ -623,6 +629,7 @@ class BinaryExpr(Expr):
         right: int,
         db: Optional[Database] = None,
     ):
+        # noqa: D107
         ...
 
     @overload
@@ -633,6 +640,7 @@ class BinaryExpr(Expr):
         right: str,
         db: Optional[Database] = None,
     ):
+        # noqa: D107
         ...
 
     def __init__(
@@ -642,6 +650,7 @@ class BinaryExpr(Expr):
         right: Any,
         db: Optional[Database] = None,
     ):
+        # noqa: D107 D205 D400
         """
 
         Args:
@@ -671,11 +680,7 @@ class UnaryExpr(Expr):
         right: Any,
         db: Optional[Database] = None,
     ):
-        """
-
-        Args:
-            right: :class:`Expr`
-        """
+        # noqa: D107
         dataframe, other_dataframe = (
             (right.dataframe, right.other_dataframe) if isinstance(right, Expr) else (None, None)
         )
@@ -689,6 +694,7 @@ class UnaryExpr(Expr):
 
 
 class InExpr(Expr):
+    # noqa: D101
     def __init__(
         self,
         item: "Expr",
@@ -696,6 +702,7 @@ class InExpr(Expr):
         dataframe: Optional["DataFrame"] = None,
         db: Optional[Database] = None,
     ) -> None:
+        # noqa: D107
         super().__init__(
             dataframe,
             other_dataframe=container.dataframe if isinstance(container, Expr) else None,

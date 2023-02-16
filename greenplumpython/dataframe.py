@@ -691,10 +691,10 @@ class DataFrame:
     @property
     def qualified_name(self) -> Tuple[str, str]:
         """
-        Return the name of :class:`~dataframe.DataFrame`.
+        Return the schema name and name of :class:`~dataframe.DataFrame`.
 
         Returns:
-            str: :class:`~dataframe.DataFrame`'s name.
+            Tuple[str, str]: schema name and :class:`~dataframe.DataFrame`'s name.
         """
         return self._schema, self._name
 

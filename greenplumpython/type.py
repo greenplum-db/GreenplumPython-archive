@@ -16,7 +16,7 @@ class TypeCast(Expr):
 
                 >>> rows = [("01-01-1990",), ("05-01-98",)]
                 >>> df = db.create_dataframe(rows=rows, column_names=["date_str"])
-                >>> date_type = gp.type_("DATE")
+                >>> date_type = gp.type_("date")
                 >>> result = df.assign(date=lambda t: date_type(t["date_str"]))
                 >>> result
                 -------------------------
@@ -55,6 +55,12 @@ class TypeCast(Expr):
 
     @property
     def qualified_name(self) -> Tuple[str, str]:
+        """
+        Return the schema name and name of :class:`~type.TypeCast`.
+
+        Returns:
+            Tuple[str, str]: schema name and :class:`~type.TypeCast`'s name.
+        """
         return self._schema, self._type_name
 
 
@@ -136,6 +142,12 @@ class Type:
 
     @property
     def qualified_name(self) -> Tuple[str, str]:
+        """
+        Return the schema name and name of :class:`~type.Type`.
+
+        Returns:
+            Tuple[str, str]: schema name and :class:`~type.Type`'s name.
+        """
         return self._schema, self._name
 
 
@@ -161,7 +173,6 @@ def type_(name: str, schema: Optional[str] = None) -> Type:
     Returns:
         The predefined type as a :class:`~type.Type` object.
     """
-
     return Type(name, schema=schema)
 
 
