@@ -42,8 +42,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="requirements.html">Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html#installation">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">GreenplumPython</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Database</a></li>
@@ -116,36 +116,55 @@
 </style>
 <section id="module-greenplumpython">
 <span id="database"></span><h1>Database<a class="headerlink" href="#module-greenplumpython" title="Permalink to this heading"></a></h1>
-<span class="target" id="module-db"></span><p>This  module can create a connection to a Greenplum database</p>
+<span class="target" id="module-db"></span><p>Manage connection to Greenplum/PostgreSQL database.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="db.Database">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">db.</span></span><span class="sig-name descname"><span class="pre">Database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.Database" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">db.</span></span><span class="sig-name descname"><span class="pre">Database</span></span><a class="headerlink" href="#db.Database" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Representation of Greenplum Database.
-Each Database object has an instance <strong>conn</strong> which establishes a connection using psycopg2.</p>
+<p>Representation of Greenplum/PostgreSQL Database.</p>
+<p>Each Database object has an instance <strong>conn</strong> which establishes a connection using psycopg2.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="db.Database.close">
-<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#db.Database.close" title="Permalink to this definition"></a></dt>
-<dd><p>Close the self database connection</p>
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#db.Database.close" title="Permalink to this definition"></a></dt>
+<dd><p>Close the database connection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="db.Database.create_dataframe">
-<span class="sig-name descname"><span class="pre">create_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.Database.create_dataframe" title="Permalink to this definition"></a></dt>
-<dd><p>Returns a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> using Table name, list of values given by rows or columns</p>
+<span class="sig-name descname"><span class="pre">create_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.Database.create_dataframe" title="Permalink to this definition"></a></dt>
+<dd><p>Create a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> from a database table, or a set of data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>table_name</strong> – str: name of table in Database</p></li>
-<li><p><strong>rows</strong> – List[Union[Tuple[Any, …], Dict[str, Any]]]: a List of rows</p></li>
-<li><p><strong>columns</strong> – Dict[str, List[Any]]: a dict of columns</p></li>
-<li><p><strong>column_names</strong> – Iterable[str]: List of given column names</p></li>
+<li><p><strong>table_name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – str: name of table in Database</p></li>
+<li><p><strong>rows</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>Union</em><em>[</em><em>Tuple</em><em>[</em><em>Any</em><em>, </em><em>...</em><em>]</em><em>, </em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em><em>]</em><em>]</em>) – List[Union[Tuple[Any, …], Dict[str, Any]]]: a List of rows</p></li>
+<li><p><strong>columns</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Iterable</em><em>[</em><em>Any</em><em>]</em><em>]</em><em>]</em>) – Dict[str, List[Any]]: a dict of columns</p></li>
+<li><p><strong>column_names</strong> (<em>Optional</em><em>[</em><em>Iterable</em><em>[</em><em>str</em><em>]</em><em>]</em>) – Iterable[str]: List of given column names</p></li>
 </ul>
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">df_from_table</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;pg_class&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)]</span>
+<p>To create <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> from a database table:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;DROP TABLE IF EXISTS one_column_table&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">&quot;CREATE TABLE one_column_table AS SELECT 42 as id;&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df_from_table</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;one_column_table&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df_from_table</span>
+<span class="go">----</span>
+<span class="go"> id</span>
+<span class="go">----</span>
+<span class="go"> 42</span>
+<span class="go">----</span>
+<span class="go">(1 row)</span>
+</pre></div>
+</div>
+<p>To create <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> from a predefined set of data:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">df_from_rows</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">df_from_rows</span>
 <span class="go">----</span>
@@ -173,26 +192,46 @@ Each Database object has an instance <strong>conn</strong> which establishes a c
 
 <dl class="py method">
 <dt class="sig sig-object py" id="db.Database.apply">
-<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="func.html#func.FunctionExpr" title="func.FunctionExpr"><span class="pre">FunctionExpr</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><span class="pre">DataFrame</span></a></span></span><a class="headerlink" href="#db.Database.apply" title="Permalink to this definition"></a></dt>
-<dd><p>Apply a dataframe function in database without depending on a
-<a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
+<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expand</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.Database.apply" title="Permalink to this definition"></a></dt>
+<dd><p>Apply a function in database without depending on a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
 <p>This is primarily for applying functions on adaptable Python objects
 as constants in database.</p>
 <p>The arguments and return type is similar to <a class="reference internal" href="dataframe.html#dataframe.DataFrame.apply" title="dataframe.DataFrame.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a>
 except that parameter <code class="code docutils literal notranslate"><span class="pre">func</span></code> takes no argument.</p>
 <p class="rubric">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_function</span>
+<span class="gp">... </span><span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;sum&quot;</span><span class="p">)</span>
+<span class="go">-----</span>
+<span class="go"> sum</span>
+<span class="go">-----</span>
+<span class="go">   3</span>
+<span class="go">-----</span>
+<span class="go">(1 row)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference internal" href="func.html#func.FunctionExpr" title="func.FunctionExpr"><em>FunctionExpr</em></a><em>]</em>) – </p></li>
+<li><p><strong>expand</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>column_name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame">DataFrame</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="db.Database.assign">
-<span class="sig-name descname"><span class="pre">assign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">new_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><span class="pre">DataFrame</span></a></span></span><a class="headerlink" href="#db.Database.assign" title="Permalink to this definition"></a></dt>
-<dd><p>Assign new columns by calling functions in database</p>
+<span class="sig-name descname"><span class="pre">assign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">new_columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.Database.assign" title="Permalink to this definition"></a></dt>
+<dd><p>Assign new columns by calling functions in database.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>new_columns</strong> – a <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> whose keys are column names and values
+<dd class="field-odd"><p><strong>new_columns</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><em>Any</em><em>]</em>) – a <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> whose keys are column names and values
 are <code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code> returning column data when applied to
 constant value in database.</p>
 </dd>
@@ -204,13 +243,13 @@ constant value in database.</p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">version</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;version&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">version</span><span class="p">())</span>
-<span class="go">-----------------------------------------------------------------------------------------------------------------------------</span>
-<span class="go">version</span>
-<span class="go">-----------------------------------------------------------------------------------------------------------------------------</span>
-<span class="go">PostgreSQL 12.9 (Debian 12.9-1.pgdg110+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 10.2.1-6) 10.2.1 20210110, 64-bit</span>
-<span class="go">-----------------------------------------------------------------------------------------------------------------------------</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">abs</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;abs&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="nb">abs</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="o">-</span><span class="mi">42</span><span class="p">))</span>
+<span class="go">-----</span>
+<span class="go"> abs</span>
+<span class="go">-----</span>
+<span class="go">  42</span>
+<span class="go">-----</span>
 <span class="go">(1 row)</span>
 </pre></div>
 </div>
@@ -220,33 +259,37 @@ constant value in database.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="db.database">
-<span class="sig-prename descclassname"><span class="pre">db.</span></span><span class="sig-name descname"><span class="pre">database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'localhost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dbname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#db.Database" title="db.Database"><span class="pre">Database</span></a></span></span><a class="headerlink" href="#db.database" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">db.</span></span><span class="sig-name descname"><span class="pre">database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'localhost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dbname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.database" title="Permalink to this definition"></a></dt>
 <dd><p>Create a connection using psycopg2 with given arguments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>host</strong> – str : default value = “localhost”</p></li>
-<li><p><strong>dbname</strong> – str : default value = None</p></li>
-<li><p><strong>user</strong> – str : Optional</p></li>
-<li><p><strong>password</strong> – str : Optional</p></li>
-<li><p><strong>port</strong> – int : Optional</p></li>
+<li><p><strong>host</strong> (<em>str</em>) – str : default value = “localhost”</p></li>
+<li><p><strong>dbname</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – str : default value = None</p></li>
+<li><p><strong>user</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – str : Optional</p></li>
+<li><p><strong>password</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – str : Optional</p></li>
+<li><p><strong>port</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – int : Optional</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#db.Database" title="db.Database"><em>Database</em></a></p>
 </dd>
 </dl>
 <p>There are different ways to passing database information:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">database</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="n">dbname</span><span class="o">=</span><span class="n">dbname</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>If it is a connection to localhost, password can be ignored.</p>
+<p><cite>password</cite> can be ommitted if it is empty. For <cite>user</cite> and <cite>port</cite>, the default values will be
+used.</p>
 <p>Or, a connection can be established by passing more detailed information, in this case,
-password is needed for connexion:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">database</span><span class="p">(</span>
-        <span class="n">host</span><span class="o">=</span><span class="n">dbIP</span><span class="p">,</span>
-        <span class="n">dbname</span><span class="o">=</span><span class="n">dbname</span><span class="p">,</span>
-        <span class="n">user</span><span class="o">=</span><span class="n">username</span><span class="p">,</span>
-        <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span>
-        <span class="n">port</span><span class="o">=</span><span class="n">dbPort</span>
-    <span class="p">)</span>
+password is needed for connection:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">my_db</span> <span class="o">=</span> <span class="n">database</span><span class="p">(</span>
+<span class="gp">... </span>      <span class="n">host</span><span class="o">=</span><span class="n">db_host</span><span class="p">,</span>
+<span class="gp">... </span>      <span class="n">dbname</span><span class="o">=</span><span class="n">db_name</span><span class="p">,</span>
+<span class="gp">... </span>      <span class="n">user</span><span class="o">=</span><span class="n">db_user</span><span class="p">,</span>
+<span class="gp">... </span>      <span class="n">password</span><span class="o">=</span><span class="n">db_password</span><span class="p">,</span>
+<span class="gp">... </span>      <span class="n">port</span><span class="o">=</span><span class="n">db_port</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
 </div>
 </dd></dl>

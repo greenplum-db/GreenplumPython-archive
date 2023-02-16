@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation &mdash; GreenplumPython 1.0.0-beta5
+  <title>Requirements &mdash; GreenplumPython 1.0.0-beta5
  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
@@ -22,7 +22,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Getting Started" href="basic.html" />
-    <link rel="prev" title="Requirements" href="requirements.html" /> 
+    <link rel="prev" title="Welcome to GreenplumPython’s documentation!" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -42,8 +42,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="requirements.html">Requirements</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">GreenplumPython</a></li>
 <li class="toctree-l1"><a class="reference internal" href="abalone.html">Example: Predicting the age of abalone</a></li>
@@ -64,7 +64,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Installation</li>
+      <li>Requirements</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/install.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -98,6 +98,16 @@
     text-align: unset;
 }
 </style>
+<section id="requirements">
+<h1>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading"></a></h1>
+<dl class="simple">
+<dt>GreenplumPython currently requires at least Python 3.9 to run, this is because:</dt><dd><ul class="simple">
+<li><p>Python 3.9 is the version we officially support and release with PL/Python3 and GPDB 6.</p></li>
+<li><p>Python 3.9 is the default version in Rocky Linux 9 and is officially supported in Rocky Linux 8 (and also probably in RHEL 8 as well).</p></li>
+</ul>
+</dd>
+</dl>
+</section>
 <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
 <p>You can install latest release of the <strong>GreenplumPython</strong> library with pip3:</p>
@@ -108,34 +118,19 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>--user<span class="w"> </span>git+https://github.com/greenplum-db/GreenplumPython
 </pre></div>
 </div>
-<p>NOTE: This version is considered UNSTABLE. DON’T use it in the production environment!</p>
-<p>Stable version will be released soon.</p>
 <p>GreenplumPython requires [plpython3](<a class="reference external" href="https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-analytics-pl_python.html">https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-analytics-pl_python.html</a>)
 extension to be installed on Greenplum/Postgres.</p>
 <p>[dill](<a class="reference external" href="https://github.com/uqfoundation/dill">https://github.com/uqfoundation/dill</a>) as an optional dependency for GreenplumPython <cite>plpython</cite> side,
-provides convenient features like auto-importing modules in the <cite>plpython</cite> functions.
-Refer to [GPDB plpython document](<a class="reference external" href="https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-analytics-pl_python.html#pip39">https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-analytics-pl_python.html#pip39</a>)
-about how to install [dill](<a class="reference external" href="https://github.com/uqfoundation/dill">https://github.com/uqfoundation/dill</a>) for Greenplum.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>dill
-</pre></div>
-</div>
-<p>NOTE: your <cite>PYTHONPATH</cite> may be different from your <cite>plpython3</cite> path, you can use this function.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>CREATE<span class="w"> </span>FUNCTION<span class="w"> </span>find_python_path<span class="o">()</span>
-RETURNS<span class="w"> </span>text<span class="w"> </span>AS<span class="w"> </span><span class="nv">$$</span>
-<span class="w">  </span>import<span class="w"> </span>sys
-<span class="w">  </span><span class="k">return</span><span class="w"> </span>str<span class="o">(</span>sys.path<span class="o">)</span>
-<span class="nv">$$</span><span class="w"> </span>language<span class="w"> </span>plpython3u<span class="p">;</span>
-SELECT<span class="w"> </span>find_python_path<span class="o">()</span><span class="p">;</span>
-</pre></div>
-</div>
-<p>then you can copy <cite>dill</cite> folders to the <cite>PYTHONPATH</cite>.</p>
+which provides convenient features like auto-importing modules in the <cite>plpython</cite> functions. (auto-import is available even when dill is NOT installed on server.
+<cite>dill</cite> is require to include outside dependencies in the same file/module, like functions or classes.)</p>
+<p>To install <cite>dill</cite> or any other python modules on the <cite>plpython</cite> side, refer to [GPDB plpython document](<a class="reference external" href="https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-analytics-pl_python.html#pip39">https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-analytics-pl_python.html#pip39</a>) for more details.</p>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="requirements.html" class="btn btn-neutral float-left" title="Requirements" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to GreenplumPython’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="basic.html" class="btn btn-neutral float-right" title="Getting Started" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

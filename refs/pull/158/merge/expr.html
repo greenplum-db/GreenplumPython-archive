@@ -42,8 +42,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="requirements.html">Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html#installation">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">GreenplumPython</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="db.html">Database</a></li>
@@ -119,7 +119,7 @@
 <p>This module creates a Python object Expr.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="expr.Expr">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">expr.</span></span><span class="sig-name descname"><span class="pre">Expr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataframe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><span class="pre">DataFrame</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_dataframe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><span class="pre">DataFrame</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Database</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expr.Expr" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">expr.</span></span><span class="sig-name descname"><span class="pre">Expr</span></span><a class="headerlink" href="#expr.Expr" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Representation of Expr. It can be</p>
 <blockquote>
@@ -131,7 +131,7 @@
 </div></blockquote>
 <dl class="py method">
 <dt class="sig sig-object py" id="expr.Expr.__and__">
-<span class="sig-name descname"><span class="pre">__and__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></span><a class="headerlink" href="#expr.Expr.__and__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__and__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expr.Expr.__and__" title="Permalink to this definition"></a></dt>
 <dd><p>Operator <strong>&amp;</strong></p>
 <p>Returns a Binary Expression AND between self and another <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> or constant</p>
 <p class="rubric">Example</p>
@@ -150,11 +150,19 @@
 <span class="p">(</span><span class="mi">5</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#expr.Expr" title="expr.Expr"><em>Expr</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="expr.Expr.__or__">
-<span class="sig-name descname"><span class="pre">__or__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></span><a class="headerlink" href="#expr.Expr.__or__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__or__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expr.Expr.__or__" title="Permalink to this definition"></a></dt>
 <dd><p>Operator <strong>|</strong></p>
 <p>Returns a Binary Expression OR between self and another <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> or constant</p>
 <p class="rubric">Example</p>
@@ -170,11 +178,19 @@
 <span class="p">(</span><span class="mi">2</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#expr.Expr" title="expr.Expr"><em>Expr</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="expr.Expr.__eq__">
-<span class="sig-name descname"><span class="pre">__eq__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></span><a class="headerlink" href="#expr.Expr.__eq__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__eq__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expr.Expr.__eq__" title="Permalink to this definition"></a></dt>
 <dd><p>Operator <strong>==</strong></p>
 <p>Returns a Binary Expression EQUAL between self and another <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> or constant</p>
 <p class="rubric">Example</p>
@@ -190,11 +206,19 @@
 <span class="p">(</span><span class="mi">2</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#expr.Expr" title="expr.Expr"><em>Expr</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="expr.Expr.__lt__">
-<span class="sig-name descname"><span class="pre">__lt__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></span><a class="headerlink" href="#expr.Expr.__lt__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__lt__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expr.Expr.__lt__" title="Permalink to this definition"></a></dt>
 <dd><p>Operator <strong>&lt;</strong></p>
 <p>Returns a Binary Expression LESS THAN between self and another <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> or constant</p>
 <p class="rubric">Example</p>
@@ -210,11 +234,19 @@
 <span class="p">(</span><span class="mi">2</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#expr.Expr" title="expr.Expr"><em>Expr</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="expr.Expr.__le__">
-<span class="sig-name descname"><span class="pre">__le__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></span><a class="headerlink" href="#expr.Expr.__le__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__le__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expr.Expr.__le__" title="Permalink to this definition"></a></dt>
 <dd><p>Operator <strong>&lt;=</strong></p>
 <p>Returns a Binary Expression LESS EQUAL between self and another <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> or constant</p>
 <p class="rubric">Example</p>
@@ -231,11 +263,19 @@
 <span class="p">(</span><span class="mi">3</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#expr.Expr" title="expr.Expr"><em>Expr</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="expr.Expr.__gt__">
-<span class="sig-name descname"><span class="pre">__gt__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></span><a class="headerlink" href="#expr.Expr.__gt__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__gt__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expr.Expr.__gt__" title="Permalink to this definition"></a></dt>
 <dd><p>Operator <strong>&gt;</strong></p>
 <p>Returns a Binary Expression GREATER THAN between self and another <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> or constant</p>
 <p class="rubric">Example</p>
@@ -250,11 +290,19 @@
 <span class="p">(</span><span class="mi">1</span> <span class="n">row</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#expr.Expr" title="expr.Expr"><em>Expr</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="expr.Expr.__ge__">
-<span class="sig-name descname"><span class="pre">__ge__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></span><a class="headerlink" href="#expr.Expr.__ge__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__ge__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expr.Expr.__ge__" title="Permalink to this definition"></a></dt>
 <dd><p>Operator <strong>&gt;=</strong></p>
 <p>Returns a Binary Expression GREATER EQUAL between self and another <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> or constant</p>
 <p class="rubric">Example</p>
@@ -270,11 +318,19 @@
 <span class="p">(</span><span class="mi">2</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#expr.Expr" title="expr.Expr"><em>Expr</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="expr.Expr.__ne__">
-<span class="sig-name descname"><span class="pre">__ne__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></span><a class="headerlink" href="#expr.Expr.__ne__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__ne__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expr.Expr.__ne__" title="Permalink to this definition"></a></dt>
 <dd><p>Operator <strong>!=</strong></p>
 <p>Returns a Binary Expression NOT EQUAL between self and another <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> or constant</p>
 <p class="rubric">Example</p>
@@ -290,11 +346,19 @@
 <span class="p">(</span><span class="mi">2</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#expr.Expr" title="expr.Expr"><em>Expr</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="expr.Expr.__mod__">
-<span class="sig-name descname"><span class="pre">__mod__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></span><a class="headerlink" href="#expr.Expr.__mod__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__mod__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expr.Expr.__mod__" title="Permalink to this definition"></a></dt>
 <dd><p>Operator <strong>%</strong></p>
 <p>Returns a Binary Expression Modulo between an <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> and another <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> or constant</p>
 <p class="rubric">Example</p>
@@ -312,11 +376,19 @@
 <span class="p">(</span><span class="mi">4</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#expr.Expr" title="expr.Expr"><em>Expr</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="expr.Expr.__add__">
-<span class="sig-name descname"><span class="pre">__add__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></span><a class="headerlink" href="#expr.Expr.__add__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__add__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expr.Expr.__add__" title="Permalink to this definition"></a></dt>
 <dd><p>Operator <strong>+</strong></p>
 <p>Returns a Binary Expression Addition between an <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> and another <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> or constant</p>
 <p class="rubric">Example</p>
@@ -334,11 +406,19 @@
 <span class="p">(</span><span class="mi">4</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#expr.Expr" title="expr.Expr"><em>Expr</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="expr.Expr.__sub__">
-<span class="sig-name descname"><span class="pre">__sub__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></span><a class="headerlink" href="#expr.Expr.__sub__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__sub__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expr.Expr.__sub__" title="Permalink to this definition"></a></dt>
 <dd><p>Operator <strong>-</strong></p>
 <p>Returns a Binary Expression Subtraction between an <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> and another <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a>
 or constant</p>
@@ -357,11 +437,19 @@ or constant</p>
 <span class="p">(</span><span class="mi">4</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#expr.Expr" title="expr.Expr"><em>Expr</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="expr.Expr.__mul__">
-<span class="sig-name descname"><span class="pre">__mul__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></span><a class="headerlink" href="#expr.Expr.__mul__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__mul__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expr.Expr.__mul__" title="Permalink to this definition"></a></dt>
 <dd><p>Operator <strong>*</strong></p>
 <p>Returns a Binary Expression Multiplication between an <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> and another <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a>
 or constant</p>
@@ -380,11 +468,19 @@ or constant</p>
 <span class="p">(</span><span class="mi">4</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#expr.Expr" title="expr.Expr"><em>Expr</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="expr.Expr.__truediv__">
-<span class="sig-name descname"><span class="pre">__truediv__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></span><a class="headerlink" href="#expr.Expr.__truediv__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__truediv__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expr.Expr.__truediv__" title="Permalink to this definition"></a></dt>
 <dd><p>Operator <strong>/</strong></p>
 <p>Returns a Binary Expression Division between an <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> and another <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> or constant.
 It results integer division between two integers, and true division if one of the arguments is a float.</p>
@@ -403,11 +499,19 @@ It results integer division between two integers, and true division if one of th
 <span class="p">(</span><span class="mi">4</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#expr.Expr" title="expr.Expr"><em>Expr</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="expr.Expr.__pos__">
-<span class="sig-name descname"><span class="pre">__pos__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></span><a class="headerlink" href="#expr.Expr.__pos__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__pos__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#expr.Expr.__pos__" title="Permalink to this definition"></a></dt>
 <dd><p>Operator <strong>+</strong></p>
 <p>Returns a Unary Expression POSITIVE of self</p>
 <p class="rubric">Example</p>
@@ -425,11 +529,16 @@ It results integer division between two integers, and true division if one of th
 <span class="p">(</span><span class="mi">4</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#expr.Expr" title="expr.Expr"><em>Expr</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="expr.Expr.__neg__">
-<span class="sig-name descname"><span class="pre">__neg__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></span><a class="headerlink" href="#expr.Expr.__neg__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__neg__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#expr.Expr.__neg__" title="Permalink to this definition"></a></dt>
 <dd><p>Operator <strong>-</strong></p>
 <p>Returns a Unary Expression NEGATIVE of self</p>
 <p class="rubric">Example</p>
@@ -447,11 +556,16 @@ It results integer division between two integers, and true division if one of th
 <span class="p">(</span><span class="mi">4</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#expr.Expr" title="expr.Expr"><em>Expr</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="expr.Expr.__abs__">
-<span class="sig-name descname"><span class="pre">__abs__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></span><a class="headerlink" href="#expr.Expr.__abs__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__abs__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#expr.Expr.__abs__" title="Permalink to this definition"></a></dt>
 <dd><p>Operator <strong>abs()</strong></p>
 <p>Returns a Unary Expression ABSOLUTE of self</p>
 <p class="rubric">Example</p>
@@ -469,11 +583,16 @@ It results integer division between two integers, and true division if one of th
 <span class="p">(</span><span class="mi">4</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#expr.Expr" title="expr.Expr"><em>Expr</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="expr.Expr.__invert__">
-<span class="sig-name descname"><span class="pre">__invert__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></span><a class="headerlink" href="#expr.Expr.__invert__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__invert__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#expr.Expr.__invert__" title="Permalink to this definition"></a></dt>
 <dd><p>Operator <strong>~</strong></p>
 <p>Returns a Unary Expression NOT of self</p>
 <p class="rubric">Example</p>
@@ -491,18 +610,26 @@ It results integer division between two integers, and true division if one of th
 <span class="p">(</span><span class="mi">4</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#expr.Expr" title="expr.Expr"><em>Expr</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="expr.Expr.like">
-<span class="sig-name descname"><span class="pre">like</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></span><a class="headerlink" href="#expr.Expr.like" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">like</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expr.Expr.like" title="Permalink to this definition"></a></dt>
 <dd><p>Returns BinaryExpr in order to apply LIKE statement on self with pattern</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pattern</strong> – str: regex pattern</p>
+<dd class="field-odd"><p><strong>pattern</strong> (<em>str</em>) – str: regex pattern</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Expr</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#expr.Expr" title="expr.Expr"><em>Expr</em></a></p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
@@ -556,12 +683,12 @@ It results integer division between two integers, and true division if one of th
 
 <dl class="py method">
 <dt class="sig sig-object py" id="expr.Expr.in_">
-<span class="sig-name descname"><span class="pre">in_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#expr.InExpr" title="expr.InExpr"><span class="pre">InExpr</span></a></span></span><a class="headerlink" href="#expr.Expr.in_" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">in_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expr.Expr.in_" title="Permalink to this definition"></a></dt>
 <dd><p>Tests whether each value of current <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> is in the container.</p>
 <p>It is analogous to the built-in <cite>in</cite> operator of Python and SQL.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>container</strong> – A collection of values. It can either be another
+<dd class="field-odd"><p><strong>container</strong> (<em>Union</em><em>[</em><a class="reference internal" href="#expr.Expr" title="expr.Expr"><em>Expr</em></a><em>, </em><em>List</em><em>[</em><em>Any</em><em>]</em><em>]</em>) – A collection of values. It can either be another
 <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> representing a transformed column of
 GreenplumPython <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>, or a <cite>list</cite> of values of the same type as the
 current <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a>.</p>
@@ -595,11 +722,7 @@ current <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code 
 
 <dl class="py class">
 <dt class="sig sig-object py" id="expr.BinaryExpr">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">expr.</span></span><span class="sig-name descname"><span class="pre">BinaryExpr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">right</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Database</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expr.BinaryExpr" title="Permalink to this definition"></a></dt>
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">expr.</span></span><span class="sig-name descname"><span class="pre">BinaryExpr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">right</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Database</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">expr.</span></span><span class="sig-name descname"><span class="pre">BinaryExpr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">right</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Database</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">expr.</span></span><span class="sig-name descname"><span class="pre">BinaryExpr</span></span><a class="headerlink" href="#expr.BinaryExpr" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a></p>
 <p>Inherited from <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a>.</p>
 <p>Representation of a Binary Expression</p>
@@ -607,7 +730,7 @@ current <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code 
 
 <dl class="py class">
 <dt class="sig sig-object py" id="expr.UnaryExpr">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">expr.</span></span><span class="sig-name descname"><span class="pre">UnaryExpr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Database</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expr.UnaryExpr" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">expr.</span></span><span class="sig-name descname"><span class="pre">UnaryExpr</span></span><a class="headerlink" href="#expr.UnaryExpr" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a></p>
 <p>Inherited from <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a>.</p>
 <p>Representation of a Unary Expression.</p>
@@ -615,7 +738,7 @@ current <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code 
 
 <dl class="py class">
 <dt class="sig sig-object py" id="expr.InExpr">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">expr.</span></span><span class="sig-name descname"><span class="pre">InExpr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#expr.Expr" title="expr.Expr"><span class="pre">Expr</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataframe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><span class="pre">DataFrame</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Database</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expr.InExpr" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">expr.</span></span><span class="sig-name descname"><span class="pre">InExpr</span></span><a class="headerlink" href="#expr.InExpr" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a></p>
 </dd></dl>
 
