@@ -91,7 +91,7 @@ class Type:
         self._schema = schema
 
     # -- Creation of a composite type in Greenplum corresponding to the class_type given
-    def create_in_db(self, db: Database):
+    def _create_in_db(self, db: Database):
         # noqa: D400
         """
         :meta private:
@@ -211,7 +211,7 @@ def to_pg_type(
         if annotation not in _defined_types:
             type_name = "type_" + uuid4().hex
             _defined_types[annotation] = Type(name=type_name, annotation=annotation)
-        _defined_types[annotation].create_in_db(db)
+        _defined_types[annotation]._create_in_db(db)
         schema, type_name = _defined_types[annotation].qualified_name
         type_qualified_name = (
             f'"{schema}"."{type_name}"' if schema is not None else f'"{type_name}"'

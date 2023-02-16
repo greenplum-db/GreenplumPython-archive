@@ -72,7 +72,7 @@ class FunctionExpr(Expr):
 
     def _serialize(self) -> str:
         """:meta private:"""
-        self.function.create_in_db(self._db)
+        self.function._create_in_db(self._db)
         distinct = "DISTINCT" if self._distinct else ""
         args_string = (
             ",".join([_serialize(arg) for arg in self._args if arg is not None])
@@ -93,7 +93,7 @@ class FunctionExpr(Expr):
         assert not (
             expand and column_name is not None
         ), "Cannot assign single column name when expanding multi-valued results."
-        self.function.create_in_db(self._db)
+        self.function._create_in_db(self._db)
         if self.dataframe is not None:
             schema, df_name = self.dataframe.qualified_name
             df_qualified_name = f'"{schema}"."{df_name}"' if schema is not None else f'"{df_name}"'
@@ -177,7 +177,7 @@ class ArrayFunctionExpr(FunctionExpr):
 
     def _serialize(self) -> str:
         """:meta private:"""
-        self.function.create_in_db(self._db)
+        self.function._create_in_db(self._db)
         args_string_list = []
         args_string = ""
         grouping_col_names = self._group_by._flatten() if self._group_by is not None else None
@@ -239,7 +239,7 @@ class _AbstractFunction:
     def qualified_name(self) -> Tuple[str, str]:
         return self._schema, self._name
 
-    def create_in_db(self, _: Database) -> None:
+    def _create_in_db(self, _: Database) -> None:
         """:meta private:"""
         raise NotImplementedError("Cannot create abstract function in database")
 
@@ -284,7 +284,7 @@ class NormalFunction(_AbstractFunction):
         assert self._wrapped_func is not None, "No Python function is wrapped inside."
         return self._wrapped_func
 
-    def create_in_db(self, db: Database) -> None:
+    def _create_in_db(self, db: Database) -> None:
         """:meta private:"""
         if self._wrapped_func is None:  # Function has already existed.
             return
@@ -439,7 +439,7 @@ class AggregateFunction(_AbstractFunction):
         ), f"Transition function of the aggregate function {qualified_name} is unknown."
         return self._transition_func
 
-    def create_in_db(self, db: Database) -> None:
+    def _create_in_db(self, db: Database) -> None:
         """:meta private:"""
         # If self._transition_func is None, then the aggregate function is not
         # created with gp.create_aggregate(), but only refers to an existing
@@ -448,7 +448,7 @@ class AggregateFunction(_AbstractFunction):
             return
         assert self._created_in_dbs is not None
         if db not in self._created_in_dbs:
-            self._transition_func.create_in_db(db)
+            self._transition_func._create_in_db(db)
             sig = inspect.signature(self.transition_function.unwrap())
             param_list = iter(sig.parameters.values())
             state_param = next(param_list)
