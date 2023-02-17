@@ -9,12 +9,7 @@ if TYPE_CHECKING:
 
 
 class DataFrameOrdering:
-    """
-    Represent an ordered GreenplumPython :class:`~dataframe.DataFrame`.
-
-    The order is decided by:
-    :func:`~dataframe.DataFrame.order_by` or :func:`~order.DataFrameOrdering.order_by`.
-    """
+    """Represent an ordered GreenplumPython :class:`~dataframe.DataFrame`."""
 
     def __init__(
         self,
@@ -52,8 +47,20 @@ class DataFrameOrdering:
 
         Example:
             .. code-block::  Python
-
-                t.order_by("id").order_by("num", ascending=False)
+                >>> rows = [(1, 2), (1, 3), (2, 2), (3, 1), (3, 4)]
+                >>> t = db.create_dataframe(rows=rows, column_names=["id", "num"])
+                >>> ret = t.order_by("id").order_by("num", ascending=False)[:5]
+                >>> t.order_by("id").order_by("num", ascending=False)[:]
+                ----------
+                id | num 
+                ----+-----
+                1 |   3 
+                1 |   2 
+                2 |   2 
+                3 |   4 
+                3 |   1 
+                ----------
+                (5 rows)
         """
         if ascending is not None and operator is not None:
             raise Exception(
