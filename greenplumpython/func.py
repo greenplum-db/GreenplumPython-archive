@@ -532,7 +532,7 @@ def aggregate_function(name: str, schema: Optional[str] = None) -> AggregateFunc
         .. highlight:: python
         .. code-block::  Python
 
-            >>> count = gp.aggregate_function("count")
+            >>> import greenplumpython.builtins.functions as F
             >>> db.create_dataframe(columns={'x': range(10)}).group_by().apply(lambda t: F.count())
             -------
              count
