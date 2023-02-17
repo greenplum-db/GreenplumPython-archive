@@ -29,7 +29,9 @@ class Database:
     """
 
     def __init__(self, uri: Optional[str] = None, params: Dict[str, str] = {}) -> None:
-        """:meta private:"""
+        """
+        :meta private:
+        """
         if uri is not None:
             assert len(params) == 0
             dsn = uri
