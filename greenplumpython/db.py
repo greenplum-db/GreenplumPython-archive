@@ -1,4 +1,5 @@
 """Manage connection to Greenplum/PostgreSQL database."""
+
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -25,7 +26,7 @@ class Database:
     """
     Representation of a database in which data is located and computation is performed.
 
-    Each :class:`Database` object is tied to a connection to the remote database system.
+    Each :class:`~db.Database` object is tied to a connection to the remote database system.
     """
 
     def __init__(self, uri: Optional[str] = None, params: Dict[str, str] = {}) -> None:
@@ -223,12 +224,12 @@ def database(uri: Optional[str] = None, params: Dict[str, str] = {}) -> Database
 
     Args:
         uri: connection URI to the database. Please refer to the libpq documentation on `connection
-        URI <https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING>` for
-        detailed usage.
+            URI <https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING/>`_
+            for detailed usage.
         params: connection parameters to the database. Please refer to the libpq documentation on
-        `parameter keywords
-        <https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS>` for
-        detailed usage.
+            `parameter keywords
+            <https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS/>`_ for
+            detailed usage.
 
     """
     return Database(uri=uri, params=params)
