@@ -47,18 +47,19 @@ class DataFrameOrdering:
 
         Example:
             .. code-block::  Python
+
                 >>> rows = [(1, 2), (1, 3), (2, 2), (3, 1), (3, 4)]
                 >>> t = db.create_dataframe(rows=rows, column_names=["id", "num"])
                 >>> ret = t.order_by("id").order_by("num", ascending=False)[:5]
                 >>> t.order_by("id").order_by("num", ascending=False)[:]
                 ----------
-                id | num 
+                 id | num 
                 ----+-----
-                1 |   3 
-                1 |   2 
-                2 |   2 
-                3 |   4 
-                3 |   1 
+                  1 |   3 
+                  1 |   2 
+                  2 |   2 
+                  3 |   4 
+                  3 |   1 
                 ----------
                 (5 rows)
         """
