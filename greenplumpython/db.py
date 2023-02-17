@@ -223,11 +223,11 @@ def database(uri: Optional[str] = None, params: Dict[str, str] = {}) -> Database
 
     Args:
         uri: connection URI to the database. Please refer to the libpq documentation on `connection
-        URI <https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING>` for
+        URI <https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING>`_ for
         detailed usage.
         params: connection parameters to the database. Please refer to the libpq documentation on
         `parameter keywords
-        <https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS>` for
+        <https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS>`_ for
         detailed usage.
 
     """
