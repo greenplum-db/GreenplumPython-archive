@@ -25,10 +25,11 @@ class Database:
     """
     Representation of a database.
 
-    Each :class:`Database` object is tied to a database connection to the remote database system.
+    Each :class:`Database` object is tied to a connection to the remote database system.
     """
 
     def __init__(self, uri: Optional[str] = None, params: Dict[str, str] = {}) -> None:
+        """:meta private:"""
         if uri is not None:
             assert len(params) == 0
             dsn = uri
