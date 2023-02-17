@@ -29,7 +29,7 @@ class Database:
     Each :class:`~db.Database` object is tied to a connection to the remote database system.
     """
 
-    def __init__(self, uri: Optional[str] = None, params: Dict[str, str] = {}) -> None:
+    def __init__(self, uri: Optional[str] = None, params: Dict[str, Optional[str]] = {}) -> None:
         # noqa
         """:meta private:"""
         if uri is not None:
@@ -37,7 +37,7 @@ class Database:
             dsn = uri
         else:
             assert len(params) > 0
-            dsn = " ".join([f"{k}={v}" for k, v in params.items()])
+            dsn = " ".join([f"{k}={v}" for k, v in params.items() if v is not None])
         self._conn = psycopg2.connect(
             dsn,
             cursor_factory=psycopg2.extras.RealDictCursor,
@@ -218,7 +218,7 @@ class Database:
         return DataFrame(f"SELECT {','.join(targets)}", db=self)
 
 
-def database(uri: Optional[str] = None, params: Dict[str, str] = {}) -> Database:
+def database(uri: Optional[str] = None, params: Dict[str, Optional[str]] = {}) -> Database:
     """
     Open a connection to database with connection URI or parameters.
 
@@ -229,7 +229,8 @@ def database(uri: Optional[str] = None, params: Dict[str, str] = {}) -> Database
         params: connection parameters to the database. Please refer to the libpq documentation on
             `parameter keywords
             <https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS/>`_ for
-            detailed usage.
+            detailed usage. The parameter will be ignored and will **not** be passed to the remote
+            database server if its value is :code:`None`.
 
     """
     return Database(uri=uri, params=params)
