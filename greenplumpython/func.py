@@ -532,15 +532,16 @@ def aggregate_function(name: str, schema: Optional[str] = None) -> AggregateFunc
         .. highlight:: python
         .. code-block::  Python
 
-            >>> import greenplumpython.builtins.functions as F
-            >>> db.create_dataframe(columns={'x': range(10)}).group_by().apply(lambda t: F.count())
-            -------
-             count
-            -------
-                10
-            -------
+            >>> array_agg = gp.aggregate_function("array_agg")
+            >>> df = db.create_dataframe(columns={"i": range(3)})
+            >>> result = df.apply(lambda t: array_agg(t['i']), column_name="aggregate_result")
+            >>> result
+            ------------------
+             aggregate_result
+            ------------------
+             [0, 1, 2]
+            ------------------
             (1 row)
-
     """
     return AggregateFunction(name=name, schema=schema)
 
