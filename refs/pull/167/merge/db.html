@@ -267,9 +267,10 @@ constant value in database.</p>
 <li><p><strong>uri</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – connection URI to the database. Please refer to the libpq documentation on <a class="reference external" href="https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING/">connection
 URI</a>
 for detailed usage.</p></li>
-<li><p><strong>params</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – connection parameters to the database. Please refer to the libpq documentation on
+<li><p><strong>params</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Optional</em><em>[</em><em>str</em><em>]</em><em>]</em>) – connection parameters to the database. Please refer to the libpq documentation on
 <a class="reference external" href="https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS/">parameter keywords</a> for
-detailed usage.</p></li>
+detailed usage. The parameter will be ignored and will <strong>not</strong> be passed to the remote
+database server if its value is <code class="code docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
