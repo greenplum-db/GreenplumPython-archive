@@ -1,6 +1,4 @@
-"""
-This  module can create a connection to a Greenplum database
-"""
+"""Manage connection to Greenplum/PostgreSQL database."""
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -24,12 +22,13 @@ import psycopg2.extras
 
 
 class Database:
-    """
-    Representation of Greenplum Database.
+    """Representation of Greenplum/PostgreSQL Database.
+
     Each Database object has an instance **conn** which establishes a connection using psycopg2.
     """
 
     def __init__(self, params: Optional[Dict[str, str]] = None, url: Optional[str] = None) -> None:
+        # noqa D107
         assert (params is not None and url is None) or (params is None and url is not None)
         if url is not None:
             con_str = url
@@ -42,6 +41,7 @@ class Database:
         self._conn.set_session(autocommit=True)
 
     def _execute(self, query: str, has_results: bool = True) -> Union[Iterable[Tuple[Any]], int]:
+        # noqa: D400 D202
         """
         :meta private:
 
@@ -62,9 +62,7 @@ class Database:
             return cursor.fetchall() if has_results else cursor.rowcount
 
     def close(self) -> None:
-        """
-        Close the self database connection
-        """
+        """Close the database connection."""
         self._conn.close()
 
     def create_dataframe(
@@ -76,7 +74,7 @@ class Database:
         column_names: Optional[Iterable[str]] = None,
     ):
         """
-        Returns a :class:`~dataframe.DataFrame` using Table name, list of values given by rows or columns
+        Create a :class:`~dataframe.DataFrame` from a database table, or a set of data.
 
         Args:
             table_name: str: name of table in Database
@@ -86,10 +84,29 @@ class Database:
             column_names: Iterable[str]: List of given column names
 
         Example:
+            To create :class:`~dataframe.DataFrame` from a database table:
+
             .. highlight:: python
             .. code-block::  python
 
-                >>> df_from_table = db.create_dataframe(table_name="pg_class")
+                >>> cursor.execute("DROP TABLE IF EXISTS one_column_table")
+                >>> cursor.execute(
+                ...     "CREATE TABLE one_column_table AS SELECT 42 as id;")
+                >>> df_from_table = db.create_dataframe(table_name="one_column_table")
+                >>> df_from_table
+                ----
+                 id
+                ----
+                 42
+                ----
+                (1 row)
+
+
+            To create :class:`~dataframe.DataFrame` from a predefined set of data:
+
+            .. highlight:: python
+            .. code-block::  python
+
                 >>> rows = [(1,), (2,), (3,)]
                 >>> df_from_rows = db.create_dataframe(rows=rows, column_names=["id"])
                 >>> df_from_rows
@@ -134,8 +151,7 @@ class Database:
         column_name: Optional[str] = None,
     ) -> "DataFrame":
         """
-        Apply a dataframe function in database without depending on a
-        :class:`~dataframe.DataFrame`.
+        Apply a function in database without depending on a :class:`~dataframe.DataFrame`.
 
         This is primarily for applying functions on adaptable Python objects
         as constants in database.
@@ -144,15 +160,25 @@ class Database:
         except that parameter :code:`func` takes no argument.
 
         Example:
+            .. highlight:: python
             .. code-block::  python
 
-                db.apply(lambda: add(1, 2))
+                >>> @gp.create_function
+                ... def add(a: int, b: int) -> int:
+                ...     return a + b
+                >>> db.apply(lambda: add(1, 2), column_name="sum")
+                -----
+                 sum
+                -----
+                   3
+                -----
+                (1 row)
         """
         return func().bind(db=self).apply(expand=expand, column_name=column_name)
 
     def assign(self, **new_columns: Callable[[], Any]) -> "DataFrame":
         """
-        Assign new columns by calling functions in database
+        Assign new columns by calling functions in database.
 
         Args:
             new_columns: a :class:`dict` whose keys are column names and values
@@ -166,13 +192,13 @@ class Database:
             .. highlight:: python
             .. code-block::  python
 
-                >>> version = gp.function("version")
-                >>> db.assign(version=lambda: version())
-                -----------------------------------------------------------------------------------------------------------------------------
-                version
-                -----------------------------------------------------------------------------------------------------------------------------
-                PostgreSQL 12.9 (Debian 12.9-1.pgdg110+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 10.2.1-6) 10.2.1 20210110, 64-bit
-                -----------------------------------------------------------------------------------------------------------------------------
+                >>> abs = gp.function("abs")
+                >>> db.assign(abs=lambda: abs(-42))
+                -----
+                 abs
+                -----
+                  42
+                -----
                 (1 row)
         """
         from greenplumpython.dataframe import DataFrame
@@ -209,24 +235,27 @@ def database(
 
     There are different ways to passing database information:
 
+    .. highlight:: python
     .. code-block::  python
 
        db = database(host="localhost", dbname=dbname)
 
-    If it is a connection to localhost, password can be ignored.
+    `password` can be ommitted if it is empty. For `user` and `port`, the default values will be
+    used.
 
     Or, a connection can be established by passing more detailed information, in this case,
-    password is needed for connexion:
+    password is needed for connection:
 
+    .. highlight:: python
     .. code-block::  python
 
-        db = database(
-                host=dbIP,
-                dbname=dbname,
-                user=username,
-                password=password,
-                port=dbPort
-            )
+        >>> my_db = database(
+        ...       host=db_host,
+        ...       dbname=db_name,
+        ...       user=db_user,
+        ...       password=db_password,
+        ...       port=db_port)
+        >>> my_db.close()
 
     """
     params = {"host": host}

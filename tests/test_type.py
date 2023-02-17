@@ -38,3 +38,17 @@ def test_type_no_annotation(db: gp.Database):
     with pytest.raises(Exception) as exc_info:
         to_pg_type(Person, db=db)
     assert "Failed to get annotations" in str(exc_info.value)
+
+
+def test_type_schema(db: gp.Database):
+    db._execute(
+        f"""
+        DROP TYPE IF EXISTS test.complex_number CASCADE;
+        CREATE TYPE test.complex_number AS (r float8, i float8);
+        """,
+        has_results=False,
+    )
+    complex_type = gp.type_("complex_number", schema="test")
+    result = db.assign(complex=lambda: complex_type("(1, 2)"))
+    for row in result:
+        assert row["complex"] == {"i": 2, "r": 1}

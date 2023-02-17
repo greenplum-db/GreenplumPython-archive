@@ -16,7 +16,7 @@ class TypeCast(Expr):
 
                 >>> rows = [("01-01-1990",), ("05-01-98",)]
                 >>> df = db.create_dataframe(rows=rows, column_names=["date_str"])
-                >>> date_type = gp.type_("DATE")
+                >>> date_type = gp.type_("date")
                 >>> result = df.assign(date=lambda t: date_type(t["date_str"]))
                 >>> result
                 -------------------------
@@ -55,6 +55,12 @@ class TypeCast(Expr):
 
     @property
     def qualified_name(self) -> Tuple[str, str]:
+        """
+        Return the schema name and name of :class:`~type.TypeCast`.
+
+        Returns:
+            Tuple[str, str]: schema name and :class:`~type.TypeCast`'s name.
+        """
         return self._schema, self._type_name
 
 
@@ -85,7 +91,7 @@ class Type:
         self._schema = schema
 
     # -- Creation of a composite type in Greenplum corresponding to the class_type given
-    def create_in_db(self, db: Database):
+    def _create_in_db(self, db: Database):
         # noqa: D400
         """
         :meta private:
@@ -136,6 +142,12 @@ class Type:
 
     @property
     def qualified_name(self) -> Tuple[str, str]:
+        """
+        Return the schema name and name of :class:`~type.Type`.
+
+        Returns:
+            Tuple[str, str]: schema name and :class:`~type.Type`'s name.
+        """
         return self._schema, self._name
 
 
@@ -161,7 +173,6 @@ def type_(name: str, schema: Optional[str] = None) -> Type:
     Returns:
         The predefined type as a :class:`~type.Type` object.
     """
-
     return Type(name, schema=schema)
 
 
@@ -200,7 +211,7 @@ def to_pg_type(
         if annotation not in _defined_types:
             type_name = "type_" + uuid4().hex
             _defined_types[annotation] = Type(name=type_name, annotation=annotation)
-        _defined_types[annotation].create_in_db(db)
+        _defined_types[annotation]._create_in_db(db)
         schema, type_name = _defined_types[annotation].qualified_name
         type_qualified_name = (
             f'"{schema}"."{type_name}"' if schema is not None else f'"{type_name}"'
