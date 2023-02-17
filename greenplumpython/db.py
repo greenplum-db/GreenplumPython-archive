@@ -23,7 +23,7 @@ import psycopg2.extras
 
 class Database:
     """
-    Representation of a database.
+    Representation of a database in which data is located and computation is performed.
 
     Each :class:`Database` object is tied to a connection to the remote database system.
     """
