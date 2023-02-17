@@ -636,13 +636,13 @@ def test_create_func_same_name(db: gp.Database):
     def dup_name(a: int, b: int) -> int:
         return a + b
 
-    func_name = dup_name.qualified_name
+    _, func_name = dup_name.qualified_name_tuple
 
     @gp.create_function
     def dup_name(a: int, b: int) -> int:
         return a + 1
 
-    new_func_name = dup_name.qualified_name
+    _, new_func_name = dup_name.qualified_name_tuple
 
     assert func_name != new_func_name
 

@@ -79,7 +79,7 @@ class FunctionExpr(Expr):
             if any(self._args)
             else ""
         )
-        schema, func_name = self.function.qualified_name
+        schema, func_name = self.function.qualified_name_tuple
         qualified_name = f'"{schema}"."{func_name}"' if schema is not None else f'"{func_name}"'
         return f"{qualified_name}({distinct} {args_string})"
 
@@ -95,7 +95,7 @@ class FunctionExpr(Expr):
         ), "Cannot assign single column name when expanding multi-valued results."
         self.function._create_in_db(self._db)
         if self.dataframe is not None:
-            schema, df_name = self.dataframe.qualified_name
+            schema, df_name = self.dataframe.qualified_name_tuple
             df_qualified_name = f'"{schema}"."{df_name}"' if schema is not None else f'"{df_name}"'
             from_clause = f"FROM {df_qualified_name}"
         else:
@@ -154,7 +154,7 @@ class FunctionExpr(Expr):
             else f"{','.join(rebased_grouping_cols)}, ({column_name}).*"
         )
 
-        schema, df_name = orig_func_dataframe.qualified_name
+        schema, df_name = orig_func_dataframe.qualified_name_tuple
         orig_df_qualified_name = f'"{schema}"."{df_name}"' if schema is not None else f'"{df_name}"'
         return DataFrame(
             f"SELECT {str(results)} FROM {orig_df_qualified_name}",
@@ -199,7 +199,7 @@ class ArrayFunctionExpr(FunctionExpr):
                     s = _serialize(self._args[i])
                 args_string_list.append(s)
             args_string = ",".join(args_string_list)
-        schema, func_name = self.function.qualified_name
+        schema, func_name = self.function.qualified_name_tuple
         qualified_name = f'"{schema}"."{func_name}"' if schema is not None else f'"{func_name}"'
         return f"{qualified_name}({args_string})"
 
@@ -236,7 +236,7 @@ class _AbstractFunction:
         self._schema = "pg_temp" if wrapped_func is not None else None if schema is None else schema
 
     @property
-    def qualified_name(self) -> Tuple[str, str]:
+    def qualified_name_tuple(self) -> Tuple[str, str]:
         return self._schema, self._name
 
     def _create_in_db(self, _: Database) -> None:
@@ -315,7 +315,7 @@ class NormalFunction(_AbstractFunction):
             )
             return_type = to_pg_type(func_sig.return_annotation, db=db, for_return=True)
             func_pickled: bytes = dill.dumps(self._wrapped_func)
-            schema, func_name = self.qualified_name
+            schema, func_name = self.qualified_name_tuple
             qualified_name = f'"{schema}"."{func_name}"' if schema is not None else f'"{func_name}"'
             # Modify the AST of the wrapped function to minify dependency: (1-3)
             # 1. Apply random renaming to avoid name conflict. (TODO: Support
@@ -432,7 +432,7 @@ class AggregateFunction(_AbstractFunction):
     @property
     def transition_function(self) -> NormalFunction:
         """Return the transition function of aggregate function"""
-        schema, func_name = self.qualified_name
+        schema, func_name = self.qualified_name_tuple
         qualified_name = f'"{schema}"."{func_name}"' if schema is not None else f'"{func_name}"'
         assert (
             self._transition_func is not None
@@ -455,11 +455,11 @@ class AggregateFunction(_AbstractFunction):
             args_string = ",".join(
                 [f"{param.name} {to_pg_type(param.annotation, db=db)}" for param in param_list]
             )
-            agg_schema, agg_name = self.qualified_name
+            agg_schema, agg_name = self.qualified_name_tuple
             agg_qualified_name = (
                 f'"{agg_schema}"."{agg_name}"' if agg_schema is not None else f'"{agg_name}"'
             )
-            sfunc_schema, sfunc_name = self.transition_function.qualified_name
+            sfunc_schema, sfunc_name = self.transition_function.qualified_name_tuple
             sfunc_qualified_name = (
                 f'"{sfunc_schema}"."{sfunc_name}"'
                 if sfunc_schema is not None

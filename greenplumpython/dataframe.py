@@ -479,7 +479,7 @@ class DataFrame:
                         if v.other_dataframe.name not in other_parents:
                             other_parents[v.other_dataframe.name] = v.other_dataframe
                 targets.append(f"{_serialize(v)} AS {k}")
-            schema, df_name = self.qualified_name
+            schema, df_name = self.qualified_name_tuple
             qualified_name = f'"{schema}"."{df_name}"' if schema is not None else f'"{df_name}"'
             return DataFrame(
                 f"SELECT *, {','.join(targets)} FROM {qualified_name}",
@@ -689,7 +689,7 @@ class DataFrame:
         return self._name
 
     @property
-    def qualified_name(self) -> Tuple[str, str]:
+    def qualified_name_tuple(self) -> Tuple[str, str]:
         """
         Return the schema name and name of :class:`~dataframe.DataFrame`.
 
@@ -890,7 +890,7 @@ class DataFrame:
             raise NotImplementedError()
         assert self._db is not None
         output_name = "cte_" + uuid4().hex
-        schema, name = self.qualified_name
+        schema, name = self.qualified_name_tuple
         qualified_name = f'"{name}"' if schema is None else f'"{schema}"."{name}"'
         to_json_dataframe = DataFrame(
             f"SELECT to_json({output_name})::TEXT FROM {qualified_name} AS {output_name}",

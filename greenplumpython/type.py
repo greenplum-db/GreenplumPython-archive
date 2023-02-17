@@ -49,12 +49,12 @@ class TypeCast(Expr):
 
     def _serialize(self) -> str:
         obj_str = _serialize(self._obj)
-        schema, type_name = self.qualified_name
+        schema, type_name = self.qualified_name_tuple
         qualified_name = f'"{schema}"."{type_name}"' if schema is not None else f'"{type_name}"'
         return f"({obj_str}::{qualified_name})"
 
     @property
-    def qualified_name(self) -> Tuple[str, str]:
+    def qualified_name_tuple(self) -> Tuple[str, str]:
         """
         Return the schema name and name of :class:`~type.TypeCast`.
 
@@ -141,7 +141,7 @@ class Type:
         return self._name
 
     @property
-    def qualified_name(self) -> Tuple[str, str]:
+    def qualified_name_tuple(self) -> Tuple[str, str]:
         """
         Return the schema name and name of :class:`~type.Type`.
 
@@ -212,7 +212,7 @@ def to_pg_type(
             type_name = "type_" + uuid4().hex
             _defined_types[annotation] = Type(name=type_name, annotation=annotation)
         _defined_types[annotation]._create_in_db(db)
-        schema, type_name = _defined_types[annotation].qualified_name
+        schema, type_name = _defined_types[annotation].qualified_name_tuple
         type_qualified_name = (
             f'"{schema}"."{type_name}"' if schema is not None else f'"{type_name}"'
         )
