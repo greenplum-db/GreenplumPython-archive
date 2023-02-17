@@ -322,8 +322,16 @@ def test_table_distinct(db: gp.Database):
 
 
 def test_table_non_default_schema(db: gp.Database):
-    pg_class = db.create_dataframe(table_name="pg_catalog.pg_class")
+    pg_class = db.create_dataframe(table_name="pg_class", schema="pg_catalog")
     assert len(list(pg_class)) > 0
+
+
+def test_save_as_non_default_schema(db: gp.Database):
+    columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
+    t = db.create_dataframe(columns=columns)
+    t.save_as("const_dataframe", column_names=["a", "b"], schema="test")
+    t = db.create_dataframe(table_name="const_dataframe", schema="test")
+    assert sorted([tuple(row.values()) for row in t]) == [(1, 1), (2, 2), (3, 3)]
 
 
 def test_table_with_ao(db: gp.Database):
@@ -371,7 +379,7 @@ import pandas as pd
 
 
 def test_table_to_pandas_dataframe(db: gp.Database):
-    pg_class = db.create_dataframe(table_name="pg_catalog.pg_class")
+    pg_class = db.create_dataframe(table_name="pg_class", schema="pg_catalog")
 
     df = pd.DataFrame.from_records(iter(pg_class))
     assert len(df) > 0
