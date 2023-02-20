@@ -16,6 +16,7 @@ def db():
             "password": environ.get("PGPASSWORD"),
         }
     )
+    db._execute("DROP SCHEMA IF EXISTS test CASCADE; CREATE SCHEMA test;", has_results=False)
     yield db
     db.close()
 

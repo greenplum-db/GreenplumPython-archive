@@ -72,6 +72,7 @@ class Database:
     def create_dataframe(
         self,
         table_name: Optional[str] = None,
+        schema: Optional[str] = None,
         rows: Optional[List[Union[Tuple[Any, ...], Dict[str, Any]]]] = None,
         columns: Optional[Dict[str, Iterable[Any]]] = None,
         column_names: Optional[Iterable[str]] = None,
@@ -81,6 +82,7 @@ class Database:
 
         Args:
             table_name: str: name of table in Database
+            schema: str: name of schema in Database
             rows: List[Union[Tuple[Any, ...], Dict[str, Any]]]: a List of rows
             columns: Dict[str, List[Any]]: a dict of columns
             column_names: Iterable[str]: List of given column names
@@ -140,7 +142,7 @@ class Database:
             assert (
                 rows is None and columns is None
             ), "Provisioning data is not allowed when opening existing table."
-            return DataFrame.from_table(table_name=table_name, db=self)
+            return DataFrame.from_table(table_name=table_name, schema=schema, db=self)
         assert rows is None or columns is None, "Only one data format is allowed."
         if rows is not None:
             return DataFrame.from_rows(rows=rows, db=self, column_names=column_names)

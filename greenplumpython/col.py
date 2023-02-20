@@ -54,10 +54,10 @@ class Column(Expr):
     def _serialize(self) -> str:
         assert self.dataframe is not None
         # Quote both dataframe name and column name to avoid SQL injection.
+        schema, df_name = self.dataframe.qualified_name_tuple
+        df_qualified_name = f'"{schema}"."{df_name}"' if schema is not None else f'"{df_name}"'
         return (
-            f'"{self.dataframe.name}"."{self.name}"'
-            if self.name != "*"
-            else f'"{self.dataframe.name}".*'
+            f'{df_qualified_name}."{self.name}"' if self.name != "*" else f"{df_qualified_name}.*"
         )
 
     @property
