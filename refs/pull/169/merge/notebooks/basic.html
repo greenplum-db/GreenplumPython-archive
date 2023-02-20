@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Prepare Data &mdash; GreenplumPython 1.0.0-beta5
+  <title>Prerequisites &mdash; GreenplumPython 1.0.0-beta5
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
@@ -47,7 +47,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../requirements.html">Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../basic.html">Getting Started</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Prepare Data</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Prerequisites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Selecting-the-Database-of-Your-Data">Selecting the Database of Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Accessing-a-DataFrame-in-the-Database">Accessing a DataFrame in the Database</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Basic-Data-Manipulation">Basic Data Manipulation</a></li>
@@ -75,7 +75,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../basic.html">Getting Started</a> &raquo;</li>
-      <li>Prepare Data</li>
+      <li>Prerequisites</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/notebooks/basic.ipynb" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -364,9 +364,22 @@ div.rendered_html tbody tr:hover {
     text-align: unset;
 }
 </style>
-<section id="Prepare-Data">
-<h1>Prepare Data<a class="headerlink" href="#Prepare-Data" title="Permalink to this heading"></a></h1>
-<p>First, connect to the <code class="docutils literal notranslate"><span class="pre">gpadmin</span></code> database and populate some data into <code class="docutils literal notranslate"><span class="pre">demo</span></code> table.</p>
+<section id="Prerequisites">
+<h1>Prerequisites<a class="headerlink" href="#Prerequisites" title="Permalink to this heading"></a></h1>
+<p>To run this tutorial, we need</p>
+<ul>
+<li><p>A database that is authorized to access, and</p></li>
+<li><p>A table named <code class="docutils literal notranslate"><span class="pre">demo</span></code> as created with the following SQL command:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">demo</span><span class="w"> </span><span class="k">AS</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">k</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">generate_series</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">9</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>To create this table, if in a shell environment, <code class="docutils literal notranslate"><span class="pre">`psql</span></code> &lt;<a class="reference external" href="https://www.postgresql.org/docs/current/app-psql.html">https://www.postgresql.org/docs/current/app-psql.html</a>&gt;`__ can be used.</p>
+<p>Or, inside a Jupyter Notebook, the SQL command can be executed directly in cells with <a class="reference external" href="https://pypi.org/project/ipython-sql/">ipython-sql</a>, as shown below.</p>
+<p>First we need to connect to the database (<code class="docutils literal notranslate"><span class="pre">gpadmin</span></code> in our example) specified with the URI using the <code class="docutils literal notranslate"><span class="pre">%sql</span></code> magic:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
@@ -385,6 +398,7 @@ The sql extension is already loaded. To reload it, use:
   %reload_ext sql
 </pre></div></div>
 </div>
+<p>Authentication methods and credentials can be specified in the URI. Please refer to the <a class="reference external" href="https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING">libpq document</a> for detailed usage.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
@@ -418,6 +432,7 @@ Done.
 []
 </pre></div></div>
 </div>
+<p>With the table created successfully, we are now good to go!</p>
 </section>
 <section id="Selecting-the-Database-of-Your-Data">
 <h1>Selecting the Database of Your Data<a class="headerlink" href="#Selecting-the-Database-of-Your-Data" title="Permalink to this heading"></a></h1>
@@ -428,10 +443,12 @@ Done.
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">greenplumpython</span> <span class="k">as</span> <span class="nn">gp</span>
 
-<span class="n">db</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">database</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="n">dbname</span><span class="o">=</span><span class="s2">&quot;gpadmin&quot;</span><span class="p">)</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">database</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="s2">&quot;postgresql://localhost/gpadmin&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
+<p>Here, the <code class="docutils literal notranslate"><span class="pre">uri</span></code> follows the same specification in the <a class="reference external" href="https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING">libpq document</a> as above.</p>
+<p>As another example, if password is required, the <code class="docutils literal notranslate"><span class="pre">uri</span></code> might look like <code class="docutils literal notranslate"><span class="pre">postgresql://user:password&#64;hostname/dbname</span></code>.</p>
 </section>
 <section id="Accessing-a-DataFrame-in-the-Database">
 <h1>Accessing a DataFrame in the Database<a class="headerlink" href="#Accessing-a-DataFrame-in-the-Database" title="Permalink to this heading"></a></h1>

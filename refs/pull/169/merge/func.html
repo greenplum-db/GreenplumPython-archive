@@ -115,11 +115,12 @@
 </style>
 <section id="module-func">
 <span id="function"></span><h1>Function<a class="headerlink" href="#module-func" title="Permalink to this heading"></a></h1>
-<p>This module creates a Python object Func which able creation and calling of Greenplum UDF and UDA.</p>
+<p>To create and call Greenplum/PostgreSQL UDFs or UDAs.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="func.AggregateFunction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">AggregateFunction</span></span><a class="headerlink" href="#func.AggregateFunction" title="Permalink to this definition"></a></dt>
-<dd><p>Represents an aggregate function that can be applied to</p>
+<dd><p>Represent an aggregate function.</p>
+<p>The function can be applied to:</p>
 <ul class="simple">
 <li><p>a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with <a class="reference internal" href="dataframe.html#dataframe.DataFrame.apply" title="dataframe.DataFrame.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a>, where the function        will aggregate data in the entire dataframe;</p></li>
 <li><p>a <a class="reference internal" href="group.html#group.DataFrameGroupingSet" title="group.DataFrameGroupingSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSet</span></code></a> with <a class="reference internal" href="group.html#group.DataFrameGroupingSet.assign" title="group.DataFrameGroupingSet.assign"><code class="xref py py-meth docutils literal notranslate"><span class="pre">assign()</span></code></a>        or <a class="reference internal" href="group.html#group.DataFrameGroupingSet.apply" title="group.DataFrameGroupingSet.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a>, where the function will        aggregate each group of data.</p></li>
@@ -131,17 +132,13 @@ function in database.</p>
 <li><p><a class="reference internal" href="col.html#col.Column" title="col.Column"><code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code></a> of a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>; or</p></li>
 <li><p>constant values represented as Python objects.</p></li>
 </ul>
-<p>and the <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> returns one value aggregating data in all
+<p>And the <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> returns one value aggregating data in all
 rows of the <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> or a group in the
 <a class="reference internal" href="group.html#group.DataFrameGroupingSet" title="group.DataFrameGroupingSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSet</span></code></a>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="func.AggregateFunction.distinct">
 <span class="sig-name descname"><span class="pre">distinct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.AggregateFunction.distinct" title="Permalink to this definition"></a></dt>
-<dd><p>Apply the current aggregate function to only each distinct set of the
-arguments.</p>
-<p>For example, <code class="code docutils literal notranslate"><span class="pre">count.distinct(t['a'])</span></code> means applying the
-<code class="code docutils literal notranslate"><span class="pre">count()</span></code> function to each distinct value of <a class="reference internal" href="col.html#col.Column" title="col.Column"><code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code></a>
-<code class="code docutils literal notranslate"><span class="pre">t['a']</span></code>.</p>
+<dd><p>Apply the current aggregate function to each distinct set of the arguments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>args</strong> (<em>Any</em>) – Argument of the aggregate function.</p>
@@ -153,12 +150,27 @@ arguments.</p>
 <dd class="field-odd"><p><a class="reference internal" href="#func.FunctionExpr" title="func.FunctionExpr">FunctionExpr</a></p>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,)]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">numbers</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">count</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">aggregate_function</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">results</span> <span class="o">=</span> <span class="n">numbers</span><span class="o">.</span><span class="n">group_by</span><span class="p">()</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+<span class="o">...</span>     <span class="n">unique_numbers_count</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">count</span><span class="o">.</span><span class="n">distinct</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">results</span>
+<span class="o">----------------------</span>
+ <span class="n">unique_numbers_count</span>
+<span class="o">----------------------</span>
+                    <span class="mi">4</span>
+<span class="o">----------------------</span>
+<span class="p">(</span><span class="mi">1</span> <span class="n">row</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="func.AggregateFunction.transition_function">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transition_function</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><span class="pre">NormalFunction</span></a></em><a class="headerlink" href="#func.AggregateFunction.transition_function" title="Permalink to this definition"></a></dt>
-<dd><p>Return the transition function of aggregate function</p>
+<dd><p>Return the transition function of the aggregate function.</p>
 </dd></dl>
 
 </dd></dl>
@@ -174,7 +186,7 @@ It will array aggregate all the columns given by the user.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="func.ColumnFunction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">ColumnFunction</span></span><a class="headerlink" href="#func.ColumnFunction" title="Permalink to this definition"></a></dt>
-<dd><p>Represents a dataframe column function that can be applied to</p>
+<dd><p>Represent a dataframe column function.</p>
 <ul class="simple">
 <li><p>a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with <a class="reference internal" href="dataframe.html#dataframe.DataFrame.apply" title="dataframe.DataFrame.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a>, where the function        will operate on columns in the entire dataframe;</p></li>
 <li><p>a <a class="reference internal" href="group.html#group.DataFrameGroupingSet" title="group.DataFrameGroupingSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSet</span></code></a> with <a class="reference internal" href="group.html#group.DataFrameGroupingSet.assign" title="group.DataFrameGroupingSet.assign"><code class="xref py py-meth docutils literal notranslate"><span class="pre">assign()</span></code></a>        or <a class="reference internal" href="group.html#group.DataFrameGroupingSet.apply" title="group.DataFrameGroupingSet.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a>, where the function will operate        on columns of each group of data.</p></li>
@@ -214,14 +226,15 @@ This makes it possible to implement complex functions.</p>
 <dt class="sig sig-object py" id="func.FunctionExpr">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">FunctionExpr</span></span><a class="headerlink" href="#func.FunctionExpr" title="Permalink to this definition"></a></dt>
 <dd><p>Inherited from <a class="reference internal" href="expr.html#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a>.</p>
-<p>A Function Expression object associated with a Greenplum function which can be called and applied to
-Greenplum data.</p>
+<p>A Function Expression object associated with a Greenplum/PostgreSQL function which can be called
+and applied to the data in the database.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="func.NormalFunction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">NormalFunction</span></span><a class="headerlink" href="#func.NormalFunction" title="Permalink to this definition"></a></dt>
-<dd><p>Represents a (normal) dataframe function that can be applied to</p>
+<dd><p>Represent a (normal) dataframe function.</p>
+<p>The function can be applied to:</p>
 <ul class="simple">
 <li><p>a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with <a class="reference internal" href="dataframe.html#dataframe.DataFrame.assign" title="dataframe.DataFrame.assign"><code class="xref py py-meth docutils literal notranslate"><span class="pre">assign()</span></code></a> or
 <a class="reference internal" href="dataframe.html#dataframe.DataFrame.apply" title="dataframe.DataFrame.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a>;</p></li>
@@ -253,8 +266,7 @@ for each row of values in its arguments.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="func.aggregate_function">
 <span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">aggregate_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.aggregate_function" title="Permalink to this definition"></a></dt>
-<dd><p>Get access to a predefined dataframe <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> from
-database.</p>
+<dd><p>Get access to a predefined <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> from the database.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -271,13 +283,15 @@ and <code class="code docutils literal notranslate"><span class="pre">schema</sp
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">count</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">aggregate_function</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)})</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">count</span><span class="p">())</span>
-<span class="o">-------</span>
- <span class="n">count</span>
-<span class="o">-------</span>
-    <span class="mi">10</span>
-<span class="o">-------</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">array_agg</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">aggregate_function</span><span class="p">(</span><span class="s2">&quot;array_agg&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;i&quot;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)})</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">array_agg</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s1">&#39;i&#39;</span><span class="p">]),</span> <span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;aggregate_result&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">result</span>
+<span class="o">------------------</span>
+ <span class="n">aggregate_result</span>
+<span class="o">------------------</span>
+ <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="o">------------------</span>
 <span class="p">(</span><span class="mi">1</span> <span class="n">row</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -286,7 +300,7 @@ and <code class="code docutils literal notranslate"><span class="pre">schema</sp
 <dl class="py function">
 <dt class="sig sig-object py" id="func.create_aggregate">
 <span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">create_aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transition_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language_handler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'plpython3u'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.create_aggregate" title="Permalink to this definition"></a></dt>
-<dd><p>Creates an <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> from the given Python function.</p>
+<dd><p>Create an <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> from the given Python function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -307,20 +321,20 @@ defaults to plpython3u, will also support plcontainer later.</p></li>
 </dl>
 <p class="rubric">Example</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="nd">@gp</span><span class="o">.</span><span class="n">create_aggregate</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">my_sum</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="o">&gt;&gt;&gt;</span>     <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-<span class="o">&gt;&gt;&gt;</span>         <span class="k">return</span> <span class="n">val</span>
-<span class="o">&gt;&gt;&gt;</span>     <span class="k">return</span> <span class="n">result</span> <span class="o">+</span> <span class="n">val</span>
+<span class="o">...</span> <span class="k">def</span> <span class="nf">my_sum</span><span class="p">(</span><span class="n">cur_sum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="o">...</span>     <span class="k">if</span> <span class="n">cur_sum</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="o">...</span>         <span class="k">return</span> <span class="n">val</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="n">cur_sum</span> <span class="o">+</span> <span class="n">val</span>
 
 <span class="o">&gt;&gt;&gt;</span> <span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">numbers</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">])</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">results</span> <span class="o">=</span> <span class="n">numbers</span><span class="o">.</span><span class="n">group_by</span><span class="p">()</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">my_sum</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]))</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">results</span>
-<span class="o">---------</span>
- <span class="n">results</span>
-<span class="o">---------</span>
-      <span class="mi">10</span>
-<span class="o">---------</span>
+<span class="o">--------</span>
+ <span class="n">result</span>
+<span class="o">--------</span>
+     <span class="mi">10</span>
+<span class="o">--------</span>
 <span class="p">(</span><span class="mi">1</span> <span class="n">row</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -329,7 +343,7 @@ defaults to plpython3u, will also support plcontainer later.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="func.create_column_function">
 <span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">create_column_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wrapped_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language_handler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'plpython3u'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.create_column_function" title="Permalink to this definition"></a></dt>
-<dd><p>Creates an <a class="reference internal" href="#func.ColumnFunction" title="func.ColumnFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFunction</span></code></a> from the given Python function.</p>
+<dd><p>Create an <a class="reference internal" href="#func.ColumnFunction" title="func.ColumnFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFunction</span></code></a> from the given Python function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -350,20 +364,20 @@ defaults to plpython3u, will also support plcontainer later.</p></li>
 </dl>
 <p class="rubric">Example</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="nd">@gp</span><span class="o">.</span><span class="n">create_column_function</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">my_sum_array</span><span class="p">(</span><span class="n">val_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="o">&gt;&gt;&gt;</span>     <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">val_list</span><span class="p">)</span>
+<span class="o">...</span> <span class="k">def</span> <span class="nf">my_array_summary</span><span class="p">(</span><span class="n">val_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;Length: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">val_list</span><span class="p">)</span><span class="si">}</span><span class="s1">, Sum: </span><span class="si">{</span><span class="nb">sum</span><span class="p">(</span><span class="n">val_list</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
 
-<span class="o">&gt;&gt;&gt;</span> <span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">numbers</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">,</span> <span class="s2">&quot;is_even&quot;</span><span class="p">])</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">results</span> <span class="o">=</span> <span class="n">numbers</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;is_even&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">my_sum</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val]))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">numbers</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">results</span> <span class="o">=</span> <span class="n">numbers</span><span class="o">.</span><span class="n">group_by</span><span class="p">()</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+<span class="o">...</span>     <span class="n">summary</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">my_array_summary</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]))</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">results</span>
-<span class="o">------------------</span>
- <span class="n">is_even</span> <span class="o">|</span> <span class="n">result</span>
-<span class="o">---------+--------</span>
-       <span class="mi">0</span> <span class="o">|</span>      <span class="mi">5</span>
-       <span class="mi">1</span> <span class="o">|</span>      <span class="mi">5</span>
-<span class="o">------------------</span>
-<span class="p">(</span><span class="mi">2</span> <span class="n">rows</span><span class="p">)</span>
+<span class="o">-------------------</span>
+ <span class="n">summary</span>
+<span class="o">-------------------</span>
+ <span class="n">Length</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="n">Sum</span><span class="p">:</span> <span class="mi">6</span>
+<span class="o">-------------------</span>
+<span class="p">(</span><span class="mi">1</span> <span class="n">row</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -371,7 +385,7 @@ defaults to plpython3u, will also support plcontainer later.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="func.create_function">
 <span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">create_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wrapped_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language_handler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'plpython3u'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.create_function" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a <a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalFunction</span></code></a> from the given Python function.</p>
+<dd><p>Create a <a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalFunction</span></code></a> from the given Python function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -406,8 +420,8 @@ server. To send it to the server, when creating the dataframe function,</p>
 </div>
 <p class="rubric">Example</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="nd">@gp</span><span class="o">.</span><span class="n">create_function</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">multiply</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="o">&gt;&gt;&gt;</span>    <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span>
+<span class="o">...</span> <span class="k">def</span> <span class="nf">multiply</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="o">...</span>    <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span>
 
 <span class="o">&gt;&gt;&gt;</span> <span class="n">db</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">multiply</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 <span class="o">--------</span>
@@ -441,7 +455,16 @@ and <code class="code docutils literal notranslate"><span class="pre">schema</sp
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">generate_series</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;generate_series&quot;</span><span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">generate_series</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;generate_series&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">db</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">generate_series</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="o">-----------------</span>
+ <span class="n">generate_series</span>
+<span class="o">-----------------</span>
+               <span class="mi">0</span>
+               <span class="mi">1</span>
+               <span class="mi">2</span>
+<span class="o">-----------------</span>
+<span class="p">(</span><span class="mi">3</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
