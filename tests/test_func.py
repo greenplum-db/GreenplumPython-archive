@@ -691,6 +691,23 @@ def test_agg_composite_type(db: gp.Database):
         assert row["count"] == len(rows) and row["sum"] == 45
 
 
+def test_func_plpy(db: gp.Database):
+    @gp.create_function
+    def test_plpy() -> bool:
+        # Function with name starting with "__func_" will only be created by
+        # exec() when using source serialization, i.e. when dill is not
+        # available on server.
+        #
+        # If dill is used for deserialization, plpy will not be available.
+        return "plpy" in globals().keys() or (
+            len([True for name in globals().keys() if name.startswith("__func_")]) == 0
+        )
+
+    df = db.apply(lambda: test_plpy(), column_name="result")
+    for row in df:
+        assert row["result"]
+
+
 import math
 
 
@@ -713,12 +730,10 @@ def test_func_with_outside_func(db: gp.Database):
 
     @gp.create_function
     def proxy(x: int) -> float:
-        # Fallback when the pickle lib "dill" cannot be used on server
-        # so that the case can always pass.
-        try:
+        # Fallback when the pickle lib "dill" is not available on server.
+        if len([True for name in globals().keys() if name.startswith("__func_")]) == 0:
             return inner(x)
-        except NameError:
-            return x * x
+        return x * x
 
     df = db.apply(lambda: proxy(5), column_name="x")
     assert len(list(df)) == 1
@@ -738,12 +753,10 @@ def test_func_with_outside_class(db: gp.Database):
 
     @gp.create_function
     def student(name: str, age: int) -> Student:
-        # Fallback when the pickle lib "dill" cannot be used on server
-        # so that the case can always pass.
-        try:
+        # Fallback when the pickle lib "dill" is not available on server.
+        if len([True for name in globals().keys() if name.startswith("__func_")]) == 0:
             return Student(name, age)
-        except NameError:
-            return SimpleNamespace(name=name, age=age)
+        return SimpleNamespace(name=name, age=age)
 
     df = db.apply(lambda: student("alice", 19), expand=True)
     assert len(list(df)) == 1

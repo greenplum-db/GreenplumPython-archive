@@ -5,6 +5,7 @@ import functools
 import inspect
 import json
 import sys
+import sysconfig
 from textwrap import dedent
 from typing import Any, Callable, List, Optional, Set, Tuple
 from uuid import uuid4
@@ -338,7 +339,7 @@ class NormalFunction(_AbstractFunction):
             func_ast.body = importables_ast + func_ast.body
             pickle_lib_name: str = "__lib_" + uuid4().hex
             sys_lib_name: str = "__lib_" + uuid4().hex
-            python_version = (sys.version_info.major, sys.version_info.minor)
+            python_version = sysconfig.get_python_version()
             encode_lib_name: str = "__lib_" + uuid4().hex
             assert (
                 db._execute(
@@ -351,9 +352,9 @@ class NormalFunction(_AbstractFunction):
                         f"except KeyError:\n"
                         f"    try:\n"
                         f"        import dill as {pickle_lib_name}\n"
-                        f"        import sys as {sys_lib_name}\n"
+                        f"        import sysconfig as {sys_lib_name}\n"
                         f"        import base64 as {encode_lib_name}\n"
-                        f"        if ({sys_lib_name}.version_info.major, {sys_lib_name}.version_info.minor) != {python_version}:\n"
+                        f"        if {sys_lib_name}.get_python_version() != {python_version}:\n"
                         f"            raise ModuleNotFoundError\n"
                         f"        GD['{func_ast.name}'] = {pickle_lib_name}.loads({encode_lib_name}.b64decode({base64.b64encode(func_pickled)}))\n"
                         f"    except ModuleNotFoundError:\n"
