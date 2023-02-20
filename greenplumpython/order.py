@@ -53,13 +53,13 @@ class DataFrameOrdering:
                 >>> ret = t.order_by("id").order_by("num", ascending=False)[:5]
                 >>> t.order_by("id").order_by("num", ascending=False)[:]
                 ----------
-                 id | num 
+                 id | num
                 ----+-----
-                  1 |   3 
-                  1 |   2 
-                  2 |   2 
-                  3 |   4 
-                  3 |   1 
+                  1 |   3
+                  1 |   2
+                  2 |   2
+                  3 |   4
+                  3 |   1
                 ----------
                 (5 rows)
         """
