@@ -120,8 +120,8 @@
 <dt class="sig sig-object py" id="db.Database">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">db.</span></span><span class="sig-name descname"><span class="pre">Database</span></span><a class="headerlink" href="#db.Database" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Representation of Greenplum/PostgreSQL Database.</p>
-<p>Each Database object has an instance <strong>conn</strong> which establishes a connection using psycopg2.</p>
+<p>Representation of a database in which data is located and computation is performed.</p>
+<p>Each <a class="reference internal" href="#db.Database" title="db.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a> object is tied to a connection to the remote database system.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="db.Database.close">
 <span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#db.Database.close" title="Permalink to this definition"></a></dt>
@@ -259,39 +259,24 @@ constant value in database.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="db.database">
-<span class="sig-prename descclassname"><span class="pre">db.</span></span><span class="sig-name descname"><span class="pre">database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'localhost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dbname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.database" title="Permalink to this definition"></a></dt>
-<dd><p>Create a connection using psycopg2 with given arguments.</p>
+<span class="sig-prename descclassname"><span class="pre">db.</span></span><span class="sig-name descname"><span class="pre">database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uri</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.database" title="Permalink to this definition"></a></dt>
+<dd><p>Open a connection to database with connection URI or parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>host</strong> (<em>str</em>) – str : default value = “localhost”</p></li>
-<li><p><strong>dbname</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – str : default value = None</p></li>
-<li><p><strong>user</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – str : Optional</p></li>
-<li><p><strong>password</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – str : Optional</p></li>
-<li><p><strong>port</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – int : Optional</p></li>
+<li><p><strong>uri</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – connection URI to the database. Please refer to the libpq documentation on <a class="reference external" href="https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING/">connection
+URI</a>
+for detailed usage.</p></li>
+<li><p><strong>params</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Optional</em><em>[</em><em>str</em><em>]</em><em>]</em>) – connection parameters to the database. Please refer to the libpq documentation on
+<a class="reference external" href="https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS/">parameter keywords</a> for
+detailed usage. The parameter will be ignored and will <strong>not</strong> be passed to the remote
+database server if its value is <code class="code docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference internal" href="#db.Database" title="db.Database"><em>Database</em></a></p>
 </dd>
 </dl>
-<p>There are different ways to passing database information:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">database</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="n">dbname</span><span class="o">=</span><span class="n">dbname</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><cite>password</cite> can be ommitted if it is empty. For <cite>user</cite> and <cite>port</cite>, the default values will be
-used.</p>
-<p>Or, a connection can be established by passing more detailed information, in this case,
-password is needed for connection:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">my_db</span> <span class="o">=</span> <span class="n">database</span><span class="p">(</span>
-<span class="gp">... </span>      <span class="n">host</span><span class="o">=</span><span class="n">db_host</span><span class="p">,</span>
-<span class="gp">... </span>      <span class="n">dbname</span><span class="o">=</span><span class="n">db_name</span><span class="p">,</span>
-<span class="gp">... </span>      <span class="n">user</span><span class="o">=</span><span class="n">db_user</span><span class="p">,</span>
-<span class="gp">... </span>      <span class="n">password</span><span class="o">=</span><span class="n">db_password</span><span class="p">,</span>
-<span class="gp">... </span>      <span class="n">port</span><span class="o">=</span><span class="n">db_port</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</pre></div>
-</div>
 </dd></dl>
 
 </section>

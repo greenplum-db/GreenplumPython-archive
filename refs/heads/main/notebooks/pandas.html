@@ -502,7 +502,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">database</span><span class="p">(</span><span class="n">dbname</span><span class="o">=</span><span class="s2">&quot;gpadmin&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">database</span><span class="p">(</span><span class="s2">&quot;postgresql://localhost/gpadmin&quot;</span><span class="p">)</span>
 <span class="n">gp_df</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_rows</span><span class="p">(</span><span class="n">students</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">],</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
 <span class="n">gp_df</span>
 </pre></div>
