@@ -53,7 +53,6 @@
 <li class="toctree-l2"><a class="reference internal" href="row.html">Row</a></li>
 <li class="toctree-l2"><a class="reference internal" href="func.html">Function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="builtins.html">Builtins Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="op.html">Operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="type.html">Type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="group.html">Grouping</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Ordering</a></li>
@@ -120,8 +119,6 @@
 <dt class="sig sig-object py" id="order.DataFrameOrdering">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">order.</span></span><span class="sig-name descname"><span class="pre">DataFrameOrdering</span></span><a class="headerlink" href="#order.DataFrameOrdering" title="Permalink to this definition"></a></dt>
 <dd><p>Represent an ordered GreenplumPython <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
-<p>The order is decided by:
-<a class="reference internal" href="dataframe.html#dataframe.DataFrame.order_by" title="dataframe.DataFrame.order_by"><code class="xref py py-func docutils literal notranslate"><span class="pre">order_by()</span></code></a> or <a class="reference internal" href="#order.DataFrameOrdering.order_by" title="order.DataFrameOrdering.order_by"><code class="xref py py-func docutils literal notranslate"><span class="pre">order_by()</span></code></a>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="order.DataFrameOrdering.order_by">
 <span class="sig-name descname"><span class="pre">order_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ascending</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nulls_first</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#order.DataFrameOrdering.order_by" title="Permalink to this definition"></a></dt>
@@ -143,7 +140,20 @@
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">t</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;num&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">t</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;num&quot;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;num&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">t</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;num&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)[:]</span>
+<span class="o">----------</span>
+ <span class="nb">id</span> <span class="o">|</span> <span class="n">num</span>
+<span class="o">----+-----</span>
+  <span class="mi">1</span> <span class="o">|</span>   <span class="mi">3</span>
+  <span class="mi">1</span> <span class="o">|</span>   <span class="mi">2</span>
+  <span class="mi">2</span> <span class="o">|</span>   <span class="mi">2</span>
+  <span class="mi">3</span> <span class="o">|</span>   <span class="mi">4</span>
+  <span class="mi">3</span> <span class="o">|</span>   <span class="mi">1</span>
+<span class="o">----------</span>
+<span class="p">(</span><span class="mi">5</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
