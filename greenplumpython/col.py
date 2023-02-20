@@ -24,12 +24,11 @@ class ColumnField(Expr):
         column: "Column",
         field_name: str,
         dataframe: Optional["DataFrame"] = None,
-        db: Optional[Database] = None,
     ) -> None:
         self._field_name = field_name
         self._column = column
         self._dataframe = column._dataframe
-        super().__init__(dataframe, db)
+        super().__init__(dataframe)
 
     def _serialize(self) -> str:
         return f'({self._column._serialize()})."{self._field_name}"'

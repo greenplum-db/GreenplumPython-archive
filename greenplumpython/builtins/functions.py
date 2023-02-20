@@ -8,8 +8,6 @@ from greenplumpython.group import DataFrameGroupingSet
 
 def count(
     arg: Optional[Any] = None,
-    group_by: Optional[DataFrameGroupingSet] = None,
-    db: Optional[Database] = None,
 ) -> FunctionExpr:
     """
     Count the number of rows or non-NULL values against a specified column or an entire table.
@@ -31,14 +29,12 @@ def count(
 
     """
     if arg is None:
-        return FunctionExpr(aggregate_function(name="count"), ("*",), group_by=group_by, db=db)
-    return FunctionExpr(aggregate_function(name="count"), (arg,), group_by=group_by, db=db)
+        return FunctionExpr(aggregate_function(name="count"), ("*",))
+    return FunctionExpr(aggregate_function(name="count"), (arg,))
 
 
 def min(
     arg: Any,
-    group_by: Optional[DataFrameGroupingSet] = None,
-    db: Optional[Database] = None,
 ) -> FunctionExpr:
     """
     Return the minimum value in a set of values.
@@ -59,13 +55,11 @@ def min(
             (1 row)
 
     """
-    return FunctionExpr(aggregate_function(name="min"), (arg,), group_by=group_by, db=db)
+    return FunctionExpr(aggregate_function(name="min"), (arg,))
 
 
 def max(
     arg: Any,
-    group_by: Optional[DataFrameGroupingSet] = None,
-    db: Optional[Database] = None,
 ) -> FunctionExpr:
     """
     Return the maximum value in a set of values.
@@ -86,13 +80,11 @@ def max(
             (1 row)
 
     """
-    return FunctionExpr(aggregate_function(name="max"), (arg,), group_by=group_by, db=db)
+    return FunctionExpr(aggregate_function(name="max"), (arg,))
 
 
 def avg(
     arg: Any,
-    group_by: Optional[DataFrameGroupingSet] = None,
-    db: Optional[Database] = None,
 ) -> FunctionExpr:
     """
     Calculate the average value of a set.
@@ -113,13 +105,11 @@ def avg(
             (1 row)
 
     """
-    return FunctionExpr(aggregate_function(name="avg"), (arg,), group_by=group_by, db=db)
+    return FunctionExpr(aggregate_function(name="avg"), (arg,))
 
 
 def sum(
     arg: Any,
-    group_by: Optional[DataFrameGroupingSet] = None,
-    db: Optional[Database] = None,
 ) -> FunctionExpr:
     """
     Calculate the sum of a set of values.
@@ -140,11 +130,11 @@ def sum(
             (1 row)
 
     """
-    return FunctionExpr(aggregate_function(name="sum"), (arg,), group_by=group_by, db=db)
+    return FunctionExpr(aggregate_function(name="sum"), (arg,))
 
 
 def generate_series(
-    start: Any, stop: Any, step: Optional[Any] = None, db: Optional[Database] = None
+    start: Any, stop: Any, step: Optional[Any] = None
 ) -> FunctionExpr:
     """
     Generate a series of values from :code:`start` to :code:`stop`, with a step size of :code:`step`.
@@ -174,4 +164,4 @@ def generate_series(
             (10 rows)
 
     """
-    return FunctionExpr(function(name="generate_series"), (start, stop, step), db=db)
+    return FunctionExpr(function(name="generate_series"), (start, stop, step))

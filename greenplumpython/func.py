@@ -35,7 +35,6 @@ class FunctionExpr(Expr):
         args: Tuple[Any] = [],
         group_by: Optional[DataFrameGroupingSet] = None,
         dataframe: Optional[DataFrame] = None,
-        db: Optional[Database] = None,
         distinct: bool = False,
     ) -> None:
         # noqa D400
@@ -47,11 +46,12 @@ class FunctionExpr(Expr):
                     dataframe = arg._dataframe
                 elif dataframe._name != arg._dataframe._name:
                     raise Exception("Cannot pass arguments from more than one dataframes")
-        super().__init__(dataframe=dataframe, db=db)
+        super().__init__(dataframe=dataframe)
         self._func = func
         self._args = args
         self._group_by = group_by
         self._distinct = distinct
+
 
     def bind(
         self,
@@ -61,14 +61,15 @@ class FunctionExpr(Expr):
     ):
         # noqa D400
         """:meta private:"""
-        return FunctionExpr(
+        f = FunctionExpr(
             self._func,
             self._args,
             group_by=group_by,
             dataframe=dataframe,
-            db=db if db is not None else self._db,
             distinct=self._distinct,
         )
+        f._db = db if db is not None else self._db
+        return f
 
     def _serialize(self) -> str:
         # noqa D400
@@ -214,13 +215,14 @@ class ArrayFunctionExpr(FunctionExpr):
     ):
         # noqa D400
         """:meta private:"""
-        return ArrayFunctionExpr(
+        array_f = ArrayFunctionExpr(
             self._func,
             self._args,
             group_by=group_by,
             dataframe=dataframe,
-            db=db if db is not None else self._db,
         )
+        array_f._db = db if db is not None else self._db
+        return array_f
 
 
 # The parent class for all database functions.
@@ -368,10 +370,10 @@ class NormalFunction(_AbstractFunction):
             )
             self._created_in_dbs.add(db)
 
-    def __call__(self, *args: Any, db: Optional[Database] = None) -> FunctionExpr:
+    def __call__(self, *args: Any) -> FunctionExpr:
         # noqa D400
         """:meta private:"""
-        return FunctionExpr(self, args, db=db)
+        return FunctionExpr(self, args)
 
 
 def function(name: str, schema: Optional[str] = None) -> NormalFunction:

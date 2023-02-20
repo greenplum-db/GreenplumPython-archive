@@ -33,7 +33,6 @@ class TypeCast(Expr):
         obj: object,
         type_name: str,
         schema: Optional[str] = None,
-        db: Optional[Database] = None,
     ) -> None:
         # noqa: D205 D400
         """
@@ -42,7 +41,7 @@ class TypeCast(Expr):
             type_name : str : name of type which object will be cast
         """
         dataframe = obj._dataframe if isinstance(obj, Expr) else None
-        super().__init__(dataframe, db=db)
+        super().__init__(dataframe)
         self._obj = obj
         self._type_name = type_name
         self._schema = schema
