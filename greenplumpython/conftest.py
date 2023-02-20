@@ -17,18 +17,16 @@ _DBPSWD = environ.get("PGPASSWORD")
 @pytest.fixture(autouse=True)
 def init_namepsace(doctest_namespace: Dict[str, Any]):
     # for the connection both work for GitHub Actions and concourse
-    con = f"postgresql://{_DBHOST}/{_DBNAME}"
-    db = gp.database(host=_DBHOST, port=_DBPORT, dbname=_DBNAME, user=_DBUSER, password=_DBPSWD)
+    uri = f"postgresql://{_DBHOST}/{_DBNAME}"
+    db = gp.database(uri)
 
-    conn = psycopg2.connect(
-        host=_DBHOST, port=_DBPORT, user=_DBUSER, password=_DBPSWD, database=_DBNAME
-    )
+    conn = psycopg2.connect(uri)
     conn.set_session(autocommit=True)
 
     cursor = conn.cursor()
 
     doctest_namespace["db"] = db
-    doctest_namespace["con"] = con
+    doctest_namespace["con"] = uri
     doctest_namespace["gp"] = gp
     doctest_namespace["pd"] = pd
     doctest_namespace["cursor"] = cursor

@@ -1,6 +1,4 @@
-"""
-This module creates a Python object Func which able creation and calling of Greenplum UDF and UDA.
-"""
+"""To create and call Greenplum/PostgreSQL UDFs or UDAs."""
 import ast
 import base64
 import functools
@@ -27,8 +25,8 @@ class FunctionExpr(Expr):
     """
     Inherited from :class:`~expr.Expr`.
 
-    A Function Expression object associated with a Greenplum function which can be called and applied to
-    Greenplum data.
+    A Function Expression object associated with a Greenplum/PostgreSQL function which can be called
+    and applied to the data in the database.
     """
 
     def __init__(
@@ -40,6 +38,7 @@ class FunctionExpr(Expr):
         db: Optional[Database] = None,
         distinct: bool = False,
     ) -> None:
+        # noqa D400
         if dataframe is None and group_by is not None:
             dataframe = group_by.dataframe
         for arg in args:
@@ -60,6 +59,7 @@ class FunctionExpr(Expr):
         dataframe: Optional[DataFrame] = None,
         db: Optional[Database] = None,
     ):
+        # noqa D400
         """:meta private:"""
         return FunctionExpr(
             self._func,
@@ -71,19 +71,21 @@ class FunctionExpr(Expr):
         )
 
     def _serialize(self) -> str:
+        # noqa D400
         """:meta private:"""
-        self.function._create_in_db(self._db)
+        self._function._create_in_db(self._db)
         distinct = "DISTINCT" if self._distinct else ""
         args_string = (
             ",".join([_serialize(arg) for arg in self._args if arg is not None])
             if any(self._args)
             else ""
         )
-        schema, func_name = self.function.qualified_name_tuple
+        schema, func_name = self._function.qualified_name_tuple
         qualified_name = f'"{schema}"."{func_name}"' if schema is not None else f'"{func_name}"'
         return f"{qualified_name}({distinct} {args_string})"
 
     def apply(self, expand: bool = False, column_name: Optional[str] = None) -> DataFrame:
+        # noqa D400
         """
         :meta private:
 
@@ -93,7 +95,7 @@ class FunctionExpr(Expr):
         assert not (
             expand and column_name is not None
         ), "Cannot assign single column name when expanding multi-valued results."
-        self.function._create_in_db(self._db)
+        self._function._create_in_db(self._db)
         if self.dataframe is not None:
             schema, df_name = self.dataframe.qualified_name_tuple
             df_qualified_name = f'"{schema}"."{df_name}"' if schema is not None else f'"{df_name}"'
@@ -163,7 +165,7 @@ class FunctionExpr(Expr):
         )
 
     @property
-    def function(self) -> "_AbstractFunction":
+    def _function(self) -> "_AbstractFunction":
         return self._func
 
 
@@ -176,8 +178,9 @@ class ArrayFunctionExpr(FunctionExpr):
     """
 
     def _serialize(self) -> str:
+        # noqa D400
         """:meta private:"""
-        self.function._create_in_db(self._db)
+        self._function._create_in_db(self._db)
         args_string_list = []
         args_string = ""
         grouping_col_names = self._group_by._flatten() if self._group_by is not None else None
@@ -199,7 +202,7 @@ class ArrayFunctionExpr(FunctionExpr):
                     s = _serialize(self._args[i])
                 args_string_list.append(s)
             args_string = ",".join(args_string_list)
-        schema, func_name = self.function.qualified_name_tuple
+        schema, func_name = self._function.qualified_name_tuple
         qualified_name = f'"{schema}"."{func_name}"' if schema is not None else f'"{func_name}"'
         return f"{qualified_name}({args_string})"
 
@@ -209,6 +212,7 @@ class ArrayFunctionExpr(FunctionExpr):
         dataframe: Optional[DataFrame] = None,
         db: Optional[Database] = None,
     ):
+        # noqa D400
         """:meta private:"""
         return ArrayFunctionExpr(
             self._func,
@@ -240,13 +244,16 @@ class _AbstractFunction:
         return self._schema, self._name
 
     def _create_in_db(self, _: Database) -> None:
+        # noqa D400
         """:meta private:"""
         raise NotImplementedError("Cannot create abstract function in database")
 
 
 class NormalFunction(_AbstractFunction):
     """
-    Represents a (normal) dataframe function that can be applied to
+    Represent a (normal) dataframe function.
+
+    The function can be applied to:
 
     - a :class:`~dataframe.DataFrame` with :meth:`~dataframe.DataFrame.assign` or
       :meth:`~dataframe.DataFrame.apply`;
@@ -272,20 +279,18 @@ class NormalFunction(_AbstractFunction):
         schema: Optional[str] = None,
         language_handler: str = "plpython3u",
     ) -> None:
+        # noqa D107
         super().__init__(wrapped_func, name, schema)
         self._created_in_dbs: Optional[Set[Database]] = set() if wrapped_func is not None else None
         self._wrapped_func = wrapped_func
         self._language_handler = language_handler
 
     def unwrap(self) -> Callable[..., Any]:
-        """
-        Get the wrapped Python function in the database function.
-        """
+        """Get the wrapped Python function in the database function."""
         assert self._wrapped_func is not None, "No Python function is wrapped inside."
         return self._wrapped_func
 
     def _create_in_db(self, db: Database) -> None:
-        """:meta private:"""
         if self._wrapped_func is None:  # Function has already existed.
             return
         assert self._created_in_dbs is not None
@@ -364,6 +369,7 @@ class NormalFunction(_AbstractFunction):
             self._created_in_dbs.add(db)
 
     def __call__(self, *args: Any, db: Optional[Database] = None) -> FunctionExpr:
+        # noqa D400
         """:meta private:"""
         return FunctionExpr(self, args, db=db)
 
@@ -383,7 +389,16 @@ def function(name: str, schema: Optional[str] = None) -> NormalFunction:
     Example:
         .. code-block::  Python
 
-            generate_series = gp.function("generate_series")
+            >>> generate_series = gp.function("generate_series")
+            >>> db.apply(lambda: generate_series(0, 2))
+            -----------------
+             generate_series
+            -----------------
+                           0
+                           1
+                           2
+            -----------------
+            (3 rows)
 
     """
     return NormalFunction(name=name, schema=schema)
@@ -391,7 +406,9 @@ def function(name: str, schema: Optional[str] = None) -> NormalFunction:
 
 class AggregateFunction(_AbstractFunction):
     """
-    Represents an aggregate function that can be applied to
+    Represent an aggregate function.
+
+    The function can be applied to:
 
     - a :class:`~dataframe.DataFrame` with :meth:`~dataframe.DataFrame.apply`, where the function\
         will aggregate data in the entire dataframe;
@@ -408,7 +425,7 @@ class AggregateFunction(_AbstractFunction):
 
     - constant values represented as Python objects.
 
-    and the :class:`~func.AggregateFunction` returns one value aggregating data in all
+    And the :class:`~func.AggregateFunction` returns one value aggregating data in all
     rows of the :class:`~dataframe.DataFrame` or a group in the
     :class:`~group.DataFrameGroupingSet`.
     """
@@ -419,6 +436,7 @@ class AggregateFunction(_AbstractFunction):
         name: Optional[str] = None,
         schema: Optional[str] = None,
     ) -> None:
+        # noqa D107
         super().__init__(
             transition_func.unwrap() if transition_func is not None else None,
             name,
@@ -431,7 +449,7 @@ class AggregateFunction(_AbstractFunction):
 
     @property
     def transition_function(self) -> NormalFunction:
-        """Return the transition function of aggregate function"""
+        """Return the transition function of the aggregate function."""
         schema, func_name = self.qualified_name_tuple
         qualified_name = f'"{schema}"."{func_name}"' if schema is not None else f'"{func_name}"'
         assert (
@@ -440,7 +458,6 @@ class AggregateFunction(_AbstractFunction):
         return self._transition_func
 
     def _create_in_db(self, db: Database) -> None:
-        """:meta private:"""
         # If self._transition_func is None, then the aggregate function is not
         # created with gp.create_aggregate(), but only refers to an existing
         # aggregate function.
@@ -479,29 +496,43 @@ class AggregateFunction(_AbstractFunction):
 
     def distinct(self, *args: Any) -> FunctionExpr:
         """
-        Apply the current aggregate function to only each distinct set of the
-        arguments.
-
-        For example, :code:`count.distinct(t['a'])` means applying the
-        :code:`count()` function to each distinct value of :class:`~col.Column`
-        :code:`t['a']`.
+        Apply the current aggregate function to each distinct set of the arguments.
 
         Args:
             args: Argument of the aggregate function.
 
         Returns:
             FunctionExpr: An expression represents the function call.
+
+
+        Example:
+
+            .. highlight:: python
+            .. code-block::  Python
+
+                >>> rows = [(1,), (2,), (2,), (3,), (3,), (4,)]
+                >>> numbers = db.create_dataframe(rows=rows, column_names=["val"])
+                >>> count = gp.aggregate_function("count")
+                >>> results = numbers.group_by().assign(
+                ...     unique_numbers_count=lambda t: count.distinct(t["val"]))
+                >>> results
+                ----------------------
+                 unique_numbers_count
+                ----------------------
+                                    4
+                ----------------------
+                (1 row)
         """
         return FunctionExpr(self, args, distinct=True)
 
     def __call__(self, *args: Any) -> FunctionExpr:
+        # noqa D102
         return FunctionExpr(self, args)
 
 
 def aggregate_function(name: str, schema: Optional[str] = None) -> AggregateFunction:
     """
-    Get access to a predefined dataframe :class:`~func.AggregateFunction` from
-    database.
+    Get access to a predefined :class:`~func.AggregateFunction` from the database.
 
     Args:
         name: Name of the aggregate function.
@@ -512,17 +543,19 @@ def aggregate_function(name: str, schema: Optional[str] = None) -> AggregateFunc
         and :code:`schema`.
 
     Example:
+        .. highlight:: python
         .. code-block::  Python
 
-            >>> count = gp.aggregate_function("count")
-            >>> db.create_dataframe(columns={'x': range(10)}).apply(lambda t: count())
-            -------
-             count
-            -------
-                10
-            -------
+            >>> array_agg = gp.aggregate_function("array_agg")
+            >>> df = db.create_dataframe(columns={"i": range(3)})
+            >>> result = df.apply(lambda t: array_agg(t['i']), column_name="aggregate_result")
+            >>> result
+            ------------------
+             aggregate_result
+            ------------------
+             [0, 1, 2]
+            ------------------
             (1 row)
-
     """
     return AggregateFunction(name=name, schema=schema)
 
@@ -532,7 +565,7 @@ def create_function(
     wrapped_func: Optional[Callable[..., Any]] = None, language_handler: str = "plpython3u"
 ) -> NormalFunction:
     """
-    Creates a :class:`~func.NormalFunction` from the given Python function.
+    Create a :class:`~func.NormalFunction` from the given Python function.
 
     Args:
         wrapped_func: the Python function carrying out the computation. Its
@@ -579,8 +612,8 @@ def create_function(
         .. code-block::  Python
 
             >>> @gp.create_function
-            >>> def multiply(a: int, b: int) -> int:
-            >>>    return a * b
+            ... def multiply(a: int, b: int) -> int:
+            ...    return a * b
 
             >>> db.assign(result=lambda: multiply(1, 2))
             --------
@@ -602,7 +635,7 @@ def create_aggregate(
     transition_func: Optional[Callable[..., Any]] = None, language_handler: str = "plpython3u"
 ) -> AggregateFunction:
     """
-    Creates an :class:`~func.AggregateFunction` from the given Python function.
+    Create an :class:`~func.AggregateFunction` from the given Python function.
 
     Args:
         transition_func : the wrapped Python function carrying out the state
@@ -621,20 +654,20 @@ def create_aggregate(
         .. code-block::  Python
 
             >>> @gp.create_aggregate
-            >>> def my_sum(result: int, val: int) -> int:
-            >>>     if result is None:
-            >>>         return val
-            >>>     return result + val
+            ... def my_sum(cur_sum: int, val: int) -> int:
+            ...     if cur_sum is None:
+            ...         return val
+            ...     return cur_sum + val
 
             >>> rows = [(1,) for _ in range(10)]
             >>> numbers = db.create_dataframe(rows=rows, column_names=["val"])
             >>> results = numbers.group_by().assign(result=lambda t: my_sum(t["val"]))
             >>> results
-            ---------
-             results
-            ---------
-                  10
-            ---------
+            --------
+             result
+            --------
+                 10
+            --------
             (1 row)
     """
     # If user needs extra parameters when creating a function
@@ -652,7 +685,7 @@ def create_aggregate(
 
 class ColumnFunction(NormalFunction):
     """
-    Represents a dataframe column function that can be applied to
+    Represent a dataframe column function.
 
     - a :class:`~dataframe.DataFrame` with :meth:`~dataframe.DataFrame.apply`, where the function\
         will operate on columns in the entire dataframe;
@@ -703,6 +736,7 @@ class ColumnFunction(NormalFunction):
     """
 
     def __call__(self, *args: Any) -> ArrayFunctionExpr:
+        # noqa #D102
         return ArrayFunctionExpr(self, args=args)
 
 
@@ -711,7 +745,7 @@ def create_column_function(
     wrapped_func: Optional[Callable[..., Any]] = None, language_handler: str = "plpython3u"
 ) -> ColumnFunction:
     """
-    Creates an :class:`~func.ColumnFunction` from the given Python function.
+    Create an :class:`~func.ColumnFunction` from the given Python function.
 
     Args:
         wrapped_func: the wrapped Python function carrying out computation on
@@ -730,20 +764,20 @@ def create_column_function(
             .. code-block::  Python
 
                 >>> @gp.create_column_function
-                >>> def my_sum_array(val_list: List[int]) -> int:
-                >>>     return sum(val_list)
+                ... def my_array_summary(val_list: List[int]) -> str:
+                ...     return f'Length: {len(val_list)}, Sum: {sum(val_list)}'
 
-                >>> rows = [(1, i % 2 == 0) for i in range(10)]
-                >>> numbers = db.create_dataframe(rows=rows, column_names=["val", "is_even"])
-                >>> results = numbers.group_by("is_even").assign(result=lambda t: my_sum(t["val]))
+                >>> rows = [(1,), (2,), (3,)]
+                >>> numbers = db.create_dataframe(rows=rows, column_names=["val"])
+                >>> results = numbers.group_by().assign(
+                ...     summary=lambda t: my_array_summary(t["val"]))
                 >>> results
-                ------------------
-                 is_even | result
-                ---------+--------
-                       0 |      5
-                       1 |      5
-                ------------------
-                (2 rows)
+                -------------------
+                 summary
+                -------------------
+                 Length: 3, Sum: 6
+                -------------------
+                (1 row)
     """
     # If user needs extra parameters when creating a function
     if wrapped_func is None:
