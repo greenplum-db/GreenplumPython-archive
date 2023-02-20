@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 class Expr:
-    """Representation of an expression for transforming :class:`~col.Column`s."""
+    """Representation of an expression for :class:`~col.Column` transformation."""
 
     def __init__(
         self,
