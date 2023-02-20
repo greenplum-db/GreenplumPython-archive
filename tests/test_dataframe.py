@@ -37,7 +37,7 @@ def test_dataframe_getitem_str(db: gp.Database):
     rows = [(1,), (2,), (3,)]
     t = db.create_dataframe(rows=rows, column_names=["id"])
     c = t["id"]
-    assert str(c) == f'"{t.name}"."id"'
+    assert str(c) == f'"{t._name}"."id"'
 
 
 def test_dataframe_getitem_sub_columns(db: gp.Database):

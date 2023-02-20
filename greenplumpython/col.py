@@ -28,15 +28,11 @@ class ColumnField(Expr):
     ) -> None:
         self._field_name = field_name
         self._column = column
-        self._dataframe = column.dataframe
+        self._dataframe = column._dataframe
         super().__init__(dataframe, db)
 
-    @property
-    def column(self) -> "Column":
-        return self._column
-
     def _serialize(self) -> str:
-        return f'({self.column._serialize()})."{self._field_name}"'
+        return f'({self._column._serialize()})."{self._field_name}"'
 
 
 class Column(Expr):
@@ -52,33 +48,13 @@ class Column(Expr):
         self._type: Optional[Type] = None  # TODO: Add type inference
 
     def _serialize(self) -> str:
-        assert self.dataframe is not None
+        assert self._dataframe is not None
         # Quote both dataframe name and column name to avoid SQL injection.
-        schema, df_name = self.dataframe.qualified_name_tuple
+        schema, df_name = self._dataframe._qualified_name
         df_qualified_name = f'"{schema}"."{df_name}"' if schema is not None else f'"{df_name}"'
         return (
-            f'{df_qualified_name}."{self.name}"' if self.name != "*" else f"{df_qualified_name}.*"
+            f'{df_qualified_name}."{self._name}"' if self._name != "*" else f"{df_qualified_name}.*"
         )
-
-    @property
-    def name(self) -> str:
-        """
-        Returns :class:`~col.Column` name
-
-        Returns:
-            str: column name
-        """
-        return self._name
-
-    @property
-    def dataframe(self) -> Optional["DataFrame"]:
-        """
-        Returns :class:`~col.Column` associated :class:`~dataframe.DataFrame`
-
-        Returns:
-            Optional[DataFrame]: :class:`~dataframe.DataFrame` associated with :class:`~col.Column`
-        """
-        return self._dataframe
 
     def __getitem__(self, field_name: str) -> ColumnField:
         """

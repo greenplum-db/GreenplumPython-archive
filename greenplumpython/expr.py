@@ -21,7 +21,7 @@ class Expr:
         # noqa: D107
         self._dataframe = dataframe
         self._other_dataframe = other_dataframe
-        self._db = db if db is not None else (dataframe.db if dataframe is not None else None)
+        self._db = db if db is not None else (dataframe._db if dataframe is not None else None)
 
     def __hash__(self) -> int:
         # noqa: D105
@@ -488,31 +488,6 @@ class Expr:
     def _serialize(self) -> str:
         raise NotImplementedError()
 
-    @property
-    def db(self) -> Optional[Database]:
-        """
-        Returns Expr associated :class:`~db.Database`.
-
-        Returns:
-            Optional[:class:`~db.Database`]: Database associated with :class:`~expr.Expr`
-        """
-        return self._db
-
-    @property
-    def dataframe(self) -> Optional["DataFrame"]:
-        """
-        Returns Expr associated :class:`~dataframe.DataFrame`.
-
-        Returns:
-            Optional[:class:`~dataframe.DataFrame`]: GreenplumPython DataFrame associated with :class:`~expr.Expr`
-        """
-        return self._dataframe
-
-    @property
-    def other_dataframe(self) -> Optional["DataFrame"]:
-        # noqa: D102
-        return self._other_dataframe
-
     # NOTE: We cannot use __contains__() because the return value will always
     # be converted to bool.
     #
@@ -553,7 +528,7 @@ class Expr:
                 --------------
                 (5 rows)
         """
-        return InExpr(self, container, self.dataframe, self.db)
+        return InExpr(self, container, self._dataframe, self._db)
 
 
 from psycopg2.extensions import adapt  # type: ignore
@@ -591,12 +566,12 @@ class BinaryExpr(Expr):
         db: Optional[Database] = None,
     ):
         # noqa: D107
-        dataframe = left.dataframe if isinstance(left, Expr) else None
+        dataframe = left._dataframe if isinstance(left, Expr) else None
         if dataframe is not None and isinstance(right, Expr):
-            dataframe = right.dataframe
-        other_dataframe = left.other_dataframe if isinstance(left, Expr) else None
+            dataframe = right._dataframe
+        other_dataframe = left._other_dataframe if isinstance(left, Expr) else None
         if other_dataframe is not None and isinstance(right, Expr):
-            other_dataframe = right.other_dataframe
+            other_dataframe = right._other_dataframe
         super().__init__(dataframe=dataframe, other_dataframe=other_dataframe, db=db)
         self.operator = operator
         self.left = left
@@ -674,7 +649,7 @@ class UnaryExpr(Expr):
     ):
         # noqa: D107
         dataframe, other_dataframe = (
-            (right.dataframe, right.other_dataframe) if isinstance(right, Expr) else (None, None)
+            (right._dataframe, right._other_dataframe) if isinstance(right, Expr) else (None, None)
         )
         super().__init__(dataframe=dataframe, other_dataframe=other_dataframe, db=db)
         self.operator = operator
@@ -697,7 +672,7 @@ class InExpr(Expr):
         # noqa: D107
         super().__init__(
             dataframe,
-            other_dataframe=container.dataframe if isinstance(container, Expr) else None,
+            other_dataframe=container._dataframe if isinstance(container, Expr) else None,
             db=db,
         )
         self._item = item
@@ -705,17 +680,17 @@ class InExpr(Expr):
 
     def _serialize(self) -> str:
         if isinstance(self._container, Expr):
-            assert self.other_dataframe is not None, "DataFrame of container is unknown."
+            assert self._other_dataframe is not None, "DataFrame of container is unknown."
         # Using either IN or = any() will violate
         # https://wiki.postgresql.org/wiki/Don't_Do_This#Don.27t_use_NOT_IN
         # when combining with `～` (bitwise not) operator.
         container_name: str = "cte_" + uuid4().hex
         return (
             (
-                f"(EXISTS (SELECT FROM {self.other_dataframe.name}"
+                f"(EXISTS (SELECT FROM {self._other_dataframe._name}"
                 f" WHERE ({self._container._serialize()} = {self._item._serialize()})))"
             )
-            if isinstance(self._container, Expr) and self.other_dataframe is not None
+            if isinstance(self._container, Expr) and self._other_dataframe is not None
             else (
                 f'(EXISTS (SELECT FROM unnest({_serialize(self._container)}) AS "{container_name}"'
                 f' WHERE ("{container_name}" = {self._item._serialize()})))'
