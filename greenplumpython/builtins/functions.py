@@ -133,9 +133,7 @@ def sum(
     return FunctionExpr(aggregate_function(name="sum"), (arg,))
 
 
-def generate_series(
-    start: Any, stop: Any, step: Optional[Any] = None
-) -> FunctionExpr:
+def generate_series(start: Any, stop: Any, step: Optional[Any] = None) -> FunctionExpr:
     """
     Generate a series of values from :code:`start` to :code:`stop`, with a step size of :code:`step`.
 

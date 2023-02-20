@@ -52,7 +52,6 @@ class FunctionExpr(Expr):
         self._group_by = group_by
         self._distinct = distinct
 
-
     def bind(
         self,
         group_by: Optional[DataFrameGroupingSet] = None,
