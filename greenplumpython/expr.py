@@ -10,15 +10,7 @@ if TYPE_CHECKING:
 
 
 class Expr:
-    """
-    Representation of Expr.
-
-    It can be
-
-        - a Column
-        - an Operator
-        - a Function
-    """
+    """Representation of an expression for :class:`~col.Column` transformation."""
 
     def __init__(
         self,

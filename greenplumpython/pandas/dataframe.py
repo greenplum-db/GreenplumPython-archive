@@ -21,7 +21,7 @@ class DataFrame:
     def _from_sql(cls, sql: str, con: str):
         """:meta private:."""
         c = super().__new__(cls)
-        database = db.Database(url=con)
+        database = db.Database(uri=con)
         c._dataframe = dataframe.DataFrame(query=sql, db=database)
         return c
 
@@ -81,7 +81,7 @@ class DataFrame:
         """
         assert index is False, "DataFrame in GreenplumPython.pandas does not have an index column"
         table_name = f'"{name}"' if schema is None else f"{schema}.{name}"
-        database = db.Database(url=con)
+        database = db.Database(uri=con)
         query = self._dataframe._build_full_query()
         if if_exists == "append":
             rowcount = database._execute(
