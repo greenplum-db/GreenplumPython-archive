@@ -2,6 +2,6 @@
 sphinx==5.1.1
 sphinx_rtd_theme==1.0.0
 nbsphinx
-ipython~=8.6.0
+ipython~=8.10
 pydocstyle==6.2.3
 pandoc
