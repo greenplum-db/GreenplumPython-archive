@@ -53,7 +53,6 @@
 <li class="toctree-l2"><a class="reference internal" href="row.html">Row</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="builtins.html">Builtins Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="op.html">Operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="type.html">Type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="group.html">Grouping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="order.html">Ordering</a></li>
@@ -166,6 +165,12 @@ rows of the <a class="reference internal" href="dataframe.html#dataframe.DataFra
 <span class="p">(</span><span class="mi">1</span> <span class="n">row</span><span class="p">)</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="func.AggregateFunction.transition_function">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transition_function</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><span class="pre">NormalFunction</span></a></em><a class="headerlink" href="#func.AggregateFunction.transition_function" title="Permalink to this definition"></a></dt>
+<dd><p>Return the transition function of the aggregate function.</p>
 </dd></dl>
 
 </dd></dl>
@@ -394,6 +399,7 @@ definition need to follow the conventions below:</p>
 </p></li>
 <li><p><strong>language_handler</strong> (<em>str</em>) – language handler to run the function in database,
 defaults to plpython3u, will also support plcontainer later.</p></li>
+<li><p><strong>schema</strong> – schema name</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
