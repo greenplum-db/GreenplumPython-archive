@@ -73,14 +73,16 @@ class FunctionExpr(Expr):
     def _serialize(self) -> str:
         # noqa D400
         """:meta private:"""
-        self._function.create_in_db(self._db)
+        self._function._create_in_db(self._db)
         distinct = "DISTINCT" if self._distinct else ""
         args_string = (
             ",".join([_serialize(arg) for arg in self._args if arg is not None])
             if any(self._args)
             else ""
         )
-        return f"{self._func.qualified_name}({distinct} {args_string})"
+        schema, func_name = self._function.qualified_name_tuple
+        qualified_name = f'"{schema}"."{func_name}"' if schema is not None else f'"{func_name}"'
+        return f"{qualified_name}({distinct} {args_string})"
 
     def apply(self, expand: bool = False, column_name: Optional[str] = None) -> DataFrame:
         # noqa D400
@@ -93,8 +95,13 @@ class FunctionExpr(Expr):
         assert not (
             expand and column_name is not None
         ), "Cannot assign single column name when expanding multi-valued results."
-        self._function.create_in_db(self._db)
-        from_clause = f"FROM {self.dataframe.name}" if self.dataframe is not None else ""
+        self._function._create_in_db(self._db)
+        if self.dataframe is not None:
+            schema, df_name = self.dataframe.qualified_name_tuple
+            df_qualified_name = f'"{schema}"."{df_name}"' if schema is not None else f'"{df_name}"'
+            from_clause = f"FROM {df_qualified_name}"
+        else:
+            from_clause = ""
         group_by_clause = self._group_by._clause() if self._group_by is not None else ""
         if expand and column_name is None:
             column_name = "func_" + uuid4().hex
@@ -149,8 +156,10 @@ class FunctionExpr(Expr):
             else f"{','.join(rebased_grouping_cols)}, ({column_name}).*"
         )
 
+        schema, df_name = orig_func_dataframe.qualified_name_tuple
+        orig_df_qualified_name = f'"{schema}"."{df_name}"' if schema is not None else f'"{df_name}"'
         return DataFrame(
-            f"SELECT {str(results)} FROM {orig_func_dataframe.name}",
+            f"SELECT {str(results)} FROM {orig_df_qualified_name}",
             db=self._db,
             parents=[orig_func_dataframe],
         )
@@ -171,7 +180,7 @@ class ArrayFunctionExpr(FunctionExpr):
     def _serialize(self) -> str:
         # noqa D400
         """:meta private:"""
-        self._function.create_in_db(self._db)
+        self._function._create_in_db(self._db)
         args_string_list = []
         args_string = ""
         grouping_col_names = self._group_by._flatten() if self._group_by is not None else None
@@ -193,7 +202,9 @@ class ArrayFunctionExpr(FunctionExpr):
                     s = _serialize(self._args[i])
                 args_string_list.append(s)
             args_string = ",".join(args_string_list)
-        return f"{self._func.qualified_name}({args_string})"
+        schema, func_name = self._function.qualified_name_tuple
+        qualified_name = f'"{schema}"."{func_name}"' if schema is not None else f'"{func_name}"'
+        return f"{qualified_name}({args_string})"
 
     def bind(
         self,
@@ -224,22 +235,15 @@ class _AbstractFunction:
         # if wrapped_func is None, the function object is obtained by
         # gp.function() rather than gp.create_function(). Otherwise a
         # Python function will be passed to wrapped_func.
-        _name = "func_" + uuid4().hex if wrapped_func is not None else name
-        assert _name is not None
-        qualified_name = (
-            f"pg_temp.{_name}"
-            if wrapped_func is not None
-            else _name
-            if schema is None
-            else f"{schema}.{_name}"
-        )
-        self._qualified_name = qualified_name
+        self._name = "func_" + uuid4().hex if wrapped_func is not None else name
+        assert self._name is not None
+        self._schema = "pg_temp" if wrapped_func is not None else None if schema is None else schema
 
     @property
-    def qualified_name(self) -> str:
-        return self._qualified_name
+    def qualified_name_tuple(self) -> Tuple[str, str]:
+        return self._schema, self._name
 
-    def create_in_db(self, _: Database) -> None:
+    def _create_in_db(self, _: Database) -> None:
         # noqa D400
         """:meta private:"""
         raise NotImplementedError("Cannot create abstract function in database")
@@ -286,9 +290,7 @@ class NormalFunction(_AbstractFunction):
         assert self._wrapped_func is not None, "No Python function is wrapped inside."
         return self._wrapped_func
 
-    def create_in_db(self, db: Database) -> None:
-        # noqa D400
-        """:meta private:"""
+    def _create_in_db(self, db: Database) -> None:
         if self._wrapped_func is None:  # Function has already existed.
             return
         assert self._created_in_dbs is not None
@@ -309,19 +311,21 @@ class NormalFunction(_AbstractFunction):
             func_sig = inspect.signature(self._wrapped_func)
             func_args = ",".join(
                 [
-                    f"{param.name} {to_pg_type(param.annotation, db)}"
+                    f"{param.name} {to_pg_type(param.annotation, db=db)}"
                     for param in func_sig.parameters.values()
                 ]
             )
             func_arg_names = ",".join(
                 [f"{param.name}={param.name}" for param in func_sig.parameters.values()]
             )
-            return_type = to_pg_type(func_sig.return_annotation, db, for_return=True)
+            return_type = to_pg_type(func_sig.return_annotation, db=db, for_return=True)
             func_pickled: bytes = dill.dumps(self._wrapped_func)
+            schema, func_name = self.qualified_name_tuple
+            qualified_name = f'"{schema}"."{func_name}"' if schema is not None else f'"{func_name}"'
             # Modify the AST of the wrapped function to minify dependency: (1-3)
             # 1. Apply random renaming to avoid name conflict. (TODO: Support
             #    calling another UDF in the current UDF directly.)
-            func_ast.name = "__" + self._qualified_name.split(".")[-1]
+            func_ast.name = "__" + func_name
             # 2. Clear decorators and type annotations to avoid import.
             func_ast.decorator_list.clear()
             for arg in func_ast.args.args:
@@ -339,7 +343,7 @@ class NormalFunction(_AbstractFunction):
             assert (
                 db._execute(
                     (
-                        f"CREATE FUNCTION {self._qualified_name} ({func_args}) "
+                        f"CREATE FUNCTION {qualified_name} ({func_args}) "
                         f"RETURNS {return_type} "
                         f"AS $$\n"
                         f"try:\n"
@@ -444,16 +448,16 @@ class AggregateFunction(_AbstractFunction):
         )
 
     @property
-    def _transition_function(self) -> NormalFunction:
+    def transition_function(self) -> NormalFunction:
         """Return the transition function of the aggregate function."""
+        schema, func_name = self.qualified_name_tuple
+        qualified_name = f'"{schema}"."{func_name}"' if schema is not None else f'"{func_name}"'
         assert (
             self._transition_func is not None
-        ), f'Transition function of the aggregate function "{self.qualified_name}" is unknown.'
+        ), f"Transition function of the aggregate function {qualified_name} is unknown."
         return self._transition_func
 
-    def create_in_db(self, db: Database) -> None:
-        # noqa D400
-        """:meta private:"""
+    def _create_in_db(self, db: Database) -> None:
         # If self._transition_func is None, then the aggregate function is not
         # created with gp.create_aggregate(), but only refers to an existing
         # aggregate function.
@@ -461,19 +465,29 @@ class AggregateFunction(_AbstractFunction):
             return
         assert self._created_in_dbs is not None
         if db not in self._created_in_dbs:
-            self._transition_func.create_in_db(db)
-            sig = inspect.signature(self._transition_function.unwrap())
+            self._transition_func._create_in_db(db)
+            sig = inspect.signature(self.transition_function.unwrap())
             param_list = iter(sig.parameters.values())
             state_param = next(param_list)
             args_string = ",".join(
-                [f"{param.name} {to_pg_type(param.annotation, db)}" for param in param_list]
+                [f"{param.name} {to_pg_type(param.annotation, db=db)}" for param in param_list]
+            )
+            agg_schema, agg_name = self.qualified_name_tuple
+            agg_qualified_name = (
+                f'"{agg_schema}"."{agg_name}"' if agg_schema is not None else f'"{agg_name}"'
+            )
+            sfunc_schema, sfunc_name = self.transition_function.qualified_name_tuple
+            sfunc_qualified_name = (
+                f'"{sfunc_schema}"."{sfunc_name}"'
+                if sfunc_schema is not None
+                else f'"{sfunc_name}"'
             )
             # -- Creation of UDA in Greenplum
             db._execute(
                 (
-                    f"CREATE AGGREGATE {self.qualified_name} ({args_string}) (\n"
-                    f"    SFUNC = {self._transition_function.qualified_name},\n"
-                    f"    STYPE = {to_pg_type(state_param.annotation, db)}\n"
+                    f"CREATE AGGREGATE {agg_qualified_name} ({args_string}) (\n"
+                    f"    SFUNC = {sfunc_qualified_name},\n"
+                    f"    STYPE = {to_pg_type(state_param.annotation, db=db)}\n"
                     f");\n"
                 ),
                 has_results=False,
@@ -571,6 +585,8 @@ def create_function(
 
         language_handler: language handler to run the function in database,
             defaults to plpython3u, will also support plcontainer later.
+
+        schema: schema name
 
     Returns:
         The newly created :class:`~func.NormalFunction`.
