@@ -13,7 +13,6 @@ The **GreenplumPython** library contains 5 main modules:
    row
    func
    builtins
-   op
    type
    group
    order

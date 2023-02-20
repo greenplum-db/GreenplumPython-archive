@@ -124,7 +124,9 @@
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "Here, the `uri` follows the same specification in the [libpq document](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING) as above."
+                "Here, the `uri` follows the same specification in the [libpq document](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING) as above.\n",
+                "\n",
+                "As another example, if password is required, the `uri` might look like `postgresql://user:password@hostname/dbname`."
             ]
         },
         {
