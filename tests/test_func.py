@@ -21,6 +21,29 @@ def test_plain_func(db: gp.Database):
         assert "Greenplum" in row["version"] or row["version"].startswith("PostgreSQL")
 
 
+def test_schema_func(db: gp.Database):
+    db._execute(
+        f"""
+        CREATE OR REPLACE FUNCTION test.test_schema_func(a int)
+        RETURNS INTEGER AS
+        $$
+        return a
+        $$
+        LANGUAGE plpython3u
+    """,
+        has_results=False,
+    )
+    test_func = gp.function("test_schema_func", schema="test")
+
+    # -- WITH ASSIGN FUNC
+    for row in db.assign(result=lambda: test_func(1)):
+        assert row["result"] == 1
+
+    # -- WITH APPLY FUNC
+    for row in db.apply(lambda: test_func(1), column_name="result"):
+        assert row["result"] == 1
+
+
 def test_set_returning_func(db: gp.Database):
     results = db.assign(id=lambda: generate_series(0, 9))
     assert sorted([row["id"] for row in results]) == list(range(10))
@@ -613,13 +636,13 @@ def test_create_func_same_name(db: gp.Database):
     def dup_name(a: int, b: int) -> int:
         return a + b
 
-    func_name = dup_name.qualified_name
+    _, func_name = dup_name.qualified_name_tuple
 
     @gp.create_function
     def dup_name(a: int, b: int) -> int:
         return a + 1
 
-    new_func_name = dup_name.qualified_name
+    _, new_func_name = dup_name.qualified_name_tuple
 
     assert func_name != new_func_name
 
@@ -742,5 +765,22 @@ def test_func_one_liner(db: gp.Database):
     # TODO: Lambda expressions are not supported.
     add_one: Callable[[int], int] = lambda x: x + 1
     with pytest.raises(AssertionError) as exc_info:
-        df = db.apply(lambda: gp.create_function(add_one)(1), column_name="x")
+        db.apply(lambda: gp.create_function(add_one)(1), column_name="x")
     assert "is not a function" in str(exc_info.value)
+
+
+def test_func_non_default_schema(db: gp.Database):
+    rows = [(i,) for i in range(-10, 0)]
+    db.create_dataframe(rows=rows, column_names=["id"]).save_as(
+        table_name="test_func_schema", column_names=["id"], schema="test"
+    )
+    series = db.create_dataframe(table_name="test_func_schema", schema="test")
+    abs = gp.function("abs")
+
+    # -- WITH ASSIGN FUNC
+    results = series.assign(abs=lambda nums: abs(nums["id"]))
+    assert sorted([row["abs"] for row in results]) == list(range(1, 11))
+
+    # -- WITH APPLY FUNC
+    results2 = series.apply(lambda nums: abs(nums["id"]))
+    assert sorted([row["abs"] for row in results2]) == list(range(1, 11))

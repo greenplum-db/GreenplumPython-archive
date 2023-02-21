@@ -1,4 +1,5 @@
 """Manage connection to Greenplum/PostgreSQL database."""
+
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -22,20 +23,23 @@ import psycopg2.extras
 
 
 class Database:
-    """Representation of Greenplum/PostgreSQL Database.
+    """
+    Representation of a database in which data is located and computation is performed.
 
-    Each Database object has an instance **conn** which establishes a connection using psycopg2.
+    Each :class:`~db.Database` object is tied to a connection to the remote database system.
     """
 
-    def __init__(self, params: Optional[Dict[str, str]] = None, url: Optional[str] = None) -> None:
-        # noqa D107
-        assert (params is not None and url is None) or (params is None and url is not None)
-        if url is not None:
-            con_str = url
+    def __init__(self, uri: Optional[str] = None, params: Dict[str, Optional[str]] = {}) -> None:
+        # noqa
+        """:meta private:"""
+        if uri is not None:
+            assert len(params) == 0
+            dsn = uri
         else:
-            con_str = " ".join([f"{k}={v}" for k, v in params.items()])  # type: ignore
+            assert len(params) > 0
+            dsn = " ".join([f"{k}={v}" for k, v in params.items() if v is not None])
         self._conn = psycopg2.connect(
-            con_str,
+            dsn,
             cursor_factory=psycopg2.extras.RealDictCursor,
         )
         self._conn.set_session(autocommit=True)
@@ -68,6 +72,7 @@ class Database:
     def create_dataframe(
         self,
         table_name: Optional[str] = None,
+        schema: Optional[str] = None,
         rows: Optional[List[Union[Tuple[Any, ...], Dict[str, Any]]]] = None,
         columns: Optional[Dict[str, Iterable[Any]]] = None,
         column_names: Optional[Iterable[str]] = None,
@@ -77,6 +82,7 @@ class Database:
 
         Args:
             table_name: str: name of table in Database
+            schema: str: name of schema in Database
             rows: List[Union[Tuple[Any, ...], Dict[str, Any]]]: a List of rows
             columns: Dict[str, List[Any]]: a dict of columns
             column_names: Iterable[str]: List of given column names
@@ -136,7 +142,7 @@ class Database:
             assert (
                 rows is None and columns is None
             ), "Provisioning data is not allowed when opening existing table."
-            return DataFrame.from_table(table_name=table_name, db=self)
+            return DataFrame.from_table(table_name=table_name, schema=schema, db=self)
         assert rows is None or columns is None, "Only one data format is allowed."
         if rows is not None:
             return DataFrame.from_rows(rows=rows, db=self, column_names=column_names)
@@ -214,55 +220,19 @@ class Database:
         return DataFrame(f"SELECT {','.join(targets)}", db=self)
 
 
-def database(
-    host: str = "localhost",
-    dbname: Optional[str] = None,
-    user: Optional[str] = None,
-    password: Optional[str] = None,
-    port: Optional[int] = None,
-) -> Database:
+def database(uri: Optional[str] = None, params: Dict[str, Optional[str]] = {}) -> Database:
     """
-    Create a connection using psycopg2 with given arguments.
+    Open a connection to database with connection URI or parameters.
 
     Args:
-        host: str : default value = "localhost"
-        dbname: str : default value = None
-        user: str : Optional
-        password: str : Optional
-        port: int : Optional
-
-    There are different ways to passing database information:
-
-    .. highlight:: python
-    .. code-block::  python
-
-       db = database(host="localhost", dbname=dbname)
-
-    `password` can be ommitted if it is empty. For `user` and `port`, the default values will be
-    used.
-
-    Or, a connection can be established by passing more detailed information, in this case,
-    password is needed for connection:
-
-    .. highlight:: python
-    .. code-block::  python
-
-        >>> my_db = database(
-        ...       host=db_host,
-        ...       dbname=db_name,
-        ...       user=db_user,
-        ...       password=db_password,
-        ...       port=db_port)
-        >>> my_db.close()
+        uri: connection URI to the database. Please refer to the libpq documentation on `connection
+            URI <https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING/>`_
+            for detailed usage.
+        params: connection parameters to the database. Please refer to the libpq documentation on
+            `parameter keywords
+            <https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS/>`_ for
+            detailed usage. The parameter will be ignored and will **not** be passed to the remote
+            database server if its value is :code:`None`.
 
     """
-    params = {"host": host}
-    if dbname is not None:
-        params["dbname"] = dbname
-    if port is not None:
-        params["port"] = str(port)
-    if user is not None:
-        params["user"] = user
-    if password is not None:
-        params["password"] = password
-    return Database(params=params)
+    return Database(uri=uri, params=params)

@@ -67,6 +67,7 @@ class DataFrame:
         query: str,
         parents: List["DataFrame"] = [],
         name: Optional[str] = None,
+        schema: Optional[str] = None,
         db: Optional[Database] = None,
         columns: Optional[Iterable[Column]] = None,
     ) -> None:
@@ -74,6 +75,7 @@ class DataFrame:
         # noqa
         self._query = query
         self._parents = parents
+        self._schema = schema
         self._name = "cte_" + uuid4().hex if name is None else name
         self._columns = columns
         self._contents: Optional[Iterable[RealDictRow]] = None
@@ -476,8 +478,10 @@ class DataFrame:
                         if v.other_dataframe.name not in other_parents:
                             other_parents[v.other_dataframe.name] = v.other_dataframe
                 targets.append(f"{_serialize(v)} AS {k}")
+            schema, df_name = self.qualified_name_tuple
+            qualified_name = f'"{schema}"."{df_name}"' if schema is not None else f'"{df_name}"'
             return DataFrame(
-                f"SELECT *, {','.join(targets)} FROM {self.name}",
+                f"SELECT *, {','.join(targets)} FROM {qualified_name}",
                 parents=[self] + list(other_parents.values()),
             )
 
@@ -684,6 +688,16 @@ class DataFrame:
         return self._name
 
     @property
+    def qualified_name_tuple(self) -> Tuple[str, str]:
+        """
+        Return the schema name and name of :class:`~dataframe.DataFrame`.
+
+        Returns:
+            Tuple[str, str]: schema name and :class:`~dataframe.DataFrame`'s name.
+        """
+        return self._schema, self._name
+
+    @property
     def db(self) -> Optional[Database]:
         """
         Return :class:`~db.Database` associated with GreenplumPython :class:`~dataframe.DataFrame`.
@@ -807,6 +821,7 @@ class DataFrame:
             .. highlight:: python
             .. code-block::  Python
 
+                >>> cursor.execute("DROP TABLE IF EXISTS const_table;")
                 >>> nums = db.create_dataframe(rows=[(i,) for i in range(5)], column_names=["num"])
                 >>> df = nums.save_as("const_table", column_names=["num"], temp=False).order_by("num")[:]
                 >>> df
@@ -874,8 +889,10 @@ class DataFrame:
             raise NotImplementedError()
         assert self._db is not None
         output_name = "cte_" + uuid4().hex
+        schema, name = self.qualified_name_tuple
+        qualified_name = f'"{name}"' if schema is None else f'"{schema}"."{name}"'
         to_json_dataframe = DataFrame(
-            f"SELECT to_json({output_name})::TEXT FROM {self.name} AS {output_name}",
+            f"SELECT to_json({output_name})::TEXT FROM {qualified_name} AS {output_name}",
             parents=[self],
         )
         result = self._db._execute(to_json_dataframe._build_full_query())
@@ -887,6 +904,7 @@ class DataFrame:
         column_names: List[str] = [],
         temp: bool = False,
         storage_params: dict[str, Any] = {},
+        schema: Optional[str] = None,
     ) -> "DataFrame":
         """
         Save the GreenplumPython :class:`~dataframe.Dataframe` as a *table* into the database.
@@ -897,11 +915,12 @@ class DataFrame:
         :func:`~db.Database.create_dataframe(table_name)` to create a new :class:`~dataframe.Dataframe` next time.
 
         Args:
-            dataframe_name : str
+            table_name : str
             temp : bool : if table is temporary
             column_names : List : list of column names
             storage_params: dict: storage_parameter of gpdb, reference
                 https://docs.vmware.com/en/VMware-Tanzu-Greenplum/7/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html
+            schema: Optional[str] by default is public if None
 
         Returns:
             DataFrame : :class:`~dataframe.DataFrame` represents the newly saved table
@@ -945,9 +964,10 @@ class DataFrame:
         storage_parameters = (
             f"WITH ({','.join([f'{key}={storage_params[key]}' for key in storage_params.keys()])})"
         )
+        df_full_name = f'"{table_name}"' if schema is None else f'"{schema}"."{table_name}"'
         self._db._execute(
             f"""
-            CREATE {'TEMP' if temp else ''} TABLE "{table_name}"
+            CREATE {'TEMP' if temp else ''} TABLE {df_full_name}
             ({','.join(column_names)})
             {storage_parameters if storage_params else ''}
             AS {self._build_full_query()}
@@ -1047,7 +1067,7 @@ class DataFrame:
 
     # dataframe_name can be table/view name
     @classmethod
-    def from_table(cls, table_name: str, db: Database) -> "DataFrame":
+    def from_table(cls, table_name: str, db: Database, schema: str = None) -> "DataFrame":
         """
         Return a :class:`~dataframe.DataFrame` which represents the given table in the :class:`~db.Database`.
 
@@ -1060,7 +1080,7 @@ class DataFrame:
             df = gp.DataFrame.from_table("pg_class", db=db)
 
         """
-        return DataFrame(f'TABLE "{table_name}"', name=table_name, db=db)
+        return DataFrame(f'TABLE "{schema}"."{table_name}"', name=table_name, schema=schema, db=db)
 
     @classmethod
     def from_rows(
