@@ -527,7 +527,7 @@ class Expr:
                 --------------
                 (5 rows)
         """
-        return InExpr(self, container, self._dataframe, self._db)
+        return InExpr(self, container, self._dataframe)
 
 
 from psycopg2.extensions import adapt  # type: ignore
@@ -660,7 +660,6 @@ class InExpr(Expr):
         item: "Expr",
         container: Union["Expr", List[Any]],
         dataframe: Optional["DataFrame"] = None,
-        db: Optional[Database] = None,
     ) -> None:
         # noqa: D107
         super().__init__(

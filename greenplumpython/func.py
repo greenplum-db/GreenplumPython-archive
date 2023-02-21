@@ -67,7 +67,16 @@ class FunctionExpr(Expr):
             dataframe=dataframe,
             distinct=self._distinct,
         )
-        f._db = db if db is not None else self._db
+        f._db = (
+            db
+            if db is not None
+            else dataframe._db
+            if dataframe is not None
+            else group_by._dataframe._db
+            if group_by is not None
+            else self._db
+        )
+        assert f._db is not None
         return f
 
     def _serialize(self) -> str:
