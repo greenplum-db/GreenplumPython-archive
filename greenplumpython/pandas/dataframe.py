@@ -19,7 +19,8 @@ class DataFrame:
 
     @classmethod
     def _from_sql(cls, sql: str, con: str):
-        """:meta private:."""
+        # noqa D400
+        """:meta private:"""
         c = super().__new__(cls)
         database = db.Database(uri=con)
         c._dataframe = dataframe.DataFrame(query=sql, db=database)
@@ -27,13 +28,15 @@ class DataFrame:
 
     @classmethod
     def _from_native(cls, df: dataframe.DataFrame):
-        """:meta private:."""
+        # noqa D400
+        """:meta private:"""
         c = super().__new__(cls)
         c._dataframe = df
         return c
 
     def __init__(self) -> None:
-        """:meta private:."""
+        # noqa D400
+        """:meta private:"""
         self._dataframe: dataframe.DataFrame = None
         raise NotImplementedError
 
@@ -233,6 +236,7 @@ class DataFrame:
         This aligns with the function
         `pandas.DataFrame.merge() <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.merge.html>`_.
 
+        Returns:
             :class:`~pandas.dataframe.Dataframe`: :class:`~pandas.dataframe.DataFrame` of the two merged class:`DataFrame`.
 
         Example:
@@ -294,14 +298,16 @@ class DataFrame:
         return DataFrame._from_native(df)
 
     def __repr__(self) -> str:
-        """:meta private:."""
+        # noqa D400
+        """:meta private:"""
         return self._dataframe.__repr__()
 
     def _repr_html_(self) -> str:
         return self._dataframe._repr_html_()
 
     def __iter__(self):
-        """:meta private:."""
+        # noqa D400
+        """:meta private:"""
         return self._dataframe.__iter__()
 
 
@@ -322,7 +328,7 @@ def read_sql(
     `pandas.read_sql() <https://pandas.pydata.org/docs/reference/api/pandas.read_sql.html?highlight=read_sql>`_.
 
     Returns:
-        :class:`~pandas.dataframe.Dataframe`.
+        :class:`~pandas.dataframe.Dataframe`: :class:`~pandas.dataframe.Dataframe` from SQL.
 
     Example:
         .. highlight:: python
