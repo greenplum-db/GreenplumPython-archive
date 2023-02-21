@@ -20,11 +20,11 @@ To install the latest development version, do
 
     pip3 install --user git+https://github.com/greenplum-db/GreenplumPython
 
-GreenplumPython requires [plpython3](https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-analytics-pl_python.html) 
+GreenplumPython requires `plpython3 <https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-analytics-pl_python.html>`_ 
 extension to be installed on Greenplum/Postgres.
 
-[dill](https://github.com/uqfoundation/dill) as an optional dependency for GreenplumPython `plpython` side, 
+`dill <https://github.com/uqfoundation/dill>`_  as an optional dependency for GreenplumPython `plpython` side, 
 which provides convenient features like auto-importing modules in the `plpython` functions. (auto-import is available even when dill is NOT installed on server.
 `dill` is require to include outside dependencies in the same file/module, like functions or classes.)
 
-To install `dill` or any other python modules on the `plpython` side, refer to [GPDB plpython document](https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-analytics-pl_python.html#pip39) for more details.
+To install `dill` or any other python modules on the `plpython` side, refer to `GPDB plpython document <https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-analytics-pl_python.html#pip39>`_ for more details.
