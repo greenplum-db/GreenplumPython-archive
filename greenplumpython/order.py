@@ -113,7 +113,7 @@ class DataFrameOrdering:
             else rows.stop - rows.start
         )
         return DataFrame(
-            f"SELECT * FROM {self._dataframe.name} {self._clause()} LIMIT {limit} {offset_clause}",
+            f"SELECT * FROM {self._dataframe._name} {self._clause()} LIMIT {limit} {offset_clause}",
             parents=[self._dataframe],
         )
 

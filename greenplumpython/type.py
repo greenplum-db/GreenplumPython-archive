@@ -33,7 +33,6 @@ class TypeCast(Expr):
         obj: object,
         type_name: str,
         schema: Optional[str] = None,
-        db: Optional[Database] = None,
     ) -> None:
         # noqa: D205 D400
         """
@@ -41,20 +40,20 @@ class TypeCast(Expr):
             obj: object : which will be applied type casting
             type_name : str : name of type which object will be cast
         """
-        dataframe = obj.dataframe if isinstance(obj, Expr) else None
-        super().__init__(dataframe, db=db)
+        dataframe = obj._dataframe if isinstance(obj, Expr) else None
+        super().__init__(dataframe)
         self._obj = obj
         self._type_name = type_name
         self._schema = schema
 
     def _serialize(self) -> str:
         obj_str = _serialize(self._obj)
-        schema, type_name = self.qualified_name_tuple
+        schema, type_name = self._qualified_name
         qualified_name = f'"{schema}"."{type_name}"' if schema is not None else f'"{type_name}"'
         return f"({obj_str}::{qualified_name})"
 
     @property
-    def qualified_name_tuple(self) -> Tuple[str, str]:
+    def _qualified_name(self) -> Tuple[Optional[str], str]:
         """
         Return the schema name and name of :class:`~type.TypeCast`.
 
@@ -136,12 +135,7 @@ class Type:
         return TypeCast(obj, self._name, self._schema)
 
     @property
-    def name(self) -> str:
-        """Get the name of this :class:`Type`."""
-        return self._name
-
-    @property
-    def qualified_name_tuple(self) -> Tuple[str, str]:
+    def _qualified_name(self) -> Tuple[Optional[str], str]:
         """
         Return the schema name and name of :class:`~type.Type`.
 
@@ -212,7 +206,7 @@ def to_pg_type(
             type_name = "type_" + uuid4().hex
             _defined_types[annotation] = Type(name=type_name, annotation=annotation)
         _defined_types[annotation]._create_in_db(db)
-        schema, type_name = _defined_types[annotation].qualified_name_tuple
+        schema, type_name = _defined_types[annotation]._qualified_name
         type_qualified_name = (
             f'"{schema}"."{type_name}"' if schema is not None else f'"{type_name}"'
         )

@@ -119,7 +119,7 @@ class DataFrame:
             else f"LIMIT {rows.stop if rows.start is None else rows.stop - rows.start}"
         )
         return DataFrame(
-            f"SELECT * FROM {self.name} {limit_clause} {offset_clause}",
+            f"SELECT * FROM {self._name} {limit_clause} {offset_clause}",
             parents=[self],
         )
 
@@ -327,10 +327,10 @@ class DataFrame:
 
         """
         v = predicate(self)
-        assert v.dataframe == self, "Predicate must based on current dataframe"
+        assert v._dataframe == self, "Predicate must based on current dataframe"
         parents = [self]
-        if v.other_dataframe is not None and self.name != v.other_dataframe.name:
-            parents.append(v.other_dataframe)
+        if v._other_dataframe is not None and self._name != v._other_dataframe._name:
+            parents.append(v._other_dataframe)
         return DataFrame(f"SELECT * FROM {self._name} WHERE {v._serialize()}", parents=parents)
 
     def apply(
@@ -473,13 +473,13 @@ class DataFrame:
                 v: Any = f(self)
                 if isinstance(v, Expr):
                     assert (
-                        v.dataframe is None or v.dataframe == self
+                        v._dataframe is None or v._dataframe == self
                     ), "Newly included columns must be based on the current dataframe"
-                    if v.other_dataframe is not None and v.other_dataframe.name != self.name:
-                        if v.other_dataframe.name not in other_parents:
-                            other_parents[v.other_dataframe.name] = v.other_dataframe
+                    if v._other_dataframe is not None and v._other_dataframe._name != self._name:
+                        if v._other_dataframe._name not in other_parents:
+                            other_parents[v._other_dataframe._name] = v._other_dataframe
                 targets.append(f"{_serialize(v)} AS {k}")
-            schema, df_name = self.qualified_name_tuple
+            schema, df_name = self._qualified_name
             qualified_name = f'"{schema}"."{df_name}"' if schema is not None else f'"{df_name}"'
             return DataFrame(
                 f"SELECT *, {','.join(targets)} FROM {qualified_name}",
@@ -620,8 +620,10 @@ class DataFrame:
                 target_list.append(col._serialize() + (f' AS "{v}"' if v is not None else ""))
             return target_list
 
-        other_name = other.name if self.name != other.name else "cte_" + uuid4().hex
-        other_clause = other.name if self.name != other.name else self.name + " AS " + other_name
+        other_name = other._name if self._name != other._name else "cte_" + uuid4().hex
+        other_clause = (
+            other._name if self._name != other._name else self._name + " AS " + other_name
+        )
         target_list = bind(self, self_columns) + bind(
             DataFrame(query="", name=other_name), other_columns
         )
@@ -637,7 +639,7 @@ class DataFrame:
         return DataFrame(
             f"""
                 SELECT {",".join(target_list)}
-                FROM {self.name} {how} JOIN {other_clause} {sql_on_clause} {sql_using_clause}
+                FROM {self._name} {how} JOIN {other_clause} {sql_on_clause} {sql_using_clause}
             """,
             parents=[self, other],
         )
@@ -679,17 +681,7 @@ class DataFrame:
     """
 
     @property
-    def name(self) -> str:
-        """
-        Return the name of :class:`~dataframe.DataFrame`.
-
-        Returns:
-            str: :class:`~dataframe.DataFrame`'s name.
-        """
-        return self._name
-
-    @property
-    def qualified_name_tuple(self) -> Tuple[str, str]:
+    def _qualified_name(self) -> Tuple[Optional[str], str]:
         """
         Return the schema name and name of :class:`~dataframe.DataFrame`.
 
@@ -697,16 +689,6 @@ class DataFrame:
             Tuple[str, str]: schema name and :class:`~dataframe.DataFrame`'s name.
         """
         return self._schema, self._name
-
-    @property
-    def db(self) -> Optional[Database]:
-        """
-        Return :class:`~db.Database` associated with GreenplumPython :class:`~dataframe.DataFrame`.
-
-        Returns:
-            Optional[:class:`~db.Database`]: database associated with GreenplumPython :class:`~dataframe.DataFrame`.
-        """
-        return self._db
 
     # @property
     # def columns(self) -> Optional[Iterable[Column]]:
@@ -736,7 +718,7 @@ class DataFrame:
         current = 0
         while current < len(lineage):
             if (
-                lineage[current].name not in dataframes_visited
+                lineage[current]._name not in dataframes_visited
                 and not lineage[current]._in_catalog()
             ):
                 self._depth_first_search(lineage[current], dataframes_visited, lineage)
@@ -746,9 +728,9 @@ class DataFrame:
     def _depth_first_search(self, t: "DataFrame", visited: Set[str], lineage: List["DataFrame"]):
         # noqa
         """:meta private:"""
-        visited.add(t.name)
+        visited.add(t._name)
         for i in t._parents:
-            if i.name not in visited and not i._in_catalog():
+            if i._name not in visited and not i._in_catalog():
                 self._depth_first_search(i, visited, lineage)
         lineage.append(t)
 
@@ -890,7 +872,7 @@ class DataFrame:
             raise NotImplementedError()
         assert self._db is not None
         output_name = "cte_" + uuid4().hex
-        schema, name = self.qualified_name_tuple
+        schema, name = self._qualified_name
         qualified_name = f'"{name}"' if schema is None else f'"{schema}"."{name}"'
         to_json_dataframe = DataFrame(
             f"SELECT to_json({output_name})::TEXT FROM {qualified_name} AS {output_name}",
@@ -1063,7 +1045,7 @@ class DataFrame:
         """
         cols = [Column(name, self)._serialize() for name in column_names]
         return DataFrame(
-            f"SELECT DISTINCT ON ({','.join(cols)}) * FROM {self.name}", parents=[self]
+            f"SELECT DISTINCT ON ({','.join(cols)}) * FROM {self._name}", parents=[self]
         )
 
     # dataframe_name can be table/view name

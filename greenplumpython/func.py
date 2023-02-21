@@ -36,19 +36,18 @@ class FunctionExpr(Expr):
         args: Tuple[Any] = [],
         group_by: Optional[DataFrameGroupingSet] = None,
         dataframe: Optional[DataFrame] = None,
-        db: Optional[Database] = None,
         distinct: bool = False,
     ) -> None:
         # noqa D400
         if dataframe is None and group_by is not None:
-            dataframe = group_by.dataframe
+            dataframe = group_by._dataframe
         for arg in args:
-            if isinstance(arg, Expr) and arg.dataframe is not None:
+            if isinstance(arg, Expr) and arg._dataframe is not None:
                 if dataframe is None:
-                    dataframe = arg.dataframe
-                elif dataframe.name != arg.dataframe.name:
+                    dataframe = arg._dataframe
+                elif dataframe._name != arg._dataframe._name:
                     raise Exception("Cannot pass arguments from more than one dataframes")
-        super().__init__(dataframe=dataframe, db=db)
+        super().__init__(dataframe=dataframe)
         self._func = func
         self._args = args
         self._group_by = group_by
@@ -62,14 +61,24 @@ class FunctionExpr(Expr):
     ):
         # noqa D400
         """:meta private:"""
-        return FunctionExpr(
+        f = FunctionExpr(
             self._func,
             self._args,
             group_by=group_by,
             dataframe=dataframe,
-            db=db if db is not None else self._db,
             distinct=self._distinct,
         )
+        f._db = (
+            db
+            if db is not None
+            else dataframe._db
+            if dataframe is not None
+            else group_by._dataframe._db
+            if group_by is not None
+            else self._db
+        )
+        assert f._db is not None
+        return f
 
     def _serialize(self) -> str:
         # noqa D400
@@ -81,7 +90,7 @@ class FunctionExpr(Expr):
             if any(self._args)
             else ""
         )
-        schema, func_name = self._function.qualified_name_tuple
+        schema, func_name = self._function._qualified_name
         qualified_name = f'"{schema}"."{func_name}"' if schema is not None else f'"{func_name}"'
         return f"{qualified_name}({distinct} {args_string})"
 
@@ -97,8 +106,8 @@ class FunctionExpr(Expr):
             expand and column_name is not None
         ), "Cannot assign single column name when expanding multi-valued results."
         self._function._create_in_db(self._db)
-        if self.dataframe is not None:
-            schema, df_name = self.dataframe.qualified_name_tuple
+        if self._dataframe is not None:
+            schema, df_name = self._dataframe._qualified_name
             df_qualified_name = f'"{schema}"."{df_name}"' if schema is not None else f'"{df_name}"'
             from_clause = f"FROM {df_qualified_name}"
         else:
@@ -106,7 +115,7 @@ class FunctionExpr(Expr):
         group_by_clause = self._group_by._clause() if self._group_by is not None else ""
         if expand and column_name is None:
             column_name = "func_" + uuid4().hex
-        parents = [self.dataframe] if self.dataframe is not None else []
+        parents = [self._dataframe] if self._dataframe is not None else []
         grouping_col_names = self._group_by._flatten() if self._group_by is not None else None
         # FIXME: The names of GROUP BY exprs can collide with names of fields in
         # the comosite type, making the column names of the resulting dataframe not
@@ -152,12 +161,12 @@ class FunctionExpr(Expr):
             if not expand
             else f"({column_name}).*"
             if rebased_grouping_cols is None or len(rebased_grouping_cols) == 0
-            else f"({orig_func_dataframe.name}).*"
+            else f"({orig_func_dataframe._name}).*"
             if not expand
             else f"{','.join(rebased_grouping_cols)}, ({column_name}).*"
         )
 
-        schema, df_name = orig_func_dataframe.qualified_name_tuple
+        schema, df_name = orig_func_dataframe._qualified_name
         orig_df_qualified_name = f'"{schema}"."{df_name}"' if schema is not None else f'"{df_name}"'
         return DataFrame(
             f"SELECT {str(results)} FROM {orig_df_qualified_name}",
@@ -203,7 +212,7 @@ class ArrayFunctionExpr(FunctionExpr):
                     s = _serialize(self._args[i])
                 args_string_list.append(s)
             args_string = ",".join(args_string_list)
-        schema, func_name = self._function.qualified_name_tuple
+        schema, func_name = self._function._qualified_name
         qualified_name = f'"{schema}"."{func_name}"' if schema is not None else f'"{func_name}"'
         return f"{qualified_name}({args_string})"
 
@@ -215,13 +224,14 @@ class ArrayFunctionExpr(FunctionExpr):
     ):
         # noqa D400
         """:meta private:"""
-        return ArrayFunctionExpr(
+        array_f = ArrayFunctionExpr(
             self._func,
             self._args,
             group_by=group_by,
             dataframe=dataframe,
-            db=db if db is not None else self._db,
         )
+        array_f._db = db if db is not None else self._db
+        return array_f
 
 
 # The parent class for all database functions.
@@ -241,7 +251,7 @@ class _AbstractFunction:
         self._schema = "pg_temp" if wrapped_func is not None else None if schema is None else schema
 
     @property
-    def qualified_name_tuple(self) -> Tuple[str, str]:
+    def _qualified_name(self) -> Tuple[Optional[str], str]:
         return self._schema, self._name
 
     def _create_in_db(self, _: Database) -> None:
@@ -321,7 +331,7 @@ class NormalFunction(_AbstractFunction):
             )
             return_type = to_pg_type(func_sig.return_annotation, db=db, for_return=True)
             func_pickled: bytes = dill.dumps(self._wrapped_func)
-            schema, func_name = self.qualified_name_tuple
+            schema, func_name = self._qualified_name
             qualified_name = f'"{schema}"."{func_name}"' if schema is not None else f'"{func_name}"'
             # Modify the AST of the wrapped function to minify dependency: (1-3)
             # 1. Apply random renaming to avoid name conflict. (TODO: Support
@@ -369,10 +379,10 @@ class NormalFunction(_AbstractFunction):
             )
             self._created_in_dbs.add(db)
 
-    def __call__(self, *args: Any, db: Optional[Database] = None) -> FunctionExpr:
+    def __call__(self, *args: Any) -> FunctionExpr:
         # noqa D400
         """:meta private:"""
-        return FunctionExpr(self, args, db=db)
+        return FunctionExpr(self, args)
 
 
 def function(name: str, schema: Optional[str] = None) -> NormalFunction:
@@ -451,7 +461,7 @@ class AggregateFunction(_AbstractFunction):
     @property
     def transition_function(self) -> NormalFunction:
         """Return the transition function of the aggregate function."""
-        schema, func_name = self.qualified_name_tuple
+        schema, func_name = self._qualified_name
         qualified_name = f'"{schema}"."{func_name}"' if schema is not None else f'"{func_name}"'
         assert (
             self._transition_func is not None
@@ -473,11 +483,11 @@ class AggregateFunction(_AbstractFunction):
             args_string = ",".join(
                 [f"{param.name} {to_pg_type(param.annotation, db=db)}" for param in param_list]
             )
-            agg_schema, agg_name = self.qualified_name_tuple
+            agg_schema, agg_name = self._qualified_name
             agg_qualified_name = (
                 f'"{agg_schema}"."{agg_name}"' if agg_schema is not None else f'"{agg_name}"'
             )
-            sfunc_schema, sfunc_name = self.transition_function.qualified_name_tuple
+            sfunc_schema, sfunc_name = self.transition_function._qualified_name
             sfunc_qualified_name = (
                 f'"{sfunc_schema}"."{sfunc_name}"'
                 if sfunc_schema is not None

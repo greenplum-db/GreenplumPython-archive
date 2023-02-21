@@ -63,7 +63,7 @@ def test_expr_bin_equal_bool(db: gp.Database):
 @pytest.fixture
 def dataframe_num(db: gp.Database):
     t = db.assign(id=lambda: generate_series(0, 9))
-    assert t.db is not None
+    assert t._db is not None
     return t
 
 
