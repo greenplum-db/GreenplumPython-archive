@@ -25,7 +25,6 @@ in that:
   is similar to the :code:`REFRESH MATERIALIZED VIEW` `command in PostgreSQL
   <https://www.postgresql.org/docs/current/sql-refreshmaterializedview.html>`_ for syncing updates.
 """
-import collections
 import json
 from collections import abc
 from functools import partialmethod, singledispatchmethod

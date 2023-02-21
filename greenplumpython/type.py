@@ -41,7 +41,7 @@ class TypeCast(Expr):
             type_name : str : name of type which object will be cast
         """
         dataframe = obj.dataframe if isinstance(obj, Expr) else None
-        super().__init__(dataframe, db=db)
+        super().__init__(dataframe)
         self._obj = obj
         self._type_name = type_name
 

@@ -48,7 +48,8 @@ class FunctionExpr(Expr):
                     dataframe = arg.dataframe
                 elif dataframe.name != arg.dataframe.name:
                     raise Exception("Cannot pass arguments from more than one dataframes")
-        super().__init__(dataframe=dataframe, db=db)
+        super().__init__(dataframe=dataframe)
+        self._db = dataframe.db if dataframe is not None else None or db
         self._func = func
         self._args = args
         self._group_by = group_by

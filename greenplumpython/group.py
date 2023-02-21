@@ -4,11 +4,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Iterable,
     List,
-    MutableSet,
     Optional,
-    Set,
 )
 
 from greenplumpython.expr import Expr, _serialize

@@ -111,7 +111,7 @@ def test_func_on_more_than_one_dataframe(db: gp.Database):
     t1 = db.create_dataframe(rows=rows, column_names=["i"])
     t2 = db.create_dataframe(rows=rows, column_names=["i"])
     with pytest.raises(Exception) as exc_info:
-        div(t1["i"], t2["i"], db=db)
+        div(t1["i"], t2["i"])
     # FIXME: Create more specific exception classes and remove this
     assert "Cannot pass arguments from more than one dataframes" == str(exc_info.value)
 

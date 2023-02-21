@@ -22,11 +22,10 @@ class Expr:
         self,
         dataframe: Optional["DataFrame"] = None,
         other_dataframe: Optional["DataFrame"] = None,
-        db: Optional[Database] = None,
     ) -> None:
         self._dataframe = dataframe
         self._other_dataframe = other_dataframe
-        self._db = db if db is not None else (dataframe.db if dataframe is not None else None)
+        self._db = dataframe.db if dataframe is not None else None
 
     def __hash__(self) -> int:
         return hash(self._serialize())
@@ -558,7 +557,7 @@ class Expr:
                 --------------
                 (5 rows)
         """
-        return InExpr(self, container, self.dataframe, self.db)
+        return InExpr(self, container, self.dataframe)
 
 
 from psycopg2.extensions import adapt  # type: ignore
@@ -592,7 +591,6 @@ class BinaryExpr(Expr):
         operator: str,
         left: Any,
         right: Any,
-        db: Optional[Database] = None,
     ):
         dataframe = left.dataframe if isinstance(left, Expr) else None
         if dataframe is not None and isinstance(right, Expr):
@@ -600,7 +598,7 @@ class BinaryExpr(Expr):
         other_dataframe = left.other_dataframe if isinstance(left, Expr) else None
         if other_dataframe is not None and isinstance(right, Expr):
             other_dataframe = right.other_dataframe
-        super().__init__(dataframe=dataframe, other_dataframe=other_dataframe, db=db)
+        super().__init__(dataframe=dataframe, other_dataframe=other_dataframe)
         self.operator = operator
         self.left = left
         self.right = right
@@ -611,7 +609,6 @@ class BinaryExpr(Expr):
         operator: str,
         left: "Expr",
         right: "Expr",
-        db: Optional[Database] = None,
     ):
         ...
 
@@ -621,7 +618,6 @@ class BinaryExpr(Expr):
         operator: str,
         left: "Expr",
         right: int,
-        db: Optional[Database] = None,
     ):
         ...
 
@@ -631,7 +627,6 @@ class BinaryExpr(Expr):
         operator: str,
         left: "Expr",
         right: str,
-        db: Optional[Database] = None,
     ):
         ...
 
@@ -640,7 +635,6 @@ class BinaryExpr(Expr):
         operator: str,
         left: Any,
         right: Any,
-        db: Optional[Database] = None,
     ):
         """
 
@@ -648,7 +642,7 @@ class BinaryExpr(Expr):
             left: Any : could be an :class:`Expr` or object in primitive types (int, str, etc)
             right: Any : could be an :class:`Expr` or object in primitive types (int, str, etc)
         """
-        self._init(operator, left, right, db)
+        self._init(operator, left, right)
 
     def _serialize(self) -> str:
         from greenplumpython.expr import _serialize
@@ -669,7 +663,6 @@ class UnaryExpr(Expr):
         self,
         operator: str,
         right: Any,
-        db: Optional[Database] = None,
     ):
         """
 
@@ -679,7 +672,7 @@ class UnaryExpr(Expr):
         dataframe, other_dataframe = (
             (right.dataframe, right.other_dataframe) if isinstance(right, Expr) else (None, None)
         )
-        super().__init__(dataframe=dataframe, other_dataframe=other_dataframe, db=db)
+        super().__init__(dataframe=dataframe, other_dataframe=other_dataframe)
         self.operator = operator
         self.right = right
 
@@ -694,12 +687,10 @@ class InExpr(Expr):
         item: "Expr",
         container: Union["Expr", List[Any]],
         dataframe: Optional["DataFrame"] = None,
-        db: Optional[Database] = None,
     ) -> None:
         super().__init__(
             dataframe,
             other_dataframe=container.dataframe if isinstance(container, Expr) else None,
-            db=db,
         )
         self._item = item
         self._container = container

@@ -33,6 +33,6 @@ def operator(name: str, db: Database) -> Callable[[Any, Any], BinaryExpr]:
     """
 
     def make_operator_expr(left: Any, right: Any) -> BinaryExpr:
-        return BinaryExpr(name, left=left, right=right, db=db)
+        return BinaryExpr(name, left=left, right=right)
 
     return make_operator_expr
