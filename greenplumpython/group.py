@@ -157,13 +157,15 @@ class DataFrameGroupingSet:
 
         targets: List[str] = self._flatten()
         for k, f in new_columns.items():
-            v: Any = f(self.dataframe).bind(group_by=self)
-            if isinstance(v, Expr) and not (v.dataframe is None or v.dataframe == self.dataframe):
+            v: Any = f(self._dataframe).bind(group_by=self)
+            if isinstance(v, Expr) and not (
+                v._dataframe is None or v._dataframe == self._dataframe
+            ):
                 raise Exception("Newly included columns must be based on the current dataframe")
             targets.append(f"{_serialize(v)} AS {k}")
         return DataFrame(
-            f"SELECT {','.join(targets)} FROM {self.dataframe.name} {self._clause()}",
-            parents=[self.dataframe],
+            f"SELECT {','.join(targets)} FROM {self._dataframe._name} {self._clause()}",
+            parents=[self._dataframe],
         )
 
     def union(
@@ -222,16 +224,6 @@ class DataFrameGroupingSet:
                 if item not in item_list:
                     item_list.append(item)
         return item_list
-
-    @property
-    def dataframe(self) -> "DataFrame":
-        """
-        Return the source :class:`~dataframe.DataFrame` associated with grouping set.
-
-        Returns:
-            GreenplumPython DataFrame
-        """
-        return self._dataframe
 
     def _clause(self) -> str:
         # noqa: D400

@@ -213,7 +213,7 @@ class Database:
         for k, f in new_columns.items():
             v: Any = f()
             if isinstance(v, Expr):
-                assert v.dataframe is None, "New column should not depend on any dataframe."
+                assert v._dataframe is None, "New column should not depend on any dataframe."
             if isinstance(v, FunctionExpr):
                 v = v.bind(db=self)
             targets.append(f"{_serialize(v)} AS {k}")

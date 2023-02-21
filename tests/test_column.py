@@ -16,7 +16,7 @@ def dataframe(db: gp.Database):
 
 def test_expr_column_name(db: gp.Database, dataframe: gp.DataFrame):
     c = gp.col.Column("id", dataframe)
-    assert c.name == "id"
+    assert c._name == "id"
 
 
 def test_expr_column_str(db: gp.Database, dataframe: gp.DataFrame):
@@ -26,7 +26,7 @@ def test_expr_column_str(db: gp.Database, dataframe: gp.DataFrame):
 
 def test_expr_column_str_in_query(db: gp.Database, dataframe: gp.DataFrame):
     c = gp.col.Column("id", dataframe)
-    query = "select " + str(c) + " from " + c.dataframe.name
+    query = "select " + str(c) + " from " + c._dataframe._name
     tr = gp.DataFrame(query=query, db=db)
     for row in tr:
         assert list(row.keys()) == ["id"]
