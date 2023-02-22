@@ -119,6 +119,10 @@
 <p>This package contains classes and functions having same names and parameters as the equivalence in pandas to
 provide a Data Scientist familiar syntax. And at the same time, its DataFrame has same specifications as
 GreenplumPython DataFrame, which means: Data is located and manipulated on a remote database system.</p>
+<p>To use this interface, do simply as follow:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">greenplumpython.pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</pre></div>
+</div>
 <p>N.B.: This package contains fewer functions than GreenplumPython DataFrame, it is easy to convert to it.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pandas.dataframe.DataFrame">
@@ -133,16 +137,10 @@ GreenplumPython DataFrame, which means: Data is located and manipulated on a rem
 <p>This aligns with the function
 <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html">pandas.DataFrame.to_sql()</a>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Number of rows affected by this function.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>int</p>
-</dd>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>con</strong> (<em>str</em>) – str: URI of database connection</p></li>
 <li><p><strong>name</strong> (<em>str</em>) – </p></li>
-<li><p><strong>con</strong> (<em>str</em>) – </p></li>
 <li><p><strong>schema</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
 <li><p><strong>if_exists</strong> (<em>Literal</em><em>[</em><em>'fail'</em><em>, </em><em>'replace'</em><em>, </em><em>'append'</em><em>]</em>) – </p></li>
 <li><p><strong>index</strong> (<em>bool</em>) – </p></li>
@@ -151,6 +149,12 @@ GreenplumPython DataFrame, which means: Data is located and manipulated on a rem
 <li><p><strong>dtype</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>type</em><em>]</em><em>]</em>) – </p></li>
 <li><p><strong>method</strong> (<em>Optional</em><em>[</em><em>Literal</em><em>[</em><em>None</em><em>, </em><em>'multi'</em><em>]</em><em>]</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Number of rows affected by this function.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
@@ -355,16 +359,10 @@ with duplicates removed.</p>
 <p>This aligns with the function
 <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.read_sql.html?highlight=read_sql">pandas.read_sql()</a>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataframe</span></code> from SQL.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataframe</span></code></p>
-</dd>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>con</strong> (<em>str</em>) – str: URI of database connection</p></li>
 <li><p><strong>sql</strong> (<em>str</em>) – </p></li>
-<li><p><strong>con</strong> (<em>str</em>) – </p></li>
 <li><p><strong>index_col</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>list</em><em>[</em><em>str</em><em>]</em><em>]</em><em>]</em>) – </p></li>
 <li><p><strong>coerce_float</strong> (<em>bool</em>) – </p></li>
 <li><p><strong>params</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – </p></li>
@@ -372,6 +370,12 @@ with duplicates removed.</p>
 <li><p><strong>columns</strong> (<em>Optional</em><em>[</em><em>list</em><em>[</em><em>str</em><em>]</em><em>]</em>) – </p></li>
 <li><p><strong>chunksize</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataframe</span></code> from SQL.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataframe</span></code></p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
