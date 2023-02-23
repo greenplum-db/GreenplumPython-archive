@@ -5,6 +5,13 @@ This package contains classes and functions having same names and parameters as 
 provide a Data Scientist familiar syntax. And at the same time, its DataFrame has same specifications as
 GreenplumPython DataFrame, which means: Data is located and manipulated on a remote database system.
 
+To use this interface, do simply as follow:
+
+.. code-block:: python
+
+    import greenplumpython.pandas as pd
+
+
 N.B.: This package contains fewer functions than GreenplumPython DataFrame, it is easy to convert to it.
 """
 from typing import Any, Callable, Dict, List, Literal, Optional, Union
@@ -59,6 +66,9 @@ class DataFrame:
 
         This aligns with the function
         `pandas.DataFrame.to_sql() <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html>`_.
+
+        Arguments:
+            con: str: URI of database connection
 
         Returns:
             int: Number of rows affected by this function.
@@ -326,6 +336,9 @@ def read_sql(
 
     This aligns with the function
     `pandas.read_sql() <https://pandas.pydata.org/docs/reference/api/pandas.read_sql.html?highlight=read_sql>`_.
+
+    Arguments:
+        con: str: URI of database connection
 
     Returns:
         :class:`~pandas.dataframe.Dataframe`: :class:`~pandas.dataframe.Dataframe` from SQL.
