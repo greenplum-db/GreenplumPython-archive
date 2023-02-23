@@ -1,4 +1,4 @@
-"""This module creates a Python object Expr."""
+"""This module contains classes for representing expressions"""
 from functools import singledispatchmethod
 from typing import TYPE_CHECKING, Any, List, Optional, Union, overload
 from uuid import uuid4
@@ -26,9 +26,9 @@ class Expr:
         # noqa: D105
         return hash(self._serialize())
 
-    def __and__(self, other: Any) -> "Expr":
+    def __and__(self, other: Any) -> "BinaryExpr":
         """
-        Operator **&**.
+        Operator :code:`&` for logical :code:`AND`.
 
         Returns a Binary Expression AND between self and another :class:`~expr.Expr` or constant
 
@@ -53,9 +53,9 @@ class Expr:
         """
         return BinaryExpr("AND", self, other)
 
-    def __or__(self, other: Any) -> "Expr":
+    def __or__(self, other: Any) -> "BinaryExpr":
         """
-        Operator **|**.
+        Operator :code:`|` for logical :code:`OR`.
 
         Returns a Binary Expression OR between self and another :class:`~expr.Expr` or constant
 
@@ -76,9 +76,9 @@ class Expr:
         """
         return BinaryExpr("OR", self, other)
 
-    def __eq__(self, other: Any) -> "Expr":
+    def __eq__(self, other: Any) -> "BinaryExpr":
         """
-        Operator **==**.
+        Operator :code:`==`.
 
         Returns a Binary Expression EQUAL between self and another :class:`~expr.Expr` or constant
 
@@ -101,9 +101,9 @@ class Expr:
             return BinaryExpr("IS", self, other)
         return BinaryExpr("=", self, other)
 
-    def __lt__(self, other: Any) -> "Expr":
+    def __lt__(self, other: Any) -> "BinaryExpr":
         """
-        Operator **<**.
+        Operator :code:`<`.
 
         Returns a Binary Expression LESS THAN between self and another :class:`~expr.Expr` or constant
 
@@ -126,9 +126,9 @@ class Expr:
             return BinaryExpr("IS NOT", self, other)
         return BinaryExpr("<", self, other)
 
-    def __le__(self, other: Any) -> "Expr":
+    def __le__(self, other: Any) -> "BinaryExpr":
         """
-        Operator **<=**.
+        Operator :code:`<=`.
 
         Returns a Binary Expression LESS EQUAL between self and another :class:`~expr.Expr` or constant
 
@@ -150,9 +150,9 @@ class Expr:
         """
         return BinaryExpr("<=", self, other)
 
-    def __gt__(self, other: Any) -> "Expr":
+    def __gt__(self, other: Any) -> "BinaryExpr":
         """
-        Operator **>**.
+        Operator :code:`>`.
 
         Returns a Binary Expression GREATER THAN between self and another :class:`~expr.Expr` or constant
 
@@ -172,9 +172,9 @@ class Expr:
         """
         return BinaryExpr(">", self, other)
 
-    def __ge__(self, other: Any) -> "Expr":
+    def __ge__(self, other: Any) -> "BinaryExpr":
         """
-        Operator **>=**.
+        Operator :code:`>=`.
 
         Returns a Binary Expression GREATER EQUAL between self and another :class:`~expr.Expr` or constant
 
@@ -195,9 +195,9 @@ class Expr:
         """
         return BinaryExpr(">=", self, other)
 
-    def __ne__(self, other: Any) -> "Expr":
+    def __ne__(self, other: Any) -> "BinaryExpr":
         """
-        Operator **!=**.
+        Operator :code:`!=`.
 
         Returns a Binary Expression NOT EQUAL between self and another :class:`~expr.Expr` or constant
 
@@ -216,11 +216,13 @@ class Expr:
                 ----
                 (2 rows)
         """
+        if other is None:
+            return BinaryExpr("IS NOT", self, other)
         return BinaryExpr("!=", self, other)
 
-    def __mod__(self, other: Any) -> "Expr":
+    def __mod__(self, other: Any) -> "BinaryExpr":
         """
-        Operator **%**.
+        Operator :code:`%`.
 
         Returns a Binary Expression Modulo between an :class:`~expr.Expr` and another :class:`~expr.Expr` or constant
 
@@ -243,9 +245,9 @@ class Expr:
         """
         return BinaryExpr("%", self, other)
 
-    def __add__(self, other: Any) -> "Expr":
+    def __add__(self, other: Any) -> "BinaryExpr":
         """
-        Operator **+**.
+        Operator :code:`+`.
 
         Returns a Binary Expression Addition between an :class:`~expr.Expr` and another :class:`~expr.Expr` or constant
 
@@ -268,9 +270,9 @@ class Expr:
         """
         return BinaryExpr("+", self, other)
 
-    def __sub__(self, other: Any) -> "Expr":
+    def __sub__(self, other: Any) -> "BinaryExpr":
         """
-        Operator **-**.
+        Operator :code:`-`.
 
         Returns a Binary Expression Subtraction between an :class:`~expr.Expr` and another :class:`~expr.Expr`
         or constant
@@ -294,9 +296,9 @@ class Expr:
         """
         return BinaryExpr("-", self, other)
 
-    def __mul__(self, other: Any) -> "Expr":
+    def __mul__(self, other: Any) -> "BinaryExpr":
         """
-        Operator *****.
+        Operator :code:`*`.
 
         Returns a Binary Expression Multiplication between an :class:`~expr.Expr` and another :class:`~expr.Expr`
         or constant
@@ -320,9 +322,9 @@ class Expr:
         """
         return BinaryExpr("*", self, other)
 
-    def __truediv__(self, other: Any) -> "Expr":
+    def __truediv__(self, other: Any) -> "BinaryExpr":
         """
-        Operator **/**.
+        Operator :code:`/`.
 
         Returns a Binary Expression Division between an :class:`~expr.Expr` and another :class:`~expr.Expr` or constant.
         It results integer division between two integers, and true division if one of the arguments is a float.
@@ -346,9 +348,9 @@ class Expr:
         """
         return BinaryExpr("/", self, other)
 
-    def __pos__(self) -> "Expr":
+    def __pos__(self) -> "UnaryExpr":
         """
-        Operator **+**.
+        Operator :code:`+`.
 
         Returns a Unary Expression POSITIVE of self
 
@@ -372,9 +374,9 @@ class Expr:
         """
         return UnaryExpr("+", self)
 
-    def __neg__(self) -> "Expr":
+    def __neg__(self) -> "UnaryExpr":
         """
-        Operator **-**.
+        Operator :code:`-`.
 
         Returns a Unary Expression NEGATIVE of self
 
@@ -397,9 +399,9 @@ class Expr:
         """
         return UnaryExpr("-", self)
 
-    def __abs__(self) -> "Expr":
+    def __abs__(self) -> "UnaryExpr":
         """
-        Operator **abs()**.
+        Operator :code:`abs()`.
 
         Returns a Unary Expression ABSOLUTE of self
 
@@ -422,9 +424,9 @@ class Expr:
         """
         return UnaryExpr("ABS", self)
 
-    def __invert__(self) -> "Expr":
+    def __invert__(self) -> "UnaryExpr":
         """
-        Operator **~**.
+        Operator :code:`~` for logical :code:`NOT`.
 
         Returns a Unary Expression NOT of self
 
@@ -447,9 +449,9 @@ class Expr:
         """
         return UnaryExpr("NOT", self)
 
-    def like(self, pattern: str) -> "Expr":
+    def like(self, pattern: str) -> "BinaryExpr":
         """
-        Return BinaryExpr in order to apply LIKE statement on self with pattern.
+        Return BinaryExpr for pattern matching with the `LIKE` clause in SQL.
 
         Args:
             pattern: str: regex pattern
@@ -551,8 +553,6 @@ def _serialize(value: Any) -> str:
 
 class BinaryExpr(Expr):
     """
-    Inherited from :class:`Expr`.
-
     Representation of a Binary Expression
     """
 
@@ -630,8 +630,6 @@ class BinaryExpr(Expr):
 
 class UnaryExpr(Expr):
     """
-    Inherited from :class:`Expr`.
-
     Representation of a Unary Expression.
     """
 
@@ -650,7 +648,7 @@ class UnaryExpr(Expr):
 
     def _serialize(self) -> str:
         right_str = str(self.right)
-        return f"{self.operator}({right_str})"
+        return f"{self.operator} ({right_str})"
 
 
 class InExpr(Expr):
