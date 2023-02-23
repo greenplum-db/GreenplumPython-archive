@@ -1,4 +1,4 @@
-"""This module contains classes for representing expressions"""
+"""This module contains classes for representing expressions."""
 from functools import singledispatchmethod
 from typing import TYPE_CHECKING, Any, List, Optional, Union, overload
 from uuid import uuid4
@@ -552,9 +552,7 @@ def _serialize(value: Any) -> str:
 
 
 class BinaryExpr(Expr):
-    """
-    Representation of a Binary Expression
-    """
+    """Representation of a Binary Expression."""
 
     @singledispatchmethod
     def _init(
@@ -629,9 +627,7 @@ class BinaryExpr(Expr):
 
 
 class UnaryExpr(Expr):
-    """
-    Representation of a Unary Expression.
-    """
+    """Representation of a Unary Expression."""
 
     def __init__(
         self,
