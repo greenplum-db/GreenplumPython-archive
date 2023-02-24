@@ -1,22 +1,22 @@
 """
-`DataFrame` is the core data structure in GreenplumPython.
+DataFrame is the core data structure in GreenplumPython.
 
-Conceptually, a `DataFrame` is a two-dimensional structure containing data.
+Conceptually, a DataFrame is a two-dimensional structure containing data.
 
-In the data science world, a :class:`DataFrame` in GreenplumPython is similar to a `DataFrame
-<https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html>`_ in `pandas <https://pandas.pydata.org/>`_,
+In the data science world, a DataFrame in GreenplumPython, referred to as :code:`gp.DataFrame`, is similar to a 
+`DataFrame in pandas <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html>`_,
 except that:
 
-- | Data in a `DataFrame` is lazily evaluated rather than eagerly. That is, they are computed only when they are
-    observed. This can improve efficiency in many cases.
-- | Data in a `DataFrame` is located and manipulated on a remote database system rather than locally. As a consequence,
+- Data in a :code:`gp.DataFrame` is lazily evaluated rather than eagerly. That is, they are computed only when they are
+  observed. This can improve efficiency in many cases.
+- Data in a :code:`gp.DataFrame` is located and manipulated on a remote database system rather than locally. As a consequence,
 
-    - | Retrieving them from the database system can be expensive. Therefore, once the data of a
-        :class:`DataFrame` is fetched from the database system, it will be cached locally for later use.
-    - | They might be modified concurrently by other users of the database system. You might
-        need to use :meth:`~dataframe.DataFrame.refresh()` to sync the updates if the data becomes stale.
+    - Retrieving them from the database system can be expensive. Therefore, once the data of a
+      :code:`gp.DataFrame` is fetched from the database system, it will be cached locally for later use.
+    - They might be modified concurrently by other users of the database system. You might
+      need to use :meth:`~dataframe.DataFrame.refresh()` to sync the updates if the data becomes stale.
 
-In the database world, a :class:`~dataframe.DataFrame` is similar to a **materialized view** in a database system
+In the database world, a :code:`gp.DataFrame` is similar to a **materialized view** in a database system
 in that:
 
 - They both result from a possibly complex query.
@@ -25,7 +25,6 @@ in that:
   is similar to the :code:`REFRESH MATERIALIZED VIEW` `command in PostgreSQL
   <https://www.postgresql.org/docs/current/sql-refreshmaterializedview.html>`_ for syncing updates.
 """
-import collections
 import json
 from collections import abc
 from functools import partialmethod, singledispatchmethod
@@ -898,12 +897,12 @@ class DataFrame:
         :func:`~db.Database.create_dataframe(table_name)` to create a new :class:`~dataframe.Dataframe` next time.
 
         Args:
-            table_name : str
-            temp : bool : if table is temporary
-            column_names : List : list of column names
-            storage_params: dict: storage_parameter of gpdb, reference
+            table_name: name of table in database, required to be unique in the schema.
+            temp: whether table is temporary. Temp tables will be dropped after the database connection is closed.
+            column_names: list of column names
+            storage_params: storage_parameter of gpdb, reference
                 https://docs.vmware.com/en/VMware-Tanzu-Greenplum/7/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html
-            schema: Optional[str] by default is public if None
+            schema: schema of the table for avoiding name conflicts.
 
         Returns:
             DataFrame : :class:`~dataframe.DataFrame` represents the newly saved table
@@ -1050,20 +1049,26 @@ class DataFrame:
 
     # dataframe_name can be table/view name
     @classmethod
-    def from_table(cls, table_name: str, db: Database, schema: str = None) -> "DataFrame":
+    def from_table(cls, table_name: str, db: Database, schema: Optional[str] = None) -> "DataFrame":
         """
         Return a :class:`~dataframe.DataFrame` which represents the given table in the :class:`~db.Database`.
 
         Args:
-            table_name: str: table name
-            db: :class:`~db.Database`: database which contains the table
+            table_name: table name
+            db: database of the table
+            schema: schema of table in database
 
         .. code-block::  python
 
             df = gp.DataFrame.from_table("pg_class", db=db)
 
         """
-        return DataFrame(f'TABLE "{schema}"."{table_name}"', name=table_name, schema=schema, db=db)
+        return DataFrame(
+            f'TABLE "{schema}"."{table_name}"' if schema is not None else f'TABLE "{table_name}"',
+            name=table_name,
+            schema=schema,
+            db=db,
+        )
 
     @classmethod
     def from_rows(

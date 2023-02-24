@@ -5,8 +5,9 @@ import functools
 import inspect
 import json
 import sys
+import sysconfig
 from textwrap import dedent
-from typing import Any, Callable, List, Optional, Set, Tuple
+from typing import Any, Callable, List, Literal, Optional, Set, Tuple
 from uuid import uuid4
 
 import dill  # type: ignore reportMissingTypeStubs
@@ -287,7 +288,7 @@ class NormalFunction(_AbstractFunction):
         wrapped_func: Optional[Callable[..., Any]] = None,
         name: Optional[str] = None,
         schema: Optional[str] = None,
-        language_handler: str = "plpython3u",
+        language_handler: Literal["plpython3u"] = "plpython3u",
     ) -> None:
         # noqa D107
         super().__init__(wrapped_func, name, schema)
@@ -348,7 +349,7 @@ class NormalFunction(_AbstractFunction):
             func_ast.body = importables_ast + func_ast.body
             pickle_lib_name: str = "__lib_" + uuid4().hex
             sys_lib_name: str = "__lib_" + uuid4().hex
-            python_version = (sys.version_info.major, sys.version_info.minor)
+            python_version = sysconfig.get_python_version()
             encode_lib_name: str = "__lib_" + uuid4().hex
             assert (
                 db._execute(
@@ -361,9 +362,9 @@ class NormalFunction(_AbstractFunction):
                         f"except KeyError:\n"
                         f"    try:\n"
                         f"        import dill as {pickle_lib_name}\n"
-                        f"        import sys as {sys_lib_name}\n"
+                        f"        import sysconfig as {sys_lib_name}\n"
                         f"        import base64 as {encode_lib_name}\n"
-                        f"        if ({sys_lib_name}.version_info.major, {sys_lib_name}.version_info.minor) != {python_version}:\n"
+                        f"        if {sys_lib_name}.get_python_version() != '{python_version}':\n"
                         f"            raise ModuleNotFoundError\n"
                         f"        GD['{func_ast.name}'] = {pickle_lib_name}.loads({encode_lib_name}.b64decode({base64.b64encode(func_pickled)}))\n"
                         f"    except ModuleNotFoundError:\n"
@@ -379,8 +380,7 @@ class NormalFunction(_AbstractFunction):
             self._created_in_dbs.add(db)
 
     def __call__(self, *args: Any) -> FunctionExpr:
-        # noqa D400
-        """:meta private:"""
+        """Call the dataframe function with the given arguments."""
         return FunctionExpr(self, args)
 
 
@@ -536,7 +536,7 @@ class AggregateFunction(_AbstractFunction):
         return FunctionExpr(self, args, distinct=True)
 
     def __call__(self, *args: Any) -> FunctionExpr:
-        # noqa D102
+        """Call the dataframe function with the given arguments."""
         return FunctionExpr(self, args)
 
 
@@ -572,7 +572,8 @@ def aggregate_function(name: str, schema: Optional[str] = None) -> AggregateFunc
 
 # FIXME: Add test cases for optional parameters
 def create_function(
-    wrapped_func: Optional[Callable[..., Any]] = None, language_handler: str = "plpython3u"
+    wrapped_func: Optional[Callable[..., Any]] = None,
+    language_handler: Literal["plpython3u"] = "plpython3u",
 ) -> NormalFunction:
     """
     Create a :class:`~func.NormalFunction` from the given Python function.
@@ -642,7 +643,8 @@ def create_function(
 
 # FIXME: Add test cases for optional parameters
 def create_aggregate(
-    transition_func: Optional[Callable[..., Any]] = None, language_handler: str = "plpython3u"
+    transition_func: Optional[Callable[..., Any]] = None,
+    language_handler: Literal["plpython3u"] = "plpython3u",
 ) -> AggregateFunction:
     """
     Create an :class:`~func.AggregateFunction` from the given Python function.
@@ -746,13 +748,14 @@ class ColumnFunction(NormalFunction):
     """
 
     def __call__(self, *args: Any) -> ArrayFunctionExpr:
-        # noqa #D102
+        """Call the dataframe function with the given arguments."""
         return ArrayFunctionExpr(self, args=args)
 
 
 # FIXME: Add test cases for optional parameters
 def create_column_function(
-    wrapped_func: Optional[Callable[..., Any]] = None, language_handler: str = "plpython3u"
+    wrapped_func: Optional[Callable[..., Any]] = None,
+    language_handler: Literal["plpython3u"] = "plpython3u",
 ) -> ColumnFunction:
     """
     Create an :class:`~func.ColumnFunction` from the given Python function.

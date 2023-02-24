@@ -691,6 +691,22 @@ def test_agg_composite_type(db: gp.Database):
         assert row["count"] == len(rows) and row["sum"] == 45
 
 
+def test_func_plpy(db: gp.Database):
+    @gp.create_function
+    def test_plpy() -> bool:
+        created_with_dill = not any([name.startswith("__func_") for name in globals().keys()])
+        # Function with name starting with "__func_" will only be created by
+        # exec() when using source serialization, i.e. when dill is not
+        # available on server.
+        #
+        # If dill is used for deserialization, plpy will not be available.
+        return created_with_dill or "plpy" in globals().keys()
+
+    df = db.apply(lambda: test_plpy(), column_name="result")
+    for row in df:
+        assert row["result"]
+
+
 import math
 
 
@@ -713,12 +729,11 @@ def test_func_with_outside_func(db: gp.Database):
 
     @gp.create_function
     def proxy(x: int) -> float:
-        # Fallback when the pickle lib "dill" cannot be used on server
-        # so that the case can always pass.
-        try:
+        created_with_dill = not any([name.startswith("__func_") for name in globals().keys()])
+        # Fallback when the pickle lib "dill" is not available on server.
+        if created_with_dill:
             return inner(x)
-        except NameError:
-            return x * x
+        return x * x
 
     df = db.apply(lambda: proxy(5), column_name="x")
     assert len(list(df)) == 1
@@ -738,12 +753,11 @@ def test_func_with_outside_class(db: gp.Database):
 
     @gp.create_function
     def student(name: str, age: int) -> Student:
-        # Fallback when the pickle lib "dill" cannot be used on server
-        # so that the case can always pass.
-        try:
+        created_with_dill = not any([name.startswith("__func_") for name in globals().keys()])
+        # Fallback when the pickle lib "dill" is not available on server.
+        if created_with_dill:
             return Student(name, age)
-        except NameError:
-            return SimpleNamespace(name=name, age=age)
+        return SimpleNamespace(name=name, age=age)
 
     df = db.apply(lambda: student("alice", 19), expand=True)
     assert len(list(df)) == 1

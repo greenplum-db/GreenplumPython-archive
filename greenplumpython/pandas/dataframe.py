@@ -22,7 +22,7 @@ import greenplumpython.order as orderby
 
 
 class DataFrame:
-    """Representation of GreenplumPython Pandas Compatible DataFrame object."""
+    """Representation of Pandas-Compatible DataFrame object."""
 
     @classmethod
     def _from_sql(cls, sql: str, con: str):
@@ -51,7 +51,7 @@ class DataFrame:
         self,
         name: str,
         con: str,
-        schema: Union[str, None] = None,
+        schema: Optional[str] = None,
         if_exists: Literal["fail", "replace", "append"] = "fail",
         index: bool = False,  # Not Used
         index_label: Union[str, List[str]] = None,  # Not Used
@@ -93,7 +93,7 @@ class DataFrame:
 
         """
         assert index is False, "DataFrame in GreenplumPython.pandas does not have an index column"
-        table_name = f'"{name}"' if schema is None else f"{schema}.{name}"
+        table_name = f'"{name}"' if schema is None else f'"{schema}"."{name}"'
         database = db.Database(uri=con)
         query = self._dataframe._build_full_query()
         if if_exists == "append":

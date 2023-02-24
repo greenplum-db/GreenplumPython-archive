@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class DataFrameOrdering:
-    """Represent an ordered GreenplumPython :class:`~dataframe.DataFrame`."""
+    """Ordering specification of a :class:`~dataframe.DataFrame`."""
 
     def __init__(
         self,
@@ -86,7 +86,9 @@ class DataFrameOrdering:
             :class:`~dataframe.DataFrame` with the rows in order
 
         Example:
+            .. highlight:: python
             .. code-block::  Python
+
                 >>> rows = [(4,), (3,), (2,), (1,)]
                 >>> df = db.create_dataframe(rows=rows, column_names=["id"])
                 >>> df.order_by("id")[:]
