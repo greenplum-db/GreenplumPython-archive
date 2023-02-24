@@ -694,14 +694,13 @@ def test_agg_composite_type(db: gp.Database):
 def test_func_plpy(db: gp.Database):
     @gp.create_function
     def test_plpy() -> bool:
+        created_with_dill = not any([name.startswith("__func_") for name in globals().keys()])
         # Function with name starting with "__func_" will only be created by
         # exec() when using source serialization, i.e. when dill is not
         # available on server.
         #
         # If dill is used for deserialization, plpy will not be available.
-        return "plpy" in globals().keys() or (
-            len([True for name in globals().keys() if name.startswith("__func_")]) == 0
-        )
+        return created_with_dill or "plpy" in globals().keys()
 
     df = db.apply(lambda: test_plpy(), column_name="result")
     for row in df:
@@ -730,8 +729,9 @@ def test_func_with_outside_func(db: gp.Database):
 
     @gp.create_function
     def proxy(x: int) -> float:
+        created_with_dill = not any([name.startswith("__func_") for name in globals().keys()])
         # Fallback when the pickle lib "dill" is not available on server.
-        if len([True for name in globals().keys() if name.startswith("__func_")]) == 0:
+        if created_with_dill:
             return inner(x)
         return x * x
 
@@ -753,8 +753,9 @@ def test_func_with_outside_class(db: gp.Database):
 
     @gp.create_function
     def student(name: str, age: int) -> Student:
+        created_with_dill = not any([name.startswith("__func_") for name in globals().keys()])
         # Fallback when the pickle lib "dill" is not available on server.
-        if len([True for name in globals().keys() if name.startswith("__func_")]) == 0:
+        if created_with_dill:
             return Student(name, age)
         return SimpleNamespace(name=name, age=age)
 
