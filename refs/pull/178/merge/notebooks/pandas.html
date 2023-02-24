@@ -401,16 +401,16 @@ div.rendered_html tbody tr:hover {
 &lt;module &#39;greenplumpython&#39; from &#39;/home/gpadmin/.local/lib/python3.9/site-packages/greenplumpython/__init__.py&#39;&gt;
 </pre></div></div>
 </div>
-<p>However, due to the discrepency in the purposes they serve, that is,</p>
+<p>However, the two packages serve very different purposes, i.e.,</p>
 <ul class="simple">
 <li><p>GreenplumPython is an interface to a remote database system, while</p></li>
-<li><p>pandas is a library for manipulating local in-memory data</p></li>
+<li><p>pandas is a library for manipulating local in-memory data.</p></li>
 </ul>
-<p>there are still some important differences in their interface.</p>
+<p>There are still some important differences in their interface.</p>
 <p>This document covers the similarities and the differences between GreenplumPython and pandas, as well as the rationales behind.</p>
 <section id="Data-Structure">
 <h2>Data Structure<a class="headerlink" href="#Data-Structure" title="Permalink to this heading"></a></h2>
-<p>The core data structure of GreenplumPython, <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>, is fundamentally similar to <code class="docutils literal notranslate"><span class="pre">Dataframe</span></code> in pandas in that</p>
+<p>GreenplumPython’s core data structure <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> is fundamentally similar to <code class="docutils literal notranslate"><span class="pre">Dataframe</span></code> in pandas in that</p>
 <ul class="simple">
 <li><p>Data are organized into rows and columns;</p></li>
 <li><p>Columns can be of different types, and can be accessed by name;</p></li>
@@ -569,7 +569,7 @@ div.rendered_html tbody tr:hover {
     </tr>
 </table></div>
 </div>
-<p>This is similar to how a pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> is persisted as file</p>
+<p>This is similar to how a pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> is persisted as file:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
@@ -580,8 +580,8 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>Saving a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> with <code class="docutils literal notranslate"><span class="pre">temp=True</span></code> in GreenplumPython is similar to saving a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> into the <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> directory in pandas:</p>
 <ul class="simple">
-<li><p>GreenplumPython <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s saved with <code class="docutils literal notranslate"><span class="pre">temp=True</span></code> will be dropped automatically by the database system when the database session is terminated, while</p></li>
-<li><p>pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>s saved in <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> will be clean automatically by the operating system.</p></li>
+<li><p>GreenplumPython’s DataFrames saved with <code class="docutils literal notranslate"><span class="pre">temp=True</span></code> will be dropped automatically by the database system when the database session is terminated, while</p></li>
+<li><p>pandas’ DataFrames saved in <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> will be clean automatically by the operating system.</p></li>
 </ul>
 <p>In order to access the data of a table in database, we can create a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> from the table:</p>
 <div class="nbinput docutils container">
@@ -732,7 +732,7 @@ carol 19
 <section id="Selecting-Columns">
 <h3>Selecting Columns<a class="headerlink" href="#Selecting-Columns" title="Permalink to this heading"></a></h3>
 <p>In both pandas and GreenplumPython, columns are accessed by name.</p>
-<p>For example, to select a subset of columns, such as <code class="docutils literal notranslate"><span class="pre">name</span></code> and <code class="docutils literal notranslate"><span class="pre">age</span></code>, from the dataframe containing student info, in pandas we can do</p>
+<p>For example, to select a subset of columns, such as <code class="docutils literal notranslate"><span class="pre">name</span></code> and <code class="docutils literal notranslate"><span class="pre">age</span></code>, from the dataframe containing student info, in pandas we can do:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
@@ -880,7 +880,7 @@ Name: name, dtype: object
 <section id="Selecting-Rows-by-Predicates">
 <h3>Selecting Rows by Predicates<a class="headerlink" href="#Selecting-Rows-by-Predicates" title="Permalink to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">[]</span></code> operator can also be used to select a subset of rows, a.k.a filtering.</p>
-<p>Say we want the information of student named “alice”, with pandas we can do</p>
+<p>Say we want the information of student named “alice”, with pandas we can do:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
@@ -959,7 +959,7 @@ Name: name, dtype: object
 <h3>Selecting Rows by Slices<a class="headerlink" href="#Selecting-Rows-by-Slices" title="Permalink to this heading"></a></h3>
 <p>We can get a quick glance of the data by selecting the first several rows. This can be achieved with <code class="docutils literal notranslate"><span class="pre">slice</span></code> in Python.</p>
 <p>Like many built-in data structures in Python, such as <code class="docutils literal notranslate"><span class="pre">list</span></code> and <code class="docutils literal notranslate"><span class="pre">tuple</span></code>, <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> in GreenplumPython supports slicing.</p>
-<p>For example, if we want only the first two rows of the <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> of students in GreenplumPython, we can do</p>
+<p>For example, if we want only the first two rows of the <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> of students in GreenplumPython, we can do:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
@@ -1055,7 +1055,7 @@ Name: name, dtype: object
 <h3>Data Ordering<a class="headerlink" href="#Data-Ordering" title="Permalink to this heading"></a></h3>
 <p>Having the data sorted in a desired order makes it convenient for many analytical tasks, such as statistics.</p>
 <p>pandas supports sorting the data (a.k.a values) of a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> by columns.</p>
-<p>For example, we can sort in pandas the dataframe of student info by “age” and then “name”, both in descending order with</p>
+<p>For example, we can sort in pandas the dataframe of student info by “age” and then “name”, both in descending order with:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
@@ -1160,7 +1160,7 @@ Name: name, dtype: object
 <li><p>bind the expression to a new column of the source <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> or <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> to form a new one.</p></li>
 </ul>
 <p>We can use <code class="docutils literal notranslate"><span class="pre">assign()</span></code> method to add new columns in both packages. For example, suppose we would like to know the year of birth for each student in the previous example.</p>
-<p>In pandas, we can add a new column named <code class="docutils literal notranslate"><span class="pre">year_of_birth</span></code> like this</p>
+<p>In pandas, we can add a new column named <code class="docutils literal notranslate"><span class="pre">year_of_birth</span></code> like this:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
@@ -1261,7 +1261,7 @@ Name: name, dtype: object
 </table></div>
 </div>
 <p>The column data can result from any expression, which can contain complex computations.</p>
-<p>For example, in order to hide the names of students to protect privacy, we can write a function transforming names to something not human-readable.</p>
+<p>For example, in order to hide the names of students to protect privacy, we can write a function transforming names to something not human-readable:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
@@ -1430,7 +1430,7 @@ Name: name, dtype: object
 <h3>Data Grouping<a class="headerlink" href="#Data-Grouping" title="Permalink to this heading"></a></h3>
 <p>Like ordering, Grouping data based on distinct set of values of columns can also facilitate analytical tasks.</p>
 <p>Data grouping is often associated with aggregate functions to obtain data summaries.</p>
-<p>For example, suppose we want to the number of students of different age. In pandas, we can do</p>
+<p>For example, suppose we want to the number of students of different age. In pandas, we can do:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
@@ -1453,7 +1453,7 @@ age
 dtype: int64
 </pre></div></div>
 </div>
-<p>In GreenplumPython, what we need to do is</p>
+<p>In GreenplumPython, what we need to do is:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
@@ -1490,7 +1490,7 @@ dtype: int64
 <p>Data deduplication is to return a new data structure containing only the distinct set of values in the selected columns.</p>
 <p>This operation is well supported in GreenplumPython, also in a very similar way to pandas.</p>
 <p>For example, suppose we want to draw a representative sample containing students for each distinct age,</p>
-<p>With pandas, we can do</p>
+<p>With pandas, we can do:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
@@ -1541,7 +1541,7 @@ dtype: int64
 </table>
 </div></div>
 </div>
-<p>With GreenplumPython, what we need to do is</p>
+<p>With GreenplumPython, what we need to do is:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
@@ -1571,7 +1571,7 @@ dtype: int64
 </table></div>
 </div>
 <p>Moreover, GreenplumPython also supports aggregation on only the distinct values.</p>
-<p>Suppose we want to know the number of different ages of the students, we can do</p>
+<p>Suppose we want to know the number of different ages of the students, we can do:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
 </pre></div>
@@ -1672,7 +1672,7 @@ dtype: int64
 </table>
 </div></div>
 </div>
-<p>Similarily, in GreenplumPython, we can do</p>
+<p>Similarily, in GreenplumPython, we can do:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>

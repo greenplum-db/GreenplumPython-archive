@@ -38,18 +38,18 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "However, due to the discrepency in the purposes they serve, that is,\n",
+    "However, the two packages serve very different purposes, i.e.,\n",
     "\n",
     "- GreenplumPython is an interface to a remote database system, while\n",
-    "- pandas is a library for manipulating local in-memory data\n",
+    "- pandas is a library for manipulating local in-memory data.\n",
     "\n",
-    "there are still some important differences in their interface.\n",
+    "There are still some important differences in their interface.\n",
     "\n",
     "This document covers the similarities and the differences between GreenplumPython and pandas, as well as the rationales behind.\n",
     "\n",
     "## Data Structure\n",
     "\n",
-    "The core data structure of GreenplumPython, `DataFrame`, is fundamentally similar to `Dataframe` in pandas in that\n",
+    "GreenplumPython's core data structure `DataFrame` is fundamentally similar to `Dataframe` in pandas in that\n",
     "\n",
     "- Data are organized into rows and columns;\n",
     "- Columns can be of different types, and can be accessed by name;\n",
@@ -278,7 +278,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "This is similar to how a pandas `DataFrame` is persisted as file"
+    "This is similar to how a pandas `DataFrame` is persisted as file:"
    ]
   },
   {
@@ -296,8 +296,8 @@
    "source": [
     "Saving a `DataFrame` with `temp=True` in GreenplumPython is similar to saving a `DataFrame` into the `/tmp` directory in pandas:\n",
     "\n",
-    "- GreenplumPython `DataFrame`s saved with `temp=True` will be dropped automatically by the database system when the database session is terminated, while\n",
-    "- pandas `DataFrame`s saved in `/tmp` will be clean automatically by the operating system."
+    "- GreenplumPython's DataFrames saved with `temp=True` will be dropped automatically by the database system when the database session is terminated, while\n",
+    "- pandas' DataFrames saved in `/tmp` will be clean automatically by the operating system."
    ]
   },
   {
@@ -518,7 +518,7 @@
     "\n",
     "In both pandas and GreenplumPython, columns are accessed by name.\n",
     "\n",
-    "For example, to select a subset of columns, such as `name` and `age`, from the dataframe containing student info, in pandas we can do"
+    "For example, to select a subset of columns, such as `name` and `age`, from the dataframe containing student info, in pandas we can do:"
    ]
   },
   {
@@ -734,7 +734,7 @@
     "\n",
     "The `[]` operator can also be used to select a subset of rows, a.k.a filtering.\n",
     "\n",
-    "Say we want the information of student named \"alice\", with pandas we can do"
+    "Say we want the information of student named \"alice\", with pandas we can do:"
    ]
   },
   {
@@ -856,7 +856,7 @@
     "\n",
     "Like many built-in data structures in Python, such as `list` and `tuple`, `DataFrame` in GreenplumPython supports slicing.\n",
     "\n",
-    "For example, if we want only the first two rows of the `DataFrame` of students in GreenplumPython, we can do"
+    "For example, if we want only the first two rows of the `DataFrame` of students in GreenplumPython, we can do:"
    ]
   },
   {
@@ -996,7 +996,7 @@
     "\n",
     "pandas supports sorting the data (a.k.a values) of a `DataFrame` by columns.\n",
     "\n",
-    "For example, we can sort in pandas the dataframe of student info by \"age\" and then \"name\", both in descending order with"
+    "For example, we can sort in pandas the dataframe of student info by \"age\" and then \"name\", both in descending order with:"
    ]
   },
   {
@@ -1146,7 +1146,7 @@
     "\n",
     "We can use `assign()` method to add new columns in both packages. For example, suppose we would like to know the year of birth for each student in the previous example.\n",
     "\n",
-    "In pandas, we can add a new column named `year_of_birth` like this"
+    "In pandas, we can add a new column named `year_of_birth` like this:"
    ]
   },
   {
@@ -1286,7 +1286,7 @@
    "source": [
     "The column data can result from any expression, which can contain complex computations.\n",
     "\n",
-    "For example, in order to hide the names of students to protect privacy, we can write a function transforming names to something not human-readable."
+    "For example, in order to hide the names of students to protect privacy, we can write a function transforming names to something not human-readable:"
    ]
   },
   {
@@ -1530,7 +1530,7 @@
     "\n",
     "Data grouping is often associated with aggregate functions to obtain data summaries. \n",
     "\n",
-    "For example, suppose we want to the number of students of different age. In pandas, we can do"
+    "For example, suppose we want to the number of students of different age. In pandas, we can do:"
    ]
   },
   {
@@ -1562,7 +1562,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "In GreenplumPython, what we need to do is"
+    "In GreenplumPython, what we need to do is:"
    ]
   },
   {
@@ -1621,7 +1621,7 @@
     "\n",
     "For example, suppose we want to draw a representative sample containing students for each distinct age,\n",
     "\n",
-    "With pandas, we can do"
+    "With pandas, we can do:"
    ]
   },
   {
@@ -1688,7 +1688,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "With GreenplumPython, what we need to do is"
+    "With GreenplumPython, what we need to do is:"
    ]
   },
   {
@@ -1739,7 +1739,7 @@
    "source": [
     "Moreover, GreenplumPython also supports aggregation on only the distinct values.\n",
     "\n",
-    "Suppose we want to know the number of different ages of the students, we can do"
+    "Suppose we want to know the number of different ages of the students, we can do:"
    ]
   },
   {
@@ -1880,7 +1880,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Similarily, in GreenplumPython, we can do"
+    "Similarily, in GreenplumPython, we can do:"
    ]
   },
   {
