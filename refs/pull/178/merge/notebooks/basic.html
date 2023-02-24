@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Prerequisites &mdash; GreenplumPython 1.0.0-beta5
+  <title>Basic Usage &mdash; GreenplumPython 1.0.0-beta5
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
@@ -24,7 +24,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="GreenplumPython" href="../modules.html" />
-    <link rel="prev" title="Getting Started" href="../basic.html" /> 
+    <link rel="prev" title="&lt;no title&gt;" href="../basic.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,18 +46,18 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html#installation">Installation</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../basic.html">Getting Started</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Prerequisites</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Basic Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Prerequisites">Prerequisites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Getting-Access-to-Database">Getting Access to Database</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Accessing-a-DataFrame-in-the-Database">Accessing a DataFrame in the Database</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Basic-Data-Manipulation">Basic Data Manipulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#JOIN-ing-Two-DataFrames"><code class="docutils literal notranslate"><span class="pre">JOIN</span></code>-ing Two DataFrames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Joining-Two-DataFrames">Joining Two DataFrames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Creating-and-Calling-Functions">Creating and Calling Functions</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../modules.html">GreenplumPython</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../abalone.html">Example: Predicting the age of abalone</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../pandas.html">Comparison with pandas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="abalone.html">Example: Predicting the age of abalone</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pandas.html">Comparison with pandas</a></li>
 </ul>
 
         </div>
@@ -74,8 +74,8 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../basic.html">Getting Started</a> &raquo;</li>
-      <li>Prerequisites</li>
+          <li><a href="../basic.html">&lt;no title&gt;</a> &raquo;</li>
+      <li>Basic Usage</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/notebooks/basic.ipynb" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -364,8 +364,10 @@ div.rendered_html tbody tr:hover {
     text-align: unset;
 }
 </style>
+<section id="Basic-Usage">
+<h1>Basic Usage<a class="headerlink" href="#Basic-Usage" title="Permalink to this heading"></a></h1>
 <section id="Prerequisites">
-<h1>Prerequisites<a class="headerlink" href="#Prerequisites" title="Permalink to this heading"></a></h1>
+<h2>Prerequisites<a class="headerlink" href="#Prerequisites" title="Permalink to this heading"></a></h2>
 <p>To run this tutorial, we need</p>
 <ul>
 <li><p>A database that is authorized to access, and</p></li>
@@ -435,7 +437,7 @@ Done.
 <p>With the table created successfully, we are now good to go!</p>
 </section>
 <section id="Getting-Access-to-Database">
-<h1>Getting Access to Database<a class="headerlink" href="#Getting-Access-to-Database" title="Permalink to this heading"></a></h1>
+<h2>Getting Access to Database<a class="headerlink" href="#Getting-Access-to-Database" title="Permalink to this heading"></a></h2>
 <p>To get access to the database we want:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
@@ -451,7 +453,7 @@ Done.
 <p>As another example, if password is required, the <code class="docutils literal notranslate"><span class="pre">uri</span></code> might look like <code class="docutils literal notranslate"><span class="pre">postgresql://user:password&#64;hostname/dbname</span></code>.</p>
 </section>
 <section id="Accessing-a-DataFrame-in-the-Database">
-<h1>Accessing a DataFrame in the Database<a class="headerlink" href="#Accessing-a-DataFrame-in-the-Database" title="Permalink to this heading"></a></h1>
+<h2>Accessing a DataFrame in the Database<a class="headerlink" href="#Accessing-a-DataFrame-in-the-Database" title="Permalink to this heading"></a></h2>
 <p>After selecting the database, we can access a dataframe in the database by specifying its name:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
@@ -599,7 +601,7 @@ Done.
 </div>
 </section>
 <section id="Basic-Data-Manipulation">
-<h1>Basic Data Manipulation<a class="headerlink" href="#Basic-Data-Manipulation" title="Permalink to this heading"></a></h1>
+<h2>Basic Data Manipulation<a class="headerlink" href="#Basic-Data-Manipulation" title="Permalink to this heading"></a></h2>
 <p>Now we have a dataframe. We can do basic data manipulation on it, just like in SQL.</p>
 <p>For example, we can <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> a subset of its columns:</p>
 <div class="nbinput docutils container">
@@ -773,8 +775,8 @@ Done.
 </table></div>
 </div>
 </section>
-<section id="JOIN-ing-Two-DataFrames">
-<h1><code class="docutils literal notranslate"><span class="pre">JOIN</span></code>-ing Two DataFrames<a class="headerlink" href="#JOIN-ing-Two-DataFrames" title="Permalink to this heading"></a></h1>
+<section id="Joining-Two-DataFrames">
+<h2>Joining Two DataFrames<a class="headerlink" href="#Joining-Two-DataFrames" title="Permalink to this heading"></a></h2>
 <p>We can also <code class="docutils literal notranslate"><span class="pre">JOIN</span></code> two dataframes with GreenplumPython. For example, suppose we have two dataframes like this:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
@@ -923,7 +925,7 @@ Done.
 </div>
 </section>
 <section id="Creating-and-Calling-Functions">
-<h1>Creating and Calling Functions<a class="headerlink" href="#Creating-and-Calling-Functions" title="Permalink to this heading"></a></h1>
+<h2>Creating and Calling Functions<a class="headerlink" href="#Creating-and-Calling-Functions" title="Permalink to this heading"></a></h2>
 <p>Calling functions is essential for data analytics. GreenplumPython supports creating Greenplum UDFs and UDAs from Python functions and calling them in Python.</p>
 <p>Suppose we have a dataframe of numbers:</p>
 <div class="nbinput docutils container">
@@ -1064,12 +1066,13 @@ Done.
 </table></div>
 </div>
 </section>
+</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../basic.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../basic.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../modules.html" class="btn btn-neutral float-right" title="GreenplumPython" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

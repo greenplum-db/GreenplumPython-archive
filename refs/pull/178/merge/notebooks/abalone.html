@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Context &mdash; GreenplumPython 1.0.0-beta5
+  <title>Example: Predicting the age of abalone &mdash; GreenplumPython 1.0.0-beta5
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
@@ -23,8 +23,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Comparison with pandas" href="../pandas.html" />
-    <link rel="prev" title="Example: Predicting the age of abalone" href="../abalone.html" /> 
+    <link rel="next" title="&lt;no title&gt;" href="../pandas.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="../abalone.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,24 +46,19 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html#installation">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../basic.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic.html">Basic Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules.html">GreenplumPython</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../abalone.html">Example: Predicting the age of abalone</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Context</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#Background">Background</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Problem">Problem</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Fetch-data-from-the-Internet">Fetch data from the Internet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Train-Test-Set-Split">Train-Test Set Split</a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Example: Predicting the age of abalone</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Background">Background</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Problem">Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Fetching-data-from-the-Internet">Fetching data from the Internet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Train-Test-Set-Split">Train-Test Set Split</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Import-preparation">Import preparation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Data-Exploration">Data Exploration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Execute-the-OLS-Linear-Regression-Function-by-‘sex’">Execute the OLS Linear Regression Function by ‘sex’</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#Training-Process">Training Process</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Learning-to-Make-Predictions">Learning to Make Predictions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Training-Model-with-Linear-Regression">Training Model with Linear Regression</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#Creation-of-training-function">Creation of training function</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#Apply-linreg_fitted-function-to-our-train-set">Apply <code class="docutils literal notranslate"><span class="pre">linreg_fitted</span></code> function to our train set</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#Take-a-look-at-models-built">Take a look at models built</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#Get-summary-of-parameter’s-coefficient-for-three-sex">Get summary of parameter’s coefficient for three sex</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Summary-of-Parameters">Summary of Parameters</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#Prediction">Prediction</a><ul>
@@ -82,7 +77,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../pandas.html">Comparison with pandas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pandas.html">Comparison with pandas</a></li>
 </ul>
 
         </div>
@@ -99,8 +94,8 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../abalone.html">Example: Predicting the age of abalone</a> &raquo;</li>
-      <li>Context</li>
+          <li><a href="../abalone.html">&lt;no title&gt;</a> &raquo;</li>
+      <li>Example: Predicting the age of abalone</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/notebooks/abalone.ipynb" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -389,8 +384,8 @@ div.rendered_html tbody tr:hover {
     text-align: unset;
 }
 </style>
-<section id="Context">
-<h1>Context<a class="headerlink" href="#Context" title="Permalink to this heading"></a></h1>
+<section id="Example:-Predicting-the-age-of-abalone">
+<h1>Example: Predicting the age of abalone<a class="headerlink" href="#Example:-Predicting-the-age-of-abalone" title="Permalink to this heading"></a></h1>
 <section id="Background">
 <h2>Background<a class="headerlink" href="#Background" title="Permalink to this heading"></a></h2>
 <p>Predicting the age of abalone from physical measurements. The age of abalone is determined by cutting the shell through the cone, staining it, and counting the number of rings through a microscope – a boring and time-consuming task. Other measurements, which are easier to obtain, are used to predict the age.</p>
@@ -399,8 +394,8 @@ div.rendered_html tbody tr:hover {
 <h2>Problem<a class="headerlink" href="#Problem" title="Permalink to this heading"></a></h2>
 <p>Build regression models by sex which can predict the number of rings.</p>
 </section>
-<section id="Fetch-data-from-the-Internet">
-<h2>Fetch data from the Internet<a class="headerlink" href="#Fetch-data-from-the-Internet" title="Permalink to this heading"></a></h2>
+<section id="Fetching-data-from-the-Internet">
+<h2>Fetching data from the Internet<a class="headerlink" href="#Fetching-data-from-the-Internet" title="Permalink to this heading"></a></h2>
 <p>The training data is located on the website. Thanks for Greenplum’s <a class="reference external" href="https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-admin_guide-external-g-creating-and-using-web-external-tables.html">external table</a>, accessing CSV data from a HTTP server is easy.</p>
 <p>First, connect to the database. You may want to change the connect string like <code class="docutils literal notranslate"><span class="pre">postgresql://&lt;user&gt;&#64;&lt;host&gt;:&lt;port&gt;/&lt;db_name&gt;</span></code> to fit your needs.</p>
 <div class="nbinput nblast docutils container">
@@ -558,9 +553,8 @@ Done.
 </div>
 <p>Note that these features could be supported by GreenplumPython in future release.</p>
 </section>
-</section>
 <section id="Import-preparation">
-<h1>Import preparation<a class="headerlink" href="#Import-preparation" title="Permalink to this heading"></a></h1>
+<h2>Import preparation<a class="headerlink" href="#Import-preparation" title="Permalink to this heading"></a></h2>
 <p>Connect to Greenplum database named <code class="docutils literal notranslate"><span class="pre">gpadmin</span></code></p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -580,7 +574,7 @@ Done.
 </div>
 </section>
 <section id="Data-Exploration">
-<h1>Data Exploration<a class="headerlink" href="#Data-Exploration" title="Permalink to this heading"></a></h1>
+<h2>Data Exploration<a class="headerlink" href="#Data-Exploration" title="Permalink to this heading"></a></h2>
 <p>Get access to the existing table <code class="docutils literal notranslate"><span class="pre">abalone</span></code>:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
@@ -728,12 +722,12 @@ Done.
 </div>
 </div>
 </section>
-<section id="Execute-the-OLS-Linear-Regression-Function-by-‘sex’">
-<h1>Execute the OLS Linear Regression Function by ‘sex’<a class="headerlink" href="#Execute-the-OLS-Linear-Regression-Function-by-‘sex’" title="Permalink to this heading"></a></h1>
-<section id="Training-Process">
-<h2>Training Process<a class="headerlink" href="#Training-Process" title="Permalink to this heading"></a></h2>
+<section id="Learning-to-Make-Predictions">
+<h2>Learning to Make Predictions<a class="headerlink" href="#Learning-to-Make-Predictions" title="Permalink to this heading"></a></h2>
+<section id="Training-Model-with-Linear-Regression">
+<h3>Training Model with Linear Regression<a class="headerlink" href="#Training-Model-with-Linear-Regression" title="Permalink to this heading"></a></h3>
 <section id="Creation-of-training-function">
-<h3>Creation of training function<a class="headerlink" href="#Creation-of-training-function" title="Permalink to this heading"></a></h3>
+<h4>Creation of training function<a class="headerlink" href="#Creation-of-training-function" title="Permalink to this heading"></a></h4>
 <hr class="docutils" />
 <p><strong>NOTE:</strong> Since the <code class="docutils literal notranslate"><span class="pre">linreg_func</span></code> will be executed on Greenplum Database, all the python dependencies (<code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code>/<code class="docutils literal notranslate"><span class="pre">numpy</span></code>/etc.) needs to be discoverable by the <code class="docutils literal notranslate"><span class="pre">plpython</span></code> extension. Please check <a class="reference external" href="https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-analytics-pl_python.html">Greenplum PL/Python Language</a> for more information.</p>
 <hr class="docutils" />
@@ -795,9 +789,7 @@ Done.
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Apply-linreg_fitted-function-to-our-train-set">
-<h3>Apply <code class="docutils literal notranslate"><span class="pre">linreg_fitted</span></code> function to our train set<a class="headerlink" href="#Apply-linreg_fitted-function-to-our-train-set" title="Permalink to this heading"></a></h3>
+<p>Apply <code class="docutils literal notranslate"><span class="pre">linreg_fitted</span></code> function to our train set:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
@@ -830,9 +822,7 @@ Done.
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Take-a-look-at-models-built">
-<h3>Take a look at models built<a class="headerlink" href="#Take-a-look-at-models-built" title="Permalink to this heading"></a></h3>
+<p>Take a look at models built:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
@@ -878,8 +868,8 @@ Done.
 </table></div>
 </div>
 </section>
-<section id="Get-summary-of-parameter’s-coefficient-for-three-sex">
-<h3>Get summary of parameter’s coefficient for three sex<a class="headerlink" href="#Get-summary-of-parameter’s-coefficient-for-three-sex" title="Permalink to this heading"></a></h3>
+<section id="Summary-of-Parameters">
+<h4>Summary of Parameters<a class="headerlink" href="#Summary-of-Parameters" title="Permalink to this heading"></a></h4>
 <p>Using <code class="docutils literal notranslate"><span class="pre">ARRAY_APPEND</span></code>:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
@@ -962,9 +952,9 @@ Done.
 </section>
 </section>
 <section id="Prediction">
-<h2>Prediction<a class="headerlink" href="#Prediction" title="Permalink to this heading"></a></h2>
+<h3>Prediction<a class="headerlink" href="#Prediction" title="Permalink to this heading"></a></h3>
 <section id="Creation-of-prediction-function">
-<h3>Creation of prediction function<a class="headerlink" href="#Creation-of-prediction-function" title="Permalink to this heading"></a></h3>
+<h4>Creation of prediction function<a class="headerlink" href="#Creation-of-prediction-function" title="Permalink to this heading"></a></h4>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
@@ -982,7 +972,7 @@ Done.
 </div>
 </section>
 <section id="Join-model-dataframe-and-test-set-dataframe">
-<h3>Join model dataframe and test set dataframe<a class="headerlink" href="#Join-model-dataframe-and-test-set-dataframe" title="Permalink to this heading"></a></h3>
+<h4>Join model dataframe and test set dataframe<a class="headerlink" href="#Join-model-dataframe-and-test-set-dataframe" title="Permalink to this heading"></a></h4>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
@@ -997,7 +987,7 @@ Done.
 </div>
 </section>
 <section id="Predict-test-set">
-<h3>Predict test set<a class="headerlink" href="#Predict-test-set" title="Permalink to this heading"></a></h3>
+<h4>Predict test set<a class="headerlink" href="#Predict-test-set" title="Permalink to this heading"></a></h4>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
@@ -1087,9 +1077,9 @@ Done.
 </section>
 </section>
 <section id="Evaluation-of-model">
-<h2>Evaluation of model<a class="headerlink" href="#Evaluation-of-model" title="Permalink to this heading"></a></h2>
+<h3>Evaluation of model<a class="headerlink" href="#Evaluation-of-model" title="Permalink to this heading"></a></h3>
 <section id="Creation-of-evaluation-return-type">
-<h3>Creation of evaluation return type<a class="headerlink" href="#Creation-of-evaluation-return-type" title="Permalink to this heading"></a></h3>
+<h4>Creation of evaluation return type<a class="headerlink" href="#Creation-of-evaluation-return-type" title="Permalink to this heading"></a></h4>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
@@ -1112,7 +1102,7 @@ Done.
 </div>
 </section>
 <section id="Creation-of-evaluation-function">
-<h3>Creation of evaluation function<a class="headerlink" href="#Creation-of-evaluation-function" title="Permalink to this heading"></a></h3>
+<h4>Creation of evaluation function<a class="headerlink" href="#Creation-of-evaluation-function" title="Permalink to this heading"></a></h4>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
@@ -1133,7 +1123,7 @@ Done.
 </div>
 </section>
 <section id="Evaluate-our-model">
-<h3>Evaluate our model<a class="headerlink" href="#Evaluate-our-model" title="Permalink to this heading"></a></h3>
+<h4>Evaluate our model<a class="headerlink" href="#Evaluate-our-model" title="Permalink to this heading"></a></h4>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
@@ -1195,13 +1185,14 @@ Done.
 </section>
 </section>
 </section>
+</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../abalone.html" class="btn btn-neutral float-left" title="Example: Predicting the age of abalone" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../pandas.html" class="btn btn-neutral float-right" title="Comparison with pandas" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../abalone.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../pandas.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
