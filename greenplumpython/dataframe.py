@@ -3,7 +3,7 @@ DataFrame is the core data structure in GreenplumPython.
 
 Conceptually, a DataFrame is a two-dimensional structure containing data.
 
-In the data science world, a DataFrame in GreenplumPython, refered to as :code:`gp.DataFrame`, is similar to a 
+In the data science world, a DataFrame in GreenplumPython, referred to as :code:`gp.DataFrame`, is similar to a 
 `DataFrame in pandas <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html>`_,
 except that:
 
