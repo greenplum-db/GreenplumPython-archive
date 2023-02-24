@@ -44,7 +44,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html#installation">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/basic.html">Basic Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">GreenplumPython</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="db.html">Database</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">DataFrame</a></li>
@@ -60,8 +60,8 @@
 <li class="toctree-l2"><a class="reference internal" href="config.html">Configuration</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="abalone.html">Example: Predicting the age of abalone</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pandas.html">Comparison with pandas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/abalone.html">Example: Predicting the age of abalone</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/pandas.html">Comparison with pandas</a></li>
 </ul>
 
         </div>
@@ -115,36 +115,26 @@
 </style>
 <section id="module-dataframe">
 <span id="dataframe"></span><h1>DataFrame<a class="headerlink" href="#module-dataframe" title="Permalink to this heading"></a></h1>
-<p><cite>DataFrame</cite> is the core data structure in GreenplumPython.</p>
-<p>Conceptually, a <cite>DataFrame</cite> is a two-dimensional structure containing data.</p>
-<p>In the data science world, a <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> in GreenplumPython is similar to a <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html">DataFrame</a> in <a class="reference external" href="https://pandas.pydata.org/">pandas</a>,
+<p>DataFrame is the core data structure in GreenplumPython.</p>
+<p>Conceptually, a DataFrame is a two-dimensional structure containing data.</p>
+<p>In the data science world, a DataFrame in GreenplumPython, referred to as <code class="code docutils literal notranslate"><span class="pre">gp.DataFrame</span></code>, is similar to a
+<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html">DataFrame in pandas</a>,
 except that:</p>
 <ul>
-<li><div class="line-block">
-<div class="line">Data in a <cite>DataFrame</cite> is lazily evaluated rather than eagerly. That is, they are computed only when they are
-observed. This can improve efficiency in many cases.</div>
-</div>
-</li>
-<li><div class="line-block">
-<div class="line">Data in a <cite>DataFrame</cite> is located and manipulated on a remote database system rather than locally. As a consequence,</div>
-</div>
+<li><p>Data in a <code class="code docutils literal notranslate"><span class="pre">gp.DataFrame</span></code> is lazily evaluated rather than eagerly. That is, they are computed only when they are
+observed. This can improve efficiency in many cases.</p></li>
+<li><p>Data in a <code class="code docutils literal notranslate"><span class="pre">gp.DataFrame</span></code> is located and manipulated on a remote database system rather than locally. As a consequence,</p>
 <blockquote>
-<div><ul>
-<li><div class="line-block">
-<div class="line">Retrieving them from the database system can be expensive. Therefore, once the data of a
-<a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> is fetched from the database system, it will be cached locally for later use.</div>
-</div>
-</li>
-<li><div class="line-block">
-<div class="line">They might be modified concurrently by other users of the database system. You might
-need to use <a class="reference internal" href="#dataframe.DataFrame.refresh" title="dataframe.DataFrame.refresh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">refresh()</span></code></a> to sync the updates if the data becomes stale.</div>
-</div>
-</li>
+<div><ul class="simple">
+<li><p>Retrieving them from the database system can be expensive. Therefore, once the data of a
+<code class="code docutils literal notranslate"><span class="pre">gp.DataFrame</span></code> is fetched from the database system, it will be cached locally for later use.</p></li>
+<li><p>They might be modified concurrently by other users of the database system. You might
+need to use <a class="reference internal" href="#dataframe.DataFrame.refresh" title="dataframe.DataFrame.refresh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">refresh()</span></code></a> to sync the updates if the data becomes stale.</p></li>
 </ul>
 </div></blockquote>
 </li>
 </ul>
-<p>In the database world, a <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> is similar to a <strong>materialized view</strong> in a database system
+<p>In the database world, a <code class="code docutils literal notranslate"><span class="pre">gp.DataFrame</span></code> is similar to a <strong>materialized view</strong> in a database system
 in that:</p>
 <ul class="simple">
 <li><p>They both result from a possibly complex query.</p></li>
@@ -666,12 +656,12 @@ enabled.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>table_name</strong> (<em>str</em>) – str</p></li>
-<li><p><strong>temp</strong> (<em>bool</em>) – bool : if table is temporary</p></li>
-<li><p><strong>column_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List : list of column names</p></li>
-<li><p><strong>storage_params</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – dict: storage_parameter of gpdb, reference
+<li><p><strong>table_name</strong> (<em>str</em>) – name of table in database, required to be unique in the schema.</p></li>
+<li><p><strong>temp</strong> (<em>bool</em>) – whether table is temporary. Temp tables will be dropped after the database connection is closed.</p></li>
+<li><p><strong>column_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – list of column names</p></li>
+<li><p><strong>storage_params</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – storage_parameter of gpdb, reference
 <a class="reference external" href="https://docs.vmware.com/en/VMware-Tanzu-Greenplum/7/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html">https://docs.vmware.com/en/VMware-Tanzu-Greenplum/7/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html</a></p></li>
-<li><p><strong>schema</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Optional[str] by default is public if None</p></li>
+<li><p><strong>schema</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – schema of the table for avoiding name conflicts.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -775,9 +765,9 @@ sure the result is stable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>table_name</strong> (<em>str</em>) – str: table name</p></li>
-<li><p><strong>db</strong> (<em>Database</em>) – <a class="reference internal" href="db.html#db.Database" title="db.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a>: database which contains the table</p></li>
-<li><p><strong>schema</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – table name</p></li>
+<li><p><strong>db</strong> (<em>Database</em>) – database of the table</p></li>
+<li><p><strong>schema</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – schema of table in database</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Context &mdash; GreenplumPython 1.0.0-beta5
+  <title>Example: Predicting the age of abalone &mdash; GreenplumPython 1.0.0-beta5
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
@@ -23,8 +23,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Comparison with pandas" href="../pandas.html" />
-    <link rel="prev" title="Example: Predicting the age of abalone" href="../abalone.html" /> 
+    <link rel="next" title="&lt;no title&gt;" href="../pandas.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="../abalone.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,24 +46,19 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html#installation">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../basic.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic.html">Basic Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules.html">GreenplumPython</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../abalone.html">Example: Predicting the age of abalone</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Context</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#Background">Background</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Problem">Problem</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Fetch-data-from-ML-data-repository">Fetch data from ML data repository</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Train-Test-set-split">Train Test set split</a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Example: Predicting the age of abalone</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Background">Background</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Problem">Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Fetching-data-from-the-Internet">Fetching data from the Internet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Train-Test-Set-Split">Train-Test Set Split</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Import-preparation">Import preparation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Data-Exploration">Data Exploration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Execute-the-OLS-Linear-Regression-Function-by-‘sex’">Execute the OLS Linear Regression Function by ‘sex’</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#Training-Process">Training Process</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Learning-to-Make-Predictions">Learning to Make Predictions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Training-Model-with-Linear-Regression">Training Model with Linear Regression</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#Creation-of-training-function">Creation of training function</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#Apply-linreg_fitted-function-to-our-train-set">Apply <code class="docutils literal notranslate"><span class="pre">linreg_fitted</span></code> function to our train set</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#Take-a-look-at-models-built">Take a look at models built</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#Get-summary-of-parameter’s-coefficient-for-three-sex">Get summary of parameter’s coefficient for three sex</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Summary-of-Parameters">Summary of Parameters</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#Prediction">Prediction</a><ul>
@@ -82,7 +77,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../pandas.html">Comparison with pandas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pandas.html">Comparison with pandas</a></li>
 </ul>
 
         </div>
@@ -99,8 +94,8 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../abalone.html">Example: Predicting the age of abalone</a> &raquo;</li>
-      <li>Context</li>
+          <li><a href="../abalone.html">&lt;no title&gt;</a> &raquo;</li>
+      <li>Example: Predicting the age of abalone</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/notebooks/abalone.ipynb" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -389,8 +384,8 @@ div.rendered_html tbody tr:hover {
     text-align: unset;
 }
 </style>
-<section id="Context">
-<h1>Context<a class="headerlink" href="#Context" title="Permalink to this heading"></a></h1>
+<section id="Example:-Predicting-the-age-of-abalone">
+<h1>Example: Predicting the age of abalone<a class="headerlink" href="#Example:-Predicting-the-age-of-abalone" title="Permalink to this heading"></a></h1>
 <section id="Background">
 <h2>Background<a class="headerlink" href="#Background" title="Permalink to this heading"></a></h2>
 <p>Predicting the age of abalone from physical measurements. The age of abalone is determined by cutting the shell through the cone, staining it, and counting the number of rings through a microscope – a boring and time-consuming task. Other measurements, which are easier to obtain, are used to predict the age.</p>
@@ -399,8 +394,8 @@ div.rendered_html tbody tr:hover {
 <h2>Problem<a class="headerlink" href="#Problem" title="Permalink to this heading"></a></h2>
 <p>Build regression models by sex which can predict the number of rings.</p>
 </section>
-<section id="Fetch-data-from-ML-data-repository">
-<h2>Fetch data from ML data repository<a class="headerlink" href="#Fetch-data-from-ML-data-repository" title="Permalink to this heading"></a></h2>
+<section id="Fetching-data-from-the-Internet">
+<h2>Fetching data from the Internet<a class="headerlink" href="#Fetching-data-from-the-Internet" title="Permalink to this heading"></a></h2>
 <p>The training data is located on the website. Thanks for Greenplum’s <a class="reference external" href="https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-admin_guide-external-g-creating-and-using-web-external-tables.html">external table</a>, accessing CSV data from a HTTP server is easy.</p>
 <p>First, connect to the database. You may want to change the connect string like <code class="docutils literal notranslate"><span class="pre">postgresql://&lt;user&gt;&#64;&lt;host&gt;:&lt;port&gt;/&lt;db_name&gt;</span></code> to fit your needs.</p>
 <div class="nbinput nblast docutils container">
@@ -489,8 +484,8 @@ Done.
 </pre></div></div>
 </div>
 </section>
-<section id="Train-Test-set-split">
-<h2>Train Test set split<a class="headerlink" href="#Train-Test-set-split" title="Permalink to this heading"></a></h2>
+<section id="Train-Test-Set-Split">
+<h2>Train-Test Set Split<a class="headerlink" href="#Train-Test-Set-Split" title="Permalink to this heading"></a></h2>
 <p>Before proceeding data exploration, let’s split our dataset to train and test set.</p>
 <ul class="simple">
 <li><p>Firstly, we fetch a random value between 0 and 1 to each row;</p></li>
@@ -558,9 +553,8 @@ Done.
 </div>
 <p>Note that these features could be supported by GreenplumPython in future release.</p>
 </section>
-</section>
 <section id="Import-preparation">
-<h1>Import preparation<a class="headerlink" href="#Import-preparation" title="Permalink to this heading"></a></h1>
+<h2>Import preparation<a class="headerlink" href="#Import-preparation" title="Permalink to this heading"></a></h2>
 <p>Connect to Greenplum database named <code class="docutils literal notranslate"><span class="pre">gpadmin</span></code></p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -580,7 +574,7 @@ Done.
 </div>
 </section>
 <section id="Data-Exploration">
-<h1>Data Exploration<a class="headerlink" href="#Data-Exploration" title="Permalink to this heading"></a></h1>
+<h2>Data Exploration<a class="headerlink" href="#Data-Exploration" title="Permalink to this heading"></a></h2>
 <p>Get access to the existing table <code class="docutils literal notranslate"><span class="pre">abalone</span></code>:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
@@ -691,7 +685,7 @@ Done.
 <span class="c1"># GROUP BY 1</span>
 <span class="c1"># ORDER BY gp_segment_id;</span>
 
-<span class="kn">import</span> <span class="nn">greenplumpython.builtin.function</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">import</span> <span class="nn">greenplumpython.builtins.functions</span> <span class="k">as</span> <span class="nn">F</span>
 
 <span class="n">abalone</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;gp_segment_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="n">F</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
 </pre></div>
@@ -728,12 +722,12 @@ Done.
 </div>
 </div>
 </section>
-<section id="Execute-the-OLS-Linear-Regression-Function-by-‘sex’">
-<h1>Execute the OLS Linear Regression Function by ‘sex’<a class="headerlink" href="#Execute-the-OLS-Linear-Regression-Function-by-‘sex’" title="Permalink to this heading"></a></h1>
-<section id="Training-Process">
-<h2>Training Process<a class="headerlink" href="#Training-Process" title="Permalink to this heading"></a></h2>
+<section id="Learning-to-Make-Predictions">
+<h2>Learning to Make Predictions<a class="headerlink" href="#Learning-to-Make-Predictions" title="Permalink to this heading"></a></h2>
+<section id="Training-Model-with-Linear-Regression">
+<h3>Training Model with Linear Regression<a class="headerlink" href="#Training-Model-with-Linear-Regression" title="Permalink to this heading"></a></h3>
 <section id="Creation-of-training-function">
-<h3>Creation of training function<a class="headerlink" href="#Creation-of-training-function" title="Permalink to this heading"></a></h3>
+<h4>Creation of training function<a class="headerlink" href="#Creation-of-training-function" title="Permalink to this heading"></a></h4>
 <hr class="docutils" />
 <p><strong>NOTE:</strong> Since the <code class="docutils literal notranslate"><span class="pre">linreg_func</span></code> will be executed on Greenplum Database, all the python dependencies (<code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code>/<code class="docutils literal notranslate"><span class="pre">numpy</span></code>/etc.) needs to be discoverable by the <code class="docutils literal notranslate"><span class="pre">plpython</span></code> extension. Please check <a class="reference external" href="https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-analytics-pl_python.html">Greenplum PL/Python Language</a> for more information.</p>
 <hr class="docutils" />
@@ -752,6 +746,8 @@ Done.
 <span class="c1"># );</span>
 
 <span class="kn">import</span> <span class="nn">dataclasses</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
 
 <span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
 <span class="k">class</span> <span class="nc">LinregType</span><span class="p">:</span>
@@ -766,12 +762,12 @@ Done.
 <span class="c1"># -- Need to specify the return type -&gt; API will create the corresponding type in Greenplum to return a row</span>
 <span class="c1"># -- Will add argument to change language extensions, currently plpython3u by default</span>
 
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
 
 <span class="nd">@gp</span><span class="o">.</span><span class="n">create_column_function</span>
 <span class="k">def</span> <span class="nf">linreg_func</span><span class="p">(</span><span class="n">length</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">shucked_weight</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">rings</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">LinregType</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
-    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-
     <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">length</span><span class="p">,</span> <span class="n">shucked_weight</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">rings</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
 
@@ -781,10 +777,6 @@ Done.
     <span class="n">linreg_intercept</span> <span class="o">=</span> <span class="n">linreg_fit</span><span class="o">.</span><span class="n">intercept_</span>
 
     <span class="c1"># Serialization of the fitted model</span>
-    <span class="kn">import</span> <span class="nn">six</span>
-    <span class="kn">import</span> <span class="nn">datetime</span>
-
-    <span class="n">pickle</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">moves</span><span class="o">.</span><span class="n">cPickle</span>
     <span class="n">serialized_linreg_model</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">linreg_fit</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">LinregType</span><span class="p">(</span>
@@ -797,9 +789,7 @@ Done.
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Apply-linreg_fitted-function-to-our-train-set">
-<h3>Apply <code class="docutils literal notranslate"><span class="pre">linreg_fitted</span></code> function to our train set<a class="headerlink" href="#Apply-linreg_fitted-function-to-our-train-set" title="Permalink to this heading"></a></h3>
+<p>Apply <code class="docutils literal notranslate"><span class="pre">linreg_fitted</span></code> function to our train set:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
@@ -832,9 +822,7 @@ Done.
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Take-a-look-at-models-built">
-<h3>Take a look at models built<a class="headerlink" href="#Take-a-look-at-models-built" title="Permalink to this heading"></a></h3>
+<p>Take a look at models built:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
@@ -859,29 +847,29 @@ Done.
     <tr>
             <td>F</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[24.7681195974799, -8.09646975899078]</td>
-            <td>0.348169899531181</td>
-            <td>2023-02-08 00:54:53.027124</td>
+            <td>[25.9425725980866, -8.40468544064155]</td>
+            <td>-0.145930582701281</td>
+            <td>2023-02-23 20:58:21.485528</td>
     </tr>
     <tr>
             <td>I</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[15.4640644388656, 0.370793353609802]</td>
-            <td>1.20076747928796</td>
-            <td>2023-02-08 00:54:53.028040</td>
+            <td>[15.4355302117113, 0.370827174250677]</td>
+            <td>1.23206474957206</td>
+            <td>2023-02-23 20:58:21.485653</td>
     </tr>
     <tr>
             <td>M</td>
             <td>['length', 'shucked_weight']</td>
-            <td>[23.3204116000927, -6.46471606661911]</td>
-            <td>0.419912208927418</td>
-            <td>2023-02-08 00:54:53.031458</td>
+            <td>[22.6450273736554, -6.02938247876165]</td>
+            <td>0.569975195099637</td>
+            <td>2023-02-23 20:58:21.489115</td>
     </tr>
 </table></div>
 </div>
 </section>
-<section id="Get-summary-of-parameter’s-coefficient-for-three-sex">
-<h3>Get summary of parameter’s coefficient for three sex<a class="headerlink" href="#Get-summary-of-parameter’s-coefficient-for-three-sex" title="Permalink to this heading"></a></h3>
+<section id="Summary-of-Parameters">
+<h4>Summary of Parameters<a class="headerlink" href="#Summary-of-Parameters" title="Permalink to this heading"></a></h4>
 <p>Using <code class="docutils literal notranslate"><span class="pre">ARRAY_APPEND</span></code>:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
@@ -917,56 +905,56 @@ Done.
     <tr>
             <td>F</td>
             <td>length</td>
-            <td>24.7681195974799</td>
+            <td>25.9425725980866</td>
     </tr>
     <tr>
             <td>F</td>
             <td>shucked_weight</td>
-            <td>-8.09646975899079</td>
+            <td>-8.40468544064155</td>
     </tr>
     <tr>
             <td>F</td>
             <td>intercept</td>
-            <td>0.348169899531175</td>
+            <td>-0.145930582701292</td>
     </tr>
     <tr>
             <td>I</td>
             <td>length</td>
-            <td>15.4640644388656</td>
+            <td>15.4355302117113</td>
     </tr>
     <tr>
             <td>I</td>
             <td>shucked_weight</td>
-            <td>0.370793353609802</td>
+            <td>0.370827174250674</td>
     </tr>
     <tr>
             <td>I</td>
             <td>intercept</td>
-            <td>1.20076747928795</td>
+            <td>1.23206474957206</td>
     </tr>
     <tr>
             <td>M</td>
             <td>length</td>
-            <td>23.3204116000927</td>
+            <td>22.6450273736554</td>
     </tr>
     <tr>
             <td>M</td>
             <td>shucked_weight</td>
-            <td>-6.46471606661911</td>
+            <td>-6.02938247876165</td>
     </tr>
     <tr>
             <td>M</td>
             <td>intercept</td>
-            <td>0.419912208927423</td>
+            <td>0.569975195099643</td>
     </tr>
 </table></div>
 </div>
 </section>
 </section>
 <section id="Prediction">
-<h2>Prediction<a class="headerlink" href="#Prediction" title="Permalink to this heading"></a></h2>
+<h3>Prediction<a class="headerlink" href="#Prediction" title="Permalink to this heading"></a></h3>
 <section id="Creation-of-prediction-function">
-<h3>Creation of prediction function<a class="headerlink" href="#Creation-of-prediction-function" title="Permalink to this heading"></a></h3>
+<h4>Creation of prediction function<a class="headerlink" href="#Creation-of-prediction-function" title="Permalink to this heading"></a></h4>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
@@ -974,23 +962,17 @@ Done.
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_function</span>
 <span class="k">def</span> <span class="nf">linreg_pred_func</span><span class="p">(</span><span class="n">serialized_model</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">shucked_weight</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="c1"># Deserialize the serialized model</span>
-    <span class="kn">import</span> <span class="nn">six</span>
-
-    <span class="n">pickle</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">moves</span><span class="o">.</span><span class="n">cPickle</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">serialized_model</span><span class="p">)</span>
-
     <span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="n">length</span><span class="p">,</span> <span class="n">shucked_weight</span><span class="p">]</span>
-
     <span class="c1"># Predict the target variable</span>
     <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="n">features</span><span class="p">])</span>
-
     <span class="k">return</span> <span class="n">y_pred</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
 </section>
 <section id="Join-model-dataframe-and-test-set-dataframe">
-<h3>Join model dataframe and test set dataframe<a class="headerlink" href="#Join-model-dataframe-and-test-set-dataframe" title="Permalink to this heading"></a></h3>
+<h4>Join model dataframe and test set dataframe<a class="headerlink" href="#Join-model-dataframe-and-test-set-dataframe" title="Permalink to this heading"></a></h4>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
@@ -998,15 +980,14 @@ Done.
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">linreg_test_fit</span> <span class="o">=</span> <span class="n">linreg_fitted</span><span class="o">.</span><span class="n">inner_join</span><span class="p">(</span>
     <span class="n">abalone_test</span><span class="p">,</span>
     <span class="n">cond</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">:</span> <span class="n">t1</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">t2</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">],</span>
-    <span class="n">self_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;col_nm&quot;</span><span class="p">,</span> <span class="s2">&quot;coef&quot;</span><span class="p">,</span> <span class="s2">&quot;intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;serialized_linreg_model&quot;</span><span class="p">,</span> <span class="s2">&quot;created_dt&quot;</span><span class="p">],</span>
-    <span class="n">other_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
+    <span class="n">self_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;col_nm&quot;</span><span class="p">,</span> <span class="s2">&quot;coef&quot;</span><span class="p">,</span> <span class="s2">&quot;intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;serialized_linreg_model&quot;</span><span class="p">,</span> <span class="s2">&quot;created_dt&quot;</span><span class="p">]</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </section>
 <section id="Predict-test-set">
-<h3>Predict test set<a class="headerlink" href="#Predict-test-set" title="Permalink to this heading"></a></h3>
+<h4>Predict test set<a class="headerlink" href="#Predict-test-set" title="Permalink to this heading"></a></h4>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
@@ -1062,43 +1043,43 @@ Done.
             <th>rings_pred</th>
     </tr>
     <tr>
-            <td>17</td>
+            <td>22</td>
             <td>I</td>
-            <td>7</td>
-            <td>6.72573572367818</td>
-    </tr>
-    <tr>
-            <td>44</td>
-            <td>I</td>
-            <td>5</td>
-            <td>4.38035591977245</td>
+            <td>10</td>
+            <td>7.1272324039624</td>
     </tr>
     <tr>
             <td>45</td>
             <td>I</td>
             <td>4</td>
-            <td>4.4547098951379</td>
+            <td>4.48001556958082</td>
     </tr>
     <tr>
-            <td>70</td>
+            <td>106</td>
+            <td>I</td>
+            <td>7</td>
+            <td>6.35897875153222</td>
+    </tr>
+    <tr>
+            <td>107</td>
+            <td>I</td>
+            <td>8</td>
+            <td>7.8444517211187</td>
+    </tr>
+    <tr>
+            <td>150</td>
             <td>I</td>
             <td>6</td>
-            <td>6.01798743661371</td>
-    </tr>
-    <tr>
-            <td>113</td>
-            <td>I</td>
-            <td>9</td>
-            <td>7.98269832320555</td>
+            <td>6.27660952003415</td>
     </tr>
 </table></div>
 </div>
 </section>
 </section>
 <section id="Evaluation-of-model">
-<h2>Evaluation of model<a class="headerlink" href="#Evaluation-of-model" title="Permalink to this heading"></a></h2>
+<h3>Evaluation of model<a class="headerlink" href="#Evaluation-of-model" title="Permalink to this heading"></a></h3>
 <section id="Creation-of-evaluation-return-type">
-<h3>Creation of evaluation return type<a class="headerlink" href="#Creation-of-evaluation-return-type" title="Permalink to this heading"></a></h3>
+<h4>Creation of evaluation return type<a class="headerlink" href="#Creation-of-evaluation-return-type" title="Permalink to this heading"></a></h4>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
@@ -1121,32 +1102,28 @@ Done.
 </div>
 </section>
 <section id="Creation-of-evaluation-function">
-<h3>Creation of evaluation function<a class="headerlink" href="#Creation-of-evaluation-function" title="Permalink to this heading"></a></h3>
+<h4>Creation of evaluation function<a class="headerlink" href="#Creation-of-evaluation-function" title="Permalink to this heading"></a></h4>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_column_function</span>
-<span class="k">def</span> <span class="nf">linreg_eval</span><span class="p">(</span><span class="n">y_actual</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">y_pred</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">linreg_eval_type</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span><span class="p">,</span> <span class="n">mean_squared_error</span><span class="p">,</span> <span class="n">r2_score</span>
-    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span><span class="p">,</span> <span class="n">mean_squared_error</span><span class="p">,</span> <span class="n">r2_score</span>
 
+<span class="nd">@gp</span><span class="o">.</span><span class="n">create_column_function</span>
+<span class="k">def</span> <span class="nf">linreg_eval</span><span class="p">(</span><span class="n">y_actual</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">y_pred</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">linreg_eval_type</span><span class="p">:</span>
     <span class="n">mae</span> <span class="o">=</span> <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_actual</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
     <span class="n">mse</span> <span class="o">=</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_actual</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
-    <span class="n">r2_score</span> <span class="o">=</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">y_actual</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+    <span class="n">r2_score_</span> <span class="o">=</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">y_actual</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
 
     <span class="n">y_pred_f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">mape</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">y_actual</span> <span class="o">-</span> <span class="n">y_pred_f</span><span class="p">)</span> <span class="o">/</span> <span class="n">y_actual</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_actual</span><span class="p">)</span>
-
-    <span class="c1"># eval_score = [mae, mape, mse, r2_score]</span>
-
-    <span class="k">return</span> <span class="n">linreg_eval_type</span><span class="p">(</span><span class="n">mae</span><span class="p">,</span> <span class="n">mape</span><span class="p">,</span> <span class="n">mse</span><span class="p">,</span> <span class="n">r2_score</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">linreg_eval_type</span><span class="p">(</span><span class="n">mae</span><span class="p">,</span> <span class="n">mape</span><span class="p">,</span> <span class="n">mse</span><span class="p">,</span> <span class="n">r2_score_</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </section>
 <section id="Evaluate-our-model">
-<h3>Evaluate our model<a class="headerlink" href="#Evaluate-our-model" title="Permalink to this heading"></a></h3>
+<h4>Evaluate our model<a class="headerlink" href="#Evaluate-our-model" title="Permalink to this heading"></a></h4>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
@@ -1184,27 +1161,28 @@ Done.
     </tr>
     <tr>
             <td>F</td>
-            <td>1.98645973331242</td>
-            <td>17.8127253851688</td>
-            <td>7.2512599457486</td>
-            <td>0.13165267486645</td>
+            <td>2.14618814657571</td>
+            <td>18.7708049967624</td>
+            <td>8.68959806015986</td>
+            <td>0.127677315539933</td>
     </tr>
     <tr>
             <td>I</td>
-            <td>1.30704615482363</td>
-            <td>16.3135744525477</td>
-            <td>3.74717160134921</td>
-            <td>0.478718495840409</td>
+            <td>1.21058504580913</td>
+            <td>14.6104201739291</td>
+            <td>3.30775897060488</td>
+            <td>0.480766554461037</td>
     </tr>
     <tr>
             <td>M</td>
-            <td>2.06918266296922</td>
-            <td>19.3289820490793</td>
-            <td>7.53891738858427</td>
-            <td>0.1752474684607</td>
+            <td>2.03231596723483</td>
+            <td>19.0254559285428</td>
+            <td>7.32630298752111</td>
+            <td>0.199558502231448</td>
     </tr>
 </table></div>
 </div>
+</section>
 </section>
 </section>
 </section>
@@ -1213,8 +1191,8 @@ Done.
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../abalone.html" class="btn btn-neutral float-left" title="Example: Predicting the age of abalone" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../pandas.html" class="btn btn-neutral float-right" title="Comparison with pandas" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../abalone.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../pandas.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

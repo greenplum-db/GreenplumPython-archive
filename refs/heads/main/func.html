@@ -44,7 +44,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html#installation">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/basic.html">Basic Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">GreenplumPython</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="db.html">Database</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dataframe.html">DataFrame</a></li>
@@ -60,8 +60,8 @@
 <li class="toctree-l2"><a class="reference internal" href="config.html">Configuration</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="abalone.html">Example: Predicting the age of abalone</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pandas.html">Comparison with pandas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/abalone.html">Example: Predicting the age of abalone</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/pandas.html">Comparison with pandas</a></li>
 </ul>
 
         </div>
@@ -135,6 +135,20 @@ function in database.</p>
 <p>And the <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> returns one value aggregating data in all
 rows of the <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> or a group in the
 <a class="reference internal" href="group.html#group.DataFrameGroupingSet" title="group.DataFrameGroupingSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSet</span></code></a>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="func.AggregateFunction.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.AggregateFunction.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Call the dataframe function with the given arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#func.FunctionExpr" title="func.FunctionExpr"><em>FunctionExpr</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="func.AggregateFunction.distinct">
 <span class="sig-name descname"><span class="pre">distinct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.AggregateFunction.distinct" title="Permalink to this definition"></a></dt>
@@ -220,6 +234,20 @@ This makes it possible to implement complex functions.</p>
 <li><p>When the backing database system is PostgreSQL-derived, such as            Greenplum, the size of one value cannot be larger than 1 GB. This            limits the size of problems column functions can solve. Currently,            one way to mitigate this issue is to break a large            <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> into smaller groups and somehow combine            the results of the column function for all groups.</p></li>
 </ul>
 </div>
+<dl class="py method">
+<dt class="sig sig-object py" id="func.ColumnFunction.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.ColumnFunction.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Call the dataframe function with the given arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#func.ArrayFunctionExpr" title="func.ArrayFunctionExpr"><em>ArrayFunctionExpr</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -250,6 +278,20 @@ database.</p>
 </ul>
 <p>and the <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> returns one value of the return type
 for each row of values in its arguments.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="func.NormalFunction.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.NormalFunction.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Call the dataframe function with the given arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#func.FunctionExpr" title="func.FunctionExpr"><em>FunctionExpr</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="func.NormalFunction.unwrap">
 <span class="sig-name descname"><span class="pre">unwrap</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#func.NormalFunction.unwrap" title="Permalink to this definition"></a></dt>
@@ -308,7 +350,7 @@ and <code class="code docutils literal notranslate"><span class="pre">schema</sp
 transition. It needs to follow the same convention as the
 <code class="code docutils literal notranslate"><span class="pre">wrapped_func</span></code> parameter of <a class="reference internal" href="#func.create_function" title="func.create_function"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_function()</span></code></a>, and the
 notes on serialization also applied here.</p></li>
-<li><p><strong>language_handler</strong> (<em>str</em>) – language handler to run the function in database,
+<li><p><strong>language_handler</strong> (<em>Literal</em><em>[</em><em>'plpython3u'</em><em>]</em>) – language handler to run the function in database,
 defaults to plpython3u, will also support plcontainer later.</p></li>
 </ul>
 </dd>
@@ -351,7 +393,7 @@ defaults to plpython3u, will also support plcontainer later.</p></li>
 columns. It needs to follow the same convention as the
 <code class="code docutils literal notranslate"><span class="pre">wrapped_func</span></code> parameter of <a class="reference internal" href="#func.create_function" title="func.create_function"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_function()</span></code></a>, and the
 notes on serialization also applied here.</p></li>
-<li><p><strong>language_handler</strong> (<em>str</em>) – language handler to run the function in database,
+<li><p><strong>language_handler</strong> (<em>Literal</em><em>[</em><em>'plpython3u'</em><em>]</em>) – language handler to run the function in database,
 defaults to plpython3u, will also support plcontainer later.</p></li>
 </ul>
 </dd>
@@ -397,7 +439,7 @@ definition need to follow the conventions below:</p>
 <li><p>A <a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalFunction</span></code></a> can return multiple values. In that                case, the return type of the wrapped Python function needs                to be a Python <code class="code docutils literal notranslate"><span class="pre">class</span></code> with members annotated. It is                recommended to use <code class="xref py py-class docutils literal notranslate"><span class="pre">dataclasses.dataclass</span></code> as return                type.</p></li>
 </ul>
 </p></li>
-<li><p><strong>language_handler</strong> (<em>str</em>) – language handler to run the function in database,
+<li><p><strong>language_handler</strong> (<em>Literal</em><em>[</em><em>'plpython3u'</em><em>]</em>) – language handler to run the function in database,
 defaults to plpython3u, will also support plcontainer later.</p></li>
 <li><p><strong>schema</strong> – schema name</p></li>
 </ul>

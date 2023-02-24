@@ -44,7 +44,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html#installation">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/basic.html">Basic Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">GreenplumPython</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="db.html">Database</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dataframe.html">DataFrame</a></li>
@@ -60,8 +60,8 @@
 <li class="toctree-l2"><a class="reference internal" href="config.html">Configuration</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="abalone.html">Example: Predicting the age of abalone</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pandas.html">Comparison with pandas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/abalone.html">Example: Predicting the age of abalone</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/pandas.html">Comparison with pandas</a></li>
 </ul>
 
         </div>
@@ -128,7 +128,7 @@ GreenplumPython DataFrame, which means: Data is located and manipulated on a rem
 <dt class="sig sig-object py" id="pandas.dataframe.DataFrame">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pandas.dataframe.</span></span><span class="sig-name descname"><span class="pre">DataFrame</span></span><a class="headerlink" href="#pandas.dataframe.DataFrame" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Representation of GreenplumPython Pandas Compatible DataFrame object.</p>
+<p>Representation of Pandas-Compatible DataFrame object.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pandas.dataframe.DataFrame.to_sql">
 <span class="sig-name descname"><span class="pre">to_sql</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">con</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">if_exists</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fail'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunksize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pandas.dataframe.DataFrame.to_sql" title="Permalink to this definition"></a></dt>

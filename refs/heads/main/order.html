@@ -44,7 +44,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html#installation">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/basic.html">Basic Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">GreenplumPython</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="db.html">Database</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dataframe.html">DataFrame</a></li>
@@ -60,8 +60,8 @@
 <li class="toctree-l2"><a class="reference internal" href="config.html">Configuration</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="abalone.html">Example: Predicting the age of abalone</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pandas.html">Comparison with pandas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/abalone.html">Example: Predicting the age of abalone</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/pandas.html">Comparison with pandas</a></li>
 </ul>
 
         </div>
@@ -118,7 +118,39 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="order.DataFrameOrdering">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">order.</span></span><span class="sig-name descname"><span class="pre">DataFrameOrdering</span></span><a class="headerlink" href="#order.DataFrameOrdering" title="Permalink to this definition"></a></dt>
-<dd><p>Represent an ordered GreenplumPython <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
+<dd><p>Ordering specification of a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="order.DataFrameOrdering.__getitem__">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#order.DataFrameOrdering.__getitem__" title="Permalink to this definition"></a></dt>
+<dd><p>Return a slice of <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> in the specified order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rows</strong> (<em>slice</em>) – slice: number of first rows</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with the rows in order</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame">DataFrame</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">4</span><span class="p">,),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)[:]</span>
+<span class="o">----</span>
+<span class="nb">id</span>
+<span class="o">----</span>
+<span class="mi">1</span>
+<span class="mi">2</span>
+<span class="mi">3</span>
+<span class="mi">4</span>
+<span class="o">----</span>
+<span class="p">(</span><span class="mi">4</span> <span class="n">rows</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="order.DataFrameOrdering.order_by">
 <span class="sig-name descname"><span class="pre">order_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ascending</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nulls_first</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#order.DataFrameOrdering.order_by" title="Permalink to this definition"></a></dt>
