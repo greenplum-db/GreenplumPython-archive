@@ -897,7 +897,7 @@ class DataFrame:
         :func:`~db.Database.create_dataframe(table_name)` to create a new :class:`~dataframe.Dataframe` next time.
 
         Args:
-            table_name: name of table in database, requied to be unique in the schema.
+            table_name: name of table in database, required to be unique in the schema.
             temp: whether table is temporary. Temp tables will be dropped after the database connection is closed.
             column_names: list of column names
             storage_params: storage_parameter of gpdb, reference
