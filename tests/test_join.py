@@ -250,6 +250,30 @@ def test_dataframe_self_join(db: gp.Database, zoo_1: gp.DataFrame):
         assert row["zoo1_animal"] == row["zoo2_animal"]
 
 
+def test_dataframe_self_join_cond(db: gp.Database):
+    # fmt: off
+    rows = [("iPhone", 1, 1019), ("Samsung Galaxy", 1, 959), ("HP Elite", 2, 1503),
+             ("Lenovo Thinkpad", 2, 1429), ("iPad", 3, 589), ("Kindle Fire", 3, 150)]
+    # fmt: on
+    products = db.create_dataframe(rows=rows, column_names=["product_name", "category_id", "price"])
+    ret: gp.DataFrame = products.join(
+        products,
+        cond=lambda s, o: (s["category_id"] == o["category_id"])
+        & (s["product_name"] != o["product_name"])
+        & (s["price"] >= o["price"]),
+        other_columns={
+            "product_name": "product_name_1",
+            "category_id": "category_id_1",
+            "price": "price_1",
+        },
+    )
+    assert len(list(ret)) == 3
+    for row in ret:
+        assert row["product_name"] != row["product_name_1"]
+        assert row["category_id"] == row["category_id_1"]
+        assert row["price"] >= row["price_1"]
+
+
 def test_dataframe_join_save(db: gp.Database, zoo_1: gp.DataFrame):
     t_join: gp.DataFrame = zoo_1.join(
         zoo_1,

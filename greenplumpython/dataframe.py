@@ -627,7 +627,15 @@ class DataFrame:
             DataFrame(query="", name=other_name), other_columns
         )
         # ON clause in SQL uses argument `cond`.
-        sql_on_clause = f"ON {cond(self, other)._serialize()}" if cond is not None else ""
+        sql_on_clause = (
+            (
+                f"ON {cond(self, other)._serialize()}"
+                if self._name != other._name
+                else f"ON {cond(self, DataFrame(query='', name=other_name))._serialize()}"
+            )
+            if cond is not None
+            else ""
+        )
         join_column_names = (
             (f'"{on}"' if isinstance(on, str) else ",".join([f'"{name}"' for name in on]))
             if on is not None
