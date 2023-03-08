@@ -199,5 +199,5 @@ def test_column_in_none_values(db: gp.Database, dataframe_num: gp.DataFrame):
 
 
 def test_column_in_self(db: gp.Database, dataframe_num: gp.DataFrame):
-    assert len(list(dataframe_num[lambda t: t["id"].in_(dataframe_num["id"])])) == 4
+    assert len(list(dataframe_num[lambda t: t["id"].in_(dataframe_num["id"])])) == 10
     assert len(list(dataframe_num[lambda t: ~t["id"].in_(t["id"])])) == 0
