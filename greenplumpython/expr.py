@@ -670,14 +670,17 @@ class InExpr(Expr):
         # https://wiki.postgresql.org/wiki/Don't_Do_This#Don.27t_use_NOT_IN
         # when combining with `～` (bitwise not) operator.
         container_name: str = "cte_" + uuid4().hex
-        return (
-            (
-                f"(EXISTS (SELECT FROM {self._other_dataframe._name}"
+        if isinstance(self._container, Expr) and self._other_dataframe is not None:
+            other_schema, other_name = self._other_dataframe._qualified_name
+            qualified_name = (
+                f'"{other_name}"' if other_schema is None else f'"{other_schema}"."{other_name}"'
+            )
+            return (
+                f"(EXISTS (SELECT FROM {qualified_name}"
                 f" WHERE ({self._container._serialize()} = {self._item._serialize()})))"
             )
-            if isinstance(self._container, Expr) and self._other_dataframe is not None
-            else (
-                f'(EXISTS (SELECT FROM unnest({_serialize(self._container)}) AS "{container_name}"'
-                f' WHERE ("{container_name}" = {self._item._serialize()})))'
-            )
+
+        return (
+            f'(EXISTS (SELECT FROM unnest({_serialize(self._container)}) AS "{container_name}"'
+            f' WHERE ("{container_name}" = {self._item._serialize()})))'
         )

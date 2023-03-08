@@ -95,10 +95,12 @@ class DataFrame:
     @_getitem.register(list)
     def _(self, column_names: List[str]) -> "DataFrame":
         targets_str = [_serialize(self[col]) for col in column_names]
+        schema, name = self._qualified_name
+        qualified_name = f'"{name}"' if schema is None else f'"{schema}"."{name}"'
         return DataFrame(
             f"""
                 SELECT {','.join(targets_str)}
-                FROM {self._name}
+                FROM {qualified_name}
             """,
             parents=[self],
         )
@@ -117,8 +119,10 @@ class DataFrame:
             if rows.stop is None
             else f"LIMIT {rows.stop if rows.start is None else rows.stop - rows.start}"
         )
+        schema, name = self._qualified_name
+        qualified_name = f'"{name}"' if schema is None else f'"{schema}"."{name}"'
         return DataFrame(
-            f"SELECT * FROM {self._name} {limit_clause} {offset_clause}",
+            f"SELECT * FROM {qualified_name} {limit_clause} {offset_clause}",
             parents=[self],
         )
 
@@ -330,7 +334,9 @@ class DataFrame:
         parents = [self]
         if v._other_dataframe is not None and self._name != v._other_dataframe._name:
             parents.append(v._other_dataframe)
-        return DataFrame(f"SELECT * FROM {self._name} WHERE {v._serialize()}", parents=parents)
+        schema, name = self._qualified_name
+        qualified_name = f'"{name}"' if schema is None else f'"{schema}"."{name}"'
+        return DataFrame(f"SELECT * FROM {qualified_name} WHERE {v._serialize()}", parents=parents)
 
     def apply(
         self,
@@ -479,7 +485,7 @@ class DataFrame:
                             other_parents[v._other_dataframe._name] = v._other_dataframe
                 targets.append(f"{_serialize(v)} AS {k}")
             schema, df_name = self._qualified_name
-            qualified_name = f'"{schema}"."{df_name}"' if schema is not None else f'"{df_name}"'
+            qualified_name = f'"{df_name}"' if schema is None else f'"{schema}"."{df_name}"'
             return DataFrame(
                 f"SELECT *, {','.join(targets)} FROM {qualified_name}",
                 parents=[self] + list(other_parents.values()),
@@ -619,9 +625,17 @@ class DataFrame:
                 target_list.append(col._serialize() + (f' AS "{v}"' if v is not None else ""))
             return target_list
 
-        other_name = other._name if self._name != other._name else "cte_" + uuid4().hex
+        s_schema, s_name = self._qualified_name
+        s_qualified_name = f'"{s_name}"' if s_schema is None else f'"{s_schema}"."{s_name}"'
+
+        o_schema, o_name = other._qualified_name
+        o_qualified_name = f'"{o_name}"' if o_schema is None else f'"{o_schema}"."{o_name}"'
+
+        other_name = o_name if s_qualified_name != o_qualified_name else "cte_" + uuid4().hex
         other_clause = (
-            other._name if self._name != other._name else self._name + " AS " + other_name
+            o_qualified_name
+            if s_qualified_name != o_qualified_name
+            else o_qualified_name + " AS " + other_name
         )
         target_list = bind(self, self_columns) + bind(
             DataFrame(query="", name=other_name), other_columns
@@ -638,7 +652,7 @@ class DataFrame:
         return DataFrame(
             f"""
                 SELECT {",".join(target_list)}
-                FROM {self._name} {how} JOIN {other_clause} {sql_on_clause} {sql_using_clause}
+                FROM {s_qualified_name} {how} JOIN {other_clause} {sql_on_clause} {sql_using_clause}
             """,
             parents=[self, other],
         )
@@ -1043,8 +1057,10 @@ class DataFrame:
             sure the result is stable.
         """
         cols = [Column(name, self)._serialize() for name in column_names]
+        schema, name = self._qualified_name
+        qualified_name = f'"{name}"' if schema is None else f'"{schema}"."{name}"'
         return DataFrame(
-            f"SELECT DISTINCT ON ({','.join(cols)}) * FROM {self._name}", parents=[self]
+            f"SELECT DISTINCT ON ({','.join(cols)}) * FROM {qualified_name}", parents=[self]
         )
 
     # dataframe_name can be table/view name
