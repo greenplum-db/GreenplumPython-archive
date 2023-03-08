@@ -619,13 +619,12 @@ class DataFrame:
                 target_list.append(col._serialize() + (f' AS "{v}"' if v is not None else ""))
             return target_list
 
-        other_name = other._name if self._name != other._name else "cte_" + uuid4().hex
+        other_temp = other if self._name != other._name else DataFrame(query="", name="cte_" + uuid4().hex)
         other_clause = (
-            other._name if self._name != other._name else self._name + " AS " + other_name
+            other._name if self._name != other._name else other._name + " AS " + other_temp._name
         )
-        other_temp = other if self._name != other._name else DataFrame(query="", name=other_name)
         target_list = bind(self, self_columns) + bind(
-            DataFrame(query="", name=other_name), other_columns
+            other_temp, other_columns
         )
         # ON clause in SQL uses argument `cond`.
         sql_on_clause = f"ON {cond(self, other_temp)._serialize()}" if cond is not None else ""
