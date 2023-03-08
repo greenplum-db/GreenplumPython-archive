@@ -180,28 +180,24 @@ def test_dataframe_true_div_zero(db: gp.Database):
     assert "division by zero\n" == str(exc_info.value)
 
 
-def test_column_in_column(db: gp.Database):
-    rows = [(i,) for i in range(10)]
-    t = db.create_dataframe(rows=rows, column_names=["x"])
-
+def test_column_in_column(db: gp.Database, dataframe_num: gp.DataFrame):
     rows2 = [(1,), (2,), (3,)]
     t2 = db.create_dataframe(rows=rows2, column_names=["x"])
 
-    assert len(list(t[lambda t: t["x"].in_(t2["x"])])) == 3
-    assert len(list(t[lambda t: ~t["x"].in_(t2["x"])])) == 7
+    assert len(list(dataframe_num[lambda t: t["id"].in_(t2["x"])])) == 3
+    assert len(list(dataframe_num[lambda t: ~t["id"].in_(t2["x"])])) == 7
 
 
-def test_column_in_list(db: gp.Database):
-    rows = [(i,) for i in range(10)]
-    t = db.create_dataframe(rows=rows, column_names=["x"])
-
-    assert len(list(t[lambda t: t["x"].in_([1, 2, 3])])) == 3
-    assert len(list(t[lambda t: ~t["x"].in_([1, 2, 3])])) == 7
+def test_column_in_list(db: gp.Database, dataframe_num: gp.DataFrame):
+    assert len(list(dataframe_num[lambda t: t["id"].in_([1, 2, 3])])) == 3
+    assert len(list(dataframe_num[lambda t: ~t["id"].in_([1, 2, 3])])) == 7
 
 
-def test_column_in_none_values(db: gp.Database):
-    rows = [(i,) for i in range(10)]
-    t = db.create_dataframe(rows=rows, column_names=["x"])
+def test_column_in_none_values(db: gp.Database, dataframe_num: gp.DataFrame):
+    assert len(list(dataframe_num[lambda t: t["id"].in_([1, None])])) == 1
+    assert len(list(dataframe_num[lambda t: ~t["id"].in_([1, None])])) == 9
 
-    assert len(list(t[lambda t: t["x"].in_([1, None])])) == 1
-    assert len(list(t[lambda t: ~t["x"].in_([1, None])])) == 9
+
+def test_column_in_self(db: gp.Database, dataframe_num: gp.DataFrame):
+    assert len(list(dataframe_num[lambda t: t["id"].in_(dataframe_num["id"])])) == 4
+    assert len(list(dataframe_num[lambda t: ~t["id"].in_(t["id"])])) == 0
