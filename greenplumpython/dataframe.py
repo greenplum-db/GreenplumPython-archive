@@ -66,8 +66,6 @@ class DataFrame:
         self,
         query: str,
         parents: List["DataFrame"] = [],
-        name: Optional[str] = None,
-        schema: Optional[str] = None,
         db: Optional[Database] = None,
         columns: Optional[Iterable[Column]] = None,
     ) -> None:
@@ -75,11 +73,7 @@ class DataFrame:
         # noqa
         self._query = query
         self._parents = parents
-        self._schema = schema
-        self._name = "cte_" + uuid4().hex if name is None else name
-        self._qualified_name_str = (
-            f'"{self._name}"' if self._schema is None else f'"{self._schema}"."{self._name}"'
-        )
+        self._name = "cte_" + uuid4().hex
         self._columns = columns
         self._contents: Optional[Iterable[RealDictRow]] = None
         if any(parents):
@@ -101,7 +95,7 @@ class DataFrame:
         return DataFrame(
             f"""
                 SELECT {','.join(targets_str)}
-                FROM {self._qualified_name_str}
+                FROM {self._name}
             """,
             parents=[self],
         )
@@ -121,7 +115,7 @@ class DataFrame:
             else f"LIMIT {rows.stop if rows.start is None else rows.stop - rows.start}"
         )
         return DataFrame(
-            f"SELECT * FROM {self._qualified_name_str} {limit_clause} {offset_clause}",
+            f"SELECT * FROM {self._name} {limit_clause} {offset_clause}",
             parents=[self],
         )
 
@@ -333,9 +327,7 @@ class DataFrame:
         parents = [self]
         if v._other_dataframe is not None and self._name != v._other_dataframe._name:
             parents.append(v._other_dataframe)
-        return DataFrame(
-            f"SELECT * FROM {self._qualified_name_str} WHERE {v._serialize()}", parents=parents
-        )
+        return DataFrame(f"SELECT * FROM {self._name} WHERE {v._serialize()}", parents=parents)
 
     def apply(
         self,
@@ -484,7 +476,7 @@ class DataFrame:
                             other_parents[v._other_dataframe._name] = v._other_dataframe
                 targets.append(f"{_serialize(v)} AS {k}")
             return DataFrame(
-                f"SELECT *, {','.join(targets)} FROM {self._qualified_name_str}",
+                f"SELECT *, {','.join(targets)} FROM {self._name}",
                 parents=[self] + list(other_parents.values()),
             )
 
@@ -622,15 +614,9 @@ class DataFrame:
                 target_list.append(col._serialize() + (f' AS "{v}"' if v is not None else ""))
             return target_list
 
-        other_temp = (
-            other
-            if self._qualified_name_str != other._qualified_name_str
-            else DataFrame(query="", name="cte_" + uuid4().hex)
-        )
+        other_temp = other if self._name != other._name else DataFrame(query="")
         other_clause = (
-            other._qualified_name_str
-            if self._qualified_name_str != other._qualified_name_str
-            else other._qualified_name_str + " AS " + other_temp._name
+            other._name if self._name != other._name else other._name + " AS " + other_temp._name
         )
         target_list = bind(self, self_columns) + bind(other_temp, other_columns)
         # ON clause in SQL uses argument `cond`.
@@ -645,7 +631,7 @@ class DataFrame:
         return DataFrame(
             f"""
                 SELECT {",".join(target_list)}
-                FROM {self._qualified_name_str} {how} JOIN {other_clause} {sql_on_clause} {sql_using_clause}
+                FROM {self._name} {how} JOIN {other_clause} {sql_on_clause} {sql_using_clause}
             """,
             parents=[self, other],
         )
@@ -686,16 +672,6 @@ class DataFrame:
     Equivalent to calling :meth:`~dataframe.DataFrame.join` with `how="CROSS"`.
     """
 
-    @property
-    def _qualified_name(self) -> Tuple[Optional[str], str]:
-        """
-        Return the schema name and name of :class:`~dataframe.DataFrame`.
-
-        Returns:
-            Tuple[str, str]: schema name and :class:`~dataframe.DataFrame`'s name.
-        """
-        return self._schema, self._name
-
     # @property
     # def columns(self) -> Optional[Iterable[Column]]:
     #     """
@@ -707,15 +683,6 @@ class DataFrame:
     #     """
     #     return self._columns
 
-    # This is used to filter out dataframes that are derived from other dataframes.
-    #
-    # Actually we cannot determine if a dataframe is recorded in the system catalogs
-    # without querying the db.
-    def _in_catalog(self) -> bool:
-        # noqa
-        """:meta private:"""
-        return self._query.startswith("TABLE")
-
     def _list_lineage(self) -> List["DataFrame"]:
         # noqa
         """:meta private:"""
@@ -723,10 +690,7 @@ class DataFrame:
         dataframes_visited: Set[str] = set()
         current = 0
         while current < len(lineage):
-            if (
-                lineage[current]._name not in dataframes_visited
-                and not lineage[current]._in_catalog()
-            ):
+            if lineage[current]._name not in dataframes_visited:
                 self._depth_first_search(lineage[current], dataframes_visited, lineage)
             current += 1
         return lineage
@@ -736,7 +700,7 @@ class DataFrame:
         """:meta private:"""
         visited.add(t._name)
         for i in t._parents:
-            if i._name not in visited and not i._in_catalog():
+            if i._name not in visited:
                 self._depth_first_search(i, visited, lineage)
         lineage.append(t)
 
@@ -879,7 +843,7 @@ class DataFrame:
         assert self._db is not None
         output_name = "cte_" + uuid4().hex
         to_json_dataframe = DataFrame(
-            f"SELECT to_json({output_name})::TEXT FROM {self._qualified_name_str} AS {output_name}",
+            f"SELECT to_json({output_name})::TEXT FROM {self._name} AS {output_name}",
             parents=[self],
         )
         result = self._db._execute(to_json_dataframe._build_full_query())
@@ -1049,7 +1013,7 @@ class DataFrame:
         """
         cols = [Column(name, self)._serialize() for name in column_names]
         return DataFrame(
-            f"SELECT DISTINCT ON ({','.join(cols)}) * FROM {self._qualified_name_str}",
+            f"SELECT DISTINCT ON ({','.join(cols)}) * FROM {self._name}",
             parents=[self],
         )
 
@@ -1071,8 +1035,6 @@ class DataFrame:
         """
         return DataFrame(
             f'TABLE "{schema}"."{table_name}"' if schema is not None else f'TABLE "{table_name}"',
-            name=table_name,
-            schema=schema,
             db=db,
         )
 

@@ -48,9 +48,9 @@ class Column(Expr):
         assert self._dataframe is not None
         # Quote both dataframe name and column name to avoid SQL injection.
         return (
-            f'{self._dataframe._qualified_name_str}."{self._name}"'
+            f'{self._dataframe._name}."{self._name}"'
             if self._name != "*"
-            else f"{self._dataframe._qualified_name_str}.*"
+            else f"{self._dataframe._name}.*"
         )
 
     def __getitem__(self, field_name: str) -> ColumnField:

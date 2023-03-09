@@ -79,3 +79,31 @@ def test_schema_group_assign(db: gp.Database, t: gp.DataFrame):
 
 def test_schema_order(db: gp.Database, t: gp.DataFrame):
     assert len(list(t.order_by("id")[:])) == 10
+
+
+def test_schema_join_same_name(db: gp.Database, t: gp.DataFrame):
+    # This testcase tests scenario when joining two tables with
+    db.assign(id=lambda: generate_series(-9, 0)).save_as(
+        table_name="test_t", column_names=["id"], temp=True
+    )
+    t2 = db.create_dataframe(table_name="test_t")
+    ret: gp.DataFrame = t.join(
+        t2,
+        cond=lambda s, o: s["id"] == o["id"],
+        other_columns={"id": "id_1"},
+    )
+    assert len(list(ret)) == 1
+
+
+def test_type_schema(db: gp.Database):
+    db._execute(
+        f"""
+        DROP TYPE IF EXISTS test.complex_number CASCADE;
+        CREATE TYPE test.complex_number AS (r float8, i float8);
+        """,
+        has_results=False,
+    )
+    complex_type = gp.type_("complex_number", schema="test")
+    result = db.assign(complex=lambda: complex_type("(1, 2)"))
+    for row in result:
+        assert row["complex"] == {"i": 2, "r": 1}
