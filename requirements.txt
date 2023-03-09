@@ -1,4 +1,4 @@
-psycopg2-binary==2.9.5
+psycopg2-binary==2.9.*
 # Pin the setuptools version. The latest one seems to have problem with CFLAGS.
 # See https://github.com/pypa/setuptools/commit/bd7613f7921e8d60fa089d3ab419d0f04db6db6f
 setuptools==65.5.1
