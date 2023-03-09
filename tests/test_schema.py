@@ -9,8 +9,8 @@ from tests import db
 
 @pytest.fixture
 def t(db: gp.Database):
-    db._execute("DROP TABLE IF EXISTS tets.test_t", has_results=False)
-    db._execute("DROP TABLE IF EXISTS tets.test_t2", has_results=False)
+    db._execute("DROP TABLE IF EXISTS test.test_t", has_results=False)
+    db._execute("DROP TABLE IF EXISTS test.test_t2", has_results=False)
     db.assign(id=lambda: generate_series(0, 9)).save_as(
         table_name="test_t", column_names=["id"], schema="test"
     )
@@ -69,6 +69,23 @@ def test_schema_join_same_name(db: gp.Database, t: gp.DataFrame):
         table_name="test_t", column_names=["id"], temp=True
     )
     t2 = db.create_dataframe(table_name="test_t")
+    ret: gp.DataFrame = t.join(
+        t2,
+        cond=lambda s, o: s["id"] == o["id"],
+        other_columns={"id": "id_1"},
+    )
+    assert len(list(ret)) == 1
+
+
+def test_schema_join_same_name_with_schemas(db: gp.Database, t: gp.DataFrame):
+    # This testcase tests scenario when joining two tables
+    # with same table name but in two different schema.
+    # Both have specifed schema name
+    db._execute("DROP TABLE IF EXISTS public.test_t", has_results=False)
+    db.assign(id=lambda: generate_series(-9, 0)).save_as(
+        table_name="test_t", column_names=["id"], schema="public"
+    )
+    t2 = db.create_dataframe(table_name="test_t", schema="public")
     ret: gp.DataFrame = t.join(
         t2,
         cond=lambda s, o: s["id"] == o["id"],
