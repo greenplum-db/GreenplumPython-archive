@@ -631,17 +631,19 @@ class DataFrame:
         o_schema, o_name = other._qualified_name
         o_qualified_name = f'"{o_name}"' if o_schema is None else f'"{o_schema}"."{o_name}"'
 
-        other_name = o_name if s_qualified_name != o_qualified_name else "cte_" + uuid4().hex
+        other_temp = (
+            other if s_qualified_name != o_qualified_name else DataFrame(query="", name="cte_" + uuid4().hex)
+        )
+        
         other_clause = (
             o_qualified_name
             if s_qualified_name != o_qualified_name
-            else o_qualified_name + " AS " + other_name
+            else o_qualified_name + " AS " + other_temp._name
         )
-        target_list = bind(self, self_columns) + bind(
-            DataFrame(query="", name=other_name), other_columns
-        )
+        
+        target_list = bind(self, self_columns) + bind(other_temp, other_columns)
         # ON clause in SQL uses argument `cond`.
-        sql_on_clause = f"ON {cond(self, other)._serialize()}" if cond is not None else ""
+        sql_on_clause = f"ON {cond(self, other_temp)._serialize()}" if cond is not None else ""
         join_column_names = (
             (f'"{on}"' if isinstance(on, str) else ",".join([f'"{name}"' for name in on]))
             if on is not None

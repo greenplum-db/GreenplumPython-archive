@@ -250,6 +250,18 @@ def test_dataframe_self_join(db: gp.Database, zoo_1: gp.DataFrame):
         assert row["zoo1_animal"] == row["zoo2_animal"]
 
 
+def test_dataframe_self_join_cond(db: gp.Database, zoo_1: gp.DataFrame):
+    ret: gp.DataFrame = zoo_1.join(
+        zoo_1,
+        cond=lambda s, o: s["animal"] == o["animal"],
+        self_columns={"animal": "zoo1_animal", "id": "zoo1_id"},
+        other_columns={"animal": "zoo2_animal", "id": "zoo2_id"},
+    )
+    assert len(list(ret)) == 4
+    for row in ret:
+        assert row["zoo1_animal"] == row["zoo2_animal"]
+
+
 def test_dataframe_join_save(db: gp.Database, zoo_1: gp.DataFrame):
     t_join: gp.DataFrame = zoo_1.join(
         zoo_1,
