@@ -61,6 +61,22 @@ def test_schema_self_join_cond(db: gp.Database, t: gp.DataFrame):
     assert len(list(ret)) == 10
 
 
+def test_schema_join_same_name(db: gp.Database, t: gp.DataFrame):
+    # This testcase tests scenario when joining two tables
+    # with same table name but in two different schema.
+    # One doesn't specify schema name (when in default schema or temporary table)
+    db.assign(id=lambda: generate_series(-9, 0)).save_as(
+        table_name="test_t", column_names=["id"], temp=True
+    )
+    t2 = db.create_dataframe(table_name="test_t")
+    ret: gp.DataFrame = t.join(
+        t2,
+        cond=lambda s, o: s["id"] == o["id"],
+        other_columns={"id": "id_1"},
+    )
+    assert len(list(ret)) == 1
+
+
 def test_schema_distinct(db: gp.Database, t: gp.DataFrame):
     result = list(t.distinct_on("id"))
     assert len(result) == 10
@@ -79,20 +95,6 @@ def test_schema_group_assign(db: gp.Database, t: gp.DataFrame):
 
 def test_schema_order(db: gp.Database, t: gp.DataFrame):
     assert len(list(t.order_by("id")[:])) == 10
-
-
-def test_schema_join_same_name(db: gp.Database, t: gp.DataFrame):
-    # This testcase tests scenario when joining two tables with
-    db.assign(id=lambda: generate_series(-9, 0)).save_as(
-        table_name="test_t", column_names=["id"], temp=True
-    )
-    t2 = db.create_dataframe(table_name="test_t")
-    ret: gp.DataFrame = t.join(
-        t2,
-        cond=lambda s, o: s["id"] == o["id"],
-        other_columns={"id": "id_1"},
-    )
-    assert len(list(ret)) == 1
 
 
 def test_type_schema(db: gp.Database):
