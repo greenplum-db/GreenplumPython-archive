@@ -77,6 +77,9 @@ class DataFrame:
         self._parents = parents
         self._schema = schema
         self._name = "cte_" + uuid4().hex if name is None else name
+        self._qualified_name_str = (
+            f'"{self._name}"' if self._schema is None else f'"{self._schema}"."{self._name}"'
+        )
         self._columns = columns
         self._contents: Optional[Iterable[RealDictRow]] = None
         if any(parents):
@@ -95,12 +98,10 @@ class DataFrame:
     @_getitem.register(list)
     def _(self, column_names: List[str]) -> "DataFrame":
         targets_str = [_serialize(self[col]) for col in column_names]
-        schema, name = self._qualified_name
-        qualified_name = f'"{name}"' if schema is None else f'"{schema}"."{name}"'
         return DataFrame(
             f"""
                 SELECT {','.join(targets_str)}
-                FROM {qualified_name}
+                FROM {self._qualified_name_str}
             """,
             parents=[self],
         )
@@ -119,10 +120,8 @@ class DataFrame:
             if rows.stop is None
             else f"LIMIT {rows.stop if rows.start is None else rows.stop - rows.start}"
         )
-        schema, name = self._qualified_name
-        qualified_name = f'"{name}"' if schema is None else f'"{schema}"."{name}"'
         return DataFrame(
-            f"SELECT * FROM {qualified_name} {limit_clause} {offset_clause}",
+            f"SELECT * FROM {self._qualified_name_str} {limit_clause} {offset_clause}",
             parents=[self],
         )
 
@@ -334,9 +333,9 @@ class DataFrame:
         parents = [self]
         if v._other_dataframe is not None and self._name != v._other_dataframe._name:
             parents.append(v._other_dataframe)
-        schema, name = self._qualified_name
-        qualified_name = f'"{name}"' if schema is None else f'"{schema}"."{name}"'
-        return DataFrame(f"SELECT * FROM {qualified_name} WHERE {v._serialize()}", parents=parents)
+        return DataFrame(
+            f"SELECT * FROM {self._qualified_name_str} WHERE {v._serialize()}", parents=parents
+        )
 
     def apply(
         self,
@@ -484,10 +483,8 @@ class DataFrame:
                         if v._other_dataframe._name not in other_parents:
                             other_parents[v._other_dataframe._name] = v._other_dataframe
                 targets.append(f"{_serialize(v)} AS {k}")
-            schema, df_name = self._qualified_name
-            qualified_name = f'"{df_name}"' if schema is None else f'"{schema}"."{df_name}"'
             return DataFrame(
-                f"SELECT *, {','.join(targets)} FROM {qualified_name}",
+                f"SELECT *, {','.join(targets)} FROM {self._qualified_name_str}",
                 parents=[self] + list(other_parents.values()),
             )
 
@@ -625,22 +622,16 @@ class DataFrame:
                 target_list.append(col._serialize() + (f' AS "{v}"' if v is not None else ""))
             return target_list
 
-        s_schema, s_name = self._qualified_name
-        s_qualified_name = f'"{s_name}"' if s_schema is None else f'"{s_schema}"."{s_name}"'
-
-        o_schema, o_name = other._qualified_name
-        o_qualified_name = f'"{o_name}"' if o_schema is None else f'"{o_schema}"."{o_name}"'
-
         other_temp = (
-            other if s_qualified_name != o_qualified_name else DataFrame(query="", name="cte_" + uuid4().hex)
+            other
+            if self._qualified_name_str != other._qualified_name_str
+            else DataFrame(query="", name="cte_" + uuid4().hex)
         )
-        
         other_clause = (
-            o_qualified_name
-            if s_qualified_name != o_qualified_name
-            else o_qualified_name + " AS " + other_temp._name
+            other._qualified_name_str
+            if self._qualified_name_str != other._qualified_name_str
+            else other._qualified_name_str + " AS " + other_temp._name
         )
-        
         target_list = bind(self, self_columns) + bind(other_temp, other_columns)
         # ON clause in SQL uses argument `cond`.
         sql_on_clause = f"ON {cond(self, other_temp)._serialize()}" if cond is not None else ""
@@ -654,7 +645,7 @@ class DataFrame:
         return DataFrame(
             f"""
                 SELECT {",".join(target_list)}
-                FROM {s_qualified_name} {how} JOIN {other_clause} {sql_on_clause} {sql_using_clause}
+                FROM {self._qualified_name_str} {how} JOIN {other_clause} {sql_on_clause} {sql_using_clause}
             """,
             parents=[self, other],
         )
@@ -887,10 +878,8 @@ class DataFrame:
             raise NotImplementedError()
         assert self._db is not None
         output_name = "cte_" + uuid4().hex
-        schema, name = self._qualified_name
-        qualified_name = f'"{name}"' if schema is None else f'"{schema}"."{name}"'
         to_json_dataframe = DataFrame(
-            f"SELECT to_json({output_name})::TEXT FROM {qualified_name} AS {output_name}",
+            f"SELECT to_json({output_name})::TEXT FROM {self._qualified_name_str} AS {output_name}",
             parents=[self],
         )
         result = self._db._execute(to_json_dataframe._build_full_query())
@@ -1059,10 +1048,9 @@ class DataFrame:
             sure the result is stable.
         """
         cols = [Column(name, self)._serialize() for name in column_names]
-        schema, name = self._qualified_name
-        qualified_name = f'"{name}"' if schema is None else f'"{schema}"."{name}"'
         return DataFrame(
-            f"SELECT DISTINCT ON ({','.join(cols)}) * FROM {qualified_name}", parents=[self]
+            f"SELECT DISTINCT ON ({','.join(cols)}) * FROM {self._qualified_name_str}",
+            parents=[self],
         )
 
     # dataframe_name can be table/view name

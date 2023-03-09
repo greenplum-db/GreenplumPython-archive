@@ -52,7 +52,13 @@ def test_schema_self_join_on(db: gp.Database, t: gp.DataFrame):
     assert len(list(ret)) == 10
 
 
-# TODO: test_self_join_cond after merged PR#182
+def test_schema_self_join_cond(db: gp.Database, t: gp.DataFrame):
+    ret: gp.DataFrame = t.join(
+        t,
+        cond=lambda s, o: s["id"] == o["id"],
+        other_columns={"id": "id_1"},
+    )
+    assert len(list(ret)) == 10
 
 
 def test_schema_distinct(db: gp.Database, t: gp.DataFrame):

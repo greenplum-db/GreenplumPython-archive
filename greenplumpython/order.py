@@ -114,10 +114,8 @@ class DataFrameOrdering:
             if rows.start is None
             else rows.stop - rows.start
         )
-        schema, name = self._dataframe._qualified_name
-        qualified_name = f'"{name}"' if schema is None else f'"{schema}"."{name}"'
         return DataFrame(
-            f"SELECT * FROM {qualified_name} {self._clause()} LIMIT {limit} {offset_clause}",
+            f"SELECT * FROM {self._dataframe._qualified_name_str} {self._clause()} LIMIT {limit} {offset_clause}",
             parents=[self._dataframe],
         )
 

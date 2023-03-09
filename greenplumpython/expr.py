@@ -671,12 +671,8 @@ class InExpr(Expr):
         # when combining with `～` (bitwise not) operator.
         container_name: str = "cte_" + uuid4().hex
         if isinstance(self._container, Expr) and self._other_dataframe is not None:
-            other_schema, other_name = self._other_dataframe._qualified_name
-            qualified_name = (
-                f'"{other_name}"' if other_schema is None else f'"{other_schema}"."{other_name}"'
-            )
             return (
-                f"(EXISTS (SELECT FROM {qualified_name}"
+                f"(EXISTS (SELECT FROM {self._other_dataframe._qualified_name_str}"
                 f" WHERE ({self._container._serialize()} = {self._item._serialize()})))"
             )
 

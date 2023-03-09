@@ -163,10 +163,8 @@ class DataFrameGroupingSet:
             ):
                 raise Exception("Newly included columns must be based on the current dataframe")
             targets.append(f"{_serialize(v)} AS {k}")
-        schema, name = self._dataframe._qualified_name
-        qualified_name = f'"{name}"' if schema is None else f'"{schema}"."{name}"'
         return DataFrame(
-            f"SELECT {','.join(targets)} FROM {qualified_name} {self._clause()}",
+            f"SELECT {','.join(targets)} FROM {self._dataframe._qualified_name_str} {self._clause()}",
             parents=[self._dataframe],
         )
 
