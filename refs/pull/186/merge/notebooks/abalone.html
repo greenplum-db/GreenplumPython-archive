@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Example: Predicting the age of abalone &mdash; GreenplumPython 1.0.0
+ documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="&lt;no title&gt;" href="../pandas.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="../abalone.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> GreenplumPython
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic.html">Basic Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">GreenplumPython</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Example: Predicting the age of abalone</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Background">Background</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Problem">Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Fetching-data-from-the-Internet">Fetching data from the Internet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Train-Test-Set-Split">Train-Test Set Split</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Import-preparation">Import preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Data-Exploration">Data Exploration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Learning-to-Make-Predictions">Learning to Make Predictions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Training-Model-with-Linear-Regression">Training Model with Linear Regression</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Creation-of-training-function">Creation of training function</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Summary-of-Parameters">Summary of Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Prediction">Prediction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Creation-of-prediction-function">Creation of prediction function</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Join-model-dataframe-and-test-set-dataframe">Join model dataframe and test set dataframe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Predict-test-set">Predict test set</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Evaluation-of-model">Evaluation of model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Creation-of-evaluation-return-type">Creation of evaluation return type</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Creation-of-evaluation-function">Creation of evaluation function</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Evaluate-our-model">Evaluate our model</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pandas.html">Comparison with pandas</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">GreenplumPython</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../abalone.html">&lt;no title&gt;</a> &raquo;</li>
+      <li>Example: Predicting the age of abalone</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/notebooks/abalone.ipynb" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars and line breaks on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+    white-space: pre;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="Example:-Predicting-the-age-of-abalone">
+<h1>Example: Predicting the age of abalone<a class="headerlink" href="#Example:-Predicting-the-age-of-abalone" title="Permalink to this heading"></a></h1>
+<section id="Background">
+<h2>Background<a class="headerlink" href="#Background" title="Permalink to this heading"></a></h2>
+<p>Predicting the age of abalone from physical measurements. The age of abalone is determined by cutting the shell through the cone, staining it, and counting the number of rings through a microscope – a boring and time-consuming task. Other measurements, which are easier to obtain, are used to predict the age.</p>
+</section>
+<section id="Problem">
+<h2>Problem<a class="headerlink" href="#Problem" title="Permalink to this heading"></a></h2>
+<p>Build regression models by sex which can predict the number of rings.</p>
+</section>
+<section id="Fetching-data-from-the-Internet">
+<h2>Fetching data from the Internet<a class="headerlink" href="#Fetching-data-from-the-Internet" title="Permalink to this heading"></a></h2>
+<p>The training data is located on the website. Thanks for Greenplum’s <a class="reference external" href="https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-admin_guide-external-g-creating-and-using-web-external-tables.html">external table</a>, accessing CSV data from a HTTP server is easy.</p>
+<p>First, connect to the database. You may want to change the connect string like <code class="docutils literal notranslate"><span class="pre">postgresql://&lt;user&gt;&#64;&lt;host&gt;:&lt;port&gt;/&lt;db_name&gt;</span></code> to fit your needs.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> sql
+<span class="o">%</span><span class="k">sql</span> postgresql://localhost/gpadmin
+</pre></div>
+</div>
+</div>
+<p>Then, create the external table:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">sql</span>
+<span class="c1">-- External Table</span>
+<span class="k">DROP</span><span class="w"> </span><span class="k">EXTERNAL</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">abalone_external</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">EXTERNAL</span><span class="w"> </span><span class="n">WEB</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">abalone_external</span><span class="p">(</span>
+<span class="w">    </span><span class="n">sex</span><span class="w"> </span><span class="nb">text</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="k">length</span><span class="w"> </span><span class="n">float8</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">diameter</span><span class="w"> </span><span class="n">float8</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">height</span><span class="w"> </span><span class="n">float8</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">whole_weight</span><span class="w"> </span><span class="n">float8</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">shucked_weight</span><span class="w"> </span><span class="n">float8</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">viscera_weight</span><span class="w"> </span><span class="n">float8</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">shell_weight</span><span class="w"> </span><span class="n">float8</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">rings</span><span class="w"> </span><span class="nb">integer</span><span class="w"> </span><span class="c1">-- target variable to predict</span>
+<span class="p">)</span><span class="w"> </span><span class="k">EXECUTE</span><span class="w"> </span><span class="s1">&#39;curl http://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data&#39;</span>
+<span class="n">format</span><span class="w"> </span><span class="s1">&#39;CSV&#39;</span>
+<span class="p">(</span><span class="k">null</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="s1">&#39;?&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ * postgresql://localhost/gpadmin
+Done.
+Done.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[]
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">sql</span>
+<span class="c1">-- Create abalone table from an external table</span>
+<span class="k">DROP</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">abalone</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">abalone</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">ROW_NUMBER</span><span class="p">()</span><span class="w"> </span><span class="n">OVER</span><span class="p">()</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="o">*</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">abalone_external</span>
+<span class="p">)</span><span class="w"> </span><span class="n">DISTRIBUTED</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="p">(</span><span class="n">sex</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ * postgresql://localhost/gpadmin
+Done.
+12531 rows affected.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[]
+</pre></div></div>
+</div>
+</section>
+<section id="Train-Test-Set-Split">
+<h2>Train-Test Set Split<a class="headerlink" href="#Train-Test-Set-Split" title="Permalink to this heading"></a></h2>
+<p>Before proceeding data exploration, let’s split our dataset to train and test set.</p>
+<ul class="simple">
+<li><p>Firstly, we fetch a random value between 0 and 1 to each row;</p></li>
+<li><p>Then we create a percentile table that stores percentile values for each sex;</p></li>
+<li><p>Finally, we join those 2 tables to obtain our training or test tables.</p></li>
+</ul>
+<p>But since Ordered-Set Aggregate Function is not yet supported by the current version, we will skip this step with GreenplumPython and implement it with SQL.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">sql</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="n">TEMP</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">temp_abalone_label</span><span class="w"> </span><span class="k">AS</span>
+<span class="w">    </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="p">()</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">__samp_out_label</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">abalone</span><span class="p">);</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="n">TEMP</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">train_percentile_disc</span><span class="w"> </span><span class="k">AS</span>
+<span class="w">    </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">sex</span><span class="p">,</span><span class="w"> </span><span class="n">percentile_disc</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="n">within</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">__samp_out_label</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">__samp_out_label</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">temp_abalone_label</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">sex</span><span class="p">);</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="n">TEMP</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">test_percentile_disc</span><span class="w"> </span><span class="k">AS</span>
+<span class="w">    </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">sex</span><span class="p">,</span><span class="w"> </span><span class="n">percentile_disc</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="n">within</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">__samp_out_label</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">__samp_out_label</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">temp_abalone_label</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">sex</span><span class="p">);</span>
+
+<span class="k">DROP</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">abalone_train</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">abalone_train</span><span class="w"> </span><span class="k">AS</span>
+<span class="w">    </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">temp_abalone_label</span><span class="p">.</span><span class="o">*</span>
+<span class="w">        </span><span class="k">FROM</span><span class="w"> </span><span class="n">temp_abalone_label</span>
+<span class="w">        </span><span class="k">INNER</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">train_percentile_disc</span>
+<span class="w">        </span><span class="k">ON</span><span class="w"> </span><span class="n">temp_abalone_label</span><span class="p">.</span><span class="n">__samp_out_label</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">train_percentile_disc</span><span class="p">.</span><span class="n">__samp_out_label</span>
+<span class="w">        </span><span class="k">AND</span><span class="w"> </span><span class="n">temp_abalone_label</span><span class="p">.</span><span class="n">sex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">train_percentile_disc</span><span class="p">.</span><span class="n">sex</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="k">DROP</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">abalone_test</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">abalone_test</span><span class="w"> </span><span class="k">AS</span>
+<span class="w">    </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">temp_abalone_label</span><span class="p">.</span><span class="o">*</span>
+<span class="w">        </span><span class="k">FROM</span><span class="w"> </span><span class="n">temp_abalone_label</span>
+<span class="w">        </span><span class="k">INNER</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">test_percentile_disc</span>
+<span class="w">        </span><span class="k">ON</span><span class="w"> </span><span class="n">temp_abalone_label</span><span class="p">.</span><span class="n">__samp_out_label</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">test_percentile_disc</span><span class="p">.</span><span class="n">__samp_out_label</span>
+<span class="w">        </span><span class="k">AND</span><span class="w"> </span><span class="n">temp_abalone_label</span><span class="p">.</span><span class="n">sex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">test_percentile_disc</span><span class="p">.</span><span class="n">sex</span>
+<span class="w">    </span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ * postgresql://localhost/gpadmin
+12531 rows affected.
+3 rows affected.
+3 rows affected.
+Done.
+10026 rows affected.
+Done.
+2508 rows affected.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[]
+</pre></div></div>
+</div>
+<p>Note that these features could be supported by GreenplumPython in future release.</p>
+</section>
+<section id="Import-preparation">
+<h2>Import preparation<a class="headerlink" href="#Import-preparation" title="Permalink to this heading"></a></h2>
+<p>Connect to Greenplum database named <code class="docutils literal notranslate"><span class="pre">gpadmin</span></code></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">greenplumpython</span> <span class="k">as</span> <span class="nn">gp</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">database</span><span class="p">(</span><span class="s2">&quot;postgresql://localhost/gpadmin&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Data-Exploration">
+<h2>Data Exploration<a class="headerlink" href="#Data-Exploration" title="Permalink to this heading"></a></h2>
+<p>Get access to the existing table <code class="docutils literal notranslate"><span class="pre">abalone</span></code>:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">abalone</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;abalone&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Inspect the table:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># SELECT * FROM abalone ORDER BY id LIMIT 5;</span>
+
+<span class="n">abalone</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>id</th>
+            <th>sex</th>
+            <th>length</th>
+            <th>diameter</th>
+            <th>height</th>
+            <th>whole_weight</th>
+            <th>shucked_weight</th>
+            <th>viscera_weight</th>
+            <th>shell_weight</th>
+            <th>rings</th>
+    </tr>
+    <tr>
+            <td>1</td>
+            <td>M</td>
+            <td>0.455</td>
+            <td>0.365</td>
+            <td>0.095</td>
+            <td>0.514</td>
+            <td>0.2245</td>
+            <td>0.101</td>
+            <td>0.15</td>
+            <td>15</td>
+    </tr>
+    <tr>
+            <td>2</td>
+            <td>M</td>
+            <td>0.35</td>
+            <td>0.265</td>
+            <td>0.09</td>
+            <td>0.2255</td>
+            <td>0.0995</td>
+            <td>0.0485</td>
+            <td>0.07</td>
+            <td>7</td>
+    </tr>
+    <tr>
+            <td>3</td>
+            <td>F</td>
+            <td>0.53</td>
+            <td>0.42</td>
+            <td>0.135</td>
+            <td>0.677</td>
+            <td>0.2565</td>
+            <td>0.1415</td>
+            <td>0.21</td>
+            <td>9</td>
+    </tr>
+    <tr>
+            <td>4</td>
+            <td>M</td>
+            <td>0.44</td>
+            <td>0.365</td>
+            <td>0.125</td>
+            <td>0.516</td>
+            <td>0.2155</td>
+            <td>0.114</td>
+            <td>0.155</td>
+            <td>10</td>
+    </tr>
+    <tr>
+            <td>5</td>
+            <td>I</td>
+            <td>0.33</td>
+            <td>0.255</td>
+            <td>0.08</td>
+            <td>0.205</td>
+            <td>0.0895</td>
+            <td>0.0395</td>
+            <td>0.055</td>
+            <td>7</td>
+    </tr>
+</table></div>
+</div>
+<p>Observe the distribution of data on different segments:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># SELECT gp_segment_id, COUNT(*)</span>
+<span class="c1"># FROM abalone</span>
+<span class="c1"># GROUP BY 1</span>
+<span class="c1"># ORDER BY gp_segment_id;</span>
+
+<span class="kn">import</span> <span class="nn">greenplumpython.builtins.functions</span> <span class="k">as</span> <span class="nn">F</span>
+
+<span class="n">abalone</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;gp_segment_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="n">F</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>count</th>
+            <th>gp_segment_id</th>
+    </tr>
+    <tr>
+            <td>3921</td>
+            <td>2</td>
+    </tr>
+    <tr>
+            <td>8610</td>
+            <td>1</td>
+    </tr>
+</table></div>
+</div>
+<p>Since we already have table <code class="docutils literal notranslate"><span class="pre">abalone_train</span></code> ad <code class="docutils literal notranslate"><span class="pre">abalone_test</span></code> in the database, we can get access to them.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">abalone_train</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;abalone_train&quot;</span><span class="p">)</span>
+<span class="n">abalone_test</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;abalone_test&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Learning-to-Make-Predictions">
+<h2>Learning to Make Predictions<a class="headerlink" href="#Learning-to-Make-Predictions" title="Permalink to this heading"></a></h2>
+<section id="Training-Model-with-Linear-Regression">
+<h3>Training Model with Linear Regression<a class="headerlink" href="#Training-Model-with-Linear-Regression" title="Permalink to this heading"></a></h3>
+<section id="Creation-of-training-function">
+<h4>Creation of training function<a class="headerlink" href="#Creation-of-training-function" title="Permalink to this heading"></a></h4>
+<hr class="docutils" />
+<p><strong>NOTE:</strong> Since the <code class="docutils literal notranslate"><span class="pre">linreg_func</span></code> will be executed on Greenplum Database, all the python dependencies (<code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code>/<code class="docutils literal notranslate"><span class="pre">numpy</span></code>/etc.) needs to be discoverable by the <code class="docutils literal notranslate"><span class="pre">plpython</span></code> extension. Please check <a class="reference external" href="https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-analytics-pl_python.html">Greenplum PL/Python Language</a> for more information.</p>
+<hr class="docutils" />
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="c1"># CREATE TYPE linreg_type AS (</span>
+<span class="c1">#    col_nm text[]</span>
+<span class="c1">#    , coef float8[]</span>
+<span class="c1">#    , intercept float8</span>
+<span class="c1">#    , serialized_linreg_model bytea</span>
+<span class="c1">#    , created_dt text</span>
+<span class="c1"># );</span>
+
+<span class="kn">import</span> <span class="nn">dataclasses</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+
+<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">LinregType</span><span class="p">:</span>
+    <span class="n">col_nm</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">coef</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+    <span class="n">intercept</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">serialized_linreg_model</span><span class="p">:</span> <span class="nb">bytes</span>
+    <span class="n">created_dt</span><span class="p">:</span> <span class="nb">str</span>
+
+
+<span class="c1"># -- Create function</span>
+<span class="c1"># -- Need to specify the return type -&gt; API will create the corresponding type in Greenplum to return a row</span>
+<span class="c1"># -- Will add argument to change language extensions, currently plpython3u by default</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+
+<span class="nd">@gp</span><span class="o">.</span><span class="n">create_column_function</span>
+<span class="k">def</span> <span class="nf">linreg_func</span><span class="p">(</span><span class="n">length</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">shucked_weight</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">rings</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">LinregType</span><span class="p">:</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">length</span><span class="p">,</span> <span class="n">shucked_weight</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">rings</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="c1"># OLS linear regression with length, shucked_weight</span>
+    <span class="n">linreg_fit</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="n">linreg_coef</span> <span class="o">=</span> <span class="n">linreg_fit</span><span class="o">.</span><span class="n">coef_</span>
+    <span class="n">linreg_intercept</span> <span class="o">=</span> <span class="n">linreg_fit</span><span class="o">.</span><span class="n">intercept_</span>
+
+    <span class="c1"># Serialization of the fitted model</span>
+    <span class="n">serialized_linreg_model</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">linreg_fit</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">LinregType</span><span class="p">(</span>
+        <span class="n">col_nm</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">,</span> <span class="s2">&quot;shucked_weight&quot;</span><span class="p">],</span>
+        <span class="n">coef</span><span class="o">=</span><span class="n">linreg_coef</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">intercept</span><span class="o">=</span><span class="n">linreg_intercept</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">serialized_linreg_model</span><span class="o">=</span><span class="n">serialized_linreg_model</span><span class="p">,</span>
+        <span class="n">created_dt</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()),</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Apply <code class="docutils literal notranslate"><span class="pre">linreg_fitted</span></code> function to our train set:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># DROP TABLE IF EXISTS plc_linreg_fitted;</span>
+<span class="c1"># CREATE TABLE plc_linreg_fitted AS (</span>
+<span class="c1">#    SELECT</span>
+<span class="c1">#        a.sex</span>
+<span class="c1">#        , (plc_linreg_func(</span>
+<span class="c1">#            a.length_agg</span>
+<span class="c1">#            , a.shucked_weight_agg</span>
+<span class="c1">#            , a.rings_agg)</span>
+<span class="c1">#        ).*</span>
+<span class="c1">#    FROM (</span>
+<span class="c1">#        SELECT</span>
+<span class="c1">#            sex</span>
+<span class="c1">#            , ARRAY_AGG(length) AS length_agg</span>
+<span class="c1">#            , ARRAY_AGG(shucked_weight) AS shucked_weight_agg</span>
+<span class="c1">#            , ARRAY_AGG(rings) AS rings_agg</span>
+<span class="c1">#        FROM abalone_split</span>
+<span class="c1">#        WHERE split = 1</span>
+<span class="c1">#        GROUP BY sex</span>
+<span class="c1">#    ) a</span>
+<span class="c1"># ) DISTRIBUTED BY (sex);</span>
+
+<span class="n">linreg_fitted</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">abalone_train</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">linreg_func</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;shucked_weight&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">]),</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Take a look at models built:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">linreg_fitted</span><span class="p">[[</span><span class="s2">&quot;sex&quot;</span><span class="p">,</span> <span class="s2">&quot;col_nm&quot;</span><span class="p">,</span> <span class="s2">&quot;coef&quot;</span><span class="p">,</span> <span class="s2">&quot;intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;created_dt&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>sex</th>
+            <th>col_nm</th>
+            <th>coef</th>
+            <th>intercept</th>
+            <th>created_dt</th>
+    </tr>
+    <tr>
+            <td>F</td>
+            <td>['length', 'shucked_weight']</td>
+            <td>[25.9425725980866, -8.40468544064155]</td>
+            <td>-0.145930582701281</td>
+            <td>2023-02-23 20:58:21.485528</td>
+    </tr>
+    <tr>
+            <td>I</td>
+            <td>['length', 'shucked_weight']</td>
+            <td>[15.4355302117113, 0.370827174250677]</td>
+            <td>1.23206474957206</td>
+            <td>2023-02-23 20:58:21.485653</td>
+    </tr>
+    <tr>
+            <td>M</td>
+            <td>['length', 'shucked_weight']</td>
+            <td>[22.6450273736554, -6.02938247876165]</td>
+            <td>0.569975195099637</td>
+            <td>2023-02-23 20:58:21.489115</td>
+    </tr>
+</table></div>
+</div>
+</section>
+<section id="Summary-of-Parameters">
+<h4>Summary of Parameters<a class="headerlink" href="#Summary-of-Parameters" title="Permalink to this heading"></a></h4>
+<p>Using <code class="docutils literal notranslate"><span class="pre">ARRAY_APPEND</span></code>:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># SELECT</span>
+<span class="c1">#   sex,</span>
+<span class="c1">#   UNNEST(ARRAY_APPEND(col_nm, &#39;intercept&#39;)) AS col_nm2,</span>
+<span class="c1">#   UNNEST(ARRAY_APPEND(coef, intercept)) AS coef2</span>
+<span class="c1"># from linreg_fitted;</span>
+
+<span class="n">unnest</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;unnest&quot;</span><span class="p">)</span>
+<span class="n">array_append</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;array_append&quot;</span><span class="p">)</span>
+
+<span class="n">linreg_fitted</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+    <span class="n">col_nm2</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">unnest</span><span class="p">(</span><span class="n">array_append</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;col_nm&quot;</span><span class="p">],</span> <span class="s2">&quot;intercept&quot;</span><span class="p">)),</span>
+    <span class="n">coef2</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">unnest</span><span class="p">(</span><span class="n">array_append</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;coef&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;intercept&quot;</span><span class="p">])),</span>
+<span class="p">)[[</span><span class="s2">&quot;sex&quot;</span><span class="p">,</span> <span class="s2">&quot;col_nm2&quot;</span><span class="p">,</span> <span class="s2">&quot;coef2&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>sex</th>
+            <th>col_nm2</th>
+            <th>coef2</th>
+    </tr>
+    <tr>
+            <td>F</td>
+            <td>length</td>
+            <td>25.9425725980866</td>
+    </tr>
+    <tr>
+            <td>F</td>
+            <td>shucked_weight</td>
+            <td>-8.40468544064155</td>
+    </tr>
+    <tr>
+            <td>F</td>
+            <td>intercept</td>
+            <td>-0.145930582701292</td>
+    </tr>
+    <tr>
+            <td>I</td>
+            <td>length</td>
+            <td>15.4355302117113</td>
+    </tr>
+    <tr>
+            <td>I</td>
+            <td>shucked_weight</td>
+            <td>0.370827174250674</td>
+    </tr>
+    <tr>
+            <td>I</td>
+            <td>intercept</td>
+            <td>1.23206474957206</td>
+    </tr>
+    <tr>
+            <td>M</td>
+            <td>length</td>
+            <td>22.6450273736554</td>
+    </tr>
+    <tr>
+            <td>M</td>
+            <td>shucked_weight</td>
+            <td>-6.02938247876165</td>
+    </tr>
+    <tr>
+            <td>M</td>
+            <td>intercept</td>
+            <td>0.569975195099643</td>
+    </tr>
+</table></div>
+</div>
+</section>
+</section>
+<section id="Prediction">
+<h3>Prediction<a class="headerlink" href="#Prediction" title="Permalink to this heading"></a></h3>
+<section id="Creation-of-prediction-function">
+<h4>Creation of prediction function<a class="headerlink" href="#Creation-of-prediction-function" title="Permalink to this heading"></a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_function</span>
+<span class="k">def</span> <span class="nf">linreg_pred_func</span><span class="p">(</span><span class="n">serialized_model</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">shucked_weight</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="c1"># Deserialize the serialized model</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">serialized_model</span><span class="p">)</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="n">length</span><span class="p">,</span> <span class="n">shucked_weight</span><span class="p">]</span>
+    <span class="c1"># Predict the target variable</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="n">features</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">y_pred</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Join-model-dataframe-and-test-set-dataframe">
+<h4>Join model dataframe and test set dataframe<a class="headerlink" href="#Join-model-dataframe-and-test-set-dataframe" title="Permalink to this heading"></a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">linreg_test_fit</span> <span class="o">=</span> <span class="n">linreg_fitted</span><span class="o">.</span><span class="n">inner_join</span><span class="p">(</span>
+    <span class="n">abalone_test</span><span class="p">,</span>
+    <span class="n">cond</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">:</span> <span class="n">t1</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">t2</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">],</span>
+    <span class="n">self_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;col_nm&quot;</span><span class="p">,</span> <span class="s2">&quot;coef&quot;</span><span class="p">,</span> <span class="s2">&quot;intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;serialized_linreg_model&quot;</span><span class="p">,</span> <span class="s2">&quot;created_dt&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Predict-test-set">
+<h4>Predict test set<a class="headerlink" href="#Predict-test-set" title="Permalink to this heading"></a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># CREATE TABLE plc_linreg_pred_dot AS (</span>
+<span class="c1">#    SELECT</span>
+<span class="c1">#        test.id</span>
+<span class="c1">#        , test.sex</span>
+<span class="c1">#        , test.rings</span>
+<span class="c1">#        , plc_linreg_pred_dot_func(</span>
+<span class="c1">#            model.coef</span>
+<span class="c1">#            , model.intercept</span>
+<span class="c1">#            , ARRAY[length, shucked_weight]</span>
+<span class="c1">#        ) AS y_pred</span>
+<span class="c1">#    FROM</span>
+<span class="c1">#        (SELECT * FROM abalone_split WHERE split=0) AS test</span>
+<span class="c1">#        , plc_linreg_fitted AS model</span>
+<span class="c1">#    WHERE test.sex = model.sex</span>
+<span class="c1"># ) DISTRIBUTED BY (sex);</span>
+
+
+<span class="n">linreg_pred</span> <span class="o">=</span> <span class="n">linreg_test_fit</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+    <span class="n">rings_pred</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span>
+        <span class="n">linreg_pred_func</span><span class="p">(</span>
+            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;serialized_linreg_model&quot;</span><span class="p">],</span>
+            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
+            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;shucked_weight&quot;</span><span class="p">],</span>
+        <span class="p">),</span>
+<span class="p">)[[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;sex&quot;</span><span class="p">,</span> <span class="s2">&quot;rings&quot;</span><span class="p">,</span> <span class="s2">&quot;rings_pred&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># SELECT * FROM plc_linreg_pred WHERE sex=&#39;I&#39; ORDER BY id LIMIT 5;</span>
+
+<span class="n">linreg_pred</span><span class="p">[</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;I&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>id</th>
+            <th>sex</th>
+            <th>rings</th>
+            <th>rings_pred</th>
+    </tr>
+    <tr>
+            <td>22</td>
+            <td>I</td>
+            <td>10</td>
+            <td>7.1272324039624</td>
+    </tr>
+    <tr>
+            <td>45</td>
+            <td>I</td>
+            <td>4</td>
+            <td>4.48001556958082</td>
+    </tr>
+    <tr>
+            <td>106</td>
+            <td>I</td>
+            <td>7</td>
+            <td>6.35897875153222</td>
+    </tr>
+    <tr>
+            <td>107</td>
+            <td>I</td>
+            <td>8</td>
+            <td>7.8444517211187</td>
+    </tr>
+    <tr>
+            <td>150</td>
+            <td>I</td>
+            <td>6</td>
+            <td>6.27660952003415</td>
+    </tr>
+</table></div>
+</div>
+</section>
+</section>
+<section id="Evaluation-of-model">
+<h3>Evaluation of model<a class="headerlink" href="#Evaluation-of-model" title="Permalink to this heading"></a></h3>
+<section id="Creation-of-evaluation-return-type">
+<h4>Creation of evaluation return type<a class="headerlink" href="#Creation-of-evaluation-return-type" title="Permalink to this heading"></a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># CREATE TYPE plc_linreg_eval_type AS (</span>
+<span class="c1">#    mae float8</span>
+<span class="c1">#    , mape float8</span>
+<span class="c1">#    , mse float8</span>
+<span class="c1">#    , r2_score float8</span>
+<span class="c1"># );</span>
+
+<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">linreg_eval_type</span><span class="p">:</span>
+    <span class="n">mae</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">mape</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">mse</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">r2_score</span><span class="p">:</span> <span class="nb">float</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Creation-of-evaluation-function">
+<h4>Creation of evaluation function<a class="headerlink" href="#Creation-of-evaluation-function" title="Permalink to this heading"></a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span><span class="p">,</span> <span class="n">mean_squared_error</span><span class="p">,</span> <span class="n">r2_score</span>
+
+<span class="nd">@gp</span><span class="o">.</span><span class="n">create_column_function</span>
+<span class="k">def</span> <span class="nf">linreg_eval</span><span class="p">(</span><span class="n">y_actual</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">y_pred</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">linreg_eval_type</span><span class="p">:</span>
+    <span class="n">mae</span> <span class="o">=</span> <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_actual</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+    <span class="n">mse</span> <span class="o">=</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_actual</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+    <span class="n">r2_score_</span> <span class="o">=</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">y_actual</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+
+    <span class="n">y_pred_f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">mape</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">y_actual</span> <span class="o">-</span> <span class="n">y_pred_f</span><span class="p">)</span> <span class="o">/</span> <span class="n">y_actual</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_actual</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">linreg_eval_type</span><span class="p">(</span><span class="n">mae</span><span class="p">,</span> <span class="n">mape</span><span class="p">,</span> <span class="n">mse</span><span class="p">,</span> <span class="n">r2_score_</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Evaluate-our-model">
+<h4>Evaluate our model<a class="headerlink" href="#Evaluate-our-model" title="Permalink to this heading"></a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># SELECT</span>
+<span class="c1">#    sex</span>
+<span class="c1">#    , (linreg_eval(rings_agg, y_pred_agg)).*</span>
+<span class="c1"># FROM (</span>
+<span class="c1">#    SELECT</span>
+<span class="c1">#        sex</span>
+<span class="c1">#        , ARRAY_AGG(rings) AS rings_agg</span>
+<span class="c1">#        , ARRAY_AGG(y_pred) AS y_pred_agg</span>
+<span class="c1">#    FROM plc_linreg_pred</span>
+<span class="c1">#    GROUP BY sex</span>
+<span class="c1"># ) a</span>
+
+
+<span class="n">linreg_pred</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">linreg_eval</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings_pred&quot;</span><span class="p">]),</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>sex</th>
+            <th>mae</th>
+            <th>mape</th>
+            <th>mse</th>
+            <th>r2_score</th>
+    </tr>
+    <tr>
+            <td>F</td>
+            <td>2.14618814657571</td>
+            <td>18.7708049967624</td>
+            <td>8.68959806015986</td>
+            <td>0.127677315539933</td>
+    </tr>
+    <tr>
+            <td>I</td>
+            <td>1.21058504580913</td>
+            <td>14.6104201739291</td>
+            <td>3.30775897060488</td>
+            <td>0.480766554461037</td>
+    </tr>
+    <tr>
+            <td>M</td>
+            <td>2.03231596723483</td>
+            <td>19.0254559285428</td>
+            <td>7.32630298752111</td>
+            <td>0.199558502231448</td>
+    </tr>
+</table></div>
+</div>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../abalone.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../pandas.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, VMware.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
