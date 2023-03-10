@@ -379,10 +379,10 @@ import pandas as pd
 
 
 def test_table_to_pandas_dataframe(db: gp.Database):
-    pg_class = db.create_dataframe(table_name="pg_class", schema="pg_catalog")
-
-    df = pd.DataFrame.from_records(iter(pg_class))
-    assert len(df) > 0
+    data = {"num": [1, 2, 3], "text": ["x", "y", "z"]}
+    df = pd.DataFrame(data)
+    df_from_gp = pd.DataFrame.from_records(iter(db.create_dataframe(columns=data)))
+    assert df.equals(df_from_gp)
 
 
 def test_table_from_pandas_dataframe(db: gp.Database):
