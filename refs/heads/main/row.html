@@ -119,9 +119,13 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="row.Row">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">row.</span></span><span class="sig-name descname"><span class="pre">Row</span></span><a class="headerlink" href="#row.Row" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code>]]]</p>
 <p>Represents a row of <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
 <p>A <a class="reference internal" href="#row.Row" title="row.Row"><code class="xref py py-class docutils literal notranslate"><span class="pre">Row</span></code></a> is conceptually an immutable <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>.</p>
+<p>Row is a subclass of <code class="code docutils literal notranslate"><span class="pre">abc.Mapping</span></code> and it must implement all the
+methods in the latter class, as specified in
+<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html">the document</a>
+of the built-in Abstract Base Class (ABC) module.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="row.Row.__getitem__">
 <span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#row.Row.__getitem__" title="Permalink to this definition"></a></dt>
@@ -160,6 +164,16 @@
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><em>Iterable</em>[<em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="row.Row.items">
+<span class="sig-name descname"><span class="pre">items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">items</span></span></span><a class="headerlink" href="#row.Row.items" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><em>Iterable</em>[<em>Tuple</em>[str, <em>Any</em>]]</p>
 </dd>
 </dl>
 </dd></dl>
