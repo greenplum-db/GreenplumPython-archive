@@ -7,6 +7,7 @@
 res_test_image: centos7-gpdb6-image-test
 res_gpdb_bin: bin_gpdb6_centos7
 res_gpdb_src: gpdb6_src
+gpdb_version: gpdb6
 res_plpython3_bin: bin_plpython3_gpdb6_rhel7
 os: rhel7
 #@ end
@@ -16,6 +17,7 @@ os: rhel7
 res_test_image: rhel8-gpdb6-image-test
 res_gpdb_bin: bin_gpdb6_rhel8
 res_gpdb_src: gpdb6_src
+gpdb_version: gpdb6
 res_plpython3_bin: bin_plpython3_gpdb6_rhel8
 os: rhel8
 #@ end
@@ -25,6 +27,7 @@ os: rhel8
 res_test_image: ubuntu18-gpdb6-image-test
 res_gpdb_bin: bin_gpdb6_ubuntu18
 res_gpdb_src: gpdb6_src
+gpdb_version: gpdb6
 res_plpython3_bin: bin_plpython3_gpdb6_ubuntu18
 os: ubuntu1804
 #@ end
@@ -34,6 +37,7 @@ os: ubuntu1804
 res_test_image: rhel8-gpdb7-image-test
 res_gpdb_bin: #@ "bin_gpdb7_rocky8" + ("" if release_build else "_debug")
 res_gpdb_src: gpdb7_src
+gpdb_version: gpdb7
 os: rocky8
 #@ end
 
@@ -104,7 +108,7 @@ config:
     - name: bin_gpdb
     - name: gpdb_src
     - name: greenplumpython_src
-#@ if conf["res_gpdb_src"].startswith("gpdb6"):
+#@ if conf["gpdb_version"] == "gpdb6":
     - name: bin_plpython3
 #@ end
 image: image_test
@@ -112,7 +116,7 @@ params:
 #@ end
 
 #@ def build_test_job_name(conf):
-#@   return "build_test_" + conf["os"]
+#@   return "build_test_" + conf["gpdb_version"] + "_" + conf["os"]
 #@ end
 #@ def build_test_job(param):
 #@   res_map = param["res_map"]
@@ -136,7 +140,7 @@ plan:
     resource: #@ conf["res_gpdb_bin"]
   - get: gpdb_src
     resource: #@ conf["res_gpdb_src"]
-#@ if conf["res_gpdb_src"].startswith("gpdb6"):
+#@ if conf["gpdb_version"] == "gpdb6":
   - get: bin_plpython3
     resource: #@ conf["res_plpython3_bin"]
     params:
