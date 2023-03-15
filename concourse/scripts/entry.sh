@@ -75,7 +75,11 @@ install_dependencies() {
     unset PYTHONPATH
     unset PYTHONHOME
 
-    local python_bin="${GPHOME}/ext/python3.9/bin/python3.9"
+
+    local python_bin=$(which "python3.9")
+    if [[ -z $python_bin ]]; then
+        local python_bin="${GPHOME}/ext/python3.9/bin/python3.9"
+    fi
     ${python_bin} -m ensurepip
     ${python_bin} -m pip install tox
 }
