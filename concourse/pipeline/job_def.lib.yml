@@ -29,6 +29,15 @@ res_plpython3_bin: bin_plpython3_gpdb6_ubuntu18
 os: ubuntu1804
 #@ end
 
+#! Job config for gpdb7 rocky8
+#@ def rocky8_gpdb7_conf(release_build=False):
+res_test_image: rhel8-gpdb7-image-test
+res_gpdb_bin: #@ "bin_gpdb7_rocky8" + ("" if release_build else "_debug")
+res_gpdb_src: gpdb7_src
+res_plpython3_bin: bin_plpython3_gpdb6_rhel8
+os: rocky8
+#@ end
+
 #! The entry point of a pipeline. The job name must be 'entrance'.
 #@ def entrance_job(param):
 #@   trigger = param["trigger"]
