@@ -58,6 +58,11 @@ resources:
   source:
     branch: 6X_STABLE
     uri: https://github.com/greenplum-db/gpdb.git
+- name: gpdb7_src
+  type: git
+  source:
+    branch: main
+    uri: https://github.com/greenplum-db/gpdb.git
 
 # Image Resources
 # centos7
@@ -82,6 +87,14 @@ resources:
     tag: latest
     username: _json_key
     password: ((data-gpdb-private-images-container-registry-readonly-service-account-key))
+# gpdb7 rhel8
+- name: rhel8-gpdb7-image-test
+  type: docker-image
+  source:
+    repository: gcr.io/data-gpdb-private-images/gpdb7-rhel8-test
+    tag: latest
+    username: _json_key
+    password: ((data-gpdb-private-images-container-registry-readonly-service-account-key))
 
 # gpdb binary on gcs is located as different folder for different version
 # Latest build with assertion enabled:
@@ -98,13 +111,18 @@ resources:
     bucket: pivotal-gpdb-concourse-resources-prod
     json_key: ((concourse-gcs-resources-service-account-key))
     regexp: server/published/gpdb6/server-rc-(.*)-rhel8_x86_64.tar.gz
-
 - name: bin_gpdb6_ubuntu18
   type: gcs
   source:
     bucket: pivotal-gpdb-concourse-resources-prod
     json_key: ((concourse-gcs-resources-service-account-key))
     regexp: server/published/gpdb6/server-rc-(.*)-ubuntu18.04_x86_64.tar.gz
+- name: bin_gpdb7_rocky8_debug
+  type: gcs
+  source:
+    bucket: pivotal-gpdb-concourse-resources-prod
+    json_key: ((concourse-gcs-resources-service-account-key))
+    regexp: server/published/main/server-rc-(.*)-rocky8_x86_64.debug.tar.gz
 
 # plpython3 for gpdb6
 - name: bin_plpython3_gpdb6_rhel7

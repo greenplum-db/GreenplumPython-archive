@@ -3,7 +3,8 @@
 #@   "build_test_job",
 #@   "centos7_gpdb6_conf",
 #@   "ubuntu18_gpdb6_conf",
-#@   "rhel8_gpdb6_conf")
+#@   "rhel8_gpdb6_conf",
+#@   "rocky8_gpdb7_conf")
 #@
 #@ load("trigger_def.lib.yml",
 #@   "commit_dev_trigger",
@@ -15,6 +16,7 @@
 #@ trigger = commit_dev_trigger(res_map)
 #@ confs= [
 #@   rhel8_gpdb6_conf(release_build=False),
+#@   rocky8_gpdb7_conf(release_build=False)
 #@ ]
 jobs:
 #@ param = {
