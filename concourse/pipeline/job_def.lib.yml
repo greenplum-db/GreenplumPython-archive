@@ -34,7 +34,6 @@ os: ubuntu1804
 res_test_image: rhel8-gpdb7-image-test
 res_gpdb_bin: #@ "bin_gpdb7_rocky8" + ("" if release_build else "_debug")
 res_gpdb_src: gpdb7_src
-res_plpython3_bin: bin_plpython3_gpdb6_rhel8
 os: rocky8
 #@ end
 
@@ -105,7 +104,9 @@ config:
     - name: bin_gpdb
     - name: gpdb_src
     - name: greenplumpython_src
+#@ if conf["res_gpdb_src"].startswith("gpdb6"):
     - name: bin_plpython3
+#@ end
 image: image_test
 params:
 #@ end
@@ -135,9 +136,11 @@ plan:
     resource: #@ conf["res_gpdb_bin"]
   - get: gpdb_src
     resource: #@ conf["res_gpdb_src"]
+#@ if conf["res_gpdb_src"].startswith("gpdb6"):
   - get: bin_plpython3
     resource: #@ conf["res_plpython3_bin"]
     params:
       unpack: true
+#@ end
 - #@ _test_task(conf)
 #@ end

@@ -141,7 +141,10 @@ function install_plpython3() {
 function install_gpdb() {
     [ ! -d /usr/local/greenplum-db-devel ] && mkdir -p /usr/local/greenplum-db-devel
     tar -xzf "${CONCOURSE_WORK_DIR}"/bin_gpdb/*.tar.gz -C /usr/local/greenplum-db-devel
-    GPHOME=/usr/local/greenplum-db-devel install_plpython3
+    local python_bin=$(which "python3.9")
+    if [[ -z $python_bin ]]; then
+        GPHOME=/usr/local/greenplum-db-devel install_plpython3
+    fi
 
     chown -R gpadmin:gpadmin /usr/local/greenplum-db-devel
     # Start cluster
