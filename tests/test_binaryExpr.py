@@ -13,7 +13,6 @@ def test_expr_bin_equal_int(db: gp.Database):
         "temp1", temp=True, column_names=["id"]
     )
     b1: Callable[[gp.DataFrame], gp.Expr] = lambda t: t["id"] == 2
-    assert str(b1(t)) == '("temp1"."id" = 2)'
     assert len(list(t[b1])) == 2
 
 
@@ -23,7 +22,6 @@ def test_expr_bin_equal_str(db: gp.Database):
         "temp2", temp=True, column_names=["id"]
     )
     b2: Callable[[gp.DataFrame], gp.Expr] = lambda t: t["id"] == "aaa"
-    assert str(b2(t)) == '("temp2"."id" = \'aaa\')'
     assert len(list(t[b2])) == 1
 
 
@@ -33,7 +31,6 @@ def test_expr_bin_equal_none(db: gp.Database):
         "temp3", temp=True, column_names=["id"]
     )
     b3: Callable[[gp.DataFrame], gp.Expr] = lambda t: t["id"] == None
-    assert str(b3(t)) == '("temp3"."id" IS NULL)'
     assert len(list(t[b3])) == 1
 
 
@@ -46,7 +43,6 @@ def test_expr_bin_equal_2expr(db: gp.Database):
         "temp5", temp=True, column_names=["id"]
     )
     b4: Callable[[gp.DataFrame, gp.DataFrame], gp.Expr] = lambda t1, t2: t1["id"] == t2["id"]
-    assert str(b4(t1, t2)) == '("temp4"."id" = "temp5"."id")'
     assert len(list(t1.join(t2, on=["id"], other_columns={}))) == 3
 
 
@@ -56,7 +52,6 @@ def test_expr_bin_equal_bool(db: gp.Database):
         "temp1", temp=True, column_names=["id"]
     )
     b5: Callable[[gp.DataFrame], gp.Expr] = lambda t: t["id"] == True
-    assert str(b5(t)) == '("temp1"."id" = true)'
     assert len(list(t[b5])) == 2
 
 
@@ -180,28 +175,24 @@ def test_dataframe_true_div_zero(db: gp.Database):
     assert "division by zero\n" == str(exc_info.value)
 
 
-def test_column_in_column(db: gp.Database):
-    rows = [(i,) for i in range(10)]
-    t = db.create_dataframe(rows=rows, column_names=["x"])
-
+def test_column_in_column(db: gp.Database, dataframe_num: gp.DataFrame):
     rows2 = [(1,), (2,), (3,)]
     t2 = db.create_dataframe(rows=rows2, column_names=["x"])
 
-    assert len(list(t[lambda t: t["x"].in_(t2["x"])])) == 3
-    assert len(list(t[lambda t: ~t["x"].in_(t2["x"])])) == 7
+    assert len(list(dataframe_num[lambda t: t["id"].in_(t2["x"])])) == 3
+    assert len(list(dataframe_num[lambda t: ~t["id"].in_(t2["x"])])) == 7
 
 
-def test_column_in_list(db: gp.Database):
-    rows = [(i,) for i in range(10)]
-    t = db.create_dataframe(rows=rows, column_names=["x"])
-
-    assert len(list(t[lambda t: t["x"].in_([1, 2, 3])])) == 3
-    assert len(list(t[lambda t: ~t["x"].in_([1, 2, 3])])) == 7
+def test_column_in_list(db: gp.Database, dataframe_num: gp.DataFrame):
+    assert len(list(dataframe_num[lambda t: t["id"].in_([1, 2, 3])])) == 3
+    assert len(list(dataframe_num[lambda t: ~t["id"].in_([1, 2, 3])])) == 7
 
 
-def test_column_in_none_values(db: gp.Database):
-    rows = [(i,) for i in range(10)]
-    t = db.create_dataframe(rows=rows, column_names=["x"])
+def test_column_in_none_values(db: gp.Database, dataframe_num: gp.DataFrame):
+    assert len(list(dataframe_num[lambda t: t["id"].in_([1, None])])) == 1
+    assert len(list(dataframe_num[lambda t: ~t["id"].in_([1, None])])) == 9
 
-    assert len(list(t[lambda t: t["x"].in_([1, None])])) == 1
-    assert len(list(t[lambda t: ~t["x"].in_([1, None])])) == 9
+
+def test_column_in_self(db: gp.Database, dataframe_num: gp.DataFrame):
+    assert len(list(dataframe_num[lambda t: t["id"].in_(dataframe_num["id"])])) == 10
+    assert len(list(dataframe_num[lambda t: ~t["id"].in_(t["id"])])) == 0

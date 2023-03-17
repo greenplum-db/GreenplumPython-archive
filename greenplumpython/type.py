@@ -45,12 +45,15 @@ class TypeCast(Expr):
         self._obj = obj
         self._type_name = type_name
         self._schema = schema
+        self._qualified_name_str = (
+            f'"{self._type_name}"'
+            if self._schema is None
+            else f'"{self._schema}"."{self._type_name}"'
+        )
 
     def _serialize(self) -> str:
         obj_str = _serialize(self._obj)
-        schema, type_name = self._qualified_name
-        qualified_name = f'"{schema}"."{type_name}"' if schema is not None else f'"{type_name}"'
-        return f"({obj_str}::{qualified_name})"
+        return f"({obj_str}::{self._qualified_name_str})"
 
     @property
     def _qualified_name(self) -> Tuple[Optional[str], str]:
@@ -88,6 +91,9 @@ class Type:
         self._annotation = annotation
         self._created_in_dbs: Optional[Set[Database]] = set() if annotation is not None else None
         self._schema = schema
+        self._qualified_name_str = (
+            f'"{self._name}"' if self._schema is None else f'"{self._schema}"."{self._name}"'
+        )
 
     # -- Creation of a composite type in Greenplum corresponding to the class_type given
     def _create_in_db(self, db: Database):
@@ -206,8 +212,4 @@ def to_pg_type(
             type_name = "type_" + uuid4().hex
             _defined_types[annotation] = Type(name=type_name, annotation=annotation)
         _defined_types[annotation]._create_in_db(db)
-        schema, type_name = _defined_types[annotation]._qualified_name
-        type_qualified_name = (
-            f'"{schema}"."{type_name}"' if schema is not None else f'"{type_name}"'
-        )
-        return type_qualified_name
+        return _defined_types[annotation]._qualified_name_str

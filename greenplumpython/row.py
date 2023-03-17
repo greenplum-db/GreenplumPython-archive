@@ -1,14 +1,20 @@
 """
 This module creates a Python object :class:`~row.Row` for GreenplumPython DataFrame iteration.
 """
+from collections import abc
 from typing import Any, Dict, Iterable, List, Tuple, Union
 
 
-class Row:
+class Row(abc.Mapping[str, Union[Any, List[Any]]]):
     """
     Represents a row of :class:`~dataframe.DataFrame`.
 
     A :class:`~row.Row` is conceptually an immutable :class:`dict`.
+
+    Row is a subclass of :code:`abc.Mapping` and it must implement all the
+    methods in the latter class, as specified in
+    `the document <https://docs.python.org/3/library/collections.abc.html>`_
+    of the built-in Abstract Base Class (ABC) module.
     """
 
     def __init__(self, contents: Dict[str, Union[Any, List[Any]]]):
@@ -63,3 +69,9 @@ class Row:
 
     def items(self) -> Iterable[Tuple[str, Any]]:
         return self._contents.items()
+
+    def __eq__(self, other: "Row") -> bool:
+        return self._contents == other._contents
+
+    def __ne__(self, other: "Row") -> bool:
+        return self._contents != other._contents
