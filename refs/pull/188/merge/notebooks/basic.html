@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Basic Usage &mdash; GreenplumPython 1.0.0
+ documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="GreenplumPython" href="../modules.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="../basic.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> GreenplumPython
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html#installation">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Basic Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Getting-Access-to-Database">Getting Access to Database</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Accessing-a-DataFrame-in-the-Database">Accessing a DataFrame in the Database</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Basic-Data-Manipulation">Basic Data Manipulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Joining-Two-DataFrames">Joining Two DataFrames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Creating-and-Calling-Functions">Creating and Calling Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Data-Grouping">Data Grouping</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">GreenplumPython</a></li>
+<li class="toctree-l1"><a class="reference internal" href="abalone.html">Example: Predicting the age of abalone</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pandas.html">Comparison with pandas</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">GreenplumPython</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../basic.html">&lt;no title&gt;</a> &raquo;</li>
+      <li>Basic Usage</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/notebooks/basic.ipynb" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Basic-Usage">
+<h1>Basic Usage<a class="headerlink" href="#Basic-Usage" title="Permalink to this heading"></a></h1>
+<section id="Prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#Prerequisites" title="Permalink to this heading"></a></h2>
+<p>To run this tutorial, we need</p>
+<ul>
+<li><p>A database that is authorized to access, and</p></li>
+<li><p>A table named <code class="docutils literal notranslate"><span class="pre">demo</span></code> as created with the following SQL command:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">demo</span><span class="w"> </span><span class="k">AS</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">k</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">generate_series</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">9</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>To create this table, if in a shell environment, <a class="reference external" href="https://www.postgresql.org/docs/current/app-psql.html">psql</a> can be used.</p>
+<p>Or, inside a Jupyter Notebook, the SQL command can be executed directly in cells with <a class="reference external" href="https://pypi.org/project/ipython-sql/">ipython-sql</a>, as shown below.</p>
+<p>First we need to connect to the database (<code class="docutils literal notranslate"><span class="pre">gpadmin</span></code> in our example) specified with the URI using the <code class="docutils literal notranslate"><span class="pre">%sql</span></code> magic:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> sql
+<span class="o">%</span><span class="k">sql</span> postgresql://localhost/gpadmin
+</pre></div>
+</div>
+</div>
+<p>Authentication methods and credentials can be specified in the URI. Please refer to the <a class="reference external" href="https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING">libpq document</a> for detailed usage.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">sql</span>
+
+<span class="k">DROP</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">demo</span><span class="p">;</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">demo</span><span class="w"> </span><span class="k">AS</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">k</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">generate_series</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">9</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ * postgresql://localhost/gpadmin
+Done.
+10 rows affected.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[]
+</pre></div></div>
+</div>
+<p>With the table created successfully, we are now good to go!</p>
+</section>
+<section id="Getting-Access-to-Database">
+<h2>Getting Access to Database<a class="headerlink" href="#Getting-Access-to-Database" title="Permalink to this heading"></a></h2>
+<p>To get access to the database we want:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">greenplumpython</span> <span class="k">as</span> <span class="nn">gp</span>
+
+<span class="n">db</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">database</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="s2">&quot;postgresql://localhost/gpadmin&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Here, the <code class="docutils literal notranslate"><span class="pre">uri</span></code> follows the same specification in the <a class="reference external" href="https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING">libpq document</a> as above.</p>
+<p>As another example, if password is required, the <code class="docutils literal notranslate"><span class="pre">uri</span></code> might look like <code class="docutils literal notranslate"><span class="pre">postgresql://user:password&#64;hostname/dbname</span></code>.</p>
+</section>
+<section id="Accessing-a-DataFrame-in-the-Database">
+<h2>Accessing a DataFrame in the Database<a class="headerlink" href="#Accessing-a-DataFrame-in-the-Database" title="Permalink to this heading"></a></h2>
+<p>After selecting the database, we can access a dataframe in the database by specifying its name:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;demo&quot;</span><span class="p">)</span>
+<span class="n">t</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>i</th>
+            <th>j</th>
+            <th>k</th>
+    </tr>
+    <tr>
+            <td>2</td>
+            <td>2</td>
+            <td>2</td>
+    </tr>
+    <tr>
+            <td>3</td>
+            <td>3</td>
+            <td>3</td>
+    </tr>
+    <tr>
+            <td>5</td>
+            <td>5</td>
+            <td>5</td>
+    </tr>
+    <tr>
+            <td>9</td>
+            <td>9</td>
+            <td>9</td>
+    </tr>
+    <tr>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+    </tr>
+    <tr>
+            <td>4</td>
+            <td>4</td>
+            <td>4</td>
+    </tr>
+    <tr>
+            <td>6</td>
+            <td>6</td>
+            <td>6</td>
+    </tr>
+    <tr>
+            <td>7</td>
+            <td>7</td>
+            <td>7</td>
+    </tr>
+    <tr>
+            <td>8</td>
+            <td>8</td>
+            <td>8</td>
+    </tr>
+    <tr>
+            <td>1</td>
+            <td>1</td>
+            <td>1</td>
+    </tr>
+</table></div>
+</div>
+<p>And of course, we can <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> the first ordered N rows of a dataframe, like this:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>i</th>
+            <th>j</th>
+            <th>k</th>
+    </tr>
+    <tr>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+    </tr>
+    <tr>
+            <td>1</td>
+            <td>1</td>
+            <td>1</td>
+    </tr>
+    <tr>
+            <td>2</td>
+            <td>2</td>
+            <td>2</td>
+    </tr>
+    <tr>
+            <td>3</td>
+            <td>3</td>
+            <td>3</td>
+    </tr>
+    <tr>
+            <td>4</td>
+            <td>4</td>
+            <td>4</td>
+    </tr>
+    <tr>
+            <td>5</td>
+            <td>5</td>
+            <td>5</td>
+    </tr>
+    <tr>
+            <td>6</td>
+            <td>6</td>
+            <td>6</td>
+    </tr>
+    <tr>
+            <td>7</td>
+            <td>7</td>
+            <td>7</td>
+    </tr>
+    <tr>
+            <td>8</td>
+            <td>8</td>
+            <td>8</td>
+    </tr>
+    <tr>
+            <td>9</td>
+            <td>9</td>
+            <td>9</td>
+    </tr>
+</table></div>
+</div>
+</section>
+<section id="Basic-Data-Manipulation">
+<h2>Basic Data Manipulation<a class="headerlink" href="#Basic-Data-Manipulation" title="Permalink to this heading"></a></h2>
+<p>Now we have a dataframe. We can do basic data manipulation on it, just like in SQL.</p>
+<p>For example, we can <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> a subset of its columns:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_ij</span> <span class="o">=</span> <span class="n">t</span><span class="p">[[</span><span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="s2">&quot;j&quot;</span><span class="p">]]</span>
+<span class="n">t_ij</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>i</th>
+            <th>j</th>
+    </tr>
+    <tr>
+            <td>2</td>
+            <td>2</td>
+    </tr>
+    <tr>
+            <td>3</td>
+            <td>3</td>
+    </tr>
+    <tr>
+            <td>5</td>
+            <td>5</td>
+    </tr>
+    <tr>
+            <td>9</td>
+            <td>9</td>
+    </tr>
+    <tr>
+            <td>0</td>
+            <td>0</td>
+    </tr>
+    <tr>
+            <td>4</td>
+            <td>4</td>
+    </tr>
+    <tr>
+            <td>6</td>
+            <td>6</td>
+    </tr>
+    <tr>
+            <td>7</td>
+            <td>7</td>
+    </tr>
+    <tr>
+            <td>8</td>
+            <td>8</td>
+    </tr>
+    <tr>
+            <td>1</td>
+            <td>1</td>
+    </tr>
+</table></div>
+</div>
+<p>And we can also <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> a subset of its rows. Say we want all the even numbers:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_even</span> <span class="o">=</span> <span class="n">t_ij</span><span class="p">[</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;i&quot;</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">t_even</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>i</th>
+            <th>j</th>
+    </tr>
+    <tr>
+            <td>2</td>
+            <td>2</td>
+    </tr>
+    <tr>
+            <td>0</td>
+            <td>0</td>
+    </tr>
+    <tr>
+            <td>4</td>
+            <td>4</td>
+    </tr>
+    <tr>
+            <td>6</td>
+            <td>6</td>
+    </tr>
+    <tr>
+            <td>8</td>
+            <td>8</td>
+    </tr>
+</table></div>
+</div>
+<p>For a quick glance, we can <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> the first unordered N rows of a dataframe, like this:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_n</span> <span class="o">=</span> <span class="n">t_even</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+<span class="n">t_n</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>i</th>
+            <th>j</th>
+    </tr>
+    <tr>
+            <td>2</td>
+            <td>2</td>
+    </tr>
+    <tr>
+            <td>0</td>
+            <td>0</td>
+    </tr>
+    <tr>
+            <td>4</td>
+            <td>4</td>
+    </tr>
+</table></div>
+</div>
+<p>Finally when we are done, we can save the resulting dataframe to the database, either temporarily or persistently:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_n</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;t_n&quot;</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="s2">&quot;j&quot;</span><span class="p">],</span> <span class="n">temp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>i</th>
+            <th>j</th>
+    </tr>
+    <tr>
+            <td>0</td>
+            <td>0</td>
+    </tr>
+    <tr>
+            <td>2</td>
+            <td>2</td>
+    </tr>
+    <tr>
+            <td>4</td>
+            <td>4</td>
+    </tr>
+</table></div>
+</div>
+</section>
+<section id="Joining-Two-DataFrames">
+<h2>Joining Two DataFrames<a class="headerlink" href="#Joining-Two-DataFrames" title="Permalink to this heading"></a></h2>
+<p>We can also <code class="docutils literal notranslate"><span class="pre">JOIN</span></code> two dataframes with GreenplumPython. For example, suppose we have two dataframes like this:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;&#39;a&#39;&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;&#39;b&#39;&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;&#39;c&#39;&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;&#39;d&#39;&quot;</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">t1</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">])</span>
+<span class="n">t1</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>id</th>
+            <th>val</th>
+    </tr>
+    <tr>
+            <td>1</td>
+            <td>'a'</td>
+    </tr>
+    <tr>
+            <td>2</td>
+            <td>'b'</td>
+    </tr>
+    <tr>
+            <td>3</td>
+            <td>'c'</td>
+    </tr>
+    <tr>
+            <td>4</td>
+            <td>'d'</td>
+    </tr>
+</table></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;&#39;a&#39;&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;&#39;b&#39;&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;&#39;a&#39;&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;&#39;b&#39;&quot;</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">t2</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">])</span>
+<span class="n">t2</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>id</th>
+            <th>val</th>
+    </tr>
+    <tr>
+            <td>1</td>
+            <td>'a'</td>
+    </tr>
+    <tr>
+            <td>2</td>
+            <td>'b'</td>
+    </tr>
+    <tr>
+            <td>3</td>
+            <td>'a'</td>
+    </tr>
+    <tr>
+            <td>4</td>
+            <td>'b'</td>
+    </tr>
+</table></div>
+</div>
+<p>We can <code class="docutils literal notranslate"><span class="pre">JOIN</span></code> the two dataframe like this:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_join</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="n">t2</span><span class="p">,</span>
+    <span class="n">on</span><span class="o">=</span><span class="s2">&quot;val&quot;</span><span class="p">,</span>
+    <span class="n">self_columns</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;t1_id&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="s2">&quot;t1_val&quot;</span>
+    <span class="p">},</span>
+    <span class="n">other_columns</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;t2_id&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="s2">&quot;t2_val&quot;</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+<span class="n">t_join</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>t1_id</th>
+            <th>t1_val</th>
+            <th>t2_id</th>
+            <th>t2_val</th>
+    </tr>
+    <tr>
+            <td>1</td>
+            <td>'a'</td>
+            <td>3</td>
+            <td>'a'</td>
+    </tr>
+    <tr>
+            <td>1</td>
+            <td>'a'</td>
+            <td>1</td>
+            <td>'a'</td>
+    </tr>
+    <tr>
+            <td>2</td>
+            <td>'b'</td>
+            <td>4</td>
+            <td>'b'</td>
+    </tr>
+    <tr>
+            <td>2</td>
+            <td>'b'</td>
+            <td>2</td>
+            <td>'b'</td>
+    </tr>
+</table></div>
+</div>
+</section>
+<section id="Creating-and-Calling-Functions">
+<h2>Creating and Calling Functions<a class="headerlink" href="#Creating-and-Calling-Functions" title="Permalink to this heading"></a></h2>
+<p>Calling functions is essential for data analytics. GreenplumPython supports creating Greenplum UDFs and UDAs from Python functions and calling them in Python.</p>
+<p>Suppose we have a dataframe of numbers:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="n">numbers</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">])</span>
+<span class="n">numbers</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>val</th>
+    </tr>
+    <tr>
+            <td>0</td>
+    </tr>
+    <tr>
+            <td>1</td>
+    </tr>
+    <tr>
+            <td>2</td>
+    </tr>
+    <tr>
+            <td>3</td>
+    </tr>
+    <tr>
+            <td>4</td>
+    </tr>
+    <tr>
+            <td>5</td>
+    </tr>
+    <tr>
+            <td>6</td>
+    </tr>
+    <tr>
+            <td>7</td>
+    </tr>
+    <tr>
+            <td>8</td>
+    </tr>
+    <tr>
+            <td>9</td>
+    </tr>
+</table></div>
+</div>
+<p>If we want to get the square of each number, we can write a function to do that:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_function</span>
+<span class="k">def</span> <span class="nf">square</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">a</span><span class="o">**</span><span class="mi">2</span>
+
+
+<span class="n">numbers</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">square</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]),</span> <span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;square&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>square</th>
+    </tr>
+    <tr>
+            <td>0</td>
+    </tr>
+    <tr>
+            <td>1</td>
+    </tr>
+    <tr>
+            <td>4</td>
+    </tr>
+    <tr>
+            <td>9</td>
+    </tr>
+    <tr>
+            <td>16</td>
+    </tr>
+    <tr>
+            <td>25</td>
+    </tr>
+    <tr>
+            <td>36</td>
+    </tr>
+    <tr>
+            <td>49</td>
+    </tr>
+    <tr>
+            <td>64</td>
+    </tr>
+    <tr>
+            <td>81</td>
+    </tr>
+</table></div>
+</div>
+<p>Note that this function is called in exactly the same way as ordinary Python functions.</p>
+<p>If we also want to get the sum of these numbers, what we need is to write an aggregate function like this:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_aggregate</span>
+<span class="k">def</span> <span class="nf">my_sum</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">val</span>
+    <span class="k">return</span> <span class="n">result</span> <span class="o">+</span> <span class="n">val</span>
+
+
+<span class="n">numbers</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">my_sum</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]),</span> <span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;sum&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>sum</th>
+    </tr>
+    <tr>
+            <td>45</td>
+    </tr>
+</table></div>
+</div>
+</section>
+<section id="Data-Grouping">
+<h2>Data Grouping<a class="headerlink" href="#Data-Grouping" title="Permalink to this heading"></a></h2>
+<p>We can use <code class="docutils literal notranslate"><span class="pre">DataFrame.group_by()</span></code> to divide a dataframe into groups by distinct values of columns.</p>
+<p>Afterwards, we can apply aggregate functions to individual groups to obtain group-wise summary.</p>
+<p>For example, we can divide numbers into two group based on whether each number is even, and sum each of the groups:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">greenplumpython.builtins.functions</span> <span class="k">as</span> <span class="nn">F</span>
+
+<span class="p">(</span>
+    <span class="n">numbers</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">is_even</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;is_even&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">F</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]))</span>
+<span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>sum</th>
+            <th>is_even</th>
+    </tr>
+    <tr>
+            <td>20</td>
+            <td>True</td>
+    </tr>
+    <tr>
+            <td>25</td>
+            <td>False</td>
+    </tr>
+</table></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../basic.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../modules.html" class="btn btn-neutral float-right" title="GreenplumPython" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, VMware.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
