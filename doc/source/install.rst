@@ -14,11 +14,11 @@ You can install latest release of the **GreenplumPython** library with pip3:
 
     pip3 install greenplum-python
 
-To install the latest development version, do
+To install the latest development version as non root user, do
 
 .. code-block:: bash
 
-    pip3 install --user git+https://github.com/greenplum-db/GreenplumPython
+    pip3 install git+https://github.com/greenplum-db/GreenplumPython
 
 GreenplumPython requires `plpython3 <https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-analytics-pl_python.html>`_ 
 extension to be installed on Greenplum/Postgres.

@@ -9,16 +9,16 @@ GreenplumPython provides a [pandas](https://pandas.pydata.org/)-like DataFrame A
 
 ## Installation
 
-To install the latest development version, do
+To install the latest development version as non root user, do
 
 ```bash
-pip3 install --user git+https://github.com/greenplum-db/GreenplumPython
+pip3 install git+https://github.com/greenplum-db/GreenplumPython
 ```
 
-To install the latest released version, do
+To install the latest released version as non root user, do
 
 ```bash
-pip3 install --user greenplum-python
+pip3 install greenplum-python
 ```
 
 ## Documentation
