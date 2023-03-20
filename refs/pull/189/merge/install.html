@@ -44,8 +44,8 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#installation">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#without-virtual-environments">Without Virtual Environments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#with-virtual-environments">With Virtual Environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#outside-virtual-environments">Outside Virtual Environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inside-a-virtual-environment">Inside a Virtual Environment</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/basic.html">Basic Usage</a></li>
@@ -96,8 +96,8 @@ which provides convenient features like auto-importing modules in the <cite>plpy
 </section>
 <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
-<section id="without-virtual-environments">
-<h2>Without Virtual Environments<a class="headerlink" href="#without-virtual-environments" title="Permalink to this heading"></a></h2>
+<section id="outside-virtual-environments">
+<h2>Outside Virtual Environments<a class="headerlink" href="#outside-virtual-environments" title="Permalink to this heading"></a></h2>
 <p>You can install latest release of the <strong>GreenplumPython</strong> library with pip3:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>--user<span class="w"> </span>greenplum-python
 </pre></div>
@@ -107,8 +107,16 @@ which provides convenient features like auto-importing modules in the <cite>plpy
 </pre></div>
 </div>
 </section>
-<section id="with-virtual-environments">
-<h2>With Virtual Environments<a class="headerlink" href="#with-virtual-environments" title="Permalink to this heading"></a></h2>
+<section id="inside-a-virtual-environment">
+<h2>Inside a Virtual Environment<a class="headerlink" href="#inside-a-virtual-environment" title="Permalink to this heading"></a></h2>
+<p>You can install latest release of the <strong>GreenplumPython</strong> library with pip3:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>greenplum-python
+</pre></div>
+</div>
+<p>or to install the latest development version:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>git+https://github.com/greenplum-db/GreenplumPython
+</pre></div>
+</div>
 <p>The <cite>–user</cite> option in an active virtual environment will install to the local user python location.
 Since a user location doesn’t make sense for a virtual environment, to install the <strong>GreenplumPython</strong> library,
 just remove <cite>–user</cite> from the above commands.</p>

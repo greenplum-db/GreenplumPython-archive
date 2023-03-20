@@ -17,7 +17,7 @@ To install `dill` or any other python modules on the `plpython` side, refer to `
 Installation
 ============
 
-Without Virtual Environments
+Outside Virtual Environments
 ----------------------------
 
 You can install latest release of the **GreenplumPython** library with pip3:
@@ -32,8 +32,20 @@ To install the latest development version, do
 
     pip3 install --user git+https://github.com/greenplum-db/GreenplumPython
 
-With Virtual Environments
--------------------------
+Inside a Virtual Environment
+----------------------------
+
+You can install latest release of the **GreenplumPython** library with pip3:
+
+.. code-block:: bash
+
+    pip3 install greenplum-python
+
+or to install the latest development version:
+
+.. code-block:: bash
+
+    pip3 install git+https://github.com/greenplum-db/GreenplumPython
 
 The `--user` option in an active virtual environment will install to the local user python location.
 Since a user location doesn't make sense for a virtual environment, to install the **GreenplumPython** library,
