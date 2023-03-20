@@ -9,17 +9,21 @@ GreenplumPython provides a [pandas](https://pandas.pydata.org/)-like DataFrame A
 
 ## Installation
 
-To install the latest development version as non root user, do
+To install the latest development version, do
 
 ```bash
-pip3 install git+https://github.com/greenplum-db/GreenplumPython
+pip3 install --user git+https://github.com/greenplum-db/GreenplumPython
 ```
 
-To install the latest released version as non root user, do
+To install the latest released version, do
 
 ```bash
-pip3 install greenplum-python
+pip3 install --user greenplum-python
 ```
+
+**Note:** The `--user` option in an active virtual environment will install to the local user python location.
+Since a user location doesn't make sense for a virtual environment, to install the **GreenplumPython** library,
+just remove `--user` from the above commands.
 
 ## Documentation
 
