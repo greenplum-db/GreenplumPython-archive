@@ -43,7 +43,11 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#installation">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#outside-virtual-environments">Outside Virtual Environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inside-a-virtual-environment">Inside a Virtual Environment</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/basic.html">Basic Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">GreenplumPython</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/abalone.html">Example: Predicting the age of abalone</a></li>
@@ -83,23 +87,40 @@
 </ul>
 </dd>
 </dl>
-</section>
-<section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
-<p>You can install latest release of the <strong>GreenplumPython</strong> library with pip3:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>greenplum-python
-</pre></div>
-</div>
-<p>To install the latest development version, do</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>--user<span class="w"> </span>git+https://github.com/greenplum-db/GreenplumPython
-</pre></div>
-</div>
 <p>GreenplumPython requires <a class="reference external" href="https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-analytics-pl_python.html">plpython3</a>
 extension to be installed on Greenplum/Postgres.</p>
 <p><a class="reference external" href="https://github.com/uqfoundation/dill">dill</a>  as an optional dependency for GreenplumPython <cite>plpython</cite> side,
 which provides convenient features like auto-importing modules in the <cite>plpython</cite> functions. (auto-import is available even when dill is NOT installed on server.
 <cite>dill</cite> is require to include outside dependencies in the same file/module, like functions or classes.)</p>
 <p>To install <cite>dill</cite> or any other python modules on the <cite>plpython</cite> side, refer to <a class="reference external" href="https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-analytics-pl_python.html#pip39">GPDB plpython document</a> for more details.</p>
+</section>
+<section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
+<section id="outside-virtual-environments">
+<h2>Outside Virtual Environments<a class="headerlink" href="#outside-virtual-environments" title="Permalink to this heading"></a></h2>
+<p>You can install latest release of the <strong>GreenplumPython</strong> library with pip3:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>--user<span class="w"> </span>greenplum-python
+</pre></div>
+</div>
+<p>To install the latest development version, do</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>--user<span class="w"> </span>git+https://github.com/greenplum-db/GreenplumPython
+</pre></div>
+</div>
+</section>
+<section id="inside-a-virtual-environment">
+<h2>Inside a Virtual Environment<a class="headerlink" href="#inside-a-virtual-environment" title="Permalink to this heading"></a></h2>
+<p>You can install latest release of the <strong>GreenplumPython</strong> library with pip3:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>greenplum-python
+</pre></div>
+</div>
+<p>or to install the latest development version:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>git+https://github.com/greenplum-db/GreenplumPython
+</pre></div>
+</div>
+<p>The <cite>–user</cite> option in an active virtual environment will install to the local user python location.
+Since a user location doesn’t make sense for a virtual environment, to install the <strong>GreenplumPython</strong> library,
+just remove <cite>–user</cite> from the above commands.</p>
+</section>
 </section>
 
 
