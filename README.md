@@ -21,6 +21,10 @@ To install the latest released version, do
 pip3 install --user greenplum-python
 ```
 
+**Note:** The `--user` option in an active virtual environment will install to the local user python location.
+Since a user location doesn't make sense for a virtual environment, to install the **GreenplumPython** library,
+just remove `--user` from the above commands.
+
 ## Documentation
 
 The documentation of GreenplumPython can be viewed at:
