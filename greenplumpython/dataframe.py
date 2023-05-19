@@ -68,6 +68,7 @@ class DataFrame:
         parents: List["DataFrame"] = [],
         db: Optional[Database] = None,
         columns: Optional[Iterable[Column]] = None,
+        is_saved: bool = False,
     ) -> None:
         # FIXME: Add doc
         # noqa
@@ -76,10 +77,15 @@ class DataFrame:
         self._name = "cte_" + uuid4().hex
         self._columns = columns
         self._contents: Optional[Iterable[RealDictRow]] = None
+        self._is_saved = is_saved
         if any(parents):
             self._db = next(iter(parents))._db
         else:
             self._db = db
+
+    @property
+    def is_saved(self) -> bool:
+        return self._is_saved
 
     @singledispatchmethod
     def _getitem(self, _) -> "DataFrame":
@@ -847,7 +853,7 @@ class DataFrame:
             parents=[self],
         )
         result = self._db._execute(to_json_dataframe._build_full_query())
-        return result if result is not None else []
+        return result if isinstance(result, Iterable) else []
 
     def save_as(
         self,
@@ -915,35 +921,44 @@ class DataFrame:
         storage_parameters = (
             f"WITH ({','.join([f'{key}={storage_params[key]}' for key in storage_params.keys()])})"
         )
-        df_full_name = f'"{table_name}"' if schema is None else f'"{schema}"."{table_name}"'
+        qualified_table_name = f'"{table_name}"' if schema is None else f'"{schema}"."{table_name}"'
         self._db._execute(
             f"""
-            CREATE {'TEMP' if temp else ''} TABLE {df_full_name}
+            CREATE {'TEMP' if temp else ''} TABLE {qualified_table_name}
             ({','.join(column_names)})
             {storage_parameters if storage_params else ''}
             AS {self._build_full_query()}
             """,
             has_results=False,
         )
-        return DataFrame.from_table(table_name, self._db)
+        return DataFrame.from_table(table_name, self._db, schema=schema)
 
-    # TODO: Uncomment or remove this.
-    #
-    # def create_index(
-    #     self,
-    #     columns: Iterable[Union["Column", str]],
-    #     method: str = "btree",
-    #     name: Optional[str] = None,
-    # ) -> None:
-    #     if not self._in_catalog():
-    #         raise Exception("Cannot create index on dataframes not in the system catalog.")
-    #     index_name: str = name if name is not None else "idx_" + uuid4().hex
-    #     indexed_cols = ",".join([str(col) for col in columns])
-    #     assert self._db is not None
-    #     self._db._execute(
-    #         f"CREATE INDEX {index_name} ON {self.name} USING {method} ({indexed_cols})",
-    #         has_results=False,
-    #     )
+    def create_index(
+        self,
+        columns: List[str],
+        method: str = "btree",
+        name: Optional[str] = None,
+    ) -> "DataFrame":
+        assert self.is_saved, "Cannot create index for unsaved dataframe."
+        assert len(columns) > 0, "Column set to be indexed cannot be empty."
+
+        index_name: str = "idx_" + uuid4().hex if name is None else name
+        qualified_table_name = (
+            f'"{self._schema}"."{self._name}"' if self._schema is not None else f'"{self._name}"'
+        )
+        key_cols = []
+        for name in columns:
+            col: Column = self[name]
+            key_cols.append(col._serialize())
+
+        assert self._db is not None
+        self._db._execute(
+            f'CREATE INDEX "{index_name}" ON {qualified_table_name} USING "{method}" ('
+            f'   {",".join(key_cols)}'
+            f")",
+            has_results=False,
+        )
+        return self
 
     def _explain(self, format: str = "TEXT") -> Iterable[Tuple[str]]:
         """
@@ -1036,6 +1051,7 @@ class DataFrame:
         return DataFrame(
             f'TABLE "{schema}"."{table_name}"' if schema is not None else f'TABLE "{table_name}"',
             db=db,
+            is_saved=True,
         )
 
     @classmethod
