@@ -1,4 +1,5 @@
-from typing import Any, Union, Optional
+from typing import Any, Optional, Union
+
 from greenplumpython.expr import BinaryExpr, UnaryExpr
 
 

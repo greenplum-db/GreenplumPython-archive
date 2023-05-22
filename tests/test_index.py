@@ -1,8 +1,9 @@
+from typing import List
+
 import pytest
-from tests import db
 
 import greenplumpython as gp
-from typing import List
+from tests import db
 
 
 def test_op_on_consts(db: gp.Database):
@@ -12,8 +13,8 @@ def test_op_on_consts(db: gp.Database):
 
 
 def test_op_index(db: gp.Database):
-    import json
     import dataclasses
+    import json
 
     @dataclasses.dataclass
     class Student:
@@ -32,12 +33,12 @@ def test_op_index(db: gp.Database):
     db._execute("SET enable_seqscan TO False", has_results=False)
     json_contains = gp.operator("@>")
     results = student[lambda t: json_contains(t["info"], json.dumps({"name": "john"}))]._explain()
-    uses_index_scan = False
+    using_index_scan = False
     for row in results:
         if "Index Scan" in row["QUERY PLAN"]:
-            uses_index_scan = True
+            using_index_scan = True
             break
-    assert uses_index_scan
+    assert using_index_scan
 
 
 def test_op_with_schema(db: gp.Database):
