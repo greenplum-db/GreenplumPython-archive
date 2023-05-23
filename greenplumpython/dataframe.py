@@ -857,7 +857,7 @@ class DataFrame:
 
     def save_as(
         self,
-        table_name: str,
+        table_name: Optional[str] = None,
         column_names: List[str] = [],
         temp: bool = False,
         storage_params: dict[str, Any] = {},
@@ -918,16 +918,20 @@ class DataFrame:
 
         # build string from parameter dict, such as from {'a': 1, 'b': 2} to
         # 'WITH (a=1, b=2)'
-        storage_parameters = (
+        storage_params_clause = (
             f"WITH ({','.join([f'{key}={storage_params[key]}' for key in storage_params.keys()])})"
         )
+        if table_name is None:
+            table_name = self._name if not self.is_saved else "cte_" + uuid4().hex
         qualified_table_name = f'"{table_name}"' if schema is None else f'"{schema}"."{table_name}"'
         self._db._execute(
             f"""
             CREATE {'TEMP' if temp else ''} TABLE {qualified_table_name}
             ({','.join(column_names)})
-            {storage_parameters if storage_params else ''}
-            AS {self._build_full_query()}
+            {storage_params_clause if storage_params else ''}
+            AS (
+                {self._build_full_query()}
+            )
             """,
             has_results=False,
         )
@@ -946,11 +950,7 @@ class DataFrame:
         qualified_table_name = (
             f'"{self._schema}"."{self._name}"' if self._schema is not None else f'"{self._name}"'
         )
-        key_cols = []
-        for name in columns:
-            col: Column = self[name]
-            key_cols.append(col._serialize())
-
+        key_cols = [f'"{name}"' for name in columns]
         assert self._db is not None
         self._db._execute(
             f'CREATE INDEX "{index_name}" ON {qualified_table_name} USING "{method}" ('

@@ -4,7 +4,7 @@ from greenplumpython.expr import BinaryExpr, UnaryExpr
 
 
 class Operator:
-    def __init__(self, name: str, schema: Optional[str]) -> None:
+    def __init__(self, name: str, schema: Optional[str] = None) -> None:
         self._name = name
         self._schema = schema
 
@@ -24,5 +24,5 @@ class Operator:
             raise Exception("Too many operands.")
 
 
-def operator(name: str, schema: Optional[str]) -> Operator:
+def operator(name: str, schema: Optional[str] = None) -> Operator:
     return Operator(name, schema)
