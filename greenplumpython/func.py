@@ -95,7 +95,7 @@ class FunctionExpr(Expr):
         )
         return f"{self._function._qualified_name_str}({distinct} {args_string})"
 
-    def apply(self, expand: bool = False, column_name: Optional[str] = None) -> DataFrame:
+    def apply(self, expand: bool = False, column_name: Optional[str] = None, row_id: Optional[str] = None) -> DataFrame:
         # noqa D400
         """
         :meta private:
@@ -125,7 +125,7 @@ class FunctionExpr(Expr):
         orig_func_dataframe = DataFrame(
             " ".join(
                 [
-                    f"SELECT {str(self)} {'AS ' + column_name if column_name is not None else ''}",
+                    f"SELECT {(row_id + ',') if row_id is not None else ''} {str(self)} {'AS ' + column_name if column_name is not None else ''}",
                     ("," + ",".join(grouping_cols)) if (grouping_cols is not None) else "",
                     from_clause,
                     group_by_clause,
@@ -163,7 +163,7 @@ class FunctionExpr(Expr):
         )
 
         return DataFrame(
-            f"SELECT {str(results)} FROM {orig_func_dataframe._name}",
+            f"SELECT {(row_id + ',') if row_id is not None and expand else ''} {str(results)} FROM {orig_func_dataframe._name}",
             db=self._db,
             parents=[orig_func_dataframe],
         )

@@ -334,6 +334,7 @@ class DataFrame:
         func: Callable[["DataFrame"], "FunctionExpr"],
         expand: bool = False,
         column_name: Optional[str] = None,
+        row_id: Optional[str] = None,
     ) -> "DataFrame":
         """
         Apply a dataframe function to the self :class:`~dataframe.DataFrame`.
@@ -421,7 +422,7 @@ class DataFrame:
         #
         # To fix this, we need to pass the dataframe to the resulting FunctionExpr
         # explicitly.
-        return func(self).bind(dataframe=self).apply(expand=expand, column_name=column_name)
+        return func(self).bind(dataframe=self).apply(expand=expand, column_name=column_name, row_id=row_id)
 
     def assign(self, **new_columns: Callable[["DataFrame"], Any]) -> "DataFrame":
         """
@@ -856,6 +857,7 @@ class DataFrame:
         temp: bool = False,
         storage_params: dict[str, Any] = {},
         schema: Optional[str] = None,
+        distribution_key: Optional[List[str]] = None,
     ) -> "DataFrame":
         """
         Save the GreenplumPython :class:`~dataframe.Dataframe` as a *table* into the database.
@@ -922,6 +924,7 @@ class DataFrame:
             ({','.join(column_names)})
             {storage_parameters if storage_params else ''}
             AS {self._build_full_query()}
+            DISTRIBUTED {f"BY ({','.join(distribution_key)})" if distribution_key is not None else "RANDOMLY"}
             """,
             has_results=False,
         )
