@@ -68,16 +68,16 @@ class DataFrame:
         parents: List["DataFrame"] = [],
         db: Optional[Database] = None,
         columns: Optional[Iterable[Column]] = None,
-        is_saved: bool = False,
+        qualified_table_name: Optional[str] = None,
     ) -> None:
         # FIXME: Add doc
         # noqa
         self._query = query
         self._parents = parents
         self._name = "cte_" + uuid4().hex
+        self._qualified_table_name = qualified_table_name
         self._columns = columns
         self._contents: Optional[Iterable[RealDictRow]] = None
-        self._is_saved = is_saved
         if any(parents):
             self._db = next(iter(parents))._db
         else:
@@ -85,7 +85,7 @@ class DataFrame:
 
     @property
     def is_saved(self) -> bool:
-        return self._is_saved
+        return self._qualified_table_name is not None
 
     @singledispatchmethod
     def _getitem(self, _) -> "DataFrame":
@@ -947,13 +947,10 @@ class DataFrame:
         assert len(columns) > 0, "Column set to be indexed cannot be empty."
 
         index_name: str = "idx_" + uuid4().hex if name is None else name
-        qualified_table_name = (
-            f'"{self._schema}"."{self._name}"' if self._schema is not None else f'"{self._name}"'
-        )
         key_cols = [f'"{name}"' for name in columns]
         assert self._db is not None
         self._db._execute(
-            f'CREATE INDEX "{index_name}" ON {qualified_table_name} USING "{method}" ('
+            f'CREATE INDEX "{index_name}" ON {self._qualified_table_name} USING "{method}" ('
             f'   {",".join(key_cols)}'
             f")",
             has_results=False,
@@ -1048,11 +1045,8 @@ class DataFrame:
             df = gp.DataFrame.from_table("pg_class", db=db)
 
         """
-        return DataFrame(
-            f'TABLE "{schema}"."{table_name}"' if schema is not None else f'TABLE "{table_name}"',
-            db=db,
-            is_saved=True,
-        )
+        qualified_name = f'"{schema}"."{table_name}"' if schema is not None else f'"{table_name}"'
+        return DataFrame(f"TABLE {qualified_name}", db=db, qualified_table_name=qualified_name)
 
     @classmethod
     def from_rows(
