@@ -802,10 +802,12 @@ def test_func_non_default_schema(db: gp.Database):
 
 def test_func_nested_create(db: gp.Database):
     @gp.create_function
-    def add_one(x: int) -> int: return x + 1
+    def add_one(x: int) -> int:
+        return x + 1
 
     @gp.create_function
-    def add_two(x: int) -> int: return x + 2
+    def add_two(x: int) -> int:
+        return x + 2
 
     result = db.apply(lambda: add_two(add_one(1)), column_name="val")
     for row in result:
