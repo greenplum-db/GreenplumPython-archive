@@ -51,7 +51,14 @@ def test_index_opclass(db: gp.Database):
         .create_index(columns={"text": "text_pattern_ops"})
     )
     db._execute("SET enable_seqscan TO off", has_results=False)
-    db._execute("SET optimizer TO off", has_results=False)
+    db._execute("""
+        do $$
+        begin
+            set optimizer to off;
+        exception when others then
+        end;
+        $$;
+    """, has_results=False)
     assert using_index_scan(df[lambda t: t["text"] > "hello"], db)
 
 
