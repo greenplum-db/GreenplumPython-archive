@@ -95,7 +95,7 @@ class DataFrame:
         assert index is False, "DataFrame in GreenplumPython.pandas does not have an index column"
         table_name = f'"{name}"' if schema is None else f'"{schema}"."{name}"'
         database = db.Database(uri=con)
-        query = self._dataframe._build_full_query()
+        query = self._dataframe._serialize()
         if if_exists == "append":
             rowcount = database._execute(
                 f"""

@@ -85,6 +85,9 @@ class DataFrame:
 
     @property
     def is_saved(self) -> bool:
+        """
+        Check whether the current dataframe is saved in database.
+        """
         return self._qualified_table_name is not None
 
     @singledispatchmethod
@@ -710,7 +713,7 @@ class DataFrame:
                 self._depth_first_search(i, visited, lineage)
         lineage.append(t)
 
-    def _build_full_query(self) -> str:
+    def _serialize(self) -> str:
         # noqa
         """:meta private:"""
         lineage = self._list_lineage()
@@ -852,7 +855,7 @@ class DataFrame:
             f"SELECT to_json({output_name})::TEXT FROM {self._name} AS {output_name}",
             parents=[self],
         )
-        result = self._db._execute(to_json_dataframe._build_full_query())
+        result = self._db._execute(to_json_dataframe._serialize())
         return result if isinstance(result, Iterable) else []
 
     def save_as(
@@ -930,7 +933,7 @@ class DataFrame:
             ({','.join(column_names)})
             {storage_params_clause if storage_params else ''}
             AS (
-                {self._build_full_query()}
+                {self._serialize()}
             )
             """,
             has_results=False,
@@ -939,7 +942,7 @@ class DataFrame:
 
     def create_index(
         self,
-        columns: List[str],
+        columns: Union[Set[str], Dict[str, str]],
         method: str = "btree",
         name: Optional[str] = None,
     ) -> "DataFrame":
@@ -947,30 +950,19 @@ class DataFrame:
         assert len(columns) > 0, "Column set to be indexed cannot be empty."
 
         index_name: str = "idx_" + uuid4().hex if name is None else name
-        key_cols = [f'"{name}"' for name in columns]
+        keys = (
+            [f'"{name}" "{op_class}"' for name, op_class in columns.items()]
+            if isinstance(columns, dict)
+            else [f'"{name}"' for name in columns]
+        )
         assert self._db is not None
         self._db._execute(
             f'CREATE INDEX "{index_name}" ON {self._qualified_table_name} USING "{method}" ('
-            f'   {",".join(key_cols)}'
+            f'   {",".join(keys)}'
             f")",
             has_results=False,
         )
         return self
-
-    def _explain(self, format: str = "TEXT") -> Iterable[Tuple[str]]:
-        """
-        Explain the GreenplumPython :class:`~dataframe.DataFrame`'s execution plan.
-
-        Args:
-            format: str: the format of the explain result. It can be one of "TEXT"/"XML"/"JSON"/"YAML".
-
-        Returns:
-            Iterable[Tuple[str]]: The results of *EXPLAIN* query.
-        """
-        assert self._db is not None
-        results = self._db._execute(f"EXPLAIN (FORMAT {format}) {self._build_full_query()}")
-        assert results is not None
-        return results
 
     def group_by(self, *column_names: str) -> DataFrameGroupingSet:
         """

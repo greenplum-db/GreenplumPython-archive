@@ -12,7 +12,14 @@ def test_op_on_consts(db: gp.Database):
     assert len(list(result)) == 1 and next(iter(result))["is_matched"]
 
 
-def test_op_index(db: gp.Database):
+def using_index_scan(results: gp.DataFrame, db: gp.Database) -> bool:
+    for row in db._execute(f"EXPLAIN {results._serialize()}"):
+        if "Index Scan" in row["QUERY PLAN"] or "Index Only Scan" in row["QUERY PLAN"]:
+            return True
+    return False
+
+
+def test_index(db: gp.Database):
     import dataclasses
     import json
 
@@ -27,18 +34,25 @@ def test_op_index(db: gp.Database):
     student = (
         db.create_dataframe(rows=rows, column_names=["info"])
         .save_as(temp=True, column_names=["info"])
-        .create_index(["info"], "gin")
+        .create_index({"info"}, "gin")
     )
 
     db._execute("SET enable_seqscan TO False", has_results=False)
     json_contains = gp.operator("@>")
-    results = student[lambda t: json_contains(t["info"], json.dumps({"name": "john"}))]._explain()
-    using_index_scan = False
-    for row in results:
-        if "Index Scan" in row["QUERY PLAN"]:
-            using_index_scan = True
-            break
-    assert using_index_scan
+    assert using_index_scan(
+        student[lambda t: json_contains(t["info"], json.dumps({"name": "john"}))], db
+    )
+
+
+def test_index_opclass(db: gp.Database):
+    df = (
+        db.create_dataframe(columns={"text": ["hello", "world"]})
+        .save_as(temp=True, column_names=["text"])
+        .create_index(columns={"text": "text_pattern_ops"})
+    )
+    db._execute("SET enable_seqscan TO off", has_results=False)
+    db._execute("SET optimizer TO off", has_results=False)
+    assert using_index_scan(df[lambda t: t["text"] > "hello"], db)
 
 
 def test_op_with_schema(db: gp.Database):
