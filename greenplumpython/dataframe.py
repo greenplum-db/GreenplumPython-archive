@@ -85,9 +85,7 @@ class DataFrame:
 
     @property
     def is_saved(self) -> bool:
-        """
-        Check whether the current dataframe is saved in database.
-        """
+        """Check whether the current dataframe is saved in database."""
         return self._qualified_table_name is not None
 
     @singledispatchmethod
