@@ -85,6 +85,9 @@ class FunctionExpr(Expr):
         """:meta private:"""
         self._function._create_in_db(self._db)
         distinct = "DISTINCT" if self._distinct else ""
+        for arg in self._args:
+            if isinstance(arg, Expr):
+                arg._db = self._db
         args_string = (
             ",".join([_serialize(arg) for arg in self._args if arg is not None])
             if any(self._args)
