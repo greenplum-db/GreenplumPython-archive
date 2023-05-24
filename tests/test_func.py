@@ -798,3 +798,15 @@ def test_func_non_default_schema(db: gp.Database):
     # -- WITH APPLY FUNC
     results2 = series.apply(lambda nums: abs(nums["id"]))
     assert sorted([row["abs"] for row in results2]) == list(range(1, 11))
+
+
+def test_func_nested_create(db: gp.Database):
+    @gp.create_function
+    def add_one(x: int) -> int: return x + 1
+
+    @gp.create_function
+    def add_two(x: int) -> int: return x + 2
+
+    result = db.apply(lambda: add_two(add_one(1)), column_name="val")
+    for row in result:
+        assert row["val"] == 1 + 1 + 2
