@@ -946,6 +946,19 @@ class DataFrame:
         method: str = "btree",
         name: Optional[str] = None,
     ) -> "DataFrame":
+        """
+        Create an index for the current dataframe for fast searching.
+
+        The current dataframe is required to be saved before creating index.
+
+        Args:
+            columns: key columns of the current dataframe to create index on.
+            method: index access method.
+            name: name of the index.
+
+        Returns:
+            Dataframe with key columns indexed.
+        """
         assert self.is_saved, "Cannot create index for unsaved dataframe."
         assert len(columns) > 0, "Column set to be indexed cannot be empty."
 
