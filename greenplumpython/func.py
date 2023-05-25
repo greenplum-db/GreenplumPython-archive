@@ -341,10 +341,12 @@ class NormalFunction(_AbstractFunction):
             importables: List[str] = [dill.source.getimportable(obj) for obj in global_objects]
             importables_ast: List[ast.Import] = ast.parse(dedent("".join(importables))).body
             func_ast.body = importables_ast + func_ast.body
+
             pickle_lib_name: str = "__lib_" + uuid4().hex
-            sys_lib_name: str = "__lib_" + uuid4().hex
+            sysconfig_lib_name: str = "__lib_" + uuid4().hex
             python_version = sysconfig.get_python_version()
             encode_lib_name: str = "__lib_" + uuid4().hex
+            sys_lib_name: str = "__lib_" + uuid4().hex
             assert (
                 db._execute(
                     (
@@ -356,11 +358,12 @@ class NormalFunction(_AbstractFunction):
                         f"except KeyError:\n"
                         f"    try:\n"
                         f"        import dill as {pickle_lib_name}\n"
-                        f"        import sysconfig as {sys_lib_name}\n"
+                        f"        import sysconfig as {sysconfig_lib_name}\n"
                         f"        import base64 as {encode_lib_name}\n"
-                        f"        if {sys_lib_name}.get_python_version() != '{python_version}':\n"
+                        f"        import sys as {sys_lib_name}\n"
+                        f"        if {sysconfig_lib_name}.get_python_version() != '{python_version}':\n"
                         f"            raise ModuleNotFoundError\n"
-                        f"        setattr(sys.modules['plpy'], '_SD', SD)"
+                        f"        setattr({sys_lib_name}.modules['plpy'], '_SD', SD)\n"
                         f"        GD['{func_ast.name}'] = {pickle_lib_name}.loads({encode_lib_name}.b64decode({base64.b64encode(func_pickled)}))\n"
                         f"    except ModuleNotFoundError:\n"
                         f"        exec({json.dumps(ast.unparse(func_ast))}, globals())\n"
