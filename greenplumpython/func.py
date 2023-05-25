@@ -360,6 +360,7 @@ class NormalFunction(_AbstractFunction):
                         f"        import base64 as {encode_lib_name}\n"
                         f"        if {sys_lib_name}.get_python_version() != '{python_version}':\n"
                         f"            raise ModuleNotFoundError\n"
+                        f"        setattr(sys.modules['plpy'], '_SD', SD)"
                         f"        GD['{func_ast.name}'] = {pickle_lib_name}.loads({encode_lib_name}.b64decode({base64.b64encode(func_pickled)}))\n"
                         f"    except ModuleNotFoundError:\n"
                         f"        exec({json.dumps(ast.unparse(func_ast))}, globals())\n"
