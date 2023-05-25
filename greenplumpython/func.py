@@ -95,7 +95,9 @@ class FunctionExpr(Expr):
         )
         return f"{self._function._qualified_name_str}({distinct} {args_string})"
 
-    def apply(self, expand: bool = False, column_name: Optional[str] = None, row_id: Optional[str] = None) -> DataFrame:
+    def apply(
+        self, expand: bool = False, column_name: Optional[str] = None, row_id: Optional[str] = None
+    ) -> DataFrame:
         # noqa D400
         """
         :meta private:

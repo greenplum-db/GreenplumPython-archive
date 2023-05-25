@@ -422,7 +422,11 @@ class DataFrame:
         #
         # To fix this, we need to pass the dataframe to the resulting FunctionExpr
         # explicitly.
-        return func(self).bind(dataframe=self).apply(expand=expand, column_name=column_name, row_id=row_id)
+        return (
+            func(self)
+            .bind(dataframe=self)
+            .apply(expand=expand, column_name=column_name, row_id=row_id)
+        )
 
     def assign(self, **new_columns: Callable[["DataFrame"], Any]) -> "DataFrame":
         """
