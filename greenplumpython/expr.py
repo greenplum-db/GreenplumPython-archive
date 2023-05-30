@@ -625,8 +625,8 @@ class BinaryExpr(Expr):
     def _serialize(self) -> str:
         from greenplumpython.expr import _serialize
 
-        left_str = _serialize(self.left)
-        right_str = _serialize(self.right)
+        left_str = _serialize(self._left)
+        right_str = _serialize(self._right)
         return f"({left_str} {self.operator} {right_str})"
 
 
