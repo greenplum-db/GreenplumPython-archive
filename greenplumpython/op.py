@@ -1,3 +1,6 @@
+"""
+Indexing is essential for fast data searching in database. Unlike pandas, 
+"""
 from typing import Any, Optional, Union
 
 from greenplumpython.expr import BinaryExpr, UnaryExpr
