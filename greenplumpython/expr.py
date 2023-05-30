@@ -569,9 +569,13 @@ class BinaryExpr(Expr):
         if other_dataframe is not None and isinstance(right, Expr):
             other_dataframe = right._other_dataframe
         super().__init__(dataframe=dataframe, other_dataframe=other_dataframe)
-        self.operator = operator
-        self.left = left
-        self.right = right
+        self._operator = operator
+        self._left = left
+        if self._left._db is None:
+            self._left._db = self._db
+        self._right = right
+        if self._right._db is None:
+            self._right._db = self._db
 
     @overload
     def __init__(
@@ -621,8 +625,8 @@ class BinaryExpr(Expr):
     def _serialize(self) -> str:
         from greenplumpython.expr import _serialize
 
-        left_str = _serialize(self.left)
-        right_str = _serialize(self.right)
+        left_str = _serialize(self._left)
+        right_str = _serialize(self._right)
         return f"({left_str} {self.operator} {right_str})"
 
 
@@ -639,11 +643,13 @@ class UnaryExpr(Expr):
             (right._dataframe, right._other_dataframe) if isinstance(right, Expr) else (None, None)
         )
         super().__init__(dataframe=dataframe, other_dataframe=other_dataframe)
-        self.operator = operator
-        self.right = right
+        self._operator = operator
+        self._right = right
+        if self._right._db is None:
+            self._right._db = self._db
 
     def _serialize(self) -> str:
-        right_str = str(self.right)
+        right_str = str(self._right)
         return f"{self.operator} ({right_str})"
 
 
