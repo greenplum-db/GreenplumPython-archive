@@ -81,7 +81,7 @@ class Type:
         if self._schema is not None:
             self._qualified_name_str = f'"{self._schema}".' + self._qualified_name_str
         if self._modifier is not None:
-            self._qualified_name_str += self._qualified_name_str + f"({self._modifier})"
+            self._qualified_name_str += f"({self._modifier})"
 
     # -- Creation of a composite type in Greenplum corresponding to the class_type given
     def _create_in_db(self, db: Database):
