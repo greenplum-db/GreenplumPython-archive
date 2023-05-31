@@ -52,6 +52,8 @@ class TypeCast(Expr):
         )
 
     def _serialize(self) -> str:
+        if isinstance(self._obj, Expr):
+            self._obj._db = self._db
         obj_str = _serialize(self._obj)
         return f"({obj_str}::{self._qualified_name_str})"
 
