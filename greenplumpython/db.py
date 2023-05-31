@@ -213,6 +213,7 @@ class Database:
         for k, f in new_columns.items():
             v: Any = f()
             if isinstance(v, Expr):
+                v.bind(db=self)
                 assert v._dataframe is None, "New column should not depend on any dataframe."
             if isinstance(v, FunctionExpr):
                 v = v.bind(db=self)

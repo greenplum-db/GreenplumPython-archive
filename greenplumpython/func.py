@@ -83,6 +83,7 @@ class FunctionExpr(Expr):
     def _serialize(self) -> str:
         # noqa D400
         """:meta private:"""
+        assert self._db is not None, "Database is required to create function."
         self._function._create_in_db(self._db)
         distinct = "DISTINCT" if self._distinct else ""
         for arg in self._args:
@@ -310,6 +311,7 @@ class NormalFunction(_AbstractFunction):
                 func_src: str = inspect.getsource(self._wrapped_func)
             else:
                 func_src: str = dill.source.getsource(self._wrapped_func)
+                assert isinstance(func_src, str)
             func_ast: ast.FunctionDef = ast.parse(dedent(func_src)).body[0]
             # TODO: Lambda expressions are NOT supported since inspect.signature()
             # does not work as expected.
