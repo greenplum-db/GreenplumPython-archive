@@ -621,13 +621,13 @@ class BinaryExpr(Expr):
     def _serialize(self) -> str:
         from greenplumpython.expr import _serialize
 
-        if isinstance(self._left._db, Expr):
+        if isinstance(self._left, Expr):
             self._left._db = self._db
-        if isinstance(self._right._db, Expr):
+        if isinstance(self._right, Expr):
             self._right._db = self._db
         left_str = _serialize(self._left)
         right_str = _serialize(self._right)
-        return f"({left_str} {self.operator} {right_str})"
+        return f"({left_str} {self._operator} {right_str})"
 
 
 class UnaryExpr(Expr):
@@ -652,7 +652,7 @@ class UnaryExpr(Expr):
         if isinstance(self._right._db, Expr):
             self._right._db = self._db
         right_str = _serialize(self._right)
-        return f"({self.operator} ({right_str}))"
+        return f"({self._operator} ({right_str}))"
 
 
 class InExpr(Expr):

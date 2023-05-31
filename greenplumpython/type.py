@@ -28,12 +28,7 @@ class TypeCast(Expr):
                 (2 rows)
     """
 
-    def __init__(
-        self,
-        obj: object,
-        type_name: str,
-        schema: Optional[str] = None,
-    ) -> None:
+    def __init__(self, obj: object, qualified_type_name: str) -> None:
         # noqa: D205 D400
         """
         Args:
@@ -43,29 +38,13 @@ class TypeCast(Expr):
         dataframe = obj._dataframe if isinstance(obj, Expr) else None
         super().__init__(dataframe)
         self._obj = obj
-        self._type_name = type_name
-        self._schema = schema
-        self._qualified_name_str = (
-            f'"{self._type_name}"'
-            if self._schema is None
-            else f'"{self._schema}"."{self._type_name}"'
-        )
+        self._qualified_type_name = qualified_type_name
 
     def _serialize(self) -> str:
         if isinstance(self._obj, Expr):
             self._obj._db = self._db
         obj_str = _serialize(self._obj)
-        return f"({obj_str}::{self._qualified_name_str})"
-
-    @property
-    def _qualified_name(self) -> Tuple[Optional[str], str]:
-        """
-        Return the schema name and name of :class:`~type.TypeCast`.
-
-        Returns:
-            Tuple[str, str]: schema name and :class:`~type.TypeCast`'s name.
-        """
-        return self._schema, self._type_name
+        return f"({obj_str}::{self._qualified_type_name})"
 
 
 class Type:
@@ -86,16 +65,23 @@ class Type:
     """
 
     def __init__(
-        self, name: str, annotation: Optional[type] = None, schema: Optional[str] = None
+        self,
+        name: str,
+        annotation: Optional[type] = None,
+        schema: Optional[str] = None,
+        modifier: Optional[int] = None,
     ) -> None:
         # noqa: D107
         self._name = name
         self._annotation = annotation
         self._created_in_dbs: Optional[Set[Database]] = set() if annotation is not None else None
         self._schema = schema
-        self._qualified_name_str = (
-            f'"{self._name}"' if self._schema is None else f'"{self._schema}"."{self._name}"'
-        )
+        self._modifier = modifier
+        self._qualified_name_str = f'"{self._name}"'
+        if self._schema is not None:
+            self._qualified_name_str = f'"{self._schema}".' + self._qualified_name_str
+        if self._modifier is not None:
+            self._qualified_name_str += self._qualified_name_str + f"({self._modifier})"
 
     # -- Creation of a composite type in Greenplum corresponding to the class_type given
     def _create_in_db(self, db: Database):
@@ -140,7 +126,7 @@ class Type:
                 - Any :class:`Expr` consisting of adaptable Python objects and
                     :class:`Column`s of a :class:`DataFrame`.
         """
-        return TypeCast(obj, self._name, self._schema)
+        return TypeCast(obj, self._qualified_name_str)
 
     @property
     def _qualified_name(self) -> Tuple[Optional[str], str]:
@@ -164,7 +150,7 @@ _defined_types: Dict[Optional[type], Type] = {
 }
 
 
-def type_(name: str, schema: Optional[str] = None) -> Type:
+def type_(name: str, schema: Optional[str] = None, modifier: Optional[int] = None) -> Type:
     """
     Get access to a type predefined in database.
 
@@ -175,7 +161,7 @@ def type_(name: str, schema: Optional[str] = None) -> Type:
     Returns:
         The predefined type as a :class:`~type.Type` object.
     """
-    return Type(name, schema=schema)
+    return Type(name, schema=schema, modifier=modifier)
 
 
 def to_pg_type(
