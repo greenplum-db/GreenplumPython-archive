@@ -936,8 +936,10 @@ class DataFrame:
             f"""
             CREATE {'TEMP' if temp else ''} TABLE {qualified_table_name}
             ({','.join(column_names)})
-            {storage_parameters if storage_params else ''}
-            AS {self._build_full_query()}
+            {storage_params_clause if storage_params else ''}
+            AS (
+                {self._serialize()}
+            )
             DISTRIBUTED {f"BY ({','.join(distribution_key)})" if distribution_key is not None else "RANDOMLY"}
             """,
             has_results=False,
