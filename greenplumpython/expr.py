@@ -571,11 +571,7 @@ class BinaryExpr(Expr):
         super().__init__(dataframe=dataframe, other_dataframe=other_dataframe)
         self._operator = operator
         self._left = left
-        if self._left._db is None:
-            self._left._db = self._db
         self._right = right
-        if self._right._db is None:
-            self._right._db = self._db
 
     @overload
     def __init__(
@@ -625,6 +621,10 @@ class BinaryExpr(Expr):
     def _serialize(self) -> str:
         from greenplumpython.expr import _serialize
 
+        if isinstance(self._left._db, Expr):
+            self._left._db = self._db
+        if isinstance(self._right._db, Expr):
+            self._right._db = self._db
         left_str = _serialize(self._left)
         right_str = _serialize(self._right)
         return f"({left_str} {self.operator} {right_str})"
@@ -645,12 +645,14 @@ class UnaryExpr(Expr):
         super().__init__(dataframe=dataframe, other_dataframe=other_dataframe)
         self._operator = operator
         self._right = right
-        if self._right._db is None:
-            self._right._db = self._db
 
     def _serialize(self) -> str:
-        right_str = str(self._right)
-        return f"{self.operator} ({right_str})"
+        from greenplumpython.expr import _serialize
+
+        if isinstance(self._right._db, Expr):
+            self._right._db = self._db
+        right_str = _serialize(self._right)
+        return f"({self.operator} ({right_str}))"
 
 
 class InExpr(Expr):
@@ -677,6 +679,7 @@ class InExpr(Expr):
         # when combining with `～` (bitwise not) operator.
         container_name: str = "cte_" + uuid4().hex
         if isinstance(self._container, Expr) and self._other_dataframe is not None:
+            self._container._db = self._db
             return (
                 f"(EXISTS (SELECT FROM {self._other_dataframe._name}"
                 f" WHERE ({self._container._serialize()} = {self._item._serialize()})))"
