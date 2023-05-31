@@ -475,6 +475,7 @@ class DataFrame:
             for k, f in new_columns.items():
                 v: Any = f(self)
                 if isinstance(v, Expr):
+                    v.bind(db=self._db)
                     assert (
                         v._dataframe is None or v._dataframe == self
                     ), "Newly included columns must be based on the current dataframe"
