@@ -549,7 +549,7 @@ class DataFrame:
         other: "DataFrame",
         how: Literal["", "left", "right", "outer", "inner", "cross"] = "",
         cond: Optional[Callable[["DataFrame", "DataFrame"], Expr]] = None,
-        on: Optional[Union[str, Iterable[str]]] = None,
+        on: Iterable[str] = None,
         self_columns: Union[Dict[str, Optional[str]], Set[str]] = {"*"},
         other_columns: Union[Dict[str, Optional[str]], Set[str]] = {"*"},
         on_columns: Union[Dict[str, Optional[str]], Set[str]] = {"*"},
@@ -595,20 +595,21 @@ class DataFrame:
                 ...     age_rows, column_names=["name", "age"], db=db)
                 >>> result = student.join(
                 ...     student,
-                ...     on="age",
-                ...     self_columns={"*"},
-                ...     other_columns={"name": "name_2"})
+                ...     on=["age"],
+                ...     self_columns={"name": "name", "age": "age_1"},
+                ...     other_columns={"name": "name_2", "age": "age_2"})
                 >>> result
                 ----------------------
-                 name  | age | name_2
-                -------+-----+--------
-                 alice |  18 | alice
-                 bob   |  19 | carol
-                 bob   |  19 | bob
-                 carol |  19 | carol
-                 carol |  19 | bob
+                 age | name  | name_2
+                -----+-------+--------
+                  18 | alice | alice
+                  19 | bob   | carol
+                  19 | bob   | bob
+                  19 | carol | carol
+                  19 | carol | bob
                 ----------------------
                 (5 rows)
+
         """
         # FIXME : Raise Error if target columns don't exist
         assert how.upper() in [
@@ -658,7 +659,7 @@ class DataFrame:
             t: DataFrame,
             columns: Union[Dict[str, Optional[str]], Set[str]],
             on: Iterable[str],
-            suffix: str
+            suffix: str,
         ) -> List[str]:
             target_list: List[str] = []
             for k in columns:
