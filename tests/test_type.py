@@ -21,6 +21,22 @@ def test_type_cast(db: gp.Database):
         assert row["complex"] == {"i": 2, "r": 1}
 
 
+def test_type_cast_func_result(db: gp.Database):
+    float8 = gp.type_("float8")
+    rows = [(i, i) for i in range(10)]
+    df = db.create_dataframe(rows=rows, column_names=["a", "b"])
+
+    @gp.create_function
+    def func(a: int, b: int) -> int:
+        return a + b
+
+    results = df.apply(
+        lambda t: float8(func(t["a"], t["b"])),
+        column_name="float8",
+    )
+    assert sorted([row["float8"] for row in results]) == list(range(0, 20, 2))
+
+
 def test_type_create(db: gp.Database):
     @dataclasses.dataclass
     class Person:
