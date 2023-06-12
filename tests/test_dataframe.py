@@ -62,6 +62,12 @@ def test_dataframe_getitem_slice_off_limit(db: gp.Database, t: gp.DataFrame):
     assert len(list(t[2:5])) == 3
 
 
+def test_dataframe_getitem_slice_off_limit(db: gp.Database, t: gp.DataFrame):
+    query = t[:]._build_full_query()
+    assert len(list(t[:])) == 10
+    assert query.__contains__("LIMIT")
+
+
 def test_dataframe_display_repr(db: gp.Database):
     # fmt: off
     rows = [(1, 1, "Lion",), (2, 2, "Tiger",), (3, 3, "Wolf",), (4, 4, "Fox")]
