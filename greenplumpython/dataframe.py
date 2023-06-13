@@ -26,6 +26,7 @@ in that:
   <https://www.postgresql.org/docs/current/sql-refreshmaterializedview.html>`_ for syncing updates.
 """
 import json
+import sys
 from collections import abc
 from functools import partialmethod, singledispatchmethod
 from typing import (
@@ -117,12 +118,14 @@ class DataFrame:
             raise NotImplementedError()
         offset_clause = "" if rows.start is None else f"OFFSET {rows.start}"
         limit_clause = (
-            ""
+            sys.maxsize
             if rows.stop is None
-            else f"LIMIT {rows.stop if rows.start is None else rows.stop - rows.start}"
+            else rows.stop
+            if rows.start is None
+            else rows.stop - rows.start
         )
         return DataFrame(
-            f"SELECT * FROM {self._name} {limit_clause} {offset_clause}",
+            f"SELECT * FROM {self._name} LIMIT {limit_clause} {offset_clause}",
             parents=[self],
         )
 
