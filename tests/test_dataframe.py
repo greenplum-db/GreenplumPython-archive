@@ -63,7 +63,7 @@ def test_dataframe_getitem_slice_off_limit(db: gp.Database, t: gp.DataFrame):
 
 
 def test_dataframe_getitem_slice_off_limit(db: gp.Database, t: gp.DataFrame):
-    query = t[:]._build_full_query()
+    query = t[:]._serialize()
     assert len(list(t[:])) == 10
     assert "LIMIT" in query
 

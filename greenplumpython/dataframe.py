@@ -943,8 +943,6 @@ class DataFrame:
         temp: bool = False,
         storage_params: dict[str, Any] = {},
         schema: Optional[str] = None,
-        distribution_method: Literal[None, "randomly", "replicated", "keys"] = None,
-        distribution_keys: Optional[List[str]] = None,
     ) -> "DataFrame":
         """
         Save the GreenplumPython :class:`~dataframe.Dataframe` as a *table* into the database.
@@ -961,8 +959,6 @@ class DataFrame:
             storage_params: storage_parameter of gpdb, reference
                 https://docs.vmware.com/en/VMware-Tanzu-Greenplum/7/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html
             schema: schema of the table for avoiding name conflicts.
-            distribution_method: method of distribution by
-            distribution_keys: list of distribution keys
 
         Returns:
             DataFrame : :class:`~dataframe.DataFrame` represents the newly saved table
@@ -1009,15 +1005,6 @@ class DataFrame:
         if table_name is None:
             table_name = self._name if not self.is_saved else "cte_" + uuid4().hex
         qualified_table_name = f'"{table_name}"' if schema is None else f'"{schema}"."{table_name}"'
-        distribution_clause = (
-            f"""
-                DISTRIBUTED {f"BY ({','.join(distribution_keys)})" 
-                if distribution_method == "keys" 
-                else "REPLICATED"}
-            """
-            if distribution_method is not None
-            else ""
-        )
         self._db._execute(
             f"""
             CREATE {'TEMP' if temp else ''} TABLE {qualified_table_name}
@@ -1026,7 +1013,6 @@ class DataFrame:
             AS (
                 {self._serialize()}
             )
-            {distribution_clause}
             """,
             has_results=False,
         )
