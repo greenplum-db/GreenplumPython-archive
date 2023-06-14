@@ -20,7 +20,16 @@ class Expr:
         # noqa: D107
         self._dataframe = dataframe
         self._other_dataframe = other_dataframe
-        self._db = dataframe._db if dataframe is not None else None
+        self._db = dataframe._db if dataframe is not None else None  # FIXME: set it to None
+
+    def bind(
+        self,
+        dataframe: Optional["DataFrame"] = None,
+        db: Optional[Database] = None,
+    ) -> "Expr":
+        self._db = db
+        self._dataframe = dataframe
+        return self
 
     def __hash__(self) -> int:
         # noqa: D105
@@ -569,9 +578,9 @@ class BinaryExpr(Expr):
         if other_dataframe is not None and isinstance(right, Expr):
             other_dataframe = right._other_dataframe
         super().__init__(dataframe=dataframe, other_dataframe=other_dataframe)
-        self.operator = operator
-        self.left = left
-        self.right = right
+        self._operator = operator
+        self._left = left
+        self._right = right
 
     @overload
     def __init__(
@@ -621,9 +630,13 @@ class BinaryExpr(Expr):
     def _serialize(self) -> str:
         from greenplumpython.expr import _serialize
 
-        left_str = _serialize(self.left)
-        right_str = _serialize(self.right)
-        return f"({left_str} {self.operator} {right_str})"
+        if isinstance(self._left, Expr):
+            self._left._db = self._db
+        if isinstance(self._right, Expr):
+            self._right._db = self._db
+        left_str = _serialize(self._left)
+        right_str = _serialize(self._right)
+        return f"({left_str} {self._operator} {right_str})"
 
 
 class UnaryExpr(Expr):
@@ -639,12 +652,16 @@ class UnaryExpr(Expr):
             (right._dataframe, right._other_dataframe) if isinstance(right, Expr) else (None, None)
         )
         super().__init__(dataframe=dataframe, other_dataframe=other_dataframe)
-        self.operator = operator
-        self.right = right
+        self._operator = operator
+        self._right = right
 
     def _serialize(self) -> str:
-        right_str = str(self.right)
-        return f"{self.operator} ({right_str})"
+        from greenplumpython.expr import _serialize
+
+        if isinstance(self._right._db, Expr):
+            self._right._db = self._db
+        right_str = _serialize(self._right)
+        return f"({self._operator} ({right_str}))"
 
 
 class InExpr(Expr):
@@ -671,6 +688,7 @@ class InExpr(Expr):
         # when combining with `～` (bitwise not) operator.
         container_name: str = "cte_" + uuid4().hex
         if isinstance(self._container, Expr) and self._other_dataframe is not None:
+            self._container._db = self._db
             return (
                 f"(EXISTS (SELECT FROM {self._other_dataframe._name}"
                 f" WHERE ({self._container._serialize()} = {self._item._serialize()})))"
