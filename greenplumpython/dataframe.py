@@ -859,8 +859,8 @@ class DataFrame:
         temp: bool = False,
         storage_params: dict[str, Any] = {},
         schema: Optional[str] = None,
-        distribution_method: Literal[None, "randomly", "replicated", "keys"] = None,
-        distribution_keys: Optional[List[str]] = None,
+        distribution_type: Literal[None, "randomly", "replicated", "hash"] = None,
+        distribution_key: Optional[Set[str]] = None,
     ) -> "DataFrame":
         """
         Save the GreenplumPython :class:`~dataframe.Dataframe` as a *table* into the database.
@@ -877,7 +877,7 @@ class DataFrame:
             storage_params: storage_parameter of gpdb, reference
                 https://docs.vmware.com/en/VMware-Tanzu-Greenplum/7/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html
             schema: schema of the table for avoiding name conflicts.
-            distribution_method: method of distribution by.
+            distribution_type: method of distribution by.
             distribution_keys: list of distribution keys.
 
         Returns:
@@ -925,11 +925,13 @@ class DataFrame:
         df_full_name = f'"{table_name}"' if schema is None else f'"{schema}"."{table_name}"'
         distribution_clause = (
             f"""
-                DISTRIBUTED {f"BY ({','.join(distribution_keys)})" 
-                if distribution_method == "keys" 
-                else "REPLICATED"}
+                DISTRIBUTED {f"BY ({','.join(distribution_key)})" 
+                if distribution_type == "hash" 
+                else "REPLICATED"
+                if distribution_type == "replicated"
+                else "RANDOMLY"}
             """
-            if distribution_method is not None
+            if distribution_type is not None
             else ""
         )
         self._db._execute(

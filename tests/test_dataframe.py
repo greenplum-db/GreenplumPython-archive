@@ -381,6 +381,103 @@ def test_table_with_aoco(db: gp.Database):
     )
 
 
+def test_table_distributed_randomly(db: gp.Database):
+    result = db._execute("SELECT VERSION();")
+
+    if not result:
+        return
+
+    version: str = result[0]["version"]
+
+    if "Greenplum" not in version:
+        return
+
+    t = db.assign(id=lambda: generate_series(0, 9))
+    # pass if no error
+    t.save_as(
+        "randomly_dataframe",
+        column_names=["id"],
+        temp=True,
+        distribution_type="randomly",
+    )
+    query = f"""select 
+                pg_get_table_distributedby(c.oid) distributedby
+                from pg_class as c
+                inner join pg_namespace as n
+                on c.relnamespace = n.oid
+                where n.nspname like 'pg_temp%'
+                and c.relname = 'randomly_dataframe';
+            """
+    result = db._execute(query)
+    for row in result:
+        assert row["distributedby"] == "DISTRIBUTED RANDOMLY"
+
+
+def test_table_distributed_replicated(db: gp.Database):
+    result = db._execute("SELECT VERSION();")
+
+    if not result:
+        return
+
+    version: str = result[0]["version"]
+
+    if "Greenplum" not in version:
+        return
+
+    t = db.assign(id=lambda: generate_series(0, 9))
+    # pass if no error
+    t.save_as(
+        "replicated_dataframe",
+        column_names=["id"],
+        temp=True,
+        distribution_type="replicated",
+    )
+    query = f"""select 
+                pg_get_table_distributedby(c.oid) distributedby
+                from pg_class as c
+                inner join pg_namespace as n
+                on c.relnamespace = n.oid
+                where n.nspname like 'pg_temp%'
+                and c.relname = 'replicated_dataframe';
+            """
+    result = db._execute(query)
+    for row in result:
+        assert row["distributedby"] == "DISTRIBUTED REPLICATED"
+
+
+def test_table_distributed_hash(db: gp.Database):
+    result = db._execute("SELECT VERSION();")
+
+    if not result:
+        return
+
+    version: str = result[0]["version"]
+
+    if "Greenplum" not in version:
+        return
+
+    t = db.assign(id=lambda: generate_series(0, 9))
+    # pass if no error
+    t.save_as(
+        "replicated_dataframe",
+        column_names=["id"],
+        temp=True,
+        distribution_type="hash",
+        distribution_key={"id"},
+    )
+    query = f"""select 
+                pg_get_table_distributedby(c.oid) distributedby
+                from pg_class as c
+                inner join pg_namespace as n
+                on c.relnamespace = n.oid
+                where n.nspname like 'pg_temp%'
+                and c.relname = 'replicated_dataframe';
+            """
+    result = db._execute(query)
+    for row in result:
+        assert row["distributedby"] == "DISTRIBUTED BY (id)"
+
+
 import pandas as pd
 
 
