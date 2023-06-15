@@ -20,7 +20,16 @@ class Expr:
         # noqa: D107
         self._dataframe = dataframe
         self._other_dataframe = other_dataframe
-        self._db = dataframe._db if dataframe is not None else None
+        self._db = dataframe._db if dataframe is not None else None  # FIXME: set it to None
+
+    def bind(
+        self,
+        dataframe: Optional["DataFrame"] = None,
+        db: Optional[Database] = None,
+    ) -> "Expr":
+        self._db = db
+        self._dataframe = dataframe
+        return self
 
     def __hash__(self) -> int:
         # noqa: D105
