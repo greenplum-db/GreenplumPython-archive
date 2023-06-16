@@ -56,7 +56,10 @@
 <li class="toctree-l2"><a class="reference internal" href="type.html">Type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="group.html">Grouping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="order.html">Ordering</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Operators and Indexing</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Operators and Indexing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#combination-with-operator">Combination with operator</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="pd_df.html">Pandas-Compatible DataFrame</a></li>
 <li class="toctree-l2"><a class="reference internal" href="config.html">Configuration</a></li>
 </ul>
@@ -92,7 +95,58 @@
              
   <section id="module-greenplumpython">
 <span id="operators-and-indexing"></span><h1>Operators and Indexing<a class="headerlink" href="#module-greenplumpython" title="Permalink to this heading"></a></h1>
-<span class="target" id="module-op"></span><p>Indexing is essential for fast data searching in database. Unlike pandas,</p>
+<span class="target" id="module-op"></span><p>Indexing is essential for fast data searching in database.</p>
+<p>In pandas, an index is a fundamental component of a pandas DataFrame or a Series object. It provides an immutable, labeled
+structure that allows for easy and efficient data alignment, indexing, and selection operations. The index in pandas is
+similar to a database index in that it provides a way to access data quickly. However, the pandas index is not a
+separate data structure like a database index. Instead, it is a part of the DataFrame or Series object itself.</p>
+<p>Unlike pandas, in the context of databases, an index is a data structure that enhances the speed of data retrieval
+operations on database tables. It provides a way to quickly locate rows in a table based on the values of one or more
+columns.</p>
+<p>When an index is created on a column or set of columns, it creates a separate data structure that organizes the values
+in a sorted manner, allowing for efficient searching, sorting, and filtering of data. The index in a database is
+typically managed by the database management system (DBMS) and is used to optimize query performance.</p>
+<p>To summarize, while a pandas index is an integral part of a DataFrame or Series object, providing a labeled structure
+for efficient data manipulation and selection, the database index is a separate data structure used to optimize data
+retrieval in a database.</p>
+<section id="combination-with-operator">
+<h2>Combination with operator<a class="headerlink" href="#combination-with-operator" title="Permalink to this heading"></a></h2>
+<p>In a database, the combination of operators with an index is used to efficiently search and retrieve data based on
+specific criteria. Here are a few reasons why combining operators with an index is beneficial:</p>
+<p>1. <strong>Faster Data Retrieval</strong>: When you query a database table without an index, the database engine has to scan through all
+the rows sequentially to find the matching records.</p>
+<ol class="arabic simple" start="2">
+<li><p><strong>Query Optimization</strong>: The database optimizer utilizes indexes to determine the most efficient way to execute a query.</p></li>
+</ol>
+<p>3. <strong>Selectivity Improvement</strong>: The selectivity of a query refers to the ratio of the number of rows returned by the query
+to the total number of rows in the table.</p>
+<p>4. <strong>Index Range Scans</strong>: When using range operators (such as greater than, less than, between, etc.) with an index,
+the database can perform efficient index range scans.</p>
+<p>This module enable the access to database operator, so user can combine it with an index for faster data retrieval,
+query optimization, selectivity improvement, and efficient range scans.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="op.operator">
+<span class="sig-prename descclassname"><span class="pre">op.</span></span><span class="sig-name descname"><span class="pre">operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#op.operator" title="Permalink to this definition"></a></dt>
+<dd><p>Get access to a predefined dataframe <code class="xref py py-class docutils literal notranslate"><span class="pre">Operator</span></code> from database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the operator.</p></li>
+<li><p><strong>schema</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Schema (a.k.a namespace) of the operator in database.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><em>Operator</em></p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">Operator</span></code> with the specified <code class="code docutils literal notranslate"><span class="pre">name</span></code>
+and <code class="code docutils literal notranslate"><span class="pre">schema</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 </section>
 
 
