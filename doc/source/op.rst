@@ -1,5 +1,5 @@
 Operators and Indexing
-========
+======================
 .. module:: greenplumpython
 
 .. automodule:: op
