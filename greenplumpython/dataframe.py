@@ -877,8 +877,8 @@ class DataFrame:
             storage_params: storage_parameter of gpdb, reference
                 https://docs.vmware.com/en/VMware-Tanzu-Greenplum/7/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html
             schema: schema of the table for avoiding name conflicts.
-            distribution_type: method of distribution by.
-            distribution_keys: list of distribution keys.
+            distribution_type: type of distribution by.
+            distribution_key: distribution key.
 
         Returns:
             DataFrame : :class:`~dataframe.DataFrame` represents the newly saved table

@@ -400,17 +400,11 @@ def test_table_distributed_randomly(db: gp.Database):
         temp=True,
         distribution_type="randomly",
     )
-    query = f"""select 
-                pg_get_table_distributedby(c.oid) distributedby
-                from pg_class as c
-                inner join pg_namespace as n
-                on c.relnamespace = n.oid
-                where n.nspname like 'pg_temp%'
-                and c.relname = 'randomly_dataframe';
-            """
+    query = f"""select pg_get_table_distributedby('"pg_temp"."randomly_dataframe"'::regclass) distributedby"""
     result = db._execute(query)
     for row in result:
         assert row["distributedby"] == "DISTRIBUTED RANDOMLY"
+    db._execute("DROP TABLE pg_temp.randomly_dataframe", has_results=False)
 
 
 def test_table_distributed_replicated(db: gp.Database):
@@ -432,14 +426,7 @@ def test_table_distributed_replicated(db: gp.Database):
         temp=True,
         distribution_type="replicated",
     )
-    query = f"""select 
-                pg_get_table_distributedby(c.oid) distributedby
-                from pg_class as c
-                inner join pg_namespace as n
-                on c.relnamespace = n.oid
-                where n.nspname like 'pg_temp%'
-                and c.relname = 'replicated_dataframe';
-            """
+    query = f"""select pg_get_table_distributedby('"pg_temp"."replicated_dataframe"'::regclass) distributedby"""
     result = db._execute(query)
     for row in result:
         assert row["distributedby"] == "DISTRIBUTED REPLICATED"
@@ -459,20 +446,13 @@ def test_table_distributed_hash(db: gp.Database):
     t = db.assign(id=lambda: generate_series(0, 9))
     # pass if no error
     t.save_as(
-        "replicated_dataframe",
+        "hash_dataframe",
         column_names=["id"],
         temp=True,
         distribution_type="hash",
         distribution_key={"id"},
     )
-    query = f"""select 
-                pg_get_table_distributedby(c.oid) distributedby
-                from pg_class as c
-                inner join pg_namespace as n
-                on c.relnamespace = n.oid
-                where n.nspname like 'pg_temp%'
-                and c.relname = 'replicated_dataframe';
-            """
+    query = f"""select pg_get_table_distributedby('"pg_temp"."hash_dataframe"'::regclass) distributedby"""
     result = db._execute(query)
     for row in result:
         assert row["distributedby"] == "DISTRIBUTED BY (id)"
