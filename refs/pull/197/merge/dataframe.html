@@ -638,9 +638,8 @@ enabled.</p>
 <li><p><strong>storage_params</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – storage_parameter of gpdb, reference
 <a class="reference external" href="https://docs.vmware.com/en/VMware-Tanzu-Greenplum/7/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html">https://docs.vmware.com/en/VMware-Tanzu-Greenplum/7/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html</a></p></li>
 <li><p><strong>schema</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – schema of the table for avoiding name conflicts.</p></li>
-<li><p><strong>distribution_type</strong> (<em>Optional</em><em>[</em><em>Literal</em><em>[</em><em>None</em><em>, </em><em>'randomly'</em><em>, </em><em>'replicated'</em><em>, </em><em>'hash'</em><em>]</em><em>]</em>) – method of distribution by.</p></li>
-<li><p><strong>distribution_keys</strong> – list of distribution keys.</p></li>
-<li><p><strong>distribution_key</strong> (<em>Optional</em><em>[</em><em>Set</em><em>[</em><em>str</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>distribution_type</strong> (<em>Optional</em><em>[</em><em>Literal</em><em>[</em><em>None</em><em>, </em><em>'randomly'</em><em>, </em><em>'replicated'</em><em>, </em><em>'hash'</em><em>]</em><em>]</em>) – type of distribution by.</p></li>
+<li><p><strong>distribution_key</strong> (<em>Optional</em><em>[</em><em>Set</em><em>[</em><em>str</em><em>]</em><em>]</em>) – distribution key.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
