@@ -866,6 +866,8 @@ class DataFrame:
         temp: bool = False,
         storage_params: dict[str, Any] = {},
         schema: Optional[str] = None,
+        distribution_type: Literal[None, "randomly", "replicated", "hash"] = None,
+        distribution_key: Optional[Set[str]] = None,
     ) -> "DataFrame":
         """
         Save the GreenplumPython :class:`~dataframe.Dataframe` as a *table* into the database.
@@ -882,6 +884,8 @@ class DataFrame:
             storage_params: storage_parameter of gpdb, reference
                 https://docs.vmware.com/en/VMware-Tanzu-Greenplum/7/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html
             schema: schema of the table for avoiding name conflicts.
+            distribution_type: type of distribution by.
+            distribution_key: distribution key.
 
         Returns:
             DataFrame : :class:`~dataframe.DataFrame` represents the newly saved table
@@ -928,14 +932,24 @@ class DataFrame:
         if table_name is None:
             table_name = self._name if not self.is_saved else "cte_" + uuid4().hex
         qualified_table_name = f'"{table_name}"' if schema is None else f'"{schema}"."{table_name}"'
+        distribution_clause = (
+            f"""
+                DISTRIBUTED {f"BY ({','.join(distribution_key)})" 
+                if distribution_type == "hash" 
+                else "REPLICATED"
+                if distribution_type == "replicated"
+                else "RANDOMLY"}
+            """
+            if distribution_type is not None
+            else ""
+        )
         self._db._execute(
             f"""
             CREATE {'TEMP' if temp else ''} TABLE {qualified_table_name}
             ({','.join(column_names)})
-            {storage_params_clause if storage_params else ''}
-            AS (
-                {self._serialize()}
-            )
+            {storage_parameters if storage_params else ''}
+            AS {self._serialize()}
+            {distribution_clause}
             """,
             has_results=False,
         )
