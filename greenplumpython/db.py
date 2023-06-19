@@ -62,6 +62,7 @@ class Database:
         with self._conn.cursor() as cursor:
             cursor.execute("SELECT pg_backend_pid()")
             print("BACKEND SESSION PID: ", cursor.fetchall())
+            print("OBJECT ID: ", id(self))
             if config.print_sql:
                 print(query)
             cursor.execute(query)
@@ -69,6 +70,7 @@ class Database:
 
     def close(self) -> None:
         """Close the database connection."""
+        print("OBJECT ID CLOSED: ", id(self))
         self._conn.close()
 
     def create_dataframe(
