@@ -947,7 +947,7 @@ class DataFrame:
             f"""
             CREATE {'TEMP' if temp else ''} TABLE {qualified_table_name}
             ({','.join(column_names)})
-            {storage_parameters if storage_params else ''}
+            {storage_params_clause if storage_params else ''}
             AS {self._serialize()}
             {distribution_clause}
             """,
