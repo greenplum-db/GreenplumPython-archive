@@ -60,6 +60,8 @@ class Database:
         """
 
         with self._conn.cursor() as cursor:
+            cursor.execute("SELECT pg_backend_pid()")
+            print("BACKEND SESSION PID: ", cursor.fetchall())
             if config.print_sql:
                 print(query)
             cursor.execute(query)
