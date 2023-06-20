@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Builtins Functions &mdash; GreenplumPython 1.0.1
+ documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Type" href="type.html" />
+    <link rel="prev" title="Function" href="func.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> GreenplumPython
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/basic.html">Basic Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">GreenplumPython</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="db.html">Database</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dataframe.html">DataFrame</a></li>
+<li class="toctree-l2"><a class="reference internal" href="expr.html">Expression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="col.html">Column</a></li>
+<li class="toctree-l2"><a class="reference internal" href="row.html">Row</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func.html">Function</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Builtins Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="type.html">Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group.html">Grouping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="order.html">Ordering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pd_df.html">Pandas-Compatible DataFrame</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/abalone.html">Example: Predicting the age of abalone</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/pandas.html">Comparison with pandas</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">GreenplumPython</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">GreenplumPython</a> &raquo;</li>
+      <li>Builtins Functions</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/builtins.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-greenplumpython.builtins.functions">
+<span id="builtins-functions"></span><h1>Builtins Functions<a class="headerlink" href="#module-greenplumpython.builtins.functions" title="Permalink to this heading"></a></h1>
+<p>This module contains a list of predefined dataframe functions in database.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="greenplumpython.builtins.functions.count">
+<span class="sig-prename descclassname"><span class="pre">greenplumpython.builtins.functions.</span></span><span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#greenplumpython.builtins.functions.count" title="Permalink to this definition"></a></dt>
+<dd><p>Count the number of rows or non-NULL values against a specified column or an entire table.</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">greenplumpython.builtins.functions</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">group_by</span><span class="p">()</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">F</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+<span class="go">-------</span>
+<span class="go"> count</span>
+<span class="go">-------</span>
+<span class="go">    10</span>
+<span class="go">-------</span>
+<span class="go">(1 row)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>arg</strong> (<em>Optional</em><em>[</em><em>Any</em><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><em>FunctionExpr</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="greenplumpython.builtins.functions.min">
+<span class="sig-prename descclassname"><span class="pre">greenplumpython.builtins.functions.</span></span><span class="sig-name descname"><span class="pre">min</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#greenplumpython.builtins.functions.min" title="Permalink to this definition"></a></dt>
+<dd><p>Return the minimum value in a set of values.</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">greenplumpython.builtins.functions</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">group_by</span><span class="p">()</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">F</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]))</span>
+<span class="go">-----</span>
+<span class="go"> min</span>
+<span class="go">-----</span>
+<span class="go">   0</span>
+<span class="go">-----</span>
+<span class="go">(1 row)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>arg</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><em>FunctionExpr</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="greenplumpython.builtins.functions.max">
+<span class="sig-prename descclassname"><span class="pre">greenplumpython.builtins.functions.</span></span><span class="sig-name descname"><span class="pre">max</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#greenplumpython.builtins.functions.max" title="Permalink to this definition"></a></dt>
+<dd><p>Return the maximum value in a set of values.</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">greenplumpython.builtins.functions</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">group_by</span><span class="p">()</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="nb">max</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">F</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]))</span>
+<span class="go">-----</span>
+<span class="go"> max</span>
+<span class="go">-----</span>
+<span class="go">   9</span>
+<span class="go">-----</span>
+<span class="go">(1 row)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>arg</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><em>FunctionExpr</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="greenplumpython.builtins.functions.avg">
+<span class="sig-prename descclassname"><span class="pre">greenplumpython.builtins.functions.</span></span><span class="sig-name descname"><span class="pre">avg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#greenplumpython.builtins.functions.avg" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the average value of a set.</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">greenplumpython.builtins.functions</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">group_by</span><span class="p">()</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">avg</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">F</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]))</span>
+<span class="go">-----</span>
+<span class="go"> avg</span>
+<span class="go">-----</span>
+<span class="go"> 4.5</span>
+<span class="go">-----</span>
+<span class="go">(1 row)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>arg</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><em>FunctionExpr</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="greenplumpython.builtins.functions.sum">
+<span class="sig-prename descclassname"><span class="pre">greenplumpython.builtins.functions.</span></span><span class="sig-name descname"><span class="pre">sum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#greenplumpython.builtins.functions.sum" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the sum of a set of values.</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">greenplumpython.builtins.functions</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">group_by</span><span class="p">()</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="nb">sum</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">F</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]))</span>
+<span class="go">-----</span>
+<span class="go"> sum</span>
+<span class="go">-----</span>
+<span class="go">  45</span>
+<span class="go">-----</span>
+<span class="go">(1 row)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>arg</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><em>FunctionExpr</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="greenplumpython.builtins.functions.generate_series">
+<span class="sig-prename descclassname"><span class="pre">greenplumpython.builtins.functions.</span></span><span class="sig-name descname"><span class="pre">generate_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#greenplumpython.builtins.functions.generate_series" title="Permalink to this definition"></a></dt>
+<dd><p>Generate a series of values from <code class="code docutils literal notranslate"><span class="pre">start</span></code> to <code class="code docutils literal notranslate"><span class="pre">stop</span></code>, with a step size of <code class="code docutils literal notranslate"><span class="pre">step</span></code>.</p>
+<p><code class="code docutils literal notranslate"><span class="pre">step</span></code> defaults to 1.</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">greenplumpython.builtins.functions</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">F</span><span class="o">.</span><span class="n">generate_series</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+<span class="go">----</span>
+<span class="go"> id</span>
+<span class="go">----</span>
+<span class="go">  0</span>
+<span class="go">  1</span>
+<span class="go">  2</span>
+<span class="go">  3</span>
+<span class="go">  4</span>
+<span class="go">  5</span>
+<span class="go">  6</span>
+<span class="go">  7</span>
+<span class="go">  8</span>
+<span class="go">  9</span>
+<span class="go">----</span>
+<span class="go">(10 rows)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>stop</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>step</strong> (<em>Optional</em><em>[</em><em>Any</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><em>FunctionExpr</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="func.html" class="btn btn-neutral float-left" title="Function" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="type.html" class="btn btn-neutral float-right" title="Type" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, VMware.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
