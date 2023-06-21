@@ -117,12 +117,12 @@ resources:
     bucket: pivotal-gpdb-concourse-resources-prod
     json_key: ((concourse-gcs-resources-service-account-key))
     regexp: server/published/gpdb6/server-rc-(.*)-ubuntu18.04_x86_64.tar.gz
-- name: bin_gpdb7_rocky8_debug
+- name: bin_gpdb7_el8_debug
   type: gcs
   source:
     bucket: pivotal-gpdb-concourse-resources-prod
     json_key: ((concourse-gcs-resources-service-account-key))
-    regexp: server/published/main/server-rc-(.*)-rocky8_x86_64.debug.tar.gz
+    regexp: server/published/main/server-rc-(.*)-el8_x86_64.debug.tar.gz
 
 # plpython3 for gpdb6
 - name: bin_plpython3_gpdb6_rhel7
