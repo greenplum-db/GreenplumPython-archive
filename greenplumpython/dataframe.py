@@ -967,8 +967,11 @@ class DataFrame:
         The current dataframe is required to be saved before creating index.
 
         Args:
-            columns: key columns of the current dataframe to create index on.
-            method: index access method.
+            columns: :class:`Set` of columns of the current dataframe to create
+                index on. Optionally, operator class can be specified by
+                passing a :class:`Dict` with column names as keys and their
+                operator class names as values.
+            method: name of the index access method.
             name: name of the index.
 
         Returns:
