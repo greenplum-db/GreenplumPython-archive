@@ -12,7 +12,7 @@ def test_op_on_consts(db: gp.Database):
     assert len(list(result)) == 1 and next(iter(result))["is_matched"]
 
 
-def using_index_scan(results: gp.DataFrame, db: gp.Database) -> bool:
+def _using_index_scan(results: gp.DataFrame, db: gp.Database) -> bool:
     for row in db._execute(f"EXPLAIN {results._serialize()}"):
         if "Index Scan" in row["QUERY PLAN"] or "Index Only Scan" in row["QUERY PLAN"]:
             return True
@@ -39,7 +39,7 @@ def test_index(db: gp.Database):
 
     db._execute("SET enable_seqscan TO False", has_results=False)
     json_contains = gp.operator("@>")
-    assert using_index_scan(
+    assert _using_index_scan(
         student[lambda t: json_contains(t["info"], json.dumps({"name": "john"}))], db
     )
 
@@ -62,7 +62,7 @@ def test_index_opclass(db: gp.Database):
         """,
         has_results=False,
     )
-    assert using_index_scan(df[lambda t: t["text"] > "hello"], db)
+    assert _using_index_scan(df[lambda t: t["text"] > "hello"], db)
 
 
 def test_op_with_schema(db: gp.Database):

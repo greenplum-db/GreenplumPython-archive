@@ -927,7 +927,7 @@ class DataFrame:
         # build string from parameter dict, such as from {'a': 1, 'b': 2} to
         # 'WITH (a=1, b=2)'
         storage_params_clause = (
-            f"WITH ({','.join([f'{key}={storage_params[key]}' for key in storage_params.keys()])})"
+            f"WITH ({','.join([f'{key}={val}' for key, val in storage_params.items()])})"
         )
         if table_name is None:
             table_name = self._name if not self.is_saved else "cte_" + uuid4().hex
