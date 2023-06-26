@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Operators and Indexing &mdash; GreenplumPython 1.0.1
+  <title>Operators and Indexes &mdash; GreenplumPython 1.0.1
  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
@@ -56,7 +56,7 @@
 <li class="toctree-l2"><a class="reference internal" href="type.html">Type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="group.html">Grouping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="order.html">Ordering</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Operators and Indexing</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Operators and Indexes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pd_df.html">Pandas-Compatible DataFrame</a></li>
 <li class="toctree-l2"><a class="reference internal" href="config.html">Configuration</a></li>
 </ul>
@@ -80,7 +80,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="modules.html">GreenplumPython</a> &raquo;</li>
-      <li>Operators and Indexing</li>
+      <li>Operators and Indexes</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/op.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -91,7 +91,7 @@
            <div itemprop="articleBody">
              
   <section id="module-greenplumpython">
-<span id="operators-and-indexing"></span><h1>Operators and Indexing<a class="headerlink" href="#module-greenplumpython" title="Permalink to this heading"></a></h1>
+<span id="operators-and-indexes"></span><h1>Operators and Indexes<a class="headerlink" href="#module-greenplumpython" title="Permalink to this heading"></a></h1>
 <span class="target" id="module-op"></span><p>Indexes are essential for fast data searching. With indexes, we can retrieve
 rows we want by scanning the index, rather than the entire dataframe. As a
 result, when the dataframe is large, the amount of data to be scanned is
@@ -121,7 +121,7 @@ similarity metric.</p>
 <p>How to search a dataframe with index is defined by a set of operators on the
 indexed columns. For example, when scanning a B-tree index, relational
 operators, such as <code class="code docutils literal notranslate"><span class="pre">&gt;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&lt;</span></code>, and <code class="code docutils literal notranslate"><span class="pre">=</span></code>, are required for
-comparing two values. These operators are encapsulated as operator classes.
+comparing two values. These operators are encapsulated as an <a class="reference external" href="https://www.postgresql.org/docs/current/indexes-opclass.html">operator class</a>.
 Different data types have different operator classes for an index. For example,
 integers and floats are compared in different ways. Even for the same data type,
 we can change how two values are compared by changing the operator class.</p>

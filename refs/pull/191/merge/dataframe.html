@@ -56,7 +56,7 @@
 <li class="toctree-l2"><a class="reference internal" href="type.html">Type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="group.html">Grouping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="order.html">Ordering</a></li>
-<li class="toctree-l2"><a class="reference internal" href="op.html">Operators and Indexing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="op.html">Operators and Indexes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pd_df.html">Pandas-Compatible DataFrame</a></li>
 <li class="toctree-l2"><a class="reference internal" href="config.html">Configuration</a></li>
 </ul>
@@ -695,9 +695,10 @@ enabled.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>columns</strong> (<em>Union</em><em>[</em><em>Set</em><em>[</em><em>str</em><em>]</em><em>, </em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>]</em>) – <code class="xref py py-class docutils literal notranslate"><span class="pre">Set</span></code> of columns of the current dataframe to create
-index on. Optionally, operator class can be specified by
-passing a <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code> with column names as keys and their
-operator class names as values.</p></li>
+index on. Optionally, an <a class="reference external" href="https://www.postgresql.org/docs/current/indexes-opclass.html">operator class</a>
+can be specified for each column by passing a <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>
+with column names as keys and their operator class names as
+values.</p></li>
 <li><p><strong>method</strong> (<em>str</em>) – name of the index access method.</p></li>
 <li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – name of the index.</p></li>
 </ul>
