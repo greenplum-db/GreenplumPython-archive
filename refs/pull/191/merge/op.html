@@ -92,7 +92,7 @@
              
   <section id="module-greenplumpython">
 <span id="operators-and-indexing"></span><h1>Operators and Indexing<a class="headerlink" href="#module-greenplumpython" title="Permalink to this heading"></a></h1>
-<span class="target" id="module-op"></span><p>Indices are essential for fast data searching. With indices, we can retrieve
+<span class="target" id="module-op"></span><p>Indexes are essential for fast data searching. With indexes, we can retrieve
 rows we want by scanning the index, rather than the entire dataframe. As a
 result, when the dataframe is large, the amount of data to be scanned is
 typically much smaller with an index.</p>
@@ -102,8 +102,8 @@ we will have to go through all rows. This can be rather inefficient.</p>
 <p>Backed by database systems, GreenplumPython overcomes this limitation by
 allowing the creation of</p>
 <ul class="simple">
-<li><p>multiple indices, each for one set of columns, and</p></li>
-<li><p>multiple types of indices for same set of columns, each for one order.</p></li>
+<li><p>multiple indexes, each for one set of columns, and</p></li>
+<li><p>multiple types of indexes for same set of columns, each for one order.</p></li>
 </ul>
 <p>In this way, we can search a GreenplumPython’s dataframe with index scan, on
 more than one column set in more than one order.</p>
@@ -116,7 +116,7 @@ more than one column set in more than one order.</p>
 creating an index on the ID column and another index on the vector column.</p>
 <p>As another example, suppose we want to search for Approximate Nearest Neighbors
 for a given vector based on not only cosine similarity, but also L_2
-distance. We can create two indices on the vector column, each for one
+distance. We can create two indexes on the vector column, each for one
 similarity metric.</p>
 <p>How to search a dataframe with index is defined by a set of operators on the
 indexed columns. For example, when scanning a B-tree index, relational
@@ -125,7 +125,7 @@ comparing two values. These operators are encapsulated as operator classes.
 Different data types have different operator classes for an index. For example,
 integers and floats are compared in different ways. Even for the same data type,
 we can change how two values are compared by changing the operator class.</p>
-<p>Since indices depend on operators to work, to use index scan, we need to specify
+<p>Since indexes depend on operators to work, to use index scan, we need to specify
 the filering predicate in the <code class="code docutils literal notranslate"><span class="pre">[]</span></code> operator and <code class="xref py py-meth docutils literal notranslate"><span class="pre">where()</span></code>
 with operators when doing comparison or computing similarity. To ease the use of
 operators in database,</p>
