@@ -1,5 +1,5 @@
 """
-Indices are essential for fast data searching. With indices, we can retrieve
+Indexes are essential for fast data searching. With indexes, we can retrieve
 rows we want by scanning the index, rather than the entire dataframe. As a
 result, when the dataframe is large, the amount of data to be scanned is
 typically much smaller with an index.
@@ -11,8 +11,8 @@ we will have to go through all rows. This can be rather inefficient.
 Backed by database systems, GreenplumPython overcomes this limitation by
 allowing the creation of
 
-- multiple indices, each for one set of columns, and
-- multiple types of indices for same set of columns, each for one order.
+- multiple indexes, each for one set of columns, and
+- multiple types of indexes for same set of columns, each for one order.
 
 In this way, we can search a GreenplumPython's dataframe with index scan, on
 more than one column set in more than one order.
@@ -27,7 +27,7 @@ creating an index on the ID column and another index on the vector column.
 
 As another example, suppose we want to search for Approximate Nearest Neighbors
 for a given vector based on not only cosine similarity, but also L_2
-distance. We can create two indices on the vector column, each for one
+distance. We can create two indexes on the vector column, each for one
 similarity metric.
 
 How to search a dataframe with index is defined by a set of operators on the
@@ -38,7 +38,7 @@ Different data types have different operator classes for an index. For example,
 integers and floats are compared in different ways. Even for the same data type,
 we can change how two values are compared by changing the operator class.
 
-Since indices depend on operators to work, to use index scan, we need to specify
+Since indexes depend on operators to work, to use index scan, we need to specify
 the filering predicate in the :code:`[]` operator and :meth:`~DataFrame.where()`
 with operators when doing comparison or computing similarity. To ease the use of
 operators in database,
