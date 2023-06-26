@@ -33,7 +33,8 @@ similarity metric.
 How to search a dataframe with index is defined by a set of operators on the
 indexed columns. For example, when scanning a B-tree index, relational
 operators, such as :code:`>`, :code:`<`, and :code:`=`, are required for
-comparing two values. These operators are encapsulated as operator classes.
+comparing two values. These operators are encapsulated as an `operator class
+<https://www.postgresql.org/docs/current/indexes-opclass.html>`_.
 Different data types have different operator classes for an index. For example,
 integers and floats are compared in different ways. Even for the same data type,
 we can change how two values are compared by changing the operator class.

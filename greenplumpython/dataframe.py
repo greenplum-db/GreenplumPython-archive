@@ -968,9 +968,11 @@ class DataFrame:
 
         Args:
             columns: :class:`Set` of columns of the current dataframe to create
-                index on. Optionally, operator class can be specified by
-                passing a :class:`Dict` with column names as keys and their
-                operator class names as values.
+                index on. Optionally, an `operator class
+                <https://www.postgresql.org/docs/current/indexes-opclass.html>`_
+                can be specified for each column by passing a :class:`Dict`
+                with column names as keys and their operator class names as
+                values.
             method: name of the index access method.
             name: name of the index.
 

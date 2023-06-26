@@ -1,4 +1,4 @@
-Operators and Indexing
+Operators and Indexes
 ======================
 .. module:: greenplumpython
 
