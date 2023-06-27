@@ -92,14 +92,14 @@
              
   <section id="module-col">
 <span id="column"></span><h1>Column<a class="headerlink" href="#module-col" title="Permalink to this heading"></a></h1>
-<p>This module manage a Column and sub column</p>
+<p>Utilties to access a column and one field of a column if the column is composite.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="col.ColumnField">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">col.</span></span><span class="sig-name descname"><span class="pre">ColumnField</span></span><a class="headerlink" href="#col.ColumnField" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></p>
 <p>Inherited from <a class="reference internal" href="expr.html#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a>.</p>
-<p>Representation of a field of a <a class="reference internal" href="#col.Column" title="col.Column"><code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code></a> of composite type. This type
-allows to access to the fields in a dict-like manner.</p>
+<p>Representation of a field of a <a class="reference internal" href="#col.Column" title="col.Column"><code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code></a> of composite type. This
+type allows to access to the fields in a dict-like manner.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -111,14 +111,13 @@ allows to access to the fields in a dict-like manner.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="col.Column.__getitem__">
 <span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#col.Column.__getitem__" title="Permalink to this definition"></a></dt>
-<dd><p>Used when want to use Field of Column for computation.
-Returns <a class="reference internal" href="#col.ColumnField" title="col.ColumnField"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnField</span></code></a> of self by matching field_name</p>
+<dd><p>Get access to a field of the current column.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>field_name</strong> (<em>str</em>) – str</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>ColumnField</p>
+<dd class="field-even"><p>Field of the column with the specified name.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#col.ColumnField" title="col.ColumnField"><em>ColumnField</em></a></p>
