@@ -16,5 +16,6 @@ The **GreenplumPython** library contains 5 main modules:
    type
    group
    order
+   op
    pd_df
    config
