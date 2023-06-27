@@ -542,7 +542,6 @@ class DataFrame:
         on: Iterable[str] = None,
         self_columns: Union[Dict[str, Optional[str]], Set[str]] = {"*"},
         other_columns: Union[Dict[str, Optional[str]], Set[str]] = {"*"},
-        on_columns: Union[Dict[str, Optional[str]], Set[str]] = {"*"},
     ) -> "DataFrame":
         """
         Join the current :class:`~dataframe.DataFrame` with another using the given arguments.
