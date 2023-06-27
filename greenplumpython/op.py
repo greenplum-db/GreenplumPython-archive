@@ -59,7 +59,7 @@ from greenplumpython.expr import BinaryExpr, UnaryExpr
 class Operator:
     """
     Represents an operator in database.
-    
+
     As a Python object, an :class:`Operator` can be called like a function.
     This is because unlike SQL, Python does not support defining new operators.
 
@@ -86,7 +86,7 @@ class Operator:
 
         Args:
             operands: operands to apply the operator on.
-        
+
         Returns:
             - a :class:`UnaryExpr` if the operator is unary, or
             - a :class:`BinaryExpr` if the operator is binary.
