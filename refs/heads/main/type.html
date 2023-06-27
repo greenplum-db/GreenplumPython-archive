@@ -130,13 +130,14 @@ the argument to the mapped type in database.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="type.type_">
-<span class="sig-prename descclassname"><span class="pre">type.</span></span><span class="sig-name descname"><span class="pre">type_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#type.type_" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">type.</span></span><span class="sig-name descname"><span class="pre">type_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#type.type_" title="Permalink to this definition"></a></dt>
 <dd><p>Get access to a type predefined in database.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<em>str</em>) – str: name of type</p></li>
 <li><p><strong>schema</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Optional[str]: name of schema</p></li>
+<li><p><strong>modifier</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – Optional[int]: variable or fixed length depending on type</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
