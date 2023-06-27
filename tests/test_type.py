@@ -21,6 +21,18 @@ def test_type_cast(db: gp.Database):
         assert row["complex"] == {"i": 2, "r": 1}
 
 
+def test_type_modifier(db: gp.Database):
+    varchar_5 = gp.type_("varchar", modifier=5)
+    varchar_20 = gp.type_("varchar", modifier=20)
+    result = db.assign(
+        varchar_5=lambda: varchar_5("Hello world!"),
+        varchar_20=lambda: varchar_20("Hello world!"),
+    )
+    for row in result:
+        assert row["varchar_5"] == "Hello"
+        assert row["varchar_20"] == "Hello world!"
+
+
 def test_type_create(db: gp.Database):
     @dataclasses.dataclass
     class Person:
