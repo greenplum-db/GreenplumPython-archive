@@ -1,6 +1,4 @@
-"""
-This module manage a Column and sub column
-"""
+"""Utilties to access a column and one field of a column if the column is composite."""
 from typing import TYPE_CHECKING, Optional
 
 from greenplumpython.db import Database
@@ -15,8 +13,8 @@ class ColumnField(Expr):
     """
     Inherited from :class:`~expr.Expr`.
 
-    Representation of a field of a :class:`~col.Column` of composite type. This type
-    allows to access to the fields in a dict-like manner.
+    Representation of a field of a :class:`~col.Column` of composite type. This
+    type allows to access to the fields in a dict-like manner.
     """
 
     def __init__(
@@ -24,6 +22,8 @@ class ColumnField(Expr):
         column: "Column",
         field_name: str,
     ) -> None:
+        # noqa
+        """:meta private:"""
         self._field_name = field_name
         self._column = column
         super().__init__(column._dataframe)
@@ -40,6 +40,8 @@ class Column(Expr):
     """
 
     def __init__(self, name: str, dataframe: "DataFrame") -> None:
+        # noqa: D400
+        """:meta private:"""
         super().__init__(dataframe=dataframe)
         self._name = name
         self._type: Optional[Type] = None  # TODO: Add type inference
@@ -55,14 +57,12 @@ class Column(Expr):
 
     def __getitem__(self, field_name: str) -> ColumnField:
         """
-        Used when want to use Field of Column for computation.
-        Returns :class:`~col.ColumnField` of self by matching field_name
+        Get access to a field of the current column.
 
         Args:
             field_name: str
 
         Returns:
-            ColumnField
-
+            Field of the column with the specified name.
         """
         return ColumnField(self, field_name=field_name)

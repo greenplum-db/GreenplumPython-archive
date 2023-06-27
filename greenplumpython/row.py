@@ -43,13 +43,13 @@ class Row(abc.Mapping[str, Union[Any, List[Any]]]):
 
     def __len__(self):
         """
-        Returns the number of columns in the current row.
+        Get the number of columns in the current row.
         """
         return len(self._contents)
 
     def keys(self) -> Iterable[str]:
         """
-        Return Iterable of column names of row
+        Return Iterable of column names of row.
 
         Returns:
             Iterable[str]: Iterable of column names
@@ -59,7 +59,7 @@ class Row(abc.Mapping[str, Union[Any, List[Any]]]):
 
     def values(self) -> Iterable[Any]:
         """
-        Return Iterable of values of row
+        Return Iterable of values of row.
 
         Returns:
             Iterable[Any]
