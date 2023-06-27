@@ -53,8 +53,10 @@ class TypeCast(Expr):
         db: Optional[Database] = None,
         column_name: str = None,
     ) -> "Expr":
+        # noqa D102
+        self._db = db
         if isinstance(self._obj, Expr):
-            self._obj.bind(
+            self._obj = self._obj.bind(
                 dataframe=dataframe,
                 db=db,
             )
@@ -63,6 +65,7 @@ class TypeCast(Expr):
     def apply(
         self, expand: bool = False, column_name: Optional[str] = None, row_id: Optional[str] = None
     ) -> "DataFrame":
+        # noqa D102
         from greenplumpython.dataframe import DataFrame
 
         if expand and column_name is None:

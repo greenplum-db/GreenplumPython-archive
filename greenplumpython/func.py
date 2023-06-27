@@ -220,7 +220,7 @@ class ArrayFunctionExpr(FunctionExpr):
         array_f = ArrayFunctionExpr(
             self._func,
             self._args,
-            group_by=group_by,
+            group_by=group_by if group_by else self._group_by,
             dataframe=dataframe,
         )
         array_f._db = db if db is not None else self._db

@@ -115,7 +115,9 @@ class DataFrameGroupingSet:
                 (2 rows)
         """
         return (
-            func(self._dataframe).bind(group_by=self).apply(expand=expand, column_name=column_name)
+            func(self._dataframe)
+            .bind(group_by=self, db=self._dataframe._db)
+            .apply(expand=expand, column_name=column_name)
         )
 
     def assign(self, **new_columns: Callable[["DataFrame"], Any]) -> "DataFrame":
@@ -162,7 +164,7 @@ class DataFrameGroupingSet:
                 assert (
                     v._dataframe is None or v._dataframe == self._dataframe
                 ), "Newly included columns must be based on the current dataframe"
-                v.bind(db=self._dataframe._db)
+                v = v.bind(db=self._dataframe._db)
             targets.append(f"{_serialize(v)} AS {k}")
         return DataFrame(
             f"SELECT {','.join(targets)} FROM {self._dataframe._name} {self._clause()}",

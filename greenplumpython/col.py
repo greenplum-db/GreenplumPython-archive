@@ -66,3 +66,18 @@ class Column(Expr):
             Field of the column with the specified name.
         """
         return ColumnField(self, field_name=field_name)
+
+    def bind(
+        self,
+        dataframe: Optional["DataFrame"] = None,
+        db: Optional[Database] = None,
+    ):
+        # noqa D400
+        """:meta private:"""
+        c = Column(
+            self._name,
+            self._dataframe,
+        )
+        c._db = db if db is not None else dataframe._db if dataframe is not None else self._db
+        assert c._db is not None
+        return c

@@ -42,11 +42,14 @@ def test_type_cast_func_result(db: gp.Database):
     def func(a: int, b: int) -> int:
         return a + b
 
-    results = df.apply(
+    results_app = df.apply(
         lambda t: float8(func(t["a"], t["b"])),
         column_name="float8",
     )
-    assert sorted([row["float8"] for row in results]) == list(range(0, 20, 2))
+    assert sorted([row["float8"] for row in results_app]) == list(range(0, 20, 2))
+
+    results_ass = df.assign(float8=lambda t: float8(func(t["a"], t["b"])))
+    assert sorted([row["float8"] for row in results_ass]) == list(range(0, 20, 2))
 
 
 def test_type_create(db: gp.Database):

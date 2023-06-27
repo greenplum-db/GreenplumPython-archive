@@ -28,6 +28,7 @@ class Expr:
         dataframe: Optional["DataFrame"] = None,
         db: Optional[Database] = None,
     ) -> "Expr":
+        # noqa D102
         self._db = db
         self._dataframe = dataframe
         return self
