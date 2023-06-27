@@ -617,10 +617,10 @@ class DataFrame:
         ], "Unsupported join type"
         assert cond is None or on is None, 'Cannot specify "cond" and "using" together'
 
-        def bind(t: DataFrame, columns: Union[Dict[str, Optional[str]], Set[str]]) -> List[str]:
+        def bind(t: DataFrame, db: Database, columns: Union[Dict[str, Optional[str]], Set[str]]) -> List[str]:
             target_list: List[str] = []
             for k in columns:
-                col: Column = t[k]
+                col: Column = t[k].bind(db=db)
                 v = columns[k] if isinstance(columns, dict) else None
                 target_list.append(col._serialize() + (f' AS "{v}"' if v is not None else ""))
             return target_list
@@ -629,7 +629,7 @@ class DataFrame:
         other_clause = (
             other._name if self._name != other._name else other._name + " AS " + other_temp._name
         )
-        target_list = bind(self, self_columns) + bind(other_temp, other_columns)
+        target_list = bind(self, self_columns, db=self._db) + bind(other_temp, other_columns, db=other._db)
         # ON clause in SQL uses argument `cond`.
         sql_on_clause = f"ON {cond(self, other_temp)._serialize()}" if cond is not None else ""
         join_column_names = (
