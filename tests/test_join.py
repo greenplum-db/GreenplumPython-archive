@@ -104,7 +104,7 @@ def test_join_same_column_using(db: gp.Database):
     t1 = db.create_dataframe(rows=rows, column_names=["id"])
     t2 = db.create_dataframe(rows=rows, column_names=["id"])
     ret = t1.join(t2, on=["id"], self_columns={"id"}, other_columns={"id"})
-    assert sorted(next(iter(ret)).keys()) == ["id"]
+    assert list(next(iter(ret)).keys()) == ["id"]
 
 
 def test_join_same_column_names(db: gp.Database):

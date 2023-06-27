@@ -674,7 +674,7 @@ class DataFrame:
             parents=[self, other],
         )
         coalesce_target_list = []
-        if not (self_columns == {} or other_columns == {}):
+        if self_columns and other_columns:
             for k in on:
                 s_v = self_columns[k] if isinstance(self_columns, dict) else (k + "_l")
                 o_v = other_columns[k] if isinstance(other_columns, dict) else (k + "_r")
