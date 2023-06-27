@@ -567,7 +567,6 @@ class DataFrame:
                 the corresponding key to avoid name conflicts. Asterisk :code:`"*"`
                 can be used as a key to indicate all columns.
             other_columns: Same as `self_columns`, but for the **other** :class:`~dataframe.DataFrame`.
-            on_columns: A :class:`dict` whose keys are the column names of the resulting joined dataframe using `on`.
 
         Note:
             When using :code:`"*"` as key in `self_columns` or `other_columns`,
