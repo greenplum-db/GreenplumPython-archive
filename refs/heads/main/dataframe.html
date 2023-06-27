@@ -56,6 +56,7 @@
 <li class="toctree-l2"><a class="reference internal" href="type.html">Type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="group.html">Grouping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="order.html">Ordering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="op.html">Operators and Indexes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pd_df.html">Pandas-Compatible DataFrame</a></li>
 <li class="toctree-l2"><a class="reference internal" href="config.html">Configuration</a></li>
 </ul>
@@ -123,6 +124,12 @@ is similar to the <code class="code docutils literal notranslate"><span class="p
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dataframe.</span></span><span class="sig-name descname"><span class="pre">DataFrame</span></span><a class="headerlink" href="#dataframe.DataFrame" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Representation of GreenplumPython DataFrame object.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataframe.DataFrame.is_saved">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_saved</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#dataframe.DataFrame.is_saved" title="Permalink to this definition"></a></dt>
+<dd><p>Check whether the current dataframe is saved in database.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="dataframe.DataFrame.__getitem__">
 <span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><span class="pre">DataFrame</span></a></span></span><a class="headerlink" href="#dataframe.DataFrame.__getitem__" title="Permalink to this definition"></a></dt>
@@ -624,7 +631,7 @@ enabled.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dataframe.DataFrame.save_as">
-<span class="sig-name descname"><span class="pre">save_as</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.save_as" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">save_as</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.save_as" title="Permalink to this definition"></a></dt>
 <dd><p>Save the GreenplumPython <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataframe</span></code> as a <em>table</em> into the database.</p>
 <p>And return a new instance of <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> that represents the newly saved <em>table</em>.</p>
 <p>After running this function, if <cite>temp is False</cite>, you can also use
@@ -632,7 +639,7 @@ enabled.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>table_name</strong> (<em>str</em>) – name of table in database, required to be unique in the schema.</p></li>
+<li><p><strong>table_name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – name of table in database, required to be unique in the schema.</p></li>
 <li><p><strong>temp</strong> (<em>bool</em>) – whether table is temporary. Temp tables will be dropped after the database connection is closed.</p></li>
 <li><p><strong>column_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – list of column names</p></li>
 <li><p><strong>storage_params</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – storage_parameter of gpdb, reference
@@ -677,6 +684,32 @@ enabled.</p>
 <span class="p">(</span><span class="mi">5</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.create_index">
+<span class="sig-name descname"><span class="pre">create_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'btree'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.create_index" title="Permalink to this definition"></a></dt>
+<dd><p>Create an index for the current dataframe for fast searching.</p>
+<p>The current dataframe is required to be saved before creating index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>columns</strong> (<em>Union</em><em>[</em><em>Set</em><em>[</em><em>str</em><em>]</em><em>, </em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>]</em>) – <code class="xref py py-class docutils literal notranslate"><span class="pre">Set</span></code> of columns of the current dataframe to create
+index on. Optionally, an <a class="reference external" href="https://www.postgresql.org/docs/current/indexes-opclass.html">operator class</a>
+can be specified for each column by passing a <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>
+with column names as keys and their operator class names as
+values.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – name of the index access method.</p></li>
+<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – name of the index.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataframe with key columns indexed.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
