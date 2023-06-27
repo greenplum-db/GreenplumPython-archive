@@ -5,3 +5,4 @@ nbsphinx
 ipython~=8.10
 pydocstyle==6.2.3
 pandoc
+urllib3<2.0   # on Rocky 8: urllib3 v2.0 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'OpenSSL 1.0.2k-fips

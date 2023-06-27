@@ -69,18 +69,25 @@ class DataFrame:
         parents: List["DataFrame"] = [],
         db: Optional[Database] = None,
         columns: Optional[Iterable[Column]] = None,
+        qualified_table_name: Optional[str] = None,
     ) -> None:
         # FIXME: Add doc
         # noqa
         self._query = query
         self._parents = parents
         self._name = "cte_" + uuid4().hex
+        self._qualified_table_name = qualified_table_name
         self._columns = columns
         self._contents: Optional[Iterable[RealDictRow]] = None
         if any(parents):
             self._db = next(iter(parents))._db
         else:
             self._db = db
+
+    @property
+    def is_saved(self) -> bool:
+        """Check whether the current dataframe is saved in database."""
+        return self._qualified_table_name is not None
 
     @singledispatchmethod
     def _getitem(self, _) -> "DataFrame":
@@ -707,7 +714,7 @@ class DataFrame:
                 self._depth_first_search(i, visited, lineage)
         lineage.append(t)
 
-    def _build_full_query(self) -> str:
+    def _serialize(self) -> str:
         # noqa
         """:meta private:"""
         lineage = self._list_lineage()
@@ -849,12 +856,12 @@ class DataFrame:
             f"SELECT to_json({output_name})::TEXT FROM {self._name} AS {output_name}",
             parents=[self],
         )
-        result = self._db._execute(to_json_dataframe._build_full_query())
-        return result if result is not None else []
+        result = self._db._execute(to_json_dataframe._serialize())
+        return result if isinstance(result, Iterable) else []
 
     def save_as(
         self,
-        table_name: str,
+        table_name: Optional[str] = None,
         column_names: List[str] = [],
         temp: bool = False,
         storage_params: dict[str, Any] = {},
@@ -919,10 +926,12 @@ class DataFrame:
 
         # build string from parameter dict, such as from {'a': 1, 'b': 2} to
         # 'WITH (a=1, b=2)'
-        storage_parameters = (
-            f"WITH ({','.join([f'{key}={storage_params[key]}' for key in storage_params.keys()])})"
+        storage_params_clause = (
+            f"WITH ({','.join([f'{key}={val}' for key, val in storage_params.items()])})"
         )
-        df_full_name = f'"{table_name}"' if schema is None else f'"{schema}"."{table_name}"'
+        if table_name is None:
+            table_name = self._name if not self.is_saved else "cte_" + uuid4().hex
+        qualified_table_name = f'"{table_name}"' if schema is None else f'"{schema}"."{table_name}"'
         distribution_clause = (
             f"""
                 DISTRIBUTED {f"BY ({','.join(distribution_key)})" 
@@ -936,48 +945,57 @@ class DataFrame:
         )
         self._db._execute(
             f"""
-            CREATE {'TEMP' if temp else ''} TABLE {df_full_name}
+            CREATE {'TEMP' if temp else ''} TABLE {qualified_table_name}
             ({','.join(column_names)})
-            {storage_parameters if storage_params else ''}
-            AS {self._build_full_query()}
+            {storage_params_clause if storage_params else ''}
+            AS {self._serialize()}
             {distribution_clause}
             """,
             has_results=False,
         )
-        return DataFrame.from_table(table_name, self._db)
+        return DataFrame.from_table(table_name, self._db, schema=schema)
 
-    # TODO: Uncomment or remove this.
-    #
-    # def create_index(
-    #     self,
-    #     columns: Iterable[Union["Column", str]],
-    #     method: str = "btree",
-    #     name: Optional[str] = None,
-    # ) -> None:
-    #     if not self._in_catalog():
-    #         raise Exception("Cannot create index on dataframes not in the system catalog.")
-    #     index_name: str = name if name is not None else "idx_" + uuid4().hex
-    #     indexed_cols = ",".join([str(col) for col in columns])
-    #     assert self._db is not None
-    #     self._db._execute(
-    #         f"CREATE INDEX {index_name} ON {self.name} USING {method} ({indexed_cols})",
-    #         has_results=False,
-    #     )
-
-    def _explain(self, format: str = "TEXT") -> Iterable[Tuple[str]]:
+    def create_index(
+        self,
+        columns: Union[Set[str], Dict[str, str]],
+        method: str = "btree",
+        name: Optional[str] = None,
+    ) -> "DataFrame":
         """
-        Explain the GreenplumPython :class:`~dataframe.DataFrame`'s execution plan.
+        Create an index for the current dataframe for fast searching.
+
+        The current dataframe is required to be saved before creating index.
 
         Args:
-            format: str: the format of the explain result. It can be one of "TEXT"/"XML"/"JSON"/"YAML".
+            columns: :class:`Set` of columns of the current dataframe to create
+                index on. Optionally, an `operator class
+                <https://www.postgresql.org/docs/current/indexes-opclass.html>`_
+                can be specified for each column by passing a :class:`Dict`
+                with column names as keys and their operator class names as
+                values.
+            method: name of the index access method.
+            name: name of the index.
 
         Returns:
-            Iterable[Tuple[str]]: The results of *EXPLAIN* query.
+            Dataframe with key columns indexed.
         """
+        assert self.is_saved, "Cannot create index for unsaved dataframe."
+        assert len(columns) > 0, "Column set to be indexed cannot be empty."
+
+        index_name: str = "idx_" + uuid4().hex if name is None else name
+        keys = (
+            [f'"{name}" "{op_class}"' for name, op_class in columns.items()]
+            if isinstance(columns, dict)
+            else [f'"{name}"' for name in columns]
+        )
         assert self._db is not None
-        results = self._db._execute(f"EXPLAIN (FORMAT {format}) {self._build_full_query()}")
-        assert results is not None
-        return results
+        self._db._execute(
+            f'CREATE INDEX "{index_name}" ON {self._qualified_table_name} USING "{method}" ('
+            f'   {",".join(keys)}'
+            f")",
+            has_results=False,
+        )
+        return self
 
     def group_by(self, *column_names: str) -> DataFrameGroupingSet:
         """
@@ -1052,10 +1070,8 @@ class DataFrame:
             df = gp.DataFrame.from_table("pg_class", db=db)
 
         """
-        return DataFrame(
-            f'TABLE "{schema}"."{table_name}"' if schema is not None else f'TABLE "{table_name}"',
-            db=db,
-        )
+        qualified_name = f'"{schema}"."{table_name}"' if schema is not None else f'"{table_name}"'
+        return DataFrame(f"TABLE {qualified_name}", db=db, qualified_table_name=qualified_name)
 
     @classmethod
     def from_rows(
