@@ -53,7 +53,7 @@ class FunctionExpr(Expr):
         self._group_by = group_by
         self._distinct = distinct
 
-    def bind(
+    def _bind(
         self,
         group_by: Optional[DataFrameGroupingSet] = None,
         dataframe: Optional[DataFrame] = None,
@@ -83,6 +83,7 @@ class FunctionExpr(Expr):
     def _serialize(self) -> str:
         # noqa D400
         """:meta private:"""
+        assert self._db is not None, "Database is required to create function."
         self._function._create_in_db(self._db)
         distinct = "DISTINCT" if self._distinct else ""
         for arg in self._args:
@@ -208,7 +209,7 @@ class ArrayFunctionExpr(FunctionExpr):
             args_string = ",".join(args_string_list)
         return f"{self._function._qualified_name_str}({args_string})"
 
-    def bind(
+    def _bind(
         self,
         group_by: Optional[DataFrameGroupingSet] = None,
         dataframe: Optional[DataFrame] = None,
@@ -219,7 +220,7 @@ class ArrayFunctionExpr(FunctionExpr):
         array_f = ArrayFunctionExpr(
             self._func,
             self._args,
-            group_by=group_by,
+            group_by=group_by if group_by else self._group_by,
             dataframe=dataframe,
         )
         array_f._db = db if db is not None else self._db
@@ -308,6 +309,7 @@ class NormalFunction(_AbstractFunction):
                 func_src: str = inspect.getsource(self._wrapped_func)
             else:
                 func_src: str = dill.source.getsource(self._wrapped_func)
+                assert isinstance(func_src, str)
             func_ast: ast.FunctionDef = ast.parse(dedent(func_src)).body[0]
             # TODO: Lambda expressions are NOT supported since inspect.signature()
             # does not work as expected.

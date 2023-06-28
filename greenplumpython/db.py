@@ -178,7 +178,7 @@ class Database:
                 -----
                 (1 row)
         """
-        return func().bind(db=self).apply(expand=expand, column_name=column_name)
+        return func()._bind(db=self).apply(expand=expand, column_name=column_name)
 
     def assign(self, **new_columns: Callable[[], Any]) -> "DataFrame":
         """
@@ -213,9 +213,10 @@ class Database:
         for k, f in new_columns.items():
             v: Any = f()
             if isinstance(v, Expr):
+                v._bind(db=self)
                 assert v._dataframe is None, "New column should not depend on any dataframe."
             if isinstance(v, FunctionExpr):
-                v = v.bind(db=self)
+                v = v._bind(db=self)
             targets.append(f"{_serialize(v)} AS {k}")
         return DataFrame(f"SELECT {','.join(targets)}", db=self)
 

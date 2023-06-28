@@ -431,7 +431,11 @@ class DataFrame:
         #
         # To fix this, we need to pass the dataframe to the resulting FunctionExpr
         # explicitly.
-        return func(self).bind(dataframe=self).apply(expand=expand, column_name=column_name)
+        return (
+            func(self)
+            ._bind(dataframe=self, db=self._db)
+            .apply(expand=expand, column_name=column_name)
+        )
 
     def assign(self, **new_columns: Callable[["DataFrame"], Any]) -> "DataFrame":
         """
@@ -484,6 +488,7 @@ class DataFrame:
                     if v._other_dataframe is not None and v._other_dataframe._name != self._name:
                         if v._other_dataframe._name not in other_parents:
                             other_parents[v._other_dataframe._name] = v._other_dataframe
+                    v = v._bind(db=self._db)
                 targets.append(f"{_serialize(v)} AS {k}")
             return DataFrame(
                 f"SELECT *, {','.join(targets)} FROM {self._name}",
@@ -616,10 +621,12 @@ class DataFrame:
         ], "Unsupported join type"
         assert cond is None or on is None, 'Cannot specify "cond" and "using" together'
 
-        def bind(t: DataFrame, columns: Union[Dict[str, Optional[str]], Set[str]]) -> List[str]:
+        def _bind(
+            t: DataFrame, db: Database, columns: Union[Dict[str, Optional[str]], Set[str]]
+        ) -> List[str]:
             target_list: List[str] = []
             for k in columns:
-                col: Column = t[k]
+                col: Column = t[k]._bind(db=db)
                 v = columns[k] if isinstance(columns, dict) else None
                 target_list.append(col._serialize() + (f' AS "{v}"' if v is not None else ""))
             return target_list
@@ -628,7 +635,9 @@ class DataFrame:
         other_clause = (
             other._name if self._name != other._name else other._name + " AS " + other_temp._name
         )
-        target_list = bind(self, self_columns) + bind(other_temp, other_columns)
+        target_list = _bind(self, db=self._db, columns=self_columns) + _bind(
+            other_temp, db=other._db, columns=other_columns
+        )
         # ON clause in SQL uses argument `cond`.
         sql_on_clause = f"ON {cond(self, other_temp)._serialize()}" if cond is not None else ""
         join_column_names = (
