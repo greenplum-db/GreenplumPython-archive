@@ -47,7 +47,7 @@ class TypeCast(Expr):
         obj_str = _serialize(self._obj)
         return f"({obj_str}::{self._qualified_type_name})"
 
-    def bind(
+    def _bind(
         self,
         dataframe: Optional["DataFrame"] = None,
         db: Optional[Database] = None,
@@ -56,7 +56,7 @@ class TypeCast(Expr):
         # noqa D102
         self._db = db
         if isinstance(self._obj, Expr):
-            self._obj = self._obj.bind(
+            self._obj = self._obj._bind(
                 dataframe=dataframe,
                 db=db,
             )

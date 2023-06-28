@@ -433,7 +433,7 @@ class DataFrame:
         # explicitly.
         return (
             func(self)
-            .bind(dataframe=self, db=self._db)
+            ._bind(dataframe=self, db=self._db)
             .apply(expand=expand, column_name=column_name)
         )
 
@@ -488,7 +488,7 @@ class DataFrame:
                     if v._other_dataframe is not None and v._other_dataframe._name != self._name:
                         if v._other_dataframe._name not in other_parents:
                             other_parents[v._other_dataframe._name] = v._other_dataframe
-                    v = v.bind(db=self._db)
+                    v = v._bind(db=self._db)
                 targets.append(f"{_serialize(v)} AS {k}")
             return DataFrame(
                 f"SELECT *, {','.join(targets)} FROM {self._name}",
@@ -621,12 +621,12 @@ class DataFrame:
         ], "Unsupported join type"
         assert cond is None or on is None, 'Cannot specify "cond" and "using" together'
 
-        def bind(
+        def _bind(
             t: DataFrame, db: Database, columns: Union[Dict[str, Optional[str]], Set[str]]
         ) -> List[str]:
             target_list: List[str] = []
             for k in columns:
-                col: Column = t[k].bind(db=db)
+                col: Column = t[k]._bind(db=db)
                 v = columns[k] if isinstance(columns, dict) else None
                 target_list.append(col._serialize() + (f' AS "{v}"' if v is not None else ""))
             return target_list
@@ -635,7 +635,7 @@ class DataFrame:
         other_clause = (
             other._name if self._name != other._name else other._name + " AS " + other_temp._name
         )
-        target_list = bind(self, db=self._db, columns=self_columns) + bind(
+        target_list = _bind(self, db=self._db, columns=self_columns) + _bind(
             other_temp, db=other._db, columns=other_columns
         )
         # ON clause in SQL uses argument `cond`.

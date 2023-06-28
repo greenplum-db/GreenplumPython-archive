@@ -116,7 +116,7 @@ class DataFrameGroupingSet:
         """
         return (
             func(self._dataframe)
-            .bind(group_by=self, db=self._dataframe._db)
+            ._bind(group_by=self, db=self._dataframe._db)
             .apply(expand=expand, column_name=column_name)
         )
 
@@ -159,12 +159,12 @@ class DataFrameGroupingSet:
 
         targets: List[str] = self._flatten()
         for k, f in new_columns.items():
-            v: Any = f(self._dataframe).bind(group_by=self)
+            v: Any = f(self._dataframe)._bind(group_by=self)
             if isinstance(v, Expr):
                 assert (
                     v._dataframe is None or v._dataframe == self._dataframe
                 ), "Newly included columns must be based on the current dataframe"
-                v = v.bind(db=self._dataframe._db)
+                v = v._bind(db=self._dataframe._db)
             targets.append(f"{_serialize(v)} AS {k}")
         return DataFrame(
             f"SELECT {','.join(targets)} FROM {self._dataframe._name} {self._clause()}",

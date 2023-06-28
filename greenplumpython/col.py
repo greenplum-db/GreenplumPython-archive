@@ -67,7 +67,7 @@ class Column(Expr):
         """
         return ColumnField(self, field_name=field_name)
 
-    def bind(
+    def _bind(
         self,
         dataframe: Optional["DataFrame"] = None,
         db: Optional[Database] = None,

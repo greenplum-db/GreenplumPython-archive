@@ -23,7 +23,7 @@ class Expr:
         self._db = None
         # self._db = dataframe._db if dataframe is not None else None  # FIXME: set it to None
 
-    def bind(
+    def _bind(
         self,
         dataframe: Optional["DataFrame"] = None,
         db: Optional[Database] = None,

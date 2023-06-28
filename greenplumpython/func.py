@@ -53,7 +53,7 @@ class FunctionExpr(Expr):
         self._group_by = group_by
         self._distinct = distinct
 
-    def bind(
+    def _bind(
         self,
         group_by: Optional[DataFrameGroupingSet] = None,
         dataframe: Optional[DataFrame] = None,
@@ -209,7 +209,7 @@ class ArrayFunctionExpr(FunctionExpr):
             args_string = ",".join(args_string_list)
         return f"{self._function._qualified_name_str}({args_string})"
 
-    def bind(
+    def _bind(
         self,
         group_by: Optional[DataFrameGroupingSet] = None,
         dataframe: Optional[DataFrame] = None,
