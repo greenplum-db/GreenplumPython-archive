@@ -52,6 +52,25 @@ def test_type_cast_func_result(db: gp.Database):
     assert sorted([row["float8"] for row in results_ass]) == list(range(0, 20, 2))
 
 
+def test_type_cast_apply(db: gp.Database):
+    float8 = gp.type_("float8")
+    generate_series = gp.function("generate_series")
+    df = db.apply(lambda: generate_series(0, 9), column_name="a")
+
+    @gp.create_function
+    def func(f: float) -> int:
+        return int(f)
+
+    results_app = df.apply(
+        lambda t: func(float8(t["a"])),
+        column_name="int",
+    )
+    assert sorted([row["int"] for row in results_app]) == list(range(0, 10))
+
+    results_ass = df.assign(int=lambda t: func(float8(t["a"])))
+    assert sorted([row["int"] for row in results_ass]) == list(range(0, 10))
+
+
 def test_type_create(db: gp.Database):
     @dataclasses.dataclass
     class Person:
