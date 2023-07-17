@@ -51,7 +51,9 @@ for f in os.listdir("."):
 for target in permalink:
     source = versions.get(target)
     if source:
-        shutil.copy2(source, target)
+        if os.path.exists(target):
+            shutil.rmtree(target)
+        shutil.copytree(source, target)
 
 # Create an index.html to redirect to the stable version
 # or latest if stable does not exist
