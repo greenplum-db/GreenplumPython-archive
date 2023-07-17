@@ -10,6 +10,7 @@ exist, the the main branch's version.
 
 from json import dumps
 import os
+import shutil
 from packaging.version import parse
 
 base = "refs"
@@ -50,7 +51,7 @@ for f in os.listdir("."):
 for target in permalink:
     source = versions.get(target)
     if source:
-        os.symlink(source, target)
+        shutil.copy2(source, target)
 
 # Create an index.html to redirect to the stable version
 # or latest if stable does not exist
