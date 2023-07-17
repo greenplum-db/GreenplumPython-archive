@@ -8,8 +8,8 @@ Welcome to GreenplumPython's documentation!
 
 Presentation
 ============
-**GreenplumPython** is a Python library, precisely it builds an API that allows the users to
-manipulate Greenplum Database with Python without exporting the data to his local machine.
+**GreenplumPython** is a Python library that precisely builds an API that allows the users to
+manipulate Greenplum Database with Python without exporting the data to the local machine.
 Python users can indeed proceed with Greenplum's interactive analysis performance and distributed
 environment without deep knowledge of SQL.
 
