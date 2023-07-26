@@ -74,7 +74,7 @@ class Embedding:
                 SET LOCAL allow_system_table_mods TO ON;
 
                 WITH embedding_info AS (
-                    SELECT '{embedding_df._qualified_table_name}'::regclass::oid AS base_relid, attnum, '{model}' AS model
+                    SELECT '{embedding_df._qualified_table_name}'::regclass::oid AS embedding_relid, attnum, '{model}' AS model
                     FROM pg_attribute
                     WHERE 
                         attrelid = '{self._dataframe._qualified_table_name}'::regclass::oid AND
@@ -85,10 +85,11 @@ class Embedding:
                     reloptions, 
                     format('_pygp_emb_%s=%s', attnum::text, to_json(embedding_info))
                 )
-                FROM embedding_info;
+                FROM embedding_info
+                WHERE oid = '{self._dataframe._qualified_table_name}'::regclass::oid;
 
                 WITH embedding_info AS (
-                    SELECT '{embedding_df._qualified_table_name}'::regclass::oid AS base_relid, attnum, '{model}' AS model
+                    SELECT '{embedding_df._qualified_table_name}'::regclass::oid AS embedding_relid, attnum, '{model}' AS model
                     FROM pg_attribute
                     WHERE
                         attrelid = '{self._dataframe._qualified_table_name}'::regclass::oid AND
@@ -100,7 +101,7 @@ class Embedding:
                     '{embedding_df._qualified_table_name}'::regclass::oid AS objid,
                     0::oid AS objsubid,
                     'pg_class'::regclass::oid AS refclassid,
-                    embedding_info.base_relid AS refobjid,
+                    embedding_info.embedding_relid AS refobjid,
                     embedding_info.attnum AS refobjsubid,
                     'n' AS deptype
                 FROM embedding_info;
@@ -131,14 +132,14 @@ class Embedding:
                 WHERE option LIKE format('_pygp_emb_%s=%%', attnum)
             ), embedding_info AS (
                 SELECT * 
-                FROM embedding_info_json, json_to_record(val) AS (attnum int4, base_relid oid, model text)
+                FROM embedding_info_json, json_to_record(val) AS (attnum int4, embedding_relid oid, model text)
             )
             SELECT nspname, relname, attname, model
             FROM embedding_info, pg_class, pg_namespace, pg_attribute
             WHERE 
-                pg_class.oid = base_relid AND
+                pg_class.oid = embedding_relid AND
                 relnamespace = pg_namespace.oid AND
-                base_relid = attrelid AND
+                embedding_relid = attrelid AND
                 pg_attribute.attnum = 2;
             """
         )

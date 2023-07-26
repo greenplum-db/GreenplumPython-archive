@@ -230,7 +230,7 @@ def to_pg_type(
             args: Tuple[type, ...] = annotation.__args__
             if for_return:
                 return f"SETOF {to_pg_type(args[0], db)}"  # type: ignore
-            if args[0] in _defined_types:
+            else:
                 return f"{to_pg_type(args[0], db)}[]"  # type: ignore
         raise NotImplementedError()
     else:
