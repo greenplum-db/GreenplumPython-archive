@@ -634,9 +634,8 @@ class BinaryExpr(Expr):
             self._left._db = self._db
         if isinstance(self._right, Expr):
             self._right._db = self._db
-        # FIXME: Move _serialize() to be a method of Database.
-        left_str = _serialize(self._left._bind(db=self._db))
-        right_str = _serialize(self._right._bind(db=self._db))
+        left_str = _serialize(self._left)
+        right_str = _serialize(self._right)
         return f"({left_str} {self._operator} {right_str})"
 
 
