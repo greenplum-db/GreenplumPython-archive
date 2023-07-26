@@ -101,7 +101,7 @@ class Embedding:
                     '{embedding_df._qualified_table_name}'::regclass::oid AS objid,
                     0::oid AS objsubid,
                     'pg_class'::regclass::oid AS refclassid,
-                    embedding_info.embedding_relid AS refobjid,
+                    '{self._dataframe._qualified_table_name}'::regclass::oid AS refobjid,
                     embedding_info.attnum AS refobjsubid,
                     'n' AS deptype
                 FROM embedding_info;
