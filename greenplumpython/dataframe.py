@@ -941,6 +941,11 @@ class DataFrame:
         if table_name is None:
             table_name = self._name if not self.is_saved else "cte_" + uuid4().hex
         qualified_table_name = f'"{table_name}"' if schema is None else f'"{schema}"."{table_name}"'
+        if distribution_type is not None:
+            distribution_type = distribution_type.lower()
+        assert (distribution_key is not None and distribution_type == "hash") or (
+            distribution_key is None and distribution_type == "randomly" or "replicated"
+        ), f"Distribution type '{distribution_type}' on key '{distribution_key}' is invalid."
         distribution_clause = (
             f"""
                 DISTRIBUTED {f"BY ({','.join(distribution_key)})" 
@@ -1018,10 +1023,6 @@ class DataFrame:
             :class:`~dataframe.DataFrame`. Each group is identified by a different
             set of values of the columns in the arguments.
         """
-        #  State transition diagram:
-        #  DataFrame --group_by()-> DataFrameGroupingSet --aggregate()-> FunctionExpr
-        #    ^                                                             |
-        #    |------------------------- assign() or apply() ---------------|
         return DataFrameGroupingSet(self, [column_names])
 
     def distinct_on(self, *column_names: str) -> "DataFrame":
@@ -1063,6 +1064,24 @@ class DataFrame:
             parents=[self],
         )
 
+    @property
+    def unique_key(self) -> List[str]:
+        return self._unique_key
+
+    def check_unique(self, columns: set[str]) -> "DataFrame":
+        """
+        Check whether a given set of columns, i.e. key, is unique.
+        """
+        assert self.is_saved, "DataFrame must be saved before checking uniqueness."
+        assert self._db is not None, "Database is required to check uniqueness."
+        print(self)
+        self._db._execute(
+            f"CREATE UNIQUE INDEX ON {self._qualified_table_name} ({','.join(columns)})",
+            has_results=False,
+        )
+        self._unique_key = columns
+        return self
+
     # dataframe_name can be table/view name
     @classmethod
     def from_table(cls, table_name: str, db: Database, schema: Optional[str] = None) -> "DataFrame":
@@ -1080,7 +1099,7 @@ class DataFrame:
 
         """
         qualified_name = f'"{schema}"."{table_name}"' if schema is not None else f'"{table_name}"'
-        return DataFrame(f"TABLE {qualified_name}", db=db, qualified_table_name=qualified_name)
+        return cls(f"TABLE {qualified_name}", db=db, qualified_table_name=qualified_name)
 
     @classmethod
     def from_rows(
@@ -1141,9 +1160,7 @@ class DataFrame:
         column_names = [f'"{name}"' for name in column_names]
         columns_string = f"({','.join(column_names)})"
         table_name = "cte_" + uuid4().hex
-        return DataFrame(
-            f"SELECT * FROM (VALUES {rows_string}) AS {table_name} {columns_string}", db=db
-        )
+        return cls(f"SELECT * FROM (VALUES {rows_string}) AS {table_name} {columns_string}", db=db)
 
     @classmethod
     def from_columns(cls, columns: Dict[str, Iterable[Any]], db: Database) -> "DataFrame":
@@ -1176,4 +1193,4 @@ class DataFrame:
         columns_string = ",".join(
             [f'unnest({_serialize(list(v))}) AS "{k}"' for k, v in columns.items()]
         )
-        return DataFrame(f"SELECT {columns_string}", db=db)
+        return cls(f"SELECT {columns_string}", db=db)

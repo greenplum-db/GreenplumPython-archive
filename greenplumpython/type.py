@@ -135,6 +135,9 @@ class Type:
         """
         if self._created_in_dbs is None or db in self._created_in_dbs:
             return
+        assert isinstance(
+            self._annotation, type
+        ), "Only composite data types can be created in database."
         schema = "pg_temp"
         members = get_type_hints(self._annotation)
         if len(members) == 0:
@@ -183,7 +186,7 @@ _defined_types: Dict[Optional[type], Type] = {
     bytes: Type(name="bytea"),
 }
 
-
+# FIXME: Change to data_type() to make it more clear.
 def type_(name: str, schema: Optional[str] = None, modifier: Optional[int] = None) -> Type:
     """
     Get access to a type predefined in database.
@@ -219,6 +222,8 @@ def to_pg_type(
     Returns:
         str: name of type in SQL
     """
+    if isinstance(annotation, Type):
+        return annotation._qualified_name_str
     if annotation is not None and hasattr(annotation, "__origin__"):
         # The `or` here is to make the function work on Python 3.6.
         # Python 3.6 is the default Python version on CentOS 7 and Ubuntu 18.04
