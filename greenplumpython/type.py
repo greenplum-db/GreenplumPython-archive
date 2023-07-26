@@ -186,6 +186,7 @@ _defined_types: Dict[Optional[type], Type] = {
     bytes: Type(name="bytea"),
 }
 
+
 # FIXME: Change to data_type() to make it more clear.
 def type_(name: str, schema: Optional[str] = None, modifier: Optional[int] = None) -> Type:
     """

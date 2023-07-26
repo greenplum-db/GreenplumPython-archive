@@ -632,8 +632,9 @@ class BinaryExpr(Expr):
     def _serialize(self) -> str:
         from greenplumpython.expr import _serialize
 
-        left_str = _serialize(self._left)
-        right_str = _serialize(self._right)
+        # FIXME: Move _serialize() to be a method of Database.
+        left_str = _serialize(self._left._bind(db=self._db))
+        right_str = _serialize(self._right._bind(db=self._db))
         return f"({left_str} {self._operator} {right_str})"
 
 

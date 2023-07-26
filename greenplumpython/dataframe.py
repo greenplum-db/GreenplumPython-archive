@@ -1074,7 +1074,6 @@ class DataFrame:
         """
         assert self.is_saved, "DataFrame must be saved before checking uniqueness."
         assert self._db is not None, "Database is required to check uniqueness."
-        print(self)
         self._db._execute(
             f"CREATE UNIQUE INDEX ON {self._qualified_table_name} ({','.join(columns)})",
             has_results=False,
