@@ -222,8 +222,6 @@ def to_pg_type(
     Returns:
         str: name of type in SQL
     """
-    if isinstance(annotation, Type):
-        return annotation._qualified_name_str
     if annotation is not None and hasattr(annotation, "__origin__"):
         # The `or` here is to make the function work on Python 3.6.
         # Python 3.6 is the default Python version on CentOS 7 and Ubuntu 18.04
@@ -235,6 +233,8 @@ def to_pg_type(
                 return f"{to_pg_type(args[0], db)}[]"  # type: ignore
         raise NotImplementedError()
     else:
+        if isinstance(annotation, Type):
+            return annotation._qualified_name_str
         assert db is not None, "Database is required to create type"
         if annotation not in _defined_types:
             type_name = "type_" + uuid4().hex

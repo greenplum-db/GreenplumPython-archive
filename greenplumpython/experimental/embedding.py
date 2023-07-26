@@ -72,35 +72,42 @@ class Embedding:
             DO $$
             BEGIN
                 SET LOCAL allow_system_table_mods TO ON;
+
                 WITH embedding_info AS (
-                    SELECT attrelid, attnum, `{model}` AS model
+                    SELECT attrelid, attnum, '{model}' AS model
                     FROM pg_attribute
                     WHERE 
                         attrelid = '{self._dataframe._qualified_table_name}'::regclass::oid AND
                         attname = '{column}'
-                ), add_option AS (
-                    UPDATE pg_class
-                    FROM embedding_info
-                    SET reloptions = array_append(
-                        reloptions, 
-                        format('_pygp_emb_%s=%s', attnum::text, to_json(embedding_info))
-                    )
-                ), add_dependency AS (
-                    INSERT INTO pg_depend
-                    SELECT
-                        'pg_class'::regclass::oid AS classid,
-                        '{embedding_df._qualified_table_name}'::regclass::oid AS objid,
-                        0::oid AS objsubid,
-                        'pg_class'::regclass::oid AS refclassid,
-                        embedding_info.attrelid AS refobjid,
-                        embedding_info.attnum AS refobjsubid
-                    FROM embedding_info
-                    RETURNING *
                 )
-                SELECT * FROM add_dependency;
+                UPDATE pg_class
+                SET reloptions = array_append(
+                    reloptions, 
+                    format('_pygp_emb_%s=%s', attnum::text, to_json(embedding_info))
+                )
+                FROM embedding_info;
+
+                WITH embedding_info AS (
+                    SELECT attrelid, attnum, '{model}' AS model
+                    FROM pg_attribute
+                    WHERE 
+                        attrelid = '{self._dataframe._qualified_table_name}'::regclass::oid AND
+                        attname = '{column}'
+                )
+                INSERT INTO pg_depend
+                SELECT
+                    'pg_class'::regclass::oid AS classid,
+                    '{embedding_df._qualified_table_name}'::regclass::oid AS objid,
+                    0::oid AS objsubid,
+                    'pg_class'::regclass::oid AS refclassid,
+                    embedding_info.attrelid AS refobjid,
+                    embedding_info.attnum AS refobjsubid,
+                    'n' AS deptype
+                FROM embedding_info;
             END;
             $$;
-            """
+            """,
+            has_results=False
         )
         return self._dataframe
 
@@ -108,31 +115,32 @@ class Embedding:
         assert self._dataframe._db is not None
         embdedding_info = self._dataframe._db._execute(
             f"""
-                WITH embedding_oid AS (
-                    SELECT attrelid, attnum
-                    FROM pg_attribute
-                    WHERE 
-                        attrelid = '{self._dataframe._qualified_table_name}'::regclass::oid AND
-                        attname = '{column}'
-                ), reloptions AS (
-                    SELECT unnest(reloptions) AS option
-                    FROM pg_class, embedding_oid
-                    WEHRE oid = attrelid
-                ), embedding_info AS (
-                    SELECT split_part(option, '=', 2)::jsonb AS info
-                    FROM reloptions, embedding_oid
-                    WHERE option LIKE format('_pygp_emb%s=%%', attnum)
-                ) embedding_table_qualified_name AS (
-                    SELECT nspname, relname, embedding.info->'model' AS model
-                    FROM embedding_table, pg_class, pg_namespace
-                    WHERE 
-                        pg_class.oid = embedding.info->'attrelid' AND
-                        relnamespace = pg_namespace.oid
-                )
-                SELECT * FROM embedding_table_qualified_name
+            WITH embedding_oid AS (
+                SELECT attrelid, attnum
+                FROM pg_attribute
+                WHERE 
+                    attrelid = '{self._dataframe._qualified_table_name}'::regclass::oid AND
+                    attname = '{column}'
+            ), reloptions AS (
+                SELECT unnest(reloptions) AS option
+                FROM pg_class, embedding_oid
+                WHERE pg_class.oid = attrelid
+            ), embedding_info_json AS (
+                SELECT split_part(option, '=', 2)::json AS val
+                FROM reloptions, embedding_oid
+                WHERE option LIKE format('_pygp_emb_%s=%%', attnum)
+            ), embedding_info AS (
+                SELECT * 
+                FROM embedding_info_json, json_to_record(val) AS (attnum int4, attrelid oid, model text)
+            )
+            SELECT nspname, relname, model
+            FROM embedding_info, pg_class, pg_namespace
+            WHERE 
+                pg_class.oid = attrelid AND
+                relnamespace = pg_namespace.oid;
             """
         )
-        assert isinstance(embdedding_info, abc.Mapping[str, Any])
+        # assert isinstance(embdedding_info, abc.Mapping)
         embedding_table_name = None
         for row in embdedding_info:
             embedding_table_name = f'"{row["nspname"]}"."{row["relname"]}"'
