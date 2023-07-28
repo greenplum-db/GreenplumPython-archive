@@ -36,10 +36,10 @@ def test_const_dataframe_rows(db: gp.Database):
 def test_dataframe_save_drop(db: gp.Database):
     rows = [(1,), (2,), (3,)]
     t = db.create_dataframe(rows=rows, column_names=["id"])
-    t.save_as("test_dataframe_save_drop", column_names=["id"])
-    t.save_as("test_dataframe_save_drop", column_names=["id"], drop=True)
+    t.save_as("test_dataframe_save_drop", schema="test", column_names=["id"])
+    t.save_as("test_dataframe_save_drop", schema="test", column_names=["id"], drop=True)
     with pytest.raises(Exception) as exc_info:
-        t.save_as("test_dataframe_save_drop", column_names=["id"])
+        t.save_as("test_dataframe_save_drop", schema="test", column_names=["id"])
     assert 'relation "test_dataframe_save_drop" already exists\n' in str(exc_info.value)
 
 
