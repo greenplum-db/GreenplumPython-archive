@@ -54,7 +54,7 @@ from psycopg2.extras import RealDictRow
 
 from greenplumpython.col import Column, Expr
 from greenplumpython.db import Database
-from greenplumpython.expr import _serialize
+from greenplumpython.expr import _serialize_value
 from greenplumpython.group import DataFrameGroupingSet
 from greenplumpython.order import DataFrameOrdering
 from greenplumpython.row import Row
@@ -99,7 +99,7 @@ class DataFrame:
 
     @_getitem.register(list)
     def _(self, column_names: List[str]) -> "DataFrame":
-        targets_str = [_serialize(self[col]) for col in column_names]
+        targets_str = [_serialize_value(self[col], db=self._db) for col in column_names]
         return DataFrame(
             f"""
                 SELECT {','.join(targets_str)}
@@ -333,11 +333,14 @@ class DataFrame:
 
         """
         v = predicate(self)
+        assert isinstance(v, Expr), "Predicate must be an expression."
         assert v._dataframe == self, "Predicate must based on current dataframe"
         parents = [self]
         if v._other_dataframe is not None and self._name != v._other_dataframe._name:
             parents.append(v._other_dataframe)
-        return DataFrame(f"SELECT * FROM {self._name} WHERE {v._serialize()}", parents=parents)
+        return DataFrame(
+            f"SELECT * FROM {self._name} WHERE {v._serialize(db=self._db)}", parents=parents
+        )
 
     def apply(
         self,
@@ -433,8 +436,8 @@ class DataFrame:
         # explicitly.
         return (
             func(self)
-            ._bind(dataframe=self, db=self._db)
-            .apply(expand=expand, column_name=column_name)
+            ._bind(dataframe=self)
+            .apply(expand=expand, column_name=column_name, db=self._db)
         )
 
     def assign(self, **new_columns: Callable[["DataFrame"], Any]) -> "DataFrame":
@@ -488,8 +491,7 @@ class DataFrame:
                     if v._other_dataframe is not None and v._other_dataframe._name != self._name:
                         if v._other_dataframe._name not in other_parents:
                             other_parents[v._other_dataframe._name] = v._other_dataframe
-                    v = v._bind(db=self._db)
-                targets.append(f"{_serialize(v)} AS {k}")
+                targets.append(f"{_serialize_value(v, db=self._db)} AS {k}")
             return DataFrame(
                 f"SELECT *, {','.join(targets)} FROM {self._name}",
                 parents=[self] + list(other_parents.values()),
@@ -621,25 +623,27 @@ class DataFrame:
         ], "Unsupported join type"
         assert cond is None or on is None, 'Cannot specify "cond" and "using" together'
 
-        def _bind(
-            t: DataFrame, db: Database, columns: Union[Dict[str, Optional[str]], Set[str]]
-        ) -> List[str]:
+        def _bind(t: DataFrame, columns: Union[Dict[str, Optional[str]], Set[str]]) -> List[str]:
             target_list: List[str] = []
             for k in columns:
-                col: Column = t[k]._bind(db=db)
+                col: Column = t[k]
                 v = columns[k] if isinstance(columns, dict) else None
-                target_list.append(col._serialize() + (f' AS "{v}"' if v is not None else ""))
+                target_list.append(
+                    col._serialize(db=t._db) + (f' AS "{v}"' if v is not None else "")
+                )
             return target_list
 
         other_temp = other if self._name != other._name else DataFrame(query="")
         other_clause = (
             other._name if self._name != other._name else other._name + " AS " + other_temp._name
         )
-        target_list = _bind(self, db=self._db, columns=self_columns) + _bind(
-            other_temp, db=other._db, columns=other_columns
-        )
+        target_list = _bind(self, columns=self_columns) + _bind(other_temp, columns=other_columns)
         # ON clause in SQL uses argument `cond`.
-        sql_on_clause = f"ON {cond(self, other_temp)._serialize()}" if cond is not None else ""
+        if cond is not None:
+            assert isinstance(cond(self, other_temp), Expr), "Join Predicate must be an expression."
+        sql_on_clause = (
+            f"ON {cond(self, other_temp)._serialize(db=self._db)}" if cond is not None else ""
+        )
         join_column_names = (
             (f'"{on}"' if isinstance(on, str) else ",".join([f'"{name}"' for name in on]))
             if on is not None
@@ -1057,7 +1061,7 @@ class DataFrame:
             will randomly pick one of them for the name column. Use "[['age']]" to make
             sure the result is stable.
         """
-        cols = [Column(name, self)._serialize() for name in column_names]
+        cols: list[Column] = [self[name]._serialize(db=self._db) for name in column_names]
         return DataFrame(
             f"SELECT DISTINCT ON ({','.join(cols)}) * FROM {self._name}",
             parents=[self],
@@ -1136,7 +1140,7 @@ class DataFrame:
                 column_names = first_row.keys()
         assert column_names is not None, "Column names of the DataFrame is unknown."
         rows_string = ",".join(
-            [f"({','.join(_serialize(datum) for datum in row)})" for row in row_tuples]
+            [f"({','.join(_serialize_value(datum, db=db) for datum in row)})" for row in row_tuples]
         )
         column_names = [f'"{name}"' for name in column_names]
         columns_string = f"({','.join(column_names)})"
@@ -1174,6 +1178,6 @@ class DataFrame:
                 (3 rows)
         """
         columns_string = ",".join(
-            [f'unnest({_serialize(list(v))}) AS "{k}"' for k, v in columns.items()]
+            [f'unnest({_serialize_value(list(v), db=db)}) AS "{k}"' for k, v in columns.items()]
         )
         return DataFrame(f"SELECT {columns_string}", db=db)

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Optional
 
 from greenplumpython.db import Database
 from greenplumpython.expr import Expr
-from greenplumpython.type import Type
+from greenplumpython.type import DataType
 
 if TYPE_CHECKING:
     from greenplumpython.dataframe import DataFrame
@@ -28,8 +28,8 @@ class ColumnField(Expr):
         self._column = column
         super().__init__(column._dataframe)
 
-    def _serialize(self) -> str:
-        return f'({self._column._serialize()})."{self._field_name}"'
+    def _serialize(self, db: Optional[Database] = None) -> str:
+        return f'({self._column._serialize(db=db)})."{self._field_name}"'
 
 
 class Column(Expr):
@@ -44,9 +44,9 @@ class Column(Expr):
         """:meta private:"""
         super().__init__(dataframe=dataframe)
         self._name = name
-        self._type: Optional[Type] = None  # TODO: Add type inference
+        self._type: Optional[DataType] = None  # TODO: Add type inference
 
-    def _serialize(self) -> str:
+    def _serialize(self, db: Optional[Database] = None) -> str:
         assert self._dataframe is not None
         # Quote both dataframe name and column name to avoid SQL injection.
         return (
