@@ -206,7 +206,7 @@ class Database:
                 (1 row)
         """
         from greenplumpython.dataframe import DataFrame
-        from greenplumpython.expr import Expr, _serialize_value
+        from greenplumpython.expr import Expr, _serialize_to_expr
         from greenplumpython.func import FunctionExpr
 
         targets: List[str] = []
@@ -214,7 +214,7 @@ class Database:
             v: Any = f()
             if isinstance(v, Expr):
                 assert v._dataframe is None, "New column should not depend on any dataframe."
-            targets.append(f"{_serialize_value(v, db=self)} AS {k}")
+            targets.append(f"{_serialize_to_expr(v, db=self)} AS {k}")
         return DataFrame(f"SELECT {','.join(targets)}", db=self)
 
 

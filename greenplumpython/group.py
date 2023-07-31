@@ -8,7 +8,7 @@ from typing import (
     Optional,
 )
 
-from greenplumpython.expr import Expr, _serialize_value
+from greenplumpython.expr import Expr, _serialize_to_expr
 
 if TYPE_CHECKING:
     from greenplumpython.dataframe import DataFrame
@@ -163,7 +163,7 @@ class DataFrameGroupingSet:
                 assert (
                     v._dataframe is None or v._dataframe == self._dataframe
                 ), "Newly included columns must be based on the current dataframe"
-            targets.append(f"{_serialize_value(v, db=self._dataframe._db)} AS {k}")
+            targets.append(f"{_serialize_to_expr(v, db=self._dataframe._db)} AS {k}")
         return DataFrame(
             f"SELECT {','.join(targets)} FROM {self._dataframe._name} {self._clause()}",
             parents=[self._dataframe],

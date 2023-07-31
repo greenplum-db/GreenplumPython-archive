@@ -546,20 +546,20 @@ class Expr:
 from psycopg2.extensions import adapt  # type: ignore
 
 
-def _serialize_value(value: Any, db: Optional[Database] = None) -> str:
+def _serialize_to_expr(obj: Any, db: Optional[Database] = None) -> str:
     # noqa: D400
     """
     :meta private:
 
-    Converts a value to UTF-8 encoded str to be used in a SQL statement
+    Converts any Python object to a SQL expression.
 
     Note:
         It is OK to consider UTF-8 only since all `strs` are encoded in UTF-8
         in Python 3 and Python 2 is EOL officially.
     """
-    if isinstance(value, Expr):
-        return value._serialize(db=db)
-    return adapt(value).getquoted().decode("utf-8")  # type: ignore
+    if isinstance(obj, Expr):
+        return obj._serialize(db=db)
+    return adapt(obj).getquoted().decode("utf-8")  # type: ignore
 
 
 class BinaryExpr(Expr):
@@ -630,8 +630,8 @@ class BinaryExpr(Expr):
         self._init(operator, left, right)
 
     def _serialize(self, db: Optional[Database] = None) -> str:
-        left_str = _serialize_value(self._left, db=db)
-        right_str = _serialize_value(self._right, db=db)
+        left_str = _serialize_to_expr(self._left, db=db)
+        right_str = _serialize_to_expr(self._right, db=db)
         return f"({left_str} {self._operator} {right_str})"
 
 
@@ -652,7 +652,7 @@ class UnaryExpr(Expr):
         self.right = right
 
     def _serialize(self, db: Optional[Database] = None) -> str:
-        right_str = _serialize_value(self.right, db=db)
+        right_str = _serialize_to_expr(self.right, db=db)
         return f"{self.operator} ({right_str})"
 
 
@@ -686,6 +686,6 @@ class InExpr(Expr):
             )
 
         return (
-            f'(EXISTS (SELECT FROM unnest({_serialize_value(self._container, db=db)}) AS "{container_name}"'
+            f'(EXISTS (SELECT FROM unnest({_serialize_to_expr(self._container, db=db)}) AS "{container_name}"'
             f' WHERE ("{container_name}" = {self._item._serialize(db=db)})))'
         )

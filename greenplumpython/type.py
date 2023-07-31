@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union, 
 from uuid import uuid4
 
 from greenplumpython.db import Database
-from greenplumpython.expr import Expr, _serialize_value
+from greenplumpython.expr import Expr, _serialize_to_expr
 
 if TYPE_CHECKING:
     from greenplumpython.dataframe import DataFrame
@@ -44,7 +44,7 @@ class TypeCast(Expr):
         self._qualified_type_name = qualified_type_name
 
     def _serialize(self, db: Optional[Database] = None) -> str:
-        obj_str = _serialize_value(self._obj, db=db)
+        obj_str = _serialize_to_expr(self._obj, db=db)
         return f"({obj_str}::{self._qualified_type_name})"
 
     # def _bind(
@@ -140,7 +140,7 @@ class DataType:
         if len(members) == 0:
             raise Exception(f"Failed to get annotations for type {self._annotation}")
         att_type_str = ",\n".join(
-            [f"{name} {_serialize_type(type_t, db)}" for name, type_t in members.items()]
+            [f"{name} {_serialize_to_type(type_t, db)}" for name, type_t in members.items()]
         )
         db._execute(
             f'CREATE TYPE "{schema}"."{self._name}" AS (\n' f"{att_type_str}\n" f");",
@@ -199,7 +199,7 @@ def type_(name: str, schema: Optional[str] = None, modifier: Optional[int] = Non
     return DataType(name, schema=schema, modifier=modifier)
 
 
-def _serialize_type(
+def _serialize_to_type(
     annotation: Union[DataType, type],
     db: Database,
     for_return: bool = False,
@@ -225,9 +225,9 @@ def _serialize_type(
         if annotation.__origin__ == list or annotation.__origin__ == List:
             args: Tuple[type, ...] = annotation.__args__
             if for_return:
-                return f"SETOF {_serialize_type(args[0], db)}"  # type: ignore
+                return f"SETOF {_serialize_to_type(args[0], db)}"  # type: ignore
             if args[0] in _defined_types:
-                return f"{_serialize_type(args[0], db)}[]"  # type: ignore
+                return f"{_serialize_to_type(args[0], db)}[]"  # type: ignore
         raise NotImplementedError()
     else:
         assert db is not None, "Database is required to create type"

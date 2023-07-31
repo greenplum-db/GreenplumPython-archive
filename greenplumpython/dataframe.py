@@ -54,7 +54,7 @@ from psycopg2.extras import RealDictRow
 
 from greenplumpython.col import Column, Expr
 from greenplumpython.db import Database
-from greenplumpython.expr import _serialize_value
+from greenplumpython.expr import _serialize_to_expr
 from greenplumpython.group import DataFrameGroupingSet
 from greenplumpython.order import DataFrameOrdering
 from greenplumpython.row import Row
@@ -99,7 +99,7 @@ class DataFrame:
 
     @_getitem.register(list)
     def _(self, column_names: List[str]) -> "DataFrame":
-        targets_str = [_serialize_value(self[col], db=self._db) for col in column_names]
+        targets_str = [_serialize_to_expr(self[col], db=self._db) for col in column_names]
         return DataFrame(
             f"""
                 SELECT {','.join(targets_str)}
@@ -491,7 +491,7 @@ class DataFrame:
                     if v._other_dataframe is not None and v._other_dataframe._name != self._name:
                         if v._other_dataframe._name not in other_parents:
                             other_parents[v._other_dataframe._name] = v._other_dataframe
-                targets.append(f"{_serialize_value(v, db=self._db)} AS {k}")
+                targets.append(f"{_serialize_to_expr(v, db=self._db)} AS {k}")
             return DataFrame(
                 f"SELECT *, {','.join(targets)} FROM {self._name}",
                 parents=[self] + list(other_parents.values()),
@@ -1140,7 +1140,7 @@ class DataFrame:
                 column_names = first_row.keys()
         assert column_names is not None, "Column names of the DataFrame is unknown."
         rows_string = ",".join(
-            [f"({','.join(_serialize_value(datum, db=db) for datum in row)})" for row in row_tuples]
+            [f"({','.join(_serialize_to_expr(datum, db=db) for datum in row)})" for row in row_tuples]
         )
         column_names = [f'"{name}"' for name in column_names]
         columns_string = f"({','.join(column_names)})"
@@ -1178,6 +1178,6 @@ class DataFrame:
                 (3 rows)
         """
         columns_string = ",".join(
-            [f'unnest({_serialize_value(list(v), db=db)}) AS "{k}"' for k, v in columns.items()]
+            [f'unnest({_serialize_to_expr(list(v), db=db)}) AS "{k}"' for k, v in columns.items()]
         )
         return DataFrame(f"SELECT {columns_string}", db=db)

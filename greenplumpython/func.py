@@ -17,9 +17,9 @@ dill.settings["recurse"] = True
 from greenplumpython.col import Column
 from greenplumpython.dataframe import DataFrame
 from greenplumpython.db import Database
-from greenplumpython.expr import Expr, _serialize_value
+from greenplumpython.expr import Expr, _serialize_to_expr
 from greenplumpython.group import DataFrameGroupingSet
-from greenplumpython.type import _serialize_type
+from greenplumpython.type import _serialize_to_type
 
 
 class FunctionExpr(Expr):
@@ -78,7 +78,7 @@ class FunctionExpr(Expr):
             if isinstance(arg, Expr):
                 arg._db = db
         args_string = (
-            ",".join([_serialize_value(arg, db=db) for arg in self._args if arg is not None])
+            ",".join([_serialize_to_expr(arg, db=db) for arg in self._args if arg is not None])
             if any(self._args)
             else ""
         )
@@ -116,7 +116,7 @@ class FunctionExpr(Expr):
         unexpanded_dataframe = DataFrame(
             " ".join(
                 [
-                    f"SELECT {_serialize_value(self, db=db)} {'AS ' + column_name if column_name is not None else ''}",
+                    f"SELECT {_serialize_to_expr(self, db=db)} {'AS ' + column_name if column_name is not None else ''}",
                     ("," + ",".join(grouping_cols)) if (grouping_cols is not None) else "",
                     from_clause,
                     group_by_clause,
@@ -139,19 +139,19 @@ class FunctionExpr(Expr):
         # SELECT (result).* FROM func_call;
         # ```
         rebased_grouping_cols = (
-            [_serialize_value(unexpanded_dataframe[name], db=db) for name in grouping_col_names]
+            [_serialize_to_expr(unexpanded_dataframe[name], db=db) for name in grouping_col_names]
             if grouping_col_names is not None
             else None
         )
         result_cols = (
-            _serialize_value(unexpanded_dataframe["*"], db=db)
+            _serialize_to_expr(unexpanded_dataframe["*"], db=db)
             if not expand
-            else _serialize_value(unexpanded_dataframe[column_name]["*"], db=db)
+            else _serialize_to_expr(unexpanded_dataframe[column_name]["*"], db=db)
             # `len(rebased_grouping_cols) == 0` means `GROUP BY GROUPING SETS (())`
             if rebased_grouping_cols is None or len(rebased_grouping_cols) == 0
             else f"({unexpanded_dataframe._name}).*"
             if not expand
-            else f"{','.join(rebased_grouping_cols)}, {_serialize_value(unexpanded_dataframe[column_name]['*'], db=db)}"
+            else f"{','.join(rebased_grouping_cols)}, {_serialize_to_expr(unexpanded_dataframe[column_name]['*'], db=db)}"
         )
 
         return DataFrame(
@@ -192,11 +192,11 @@ class ArrayFunctionExpr(FunctionExpr):
                     continue
                 if isinstance(self._args[i], Expr):
                     if grouping_cols is None or self._args[i] not in grouping_cols:
-                        s = f"array_agg({_serialize_value(self._args[i], db=db)})"  # type: ignore
+                        s = f"array_agg({_serialize_to_expr(self._args[i], db=db)})"  # type: ignore
                     else:
-                        s = _serialize_value(self._args[i], db=db)  # type: ignore
+                        s = _serialize_to_expr(self._args[i], db=db)  # type: ignore
                 else:
-                    s = _serialize_value(self._args[i], db=db)
+                    s = _serialize_to_expr(self._args[i], db=db)
                 args_string_list.append(s)
             args_string = ",".join(args_string_list)
         return f"{self._function._qualified_name_str}({args_string})"
@@ -308,14 +308,14 @@ class NormalFunction(_AbstractFunction):
             func_sig = inspect.signature(self._wrapped_func)
             func_args = ",".join(
                 [
-                    f"{param.name} {_serialize_type(param.annotation, db=db)}"
+                    f"{param.name} {_serialize_to_type(param.annotation, db=db)}"
                     for param in func_sig.parameters.values()
                 ]
             )
             func_arg_names = ",".join(
                 [f"{param.name}={param.name}" for param in func_sig.parameters.values()]
             )
-            return_type = _serialize_type(func_sig.return_annotation, db=db, for_return=True)
+            return_type = _serialize_to_type(func_sig.return_annotation, db=db, for_return=True)
             func_pickled: bytes = dill.dumps(self._wrapped_func)
             _, func_name = self._qualified_name
             # Modify the AST of the wrapped function to minify dependency: (1-3)
@@ -467,14 +467,14 @@ class AggregateFunction(_AbstractFunction):
             param_list = iter(sig.parameters.values())
             state_param = next(param_list)
             args_string = ",".join(
-                [f"{param.name} {_serialize_type(param.annotation, db=db)}" for param in param_list]
+                [f"{param.name} {_serialize_to_type(param.annotation, db=db)}" for param in param_list]
             )
             # -- Creation of UDA in Greenplum
             db._execute(
                 (
                     f"CREATE AGGREGATE {self._qualified_name_str} ({args_string}) (\n"
                     f"    SFUNC = {self.transition_function._qualified_name_str},\n"
-                    f"    STYPE = {_serialize_type(state_param.annotation, db=db)}\n"
+                    f"    STYPE = {_serialize_to_type(state_param.annotation, db=db)}\n"
                     f");\n"
                 ),
                 has_results=False,
