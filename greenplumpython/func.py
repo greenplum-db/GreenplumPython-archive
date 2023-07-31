@@ -113,10 +113,10 @@ class FunctionExpr(Expr):
             if grouping_col_names is not None and len(grouping_col_names) != 0
             else None
         )
-        orig_func_dataframe = DataFrame(
+        unexpanded_dataframe = DataFrame(
             " ".join(
                 [
-                    f"SELECT {str(self)} {'AS ' + column_name if column_name is not None else ''}",
+                    f"SELECT {_serialize_value(self, db=db)} {'AS ' + column_name if column_name is not None else ''}",
                     ("," + ",".join(grouping_cols)) if (grouping_cols is not None) else "",
                     from_clause,
                     group_by_clause,
@@ -139,24 +139,25 @@ class FunctionExpr(Expr):
         # SELECT (result).* FROM func_call;
         # ```
         rebased_grouping_cols = (
-            [Column(name, orig_func_dataframe)._serialize(db=None) for name in grouping_col_names]
+            [_serialize_value(unexpanded_dataframe[name], db=db) for name in grouping_col_names]
             if grouping_col_names is not None
             else None
         )
-        results = (
-            "*"
+        result_cols = (
+            _serialize_value(unexpanded_dataframe["*"], db=db)
             if not expand
-            else f"({column_name}).*"
+            else _serialize_value(unexpanded_dataframe[column_name]["*"], db=db)
+            # `len(rebased_grouping_cols) == 0` means `GROUP BY GROUPING SETS (())`
             if rebased_grouping_cols is None or len(rebased_grouping_cols) == 0
-            else f"({orig_func_dataframe._name}).*"
+            else f"({unexpanded_dataframe._name}).*"
             if not expand
-            else f"{','.join(rebased_grouping_cols)}, ({column_name}).*"
+            else f"{','.join(rebased_grouping_cols)}, {_serialize_value(unexpanded_dataframe[column_name]['*'], db=db)}"
         )
 
         return DataFrame(
-            f"SELECT {str(results)} FROM {orig_func_dataframe._name}",
+            f"SELECT {result_cols} FROM {unexpanded_dataframe._name}",
             db=db,
-            parents=[orig_func_dataframe],
+            parents=[unexpanded_dataframe],
         )
 
     @property
@@ -191,9 +192,9 @@ class ArrayFunctionExpr(FunctionExpr):
                     continue
                 if isinstance(self._args[i], Expr):
                     if grouping_cols is None or self._args[i] not in grouping_cols:
-                        s = f"array_agg({str(self._args[i])})"  # type: ignore
+                        s = f"array_agg({_serialize_value(self._args[i], db=db)})"  # type: ignore
                     else:
-                        s = str(self._args[i])  # type: ignore
+                        s = _serialize_value(self._args[i], db=db)  # type: ignore
                 else:
                     s = _serialize_value(self._args[i], db=db)
                 args_string_list.append(s)

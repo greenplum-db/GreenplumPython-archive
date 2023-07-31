@@ -29,7 +29,11 @@ class ColumnField(Expr):
         super().__init__(column._dataframe)
 
     def _serialize(self, db: Optional[Database] = None) -> str:
-        return f'({self._column._serialize(db=db)})."{self._field_name}"'
+        return (
+            f'({self._column._serialize(db=db)})."{self._field_name}"'
+            if self._field_name != "*"
+            else f"({self._column._serialize(db=db)}).*"
+        )
 
 
 class Column(Expr):
