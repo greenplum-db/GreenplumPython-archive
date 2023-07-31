@@ -1,5 +1,15 @@
 # noqa: D100
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union, get_type_hints
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    Union,
+    get_type_hints,
+)
 from uuid import uuid4
 
 from greenplumpython.db import Database

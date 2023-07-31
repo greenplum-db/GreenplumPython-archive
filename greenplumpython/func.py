@@ -74,13 +74,12 @@ class FunctionExpr(Expr):
         if db is not None:
             self._function._create_in_db(db)
         distinct = "DISTINCT" if self._distinct else ""
-        for arg in self._args:
-            if isinstance(arg, Expr):
-                arg._db = db
         args_string = (
-            ",".join([_serialize_to_expr(arg, db=db) for arg in self._args if arg is not None])
+            ",".join([_serialize_to_expr(arg, db=db) for arg in self._args])
             if any(self._args)
             else ""
+            if not isinstance(self._func, AggregateFunction)
+            else "*"
         )
         return f"{self._function._qualified_name_str}({distinct} {args_string})"
 
@@ -467,7 +466,10 @@ class AggregateFunction(_AbstractFunction):
             param_list = iter(sig.parameters.values())
             state_param = next(param_list)
             args_string = ",".join(
-                [f"{param.name} {_serialize_to_type(param.annotation, db=db)}" for param in param_list]
+                [
+                    f"{param.name} {_serialize_to_type(param.annotation, db=db)}"
+                    for param in param_list
+                ]
             )
             # -- Creation of UDA in Greenplum
             db._execute(

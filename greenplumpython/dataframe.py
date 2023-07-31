@@ -1140,7 +1140,10 @@ class DataFrame:
                 column_names = first_row.keys()
         assert column_names is not None, "Column names of the DataFrame is unknown."
         rows_string = ",".join(
-            [f"({','.join(_serialize_to_expr(datum, db=db) for datum in row)})" for row in row_tuples]
+            [
+                f"({','.join(_serialize_to_expr(datum, db=db) for datum in row)})"
+                for row in row_tuples
+            ]
         )
         column_names = [f'"{name}"' for name in column_names]
         columns_string = f"({','.join(column_names)})"

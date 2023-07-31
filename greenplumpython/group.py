@@ -1,12 +1,6 @@
 """Definitions for the result of grouping :class:`~dataframe.DataFrame`."""
 
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    List,
-    Optional,
-)
+from typing import TYPE_CHECKING, Any, Callable, List, Optional
 
 from greenplumpython.expr import Expr, _serialize_to_expr
 
