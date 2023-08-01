@@ -29,7 +29,8 @@ def count(
 
     """
     if arg is None:
-        return FunctionExpr(aggregate_function(name="count"), tuple())
+        no_arg: tuple[()] = tuple()
+        return FunctionExpr(aggregate_function(name="count"), no_arg)
     return FunctionExpr(aggregate_function(name="count"), (arg,))
 
 
