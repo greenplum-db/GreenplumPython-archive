@@ -57,40 +57,6 @@ class TypeCast(Expr):
         obj_str = _serialize_to_expr(self._obj, db=db)
         return f"({obj_str}::{self._qualified_type_name})"
 
-    # def _bind(
-    #     self,
-    #     dataframe: Optional["DataFrame"] = None,
-    #     db: Optional[Database] = None,
-    #     column_name: str = None,
-    # ) -> "Expr":
-    #     # noqa D102
-    #     self._db = db
-    #     if isinstance(self._obj, Expr):
-    #         self._obj = self._obj._bind(
-    #             dataframe=dataframe,
-    #             db=db,
-    #         )
-    #     return self
-    #
-    # def apply(
-    #     self, expand: bool = False, column_name: Optional[str] = None, row_id: Optional[str] = None
-    # ) -> "DataFrame":
-    #     # noqa D102
-    #     from greenplumpython.dataframe import DataFrame
-
-    #     if expand and column_name is None:
-    #         column_name = "func_" + uuid4().hex
-    #     return DataFrame(
-    #         f"""
-    #             SELECT {(row_id + ',') if row_id is not None else ''}
-    #             {self._serialize()}
-    #             {'AS ' + column_name if column_name is not None else ''}
-    #             {('FROM ' + self._obj._dataframe._name) if isinstance(self._obj, Expr) and self._obj._dataframe is not None else ""}
-    #         """,
-    #         db=self._db,
-    #         parents=[self._obj._dataframe],
-    #     )
-
 
 class DataType:
     """
