@@ -878,10 +878,10 @@ class DataFrame:
         column_names: List[str] = [],
         temp: bool = False,
         storage_params: dict[str, Any] = {},
+        drop_if_exists: bool = False,
         schema: Optional[str] = None,
         distribution_type: Literal[None, "randomly", "replicated", "hash"] = None,
         distribution_key: Optional[Set[str]] = None,
-        drop: Optional[bool] = False,
     ) -> "DataFrame":
         """
         Save the GreenplumPython :class:`~dataframe.Dataframe` as a *table* into the database.
@@ -900,7 +900,7 @@ class DataFrame:
             schema: schema of the table for avoiding name conflicts.
             distribution_type: type of distribution by.
             distribution_key: distribution key.
-            drop: bool to indicate if drop table if exists.
+            drop_if_exists: bool to indicate if drop table if exists.
 
         Returns:
             DataFrame : :class:`~dataframe.DataFrame` represents the newly saved table
@@ -958,7 +958,7 @@ class DataFrame:
             if distribution_type is not None
             else ""
         )
-        DROP_CLAUSE = f"DROP TABLE IF EXISTS {qualified_table_name};" if drop else ""
+        DROP_CLAUSE = f"DROP TABLE IF EXISTS {qualified_table_name};" if drop_if_exists else ""
         self._db._execute(
             f"""
             {DROP_CLAUSE}
