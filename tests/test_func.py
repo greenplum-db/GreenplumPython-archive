@@ -823,7 +823,7 @@ def test_count_none(db: gp.Database):
         assert row["count"] == 2
 
 
-def test_func_in_expr(db: gp.Database):
+def test_func_in_binary_expr(db: gp.Database):
     result = db.assign(val=lambda: add_two(1) + add_one(1))
     for row in result:
         assert row["val"] == (1 + 2) + (1 + 1)
