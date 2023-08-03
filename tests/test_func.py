@@ -827,3 +827,11 @@ def test_func_in_binary_expr(db: gp.Database):
     result = db.assign(val=lambda: add_two(1) + add_one(1))
     for row in result:
         assert row["val"] == (1 + 2) + (1 + 1)
+
+
+def test_func_after_where(db: gp.Database):
+    rows = [(i, i,) for i in range(0, 10)]
+    df = db.create_dataframe(rows=rows, column_names=["a", "b"])
+    result = df.where(lambda t: t["a"] < 5).assign(val=lambda t: add_two(t["a"]) + add_one(t["b"]))
+    for i, row in enumerate(result):
+        assert row["val"] == (i + 2) + (i + 1)
