@@ -958,13 +958,10 @@ class DataFrame:
             if distribution_type is not None
             else ""
         )
-        if drop:
-            self._db._execute(
-                f"DROP TABLE IF EXISTS {qualified_table_name}",
-                has_results=False,
-            )
+        DROP_CLAUSE = f"DROP TABLE IF EXISTS {qualified_table_name};" if drop else ""
         self._db._execute(
             f"""
+            {DROP_CLAUSE}
             CREATE {'TEMP' if temp else ''} TABLE {qualified_table_name}
             ({','.join(column_names)})
             {storage_params_clause if storage_params else ''}
