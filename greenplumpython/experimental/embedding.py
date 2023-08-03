@@ -26,13 +26,23 @@ def _generate_embedding(content: str, model_name: str) -> _vector_type:
 
 
 class Embedding:
+    """
+    Embeddings provide a compact and meaningful representation of objects in a numerical vector space.
+    They capture the semantic relationships between objects.
+
+    This class enables users to search unstructured data based on semantic similarity and to leverage the power of
+    the vector index scan.
+    """
+
     def __init__(self, dataframe: gp.DataFrame) -> None:
         self._dataframe = dataframe
 
     def create_index(self, column: str, model: str) -> gp.DataFrame:
         """
         Generate embeddings and create index for a column of unstructured data.
+
         This include
+
         - texts,
         - images, or
         - videos, etc.
@@ -44,6 +54,14 @@ class Embedding:
         column-oriented approach, i.e., separated from the input DataFrame. The
         input DataFrame must have a **unique key** to identify the tuples in the
         search results.
+
+        Args:
+            column: name of column to create index on.
+            model: name of model to generate embedding.
+
+        Returns:
+            Dataframe with target column indexed based on embeddings.
+
         """
 
         assert self._dataframe.unique_key is not None, "Unique key is required to create index."
@@ -113,6 +131,17 @@ class Embedding:
         return self._dataframe
 
     def search(self, column: str, query: Any, top_k: int) -> gp.DataFrame:
+        """
+        Searche unstructured data based on semantic similarity on embeddings.
+
+        Args:
+            column: name of column to search
+            query: content to be searched
+            top_k: number of most similar results requested
+
+        Returns:
+            Dataframe with the top k most similar results in the `column` of `query`.
+        """
         assert self._dataframe._db is not None
         embdedding_info = self._dataframe._db._execute(
             f"""

@@ -1067,12 +1067,11 @@ class DataFrame:
 
     @property
     def unique_key(self) -> List[str]:
+        """Return unique key."""
         return self._unique_key
 
     def check_unique(self, columns: set[str]) -> "DataFrame":
-        """
-        Check whether a given set of columns, i.e. key, is unique.
-        """
+        """Check whether a given set of columns, i.e. key, is unique."""
         assert self.is_saved, "DataFrame must be saved before checking uniqueness."
         assert self._db is not None, "Database is required to check uniqueness."
         self._db._execute(
@@ -1194,7 +1193,8 @@ class DataFrame:
             [f'unnest({_serialize(list(v))}) AS "{k}"' for k, v in columns.items()]
         )
         return cls(f"SELECT {columns_string}", db=db)
-    
+
     # Add interface here for language servers.
     def embedding(self) -> "Embedding":
+        """Allow user to process vector operators thanks to :class:`~experimental.embedding.Embedding`."""
         raise NotImplementedError
