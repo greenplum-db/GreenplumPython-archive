@@ -47,6 +47,7 @@ from typing import (
 
 if TYPE_CHECKING:
     from greenplumpython.func import FunctionExpr
+    from greenplumpython.experimental.embedding import Embedding
 
 from uuid import uuid4
 
@@ -1193,3 +1194,7 @@ class DataFrame:
             [f'unnest({_serialize(list(v))}) AS "{k}"' for k, v in columns.items()]
         )
         return cls(f"SELECT {columns_string}", db=db)
+    
+    # Add interface here for language servers.
+    def embedding(self) -> "Embedding":
+        raise NotImplementedError
