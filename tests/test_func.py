@@ -830,8 +830,29 @@ def test_func_in_binary_expr(db: gp.Database):
 
 
 def test_func_after_where(db: gp.Database):
+    # fmt: off
     rows = [(i, i,) for i in range(0, 10)]
+    # fmt: on
     df = db.create_dataframe(rows=rows, column_names=["a", "b"])
     result = df.where(lambda t: t["a"] < 5).assign(val=lambda t: add_two(t["a"]) + add_one(t["b"]))
     for i, row in enumerate(result):
         assert row["val"] == (i + 2) + (i + 1)
+
+
+def test_func_after_select(db: gp.Database):
+    # fmt: off
+    rows = [(i, i,) for i in range(0, 10)]
+    # fmt: on
+    df = db.create_dataframe(rows=rows, column_names=["a", "b"])
+    result = df[lambda t: t["a"] < 5].assign(val=lambda t: add_two(add_one(t["a"]) + t["b"]))
+    for i, row in enumerate(result):
+        assert row["val"] == (i + 1) + i + 2
+
+
+def test_operator_after_select(db: gp.Database):
+    rows = [(i,) for i in range(0, 10)]
+    exponential = gp.operator("^")
+    df = db.create_dataframe(rows=rows, column_names=["a"])
+    result = df.assign(val=lambda t: exponential(add_one(t["a"]), 2))
+    for i, row in enumerate(result):
+        assert row["val"] == (i + 1) * (i + 1)
