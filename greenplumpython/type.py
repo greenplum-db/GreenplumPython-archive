@@ -209,7 +209,7 @@ def _serialize_to_type(
                 return f"{_serialize_to_type(args[0], db)}[]"  # type: ignore
         raise NotImplementedError()
     else:
-        if isinstance(annotation, Type):
+        if isinstance(annotation, DataType):
             return annotation._qualified_name_str
         assert db is not None, "Database is required to create type"
         if annotation not in _defined_types:
