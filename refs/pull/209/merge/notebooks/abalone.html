@@ -488,6 +488,7 @@ Done.
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pickle</span>
 
+
 <span class="nd">@gp</span><span class="o">.</span><span class="n">create_column_function</span>
 <span class="k">def</span> <span class="nf">linreg_func</span><span class="p">(</span><span class="n">length</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">shucked_weight</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">rings</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">LinregType</span><span class="p">:</span>
     <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">length</span><span class="p">,</span> <span class="n">shucked_weight</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
@@ -537,9 +538,8 @@ Done.
 <span class="c1">#    ) a</span>
 <span class="c1"># ) DISTRIBUTED BY (sex);</span>
 
-<span class="n">linreg_fitted</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">abalone_train</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">)</span>
-    <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">linreg_func</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;shucked_weight&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">]),</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">linreg_fitted</span> <span class="o">=</span> <span class="n">abalone_train</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">linreg_func</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;shucked_weight&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">]),</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -702,7 +702,7 @@ Done.
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">linreg_test_fit</span> <span class="o">=</span> <span class="n">linreg_fitted</span><span class="o">.</span><span class="n">inner_join</span><span class="p">(</span>
     <span class="n">abalone_test</span><span class="p">,</span>
     <span class="n">cond</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">:</span> <span class="n">t1</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">t2</span><span class="p">[</span><span class="s2">&quot;sex&quot;</span><span class="p">],</span>
-    <span class="n">self_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;col_nm&quot;</span><span class="p">,</span> <span class="s2">&quot;coef&quot;</span><span class="p">,</span> <span class="s2">&quot;intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;serialized_linreg_model&quot;</span><span class="p">,</span> <span class="s2">&quot;created_dt&quot;</span><span class="p">]</span>
+    <span class="n">self_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;col_nm&quot;</span><span class="p">,</span> <span class="s2">&quot;coef&quot;</span><span class="p">,</span> <span class="s2">&quot;intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;serialized_linreg_model&quot;</span><span class="p">,</span> <span class="s2">&quot;created_dt&quot;</span><span class="p">],</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -732,12 +732,11 @@ Done.
 
 
 <span class="n">linreg_pred</span> <span class="o">=</span> <span class="n">linreg_test_fit</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-    <span class="n">rings_pred</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span>
-        <span class="n">linreg_pred_func</span><span class="p">(</span>
-            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;serialized_linreg_model&quot;</span><span class="p">],</span>
-            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
-            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;shucked_weight&quot;</span><span class="p">],</span>
-        <span class="p">),</span>
+    <span class="n">rings_pred</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">linreg_pred_func</span><span class="p">(</span>
+        <span class="n">t</span><span class="p">[</span><span class="s2">&quot;serialized_linreg_model&quot;</span><span class="p">],</span>
+        <span class="n">t</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
+        <span class="n">t</span><span class="p">[</span><span class="s2">&quot;shucked_weight&quot;</span><span class="p">],</span>
+    <span class="p">),</span>
 <span class="p">)[[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;sex&quot;</span><span class="p">,</span> <span class="s2">&quot;rings&quot;</span><span class="p">,</span> <span class="s2">&quot;rings_pred&quot;</span><span class="p">]]</span>
 </pre></div>
 </div>
@@ -813,6 +812,7 @@ Done.
 <span class="c1">#    , r2_score float8</span>
 <span class="c1"># );</span>
 
+
 <span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
 <span class="k">class</span> <span class="nc">linreg_eval_type</span><span class="p">:</span>
     <span class="n">mae</span><span class="p">:</span> <span class="nb">float</span>
@@ -830,6 +830,7 @@ Done.
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span><span class="p">,</span> <span class="n">mean_squared_error</span><span class="p">,</span> <span class="n">r2_score</span>
+
 
 <span class="nd">@gp</span><span class="o">.</span><span class="n">create_column_function</span>
 <span class="k">def</span> <span class="nf">linreg_eval</span><span class="p">(</span><span class="n">y_actual</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">y_pred</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">linreg_eval_type</span><span class="p">:</span>
@@ -863,8 +864,7 @@ Done.
 <span class="c1"># ) a</span>
 
 
-<span class="n">linreg_pred</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-    <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">linreg_eval</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings_pred&quot;</span><span class="p">]),</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">linreg_pred</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">linreg_eval</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;rings_pred&quot;</span><span class="p">]),</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
