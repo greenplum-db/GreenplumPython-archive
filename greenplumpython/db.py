@@ -178,7 +178,7 @@ class Database:
                 -----
                 (1 row)
         """
-        return func()._bind(db=self).apply(expand=expand, column_name=column_name)
+        return func().apply(expand=expand, column_name=column_name, db=self)
 
     def assign(self, **new_columns: Callable[[], Any]) -> "DataFrame":
         """
@@ -206,18 +206,15 @@ class Database:
                 (1 row)
         """
         from greenplumpython.dataframe import DataFrame
-        from greenplumpython.expr import Expr, _serialize
+        from greenplumpython.expr import Expr, _serialize_to_expr
         from greenplumpython.func import FunctionExpr
 
         targets: List[str] = []
         for k, f in new_columns.items():
             v: Any = f()
             if isinstance(v, Expr):
-                v._bind(db=self)
                 assert v._dataframe is None, "New column should not depend on any dataframe."
-            if isinstance(v, FunctionExpr):
-                v = v._bind(db=self)
-            targets.append(f"{_serialize(v)} AS {k}")
+            targets.append(f"{_serialize_to_expr(v, db=self)} AS {k}")
         return DataFrame(f"SELECT {','.join(targets)}", db=self)
 
 

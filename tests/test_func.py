@@ -4,7 +4,7 @@ from typing import Callable, List
 import pytest
 
 import greenplumpython as gp
-from greenplumpython.builtins.functions import generate_series
+from greenplumpython.builtins.functions import count, generate_series
 from greenplumpython.func import AggregateFunction, NormalFunction
 from tests import db
 
@@ -800,15 +800,36 @@ def test_func_non_default_schema(db: gp.Database):
     assert sorted([row["abs"] for row in results2]) == list(range(1, 11))
 
 
+@gp.create_function
+def add_one(x: int) -> int:
+    return x + 1
+
+
+@gp.create_function
+def add_two(x: int) -> int:
+    return x + 2
+
+
 def test_func_nested_create(db: gp.Database):
-    @gp.create_function
-    def add_one(x: int) -> int:
-        return x + 1
-
-    @gp.create_function
-    def add_two(x: int) -> int:
-        return x + 2
-
     result = db.apply(lambda: add_two(add_one(1)), column_name="val")
     for row in result:
         assert row["val"] == 1 + 1 + 2
+
+
+def test_count_none(db: gp.Database):
+    for row in db.create_dataframe(columns={"none": [1, None]}).apply(
+        lambda _: count(), column_name="count"
+    ):
+        assert row["count"] == 2
+
+
+def test_func_in_binary_expr(db: gp.Database):
+    result = db.assign(val=lambda: add_two(1) + add_one(1))
+    for row in result:
+        assert row["val"] == (1 + 2) + (1 + 1)
+
+
+def test_func_in_where(db: gp.Database):
+    df = db.create_dataframe(columns={"a": [1]})
+    result = df.where(lambda t: add_two(t["a"]) < 5)
+    assert len(list(result)) == 1

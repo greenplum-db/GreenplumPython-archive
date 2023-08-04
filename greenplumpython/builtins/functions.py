@@ -29,7 +29,8 @@ def count(
 
     """
     if arg is None:
-        return FunctionExpr(aggregate_function(name="count"), ("*",))
+        no_arg: tuple[()] = tuple()
+        return FunctionExpr(aggregate_function(name="count"), no_arg)
     return FunctionExpr(aggregate_function(name="count"), (arg,))
 
 
@@ -162,4 +163,6 @@ def generate_series(start: Any, stop: Any, step: Optional[Any] = None) -> Functi
             (10 rows)
 
     """
-    return FunctionExpr(function(name="generate_series"), (start, stop, step))
+    return FunctionExpr(
+        function(name="generate_series"), (start, stop, step) if step is not None else (start, stop)
+    )

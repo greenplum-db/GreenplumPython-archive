@@ -126,7 +126,7 @@ class DataFrameOrdering:
             [
                 " ".join(
                     [
-                        Column(self._column_name_list[i], self._dataframe)._serialize(),
+                        Column(self._column_name_list[i], self._dataframe)._serialize(db=None),
                         ""
                         if self._ascending_list[i] is None
                         else "ASC"

@@ -1,17 +1,8 @@
 """Definitions for the result of grouping :class:`~dataframe.DataFrame`."""
 
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Iterable,
-    List,
-    MutableSet,
-    Optional,
-    Set,
-)
+from typing import TYPE_CHECKING, Any, Callable, List, Optional
 
-from greenplumpython.expr import Expr, _serialize
+from greenplumpython.expr import Expr, _serialize_to_expr
 
 if TYPE_CHECKING:
     from greenplumpython.dataframe import DataFrame
@@ -114,10 +105,12 @@ class DataFrameGroupingSet:
                 -----------------------
                 (2 rows)
         """
-        return (
-            func(self._dataframe)
-            ._bind(group_by=self, db=self._dataframe._db)
-            .apply(expand=expand, column_name=column_name)
+        from greenplumpython.func import FunctionExpr
+
+        v: FunctionExpr = func(self._dataframe)
+        assert isinstance(v, FunctionExpr), "Can only apply functions."
+        return v._bind(group_by=self).apply(
+            expand=expand, column_name=column_name, db=self._dataframe._db
         )
 
     def assign(self, **new_columns: Callable[["DataFrame"], Any]) -> "DataFrame":
@@ -164,8 +157,7 @@ class DataFrameGroupingSet:
                 assert (
                     v._dataframe is None or v._dataframe == self._dataframe
                 ), "Newly included columns must be based on the current dataframe"
-                v = v._bind(db=self._dataframe._db)
-            targets.append(f"{_serialize(v)} AS {k}")
+            targets.append(f"{_serialize_to_expr(v, db=self._dataframe._db)} AS {k}")
         return DataFrame(
             f"SELECT {','.join(targets)} FROM {self._dataframe._name} {self._clause()}",
             parents=[self._dataframe],
