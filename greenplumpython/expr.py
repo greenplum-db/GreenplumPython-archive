@@ -35,7 +35,7 @@ class Expr:
 
     def __hash__(self) -> int:
         # noqa: D105
-        return hash(self._serialize())
+        return hash(self._serialize(db=None))
 
     def __and__(self, other: Any) -> "BinaryExpr":
         """
@@ -495,9 +495,9 @@ class Expr:
 
     def __str__(self) -> str:
         """Return string statement of Expr."""
-        return self._serialize()
+        return self._serialize(db=None)
 
-    def _serialize(self) -> str:
+    def _serialize(self, db: Optional[Database] = None) -> str:
         raise NotImplementedError()
 
     # NOTE: We cannot use __contains__() because the return value will always
@@ -546,20 +546,20 @@ class Expr:
 from psycopg2.extensions import adapt  # type: ignore
 
 
-def _serialize(value: Any) -> str:
+def _serialize_to_expr(obj: Any, db: Optional[Database] = None) -> str:
     # noqa: D400
     """
     :meta private:
 
-    Converts a value to UTF-8 encoded str to be used in a SQL statement
+    Converts any Python object to a SQL expression.
 
     Note:
         It is OK to consider UTF-8 only since all `strs` are encoded in UTF-8
         in Python 3 and Python 2 is EOL officially.
     """
-    if isinstance(value, Expr):
-        return value._serialize()
-    return adapt(value).getquoted().decode("utf-8")  # type: ignore
+    if isinstance(obj, Expr):
+        return obj._serialize(db=db)
+    return adapt(obj).getquoted().decode("utf-8")  # type: ignore
 
 
 class BinaryExpr(Expr):
@@ -629,12 +629,9 @@ class BinaryExpr(Expr):
         """
         self._init(operator, left, right)
 
-    def _serialize(self) -> str:
-        from greenplumpython.expr import _serialize
-
-        # FIXME: Move _serialize() to be a method of Database.
-        left_str = _serialize(self._left._bind(db=self._db))
-        right_str = _serialize(self._right._bind(db=self._db))
+    def _serialize(self, db: Optional[Database] = None) -> str:
+        left_str = _serialize_to_expr(self._left, db=db)
+        right_str = _serialize_to_expr(self._right, db=db)
         return f"({left_str} {self._operator} {right_str})"
 
 
@@ -654,8 +651,8 @@ class UnaryExpr(Expr):
         self.operator = operator
         self.right = right
 
-    def _serialize(self) -> str:
-        right_str = str(self.right)
+    def _serialize(self, db: Optional[Database] = None) -> str:
+        right_str = _serialize_to_expr(self.right, db=db)
         return f"{self.operator} ({right_str})"
 
 
@@ -675,7 +672,7 @@ class InExpr(Expr):
         self._item = item
         self._container = container
 
-    def _serialize(self) -> str:
+    def _serialize(self, db: Optional[Database] = None) -> str:
         if isinstance(self._container, Expr):
             assert self._other_dataframe is not None, "DataFrame of container is unknown."
         # Using either IN or = any() will violate
@@ -685,10 +682,10 @@ class InExpr(Expr):
         if isinstance(self._container, Expr) and self._other_dataframe is not None:
             return (
                 f"(EXISTS (SELECT FROM {self._other_dataframe._name}"
-                f" WHERE ({self._container._serialize()} = {self._item._serialize()})))"
+                f" WHERE ({self._container._serialize(db=db)} = {self._item._serialize(db=db)})))"
             )
 
         return (
-            f'(EXISTS (SELECT FROM unnest({_serialize(self._container)}) AS "{container_name}"'
-            f' WHERE ("{container_name}" = {self._item._serialize()})))'
+            f'(EXISTS (SELECT FROM unnest({_serialize_to_expr(self._container, db=db)}) AS "{container_name}"'
+            f' WHERE ("{container_name}" = {self._item._serialize(db=db)})))'
         )

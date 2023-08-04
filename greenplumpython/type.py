@@ -1,9 +1,19 @@
 # noqa: D100
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, get_type_hints
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    Union,
+    get_type_hints,
+)
 from uuid import uuid4
 
 from greenplumpython.db import Database
-from greenplumpython.expr import Expr, _serialize
+from greenplumpython.expr import Expr, _serialize_to_expr
 
 if TYPE_CHECKING:
     from greenplumpython.dataframe import DataFrame
@@ -43,46 +53,12 @@ class TypeCast(Expr):
         self._obj = obj
         self._qualified_type_name = qualified_type_name
 
-    def _serialize(self) -> str:
-        obj_str = _serialize(self._obj)
+    def _serialize(self, db: Optional[Database] = None) -> str:
+        obj_str = _serialize_to_expr(self._obj, db=db)
         return f"({obj_str}::{self._qualified_type_name})"
 
-    def _bind(
-        self,
-        dataframe: Optional["DataFrame"] = None,
-        db: Optional[Database] = None,
-        column_name: str = None,
-    ) -> "Expr":
-        # noqa D102
-        self._db = db
-        if isinstance(self._obj, Expr):
-            self._obj = self._obj._bind(
-                dataframe=dataframe,
-                db=db,
-            )
-        return self
 
-    def apply(
-        self, expand: bool = False, column_name: Optional[str] = None, row_id: Optional[str] = None
-    ) -> "DataFrame":
-        # noqa D102
-        from greenplumpython.dataframe import DataFrame
-
-        if expand and column_name is None:
-            column_name = "func_" + uuid4().hex
-        return DataFrame(
-            f"""
-                SELECT {(row_id + ',') if row_id is not None else ''} 
-                {self._serialize()} 
-                {'AS ' + column_name if column_name is not None else ''} 
-                {('FROM ' + self._obj._dataframe._name) if isinstance(self._obj, Expr) and self._obj._dataframe is not None else ""}
-            """,
-            db=self._db,
-            parents=[self._obj._dataframe],
-        )
-
-
-class Type:
+class DataType:
     """
     Represents a type of values in a :class:`~dataframe.DataFrame`.
 
@@ -95,7 +71,7 @@ class Type:
             case, a type annotation object is provided such as the defined\
             :code:`class`.
 
-    A :class:`~type.Type` object is callable. when called, it casts the object in
+    A :class:`~type.DataType` object is callable. when called, it casts the object in
     the argument to the mapped type in database.
     """
 
@@ -143,7 +119,7 @@ class Type:
         if len(members) == 0:
             raise Exception(f"Failed to get annotations for type {self._annotation}")
         att_type_str = ",\n".join(
-            [f"{name} {to_pg_type(type_t, db)}" for name, type_t in members.items()]
+            [f"{name} {_serialize_to_type(type_t, db)}" for name, type_t in members.items()]
         )
         db._execute(
             f'CREATE TYPE "{schema}"."{self._name}" AS (\n' f"{att_type_str}\n" f");",
@@ -168,27 +144,26 @@ class Type:
     @property
     def _qualified_name(self) -> Tuple[Optional[str], str]:
         """
-        Return the schema name and name of :class:`~type.Type`.
+        Return the schema name and name of :class:`~type.DataType`.
 
         Returns:
-            Tuple[str, str]: schema name and :class:`~type.Type`'s name.
+            Tuple[str, str]: schema name and :class:`~type.DataType`'s name.
         """
         return self._schema, self._name
 
 
 # -- Map between Python and Greenplum primitive types
-_defined_types: Dict[Optional[type], Type] = {
-    None: Type(name="void"),
-    int: Type(name="int4"),
-    float: Type(name="float8"),
-    bool: Type(name="bool"),
-    str: Type(name="text"),
-    bytes: Type(name="bytea"),
+_defined_types: Dict[Optional[type], DataType] = {
+    None: DataType(name="void"),
+    int: DataType(name="int4"),
+    float: DataType(name="float8"),
+    bool: DataType(name="bool"),
+    str: DataType(name="text"),
+    bytes: DataType(name="bytea"),
 }
 
 
-# FIXME: Change to data_type() to make it more clear.
-def type_(name: str, schema: Optional[str] = None, modifier: Optional[int] = None) -> Type:
+def type_(name: str, schema: Optional[str] = None, modifier: Optional[int] = None) -> DataType:
     """
     Get access to a type predefined in database.
 
@@ -200,12 +175,12 @@ def type_(name: str, schema: Optional[str] = None, modifier: Optional[int] = Non
     Returns:
         The predefined type as a :class:`~type.Type` object.
     """
-    return Type(name, schema=schema, modifier=modifier)
+    return DataType(name, schema=schema, modifier=modifier)
 
 
-def to_pg_type(
-    annotation: Optional[type],
-    db: Optional[Database] = None,
+def _serialize_to_type(
+    annotation: Union[DataType, type],
+    db: Database,
     for_return: bool = False,
 ) -> str:
     # noqa: D400
@@ -223,15 +198,15 @@ def to_pg_type(
     Returns:
         str: name of type in SQL
     """
-    if annotation is not None and hasattr(annotation, "__origin__"):
+    if hasattr(annotation, "__origin__"):
         # The `or` here is to make the function work on Python 3.6.
         # Python 3.6 is the default Python version on CentOS 7 and Ubuntu 18.04
         if annotation.__origin__ == list or annotation.__origin__ == List:
             args: Tuple[type, ...] = annotation.__args__
             if for_return:
-                return f"SETOF {to_pg_type(args[0], db)}"  # type: ignore
-            else:
-                return f"{to_pg_type(args[0], db)}[]"  # type: ignore
+                return f"SETOF {_serialize_to_type(args[0], db)}"  # type: ignore
+            if args[0] in _defined_types:
+                return f"{_serialize_to_type(args[0], db)}[]"  # type: ignore
         raise NotImplementedError()
     else:
         if isinstance(annotation, Type):
@@ -239,6 +214,6 @@ def to_pg_type(
         assert db is not None, "Database is required to create type"
         if annotation not in _defined_types:
             type_name = "type_" + uuid4().hex
-            _defined_types[annotation] = Type(name=type_name, annotation=annotation)
+            _defined_types[annotation] = DataType(name=type_name, annotation=annotation)
         _defined_types[annotation]._create_in_db(db)
         return _defined_types[annotation]._qualified_name_str

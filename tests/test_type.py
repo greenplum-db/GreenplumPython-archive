@@ -3,7 +3,7 @@ import dataclasses
 import pytest
 
 import greenplumpython as gp
-from greenplumpython.type import to_pg_type
+from greenplumpython.type import _serialize_to_type
 from tests import db
 
 
@@ -42,9 +42,8 @@ def test_type_cast_func_result(db: gp.Database):
     def func(a: int, b: int) -> int:
         return a + b
 
-    results_app = df.apply(
-        lambda t: float8(func(t["a"], t["b"])),
-        column_name="float8",
+    results_app = df.assign(
+        float8=lambda t: float8(func(t["a"], t["b"])),
     )
     assert sorted([row["float8"] for row in results_app]) == list(range(0, 20, 2))
 
@@ -77,7 +76,7 @@ def test_type_create(db: gp.Database):
         _first_name: str
         _last_name: str
 
-    type_name = to_pg_type(Person, db=db)
+    type_name = _serialize_to_type(Person, db=db)
     assert isinstance(type_name, str)
 
 
@@ -89,5 +88,5 @@ def test_type_no_annotation(db: gp.Database):
             self._last_name = _last_name
 
     with pytest.raises(Exception) as exc_info:
-        to_pg_type(Person, db=db)
+        _serialize_to_type(Person, db=db)
     assert "Failed to get annotations" in str(exc_info.value)
