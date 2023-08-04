@@ -586,14 +586,8 @@ Done.
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_join</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
     <span class="n">t2</span><span class="p">,</span>
     <span class="n">on</span><span class="o">=</span><span class="s2">&quot;val&quot;</span><span class="p">,</span>
-    <span class="n">self_columns</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;t1_id&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="s2">&quot;t1_val&quot;</span>
-    <span class="p">},</span>
-    <span class="n">other_columns</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;t2_id&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="s2">&quot;t2_val&quot;</span>
-    <span class="p">}</span>
+    <span class="n">self_columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;t1_id&quot;</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="s2">&quot;t1_val&quot;</span><span class="p">},</span>
+    <span class="n">other_columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;t2_id&quot;</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="s2">&quot;t2_val&quot;</span><span class="p">},</span>
 <span class="p">)</span>
 <span class="n">t_join</span>
 </pre></div>
@@ -796,7 +790,7 @@ Done.
     <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;is_even&quot;</span><span class="p">)</span>
     <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">F</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]))</span>
 <span class="p">)</span>
-<br/></pre></div>
+</pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">

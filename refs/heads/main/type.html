@@ -93,8 +93,8 @@
   <section id="module-type">
 <span id="type"></span><h1>Type<a class="headerlink" href="#module-type" title="Permalink to this heading"></a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="type.Type">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">type.</span></span><span class="sig-name descname"><span class="pre">Type</span></span><a class="headerlink" href="#type.Type" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="type.DataType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">type.</span></span><span class="sig-name descname"><span class="pre">DataType</span></span><a class="headerlink" href="#type.DataType" title="Permalink to this definition"></a></dt>
 <dd><p>Represents a type of values in a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
 <p>It is mapped to a type in database, including</p>
 <blockquote>
@@ -103,7 +103,7 @@
 <li><p>A user-defined composite type, for Python <code class="code docutils literal notranslate"><span class="pre">class</span></code>. In this            case, a type annotation object is provided such as the defined            <code class="code docutils literal notranslate"><span class="pre">class</span></code>.</p></li>
 </ul>
 </div></blockquote>
-<p>A <a class="reference internal" href="#type.Type" title="type.Type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code></a> object is callable. when called, it casts the object in
+<p>A <a class="reference internal" href="#type.DataType" title="type.DataType"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataType</span></code></a> object is callable. when called, it casts the object in
 the argument to the mapped type in database.</p>
 </dd></dl>
 
@@ -141,10 +141,10 @@ the argument to the mapped type in database.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The predefined type as a <a class="reference internal" href="#type.Type" title="type.Type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code></a> object.</p>
+<dd class="field-even"><p>The predefined type as a <code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code> object.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#type.Type" title="type.Type"><em>Type</em></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#type.DataType" title="type.DataType"><em>DataType</em></a></p>
 </dd>
 </dl>
 </dd></dl>
