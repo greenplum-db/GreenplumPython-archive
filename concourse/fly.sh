@@ -5,6 +5,9 @@ set -e
 fly=${FLY:-"fly"}
 echo "'fly' command: ${fly}"
 echo ""
+
+my_path=$(realpath -s "${BASH_SOURCE[0]}")
+my_dir=$(dirname "${my_path}")
 proj_name="greenplumpython"
 concourse_team="main"
 
@@ -116,9 +119,9 @@ case ${pipeline_config} in
     ;;
 esac
 
-yml_path="/tmp/${proj_name}_pipeline.yml"
-my_path=$(realpath "${BASH_SOURCE[0]}")
-ytt_base=$(dirname "${my_path}")/pipeline
+yml_path="/tmp/${proj_name}.yml"
+pipeline_dir="${my_dir}/pipeline"
+lib_dir="${my_dir}/lib"
 # pipeline cannot contain '/'
 pipeline_name=${pipeline_name/\//"_"}
 
@@ -136,11 +139,15 @@ fi
 # pipeline cannot contain '/'
 pipeline_name=${pipeline_name/\//"_"}
 
-ytt --data-values-file "${ytt_base}/res_def.yml" \
-    -f "${ytt_base}/base.lib.yml" \
-    -f "${ytt_base}/job_def.lib.yml" \
-    -f "${ytt_base}/trigger_def.lib.yml" \
-    -f "${ytt_base}/${config_file}" > "${yml_path}"
+ytt \
+    --data-values-file "${pipeline_dir}/res_def.yml" \
+    --data-values-file "${lib_dir}/res_def_gpdb.yml" \
+    --data-values-file "${lib_dir}/res_def_misc.yml" \
+    --data-values-file "${lib_dir}/res_types_def.yml" \
+    -f "${lib_dir}/base.lib.yml" \
+    -f "${pipeline_dir}/job_def.lib.yml" \
+    -f "${pipeline_dir}/trigger_def.lib.yml" \
+    -f "${pipeline_dir}/${config_file}" >"${yml_path}"
 echo "Generated pipeline yaml '${yml_path}'."
 
 echo ""
@@ -163,5 +170,5 @@ echo ""
 echo "================================================================================"
 echo "Remeber to set the the webhook URL on GitHub:"
 echo "${concourse_url}/api/v1/teams/${concourse_team}/pipelines/${pipeline_name}/resources/${hook_res}/check/webhook?webhook_token=<hook_token>"
-echo "You may need to change the base URL if a differnt concourse server is used."
+echo "You may need to change the base URL if a different concourse server is used."
 echo "================================================================================"
