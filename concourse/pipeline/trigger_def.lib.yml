@@ -27,16 +27,16 @@ on_error:
     path: greenplumpython_src
     status: failure
 on_success:
-   put: greenplumpython_pr
-   params:
-     path: greenplumpython_src
-     status: success
+  put: greenplumpython_pr
+  params:
+    path: greenplumpython_src
+    status: success
 #@ end
 
 #! Commit trigger. For main pipelines
 #@ def commit_trigger(res_map):
 #@   add_res_by_name(res_map, "greenplumpython_commit")
-#@   add_res_by_name(res_map, "slack_notify")
+#@   add_res_by_name(res_map, "slack_notify_extensions")
 auto_trigger: true
 to_get:
 - get: greenplumpython_src
@@ -47,11 +47,11 @@ to_put_post: #@ []
 #! Unfortunately it doesn't work with Concourse 5.
 on_success:
 on_failure:
-  put: slack_notify
+  put: slack_notify_extensions
   params:
     alert_type: failed
 on_error:
-  put: slack_notify
+  put: slack_notify_extensions
   params:
     alert_type: errored
 #@ end

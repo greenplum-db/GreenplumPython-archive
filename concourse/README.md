@@ -81,6 +81,14 @@ To test if the webhook works, use `curl` to send a `POST` request to the hook UR
 curl --data-raw "foo" <hook_url>
 ```
 
+## Update gp-extensions-ci
+
+We place some of the resources of concourse in a separate repository https://github.com/pivotal/gp-extensions-ci/. And we use that repo as a subtree with prefix ./concourse/lib. This is how to pull from the repo gp-extensions-ci:
+
+```sh
+  git subtree pull --prefix concourse/lib git@github.com:pivotal/gp-extensions-ci.git main --squash
+```
+
 # FAQ
 
 ## PR pipeline is not triggered.
