@@ -878,6 +878,7 @@ class DataFrame:
         column_names: List[str] = [],
         temp: bool = False,
         storage_params: dict[str, Any] = {},
+        drop_if_exists: bool = False,
         schema: Optional[str] = None,
         distribution_type: Literal[None, "randomly", "replicated", "hash"] = None,
         distribution_key: Optional[Set[str]] = None,
@@ -899,6 +900,7 @@ class DataFrame:
             schema: schema of the table for avoiding name conflicts.
             distribution_type: type of distribution by.
             distribution_key: distribution key.
+            drop_if_exists: bool to indicate if drop table if exists.
 
         Returns:
             DataFrame : :class:`~dataframe.DataFrame` represents the newly saved table
@@ -956,13 +958,19 @@ class DataFrame:
             if distribution_type is not None
             else ""
         )
+        DROP_CLAUSE = f"DROP TABLE IF EXISTS {qualified_table_name};" if drop_if_exists else ""
         self._db._execute(
             f"""
-            CREATE {'TEMP' if temp else ''} TABLE {qualified_table_name}
-            ({','.join(column_names)})
-            {storage_params_clause if storage_params else ''}
-            AS {self._serialize()}
-            {distribution_clause}
+            DO $$
+            BEGIN
+                {DROP_CLAUSE}
+                CREATE {'TEMP' if temp else ''} TABLE {qualified_table_name}
+                ({','.join(column_names)})
+                {storage_params_clause if storage_params else ''}
+                AS {self._serialize()}
+                {distribution_clause};
+            END;
+            $$;
             """,
             has_results=False,
         )
