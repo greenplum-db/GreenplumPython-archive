@@ -134,7 +134,12 @@ Successfully installed greenplum-python-1.0.1
 <span class="n">db</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">database</span><span class="p">(</span><span class="s2">&quot;postgresql://localhost:7000&quot;</span><span class="p">)</span>
 <span class="n">t</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)),</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">content</span><span class="p">})</span>
-    <span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">table_name</span> <span class="o">=</span> <span class="s1">&#39;text_sample&#39;</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">],</span> <span class="n">distribution_key</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">},</span> <span class="n">distribution_type</span><span class="o">=</span><span class="s2">&quot;hash&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">save_as</span><span class="p">(</span>
+        <span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;text_sample&quot;</span><span class="p">,</span>
+        <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">],</span>
+        <span class="n">distribution_key</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">},</span>
+        <span class="n">distribution_type</span><span class="o">=</span><span class="s2">&quot;hash&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="o">.</span><span class="n">check_unique</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">})</span>
 <span class="p">)</span>
 </pre></div>
