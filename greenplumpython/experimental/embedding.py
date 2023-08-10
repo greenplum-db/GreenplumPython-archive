@@ -1,28 +1,26 @@
 from collections import abc
-from typing import Any
+from typing import Any, cast, Callable
 from uuid import uuid4
 
 import greenplumpython as gp
-
-_vector_type = gp.type_("vector", modifier=384)
+from greenplumpython.func import FunctionExpr
 
 
 @gp.create_function
-def _generate_embedding(content: str, model_name: str) -> _vector_type:
+def _generate_embedding(content: str, model_name: str) -> gp.type_("vector", modifier=384):  # type: ignore reportUnknownParameterType
     import sys
+    from sentence_transformers import SentenceTransformer  # type: ignore reportMissingTypeStubs
 
     SD = globals().get("SD", sys.modules["plpy"]._SD)
     if "model" not in SD:
-        from sentence_transformers import SentenceTransformer
-
         model = SentenceTransformer(model_name)
         SD["model"] = model
     else:
         model = SD["model"]
 
     # Sentences are encoded by calling model.encode()
-    emb = model.encode(content, normalize_embeddings=True)
-    return emb.tolist()
+    emb = model.encode(content, normalize_embeddings=True)  # type: ignore reportUnknownVariableType
+    return emb.tolist()  # type: ignore reportUnknownVariableType
 
 
 class Embedding:
@@ -71,8 +69,9 @@ class Embedding:
         embedding_df: gp.DataFrame = (
             self._dataframe.assign(
                 **{
-                    embedding_col_name: lambda t: _vector_type(
-                        _generate_embedding(t[column], model)
+                    embedding_col_name: cast(
+                        Callable[[gp.DataFrame], FunctionExpr],
+                        lambda t: _generate_embedding(t[column], model),  # type: ignore reportUnknownLambdaType
                     )
                 },
             )[embedding_df_cols]
@@ -172,12 +171,11 @@ class Embedding:
                 pg_attribute.attnum = 2;
             """
         )
-        # assert isinstance(embdedding_info, abc.Mapping)
-        for row in embdedding_info:
-            schema, embedding_table_name = row["nspname"], row["relname"]
-            model = row["model"]
-            embedding_col_name = row["attname"]
-            break
+        assert isinstance(embdedding_info, abc.Mapping[str, Any])
+        row = embdedding_info[0]
+        schema, embedding_table_name = row["nspname"], row["relname"]
+        model = row["model"]
+        embedding_col_name = row["attname"]
         embedding_df = self._dataframe._db.create_dataframe(
             table_name=embedding_table_name, schema=schema
         )
