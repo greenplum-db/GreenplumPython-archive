@@ -1075,7 +1075,15 @@ class DataFrame:
         return self._unique_key
 
     def check_unique(self, columns: set[str]) -> "DataFrame":
-        """Check whether a given set of columns, i.e. key, is unique."""
+        """
+        Check whether a given set of columns, i.e. key, is unique.
+
+        Args:
+            columns: set of columns name to be checked
+
+        Returns:
+            :class:`~dataframe.DataFrame`: self checked
+        """
         assert self.is_saved, "DataFrame must be saved before checking uniqueness."
         assert self._db is not None, "Database is required to check uniqueness."
         self._db._execute(
