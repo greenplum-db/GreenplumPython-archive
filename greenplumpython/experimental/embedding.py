@@ -1,22 +1,24 @@
 from collections import abc
-from typing import Any, cast, Callable
+from typing import Any, Callable, cast
 from uuid import uuid4
 
 import greenplumpython as gp
 from greenplumpython.func import FunctionExpr
+from greenplumpython.row import Row
 
 
 @gp.create_function
 def _generate_embedding(content: str, model_name: str) -> gp.type_("vector", modifier=384):  # type: ignore reportUnknownParameterType
     import sys
-    from sentence_transformers import SentenceTransformer  # type: ignore reportMissingTypeStubs
 
-    SD = globals().get("SD", sys.modules["plpy"]._SD)
+    import sentence_transformers.SentenceTransformer as SentenceTransformer  # type: ignore reportMissingImports
+
+    SD = globals().get("SD") if globals().get("SD") is not None else sys.modules["plpy"]._SD
     if "model" not in SD:
-        model = SentenceTransformer(model_name)
-        SD["model"] = model
+        model = SentenceTransformer(model_name)  # type: ignore reportUnknownVariableType
+        SD["model"] = model  # type: ignore reportOptionalSubscript
     else:
-        model = SD["model"]
+        model = SD["model"]  # type: ignore reportOptionalSubscript
 
     # Sentences are encoded by calling model.encode()
     emb = model.encode(content, normalize_embeddings=True)  # type: ignore reportUnknownVariableType
@@ -172,8 +174,9 @@ class Embedding:
             """
         )
         assert isinstance(embdedding_info, abc.Mapping[str, Any])
-        row = embdedding_info[0]
-        schema, embedding_table_name = row["nspname"], row["relname"]
+        row: Row = embdedding_info[0]
+        schema: str = row["nspname"]
+        embedding_table_name: str = row["relname"]
         model = row["model"]
         embedding_col_name = row["attname"]
         embedding_df = self._dataframe._db.create_dataframe(
