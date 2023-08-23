@@ -3,12 +3,12 @@ from typing import Any, Callable, cast
 from uuid import uuid4
 
 import greenplumpython as gp
-from greenplumpython.func import FunctionExpr
 from greenplumpython.row import Row
+from greenplumpython.type import TypeCast
 
 
 @gp.create_function
-def _generate_embedding(content: str, model_name: str) -> gp.type_("vector", modifier=384):  # type: ignore reportUnknownParameterType
+def _generate_embedding(content: str, model_name: str) -> gp.type_("vector"):  # type: ignore reportUnknownParameterType
     import sys
 
     import sentence_transformers.SentenceTransformer as SentenceTransformer  # type: ignore reportMissingImports
@@ -72,8 +72,9 @@ class Embedding:
             self._dataframe.assign(
                 **{
                     embedding_col_name: cast(
-                        Callable[[gp.DataFrame], FunctionExpr],
-                        lambda t: _generate_embedding(t[column], model),  # type: ignore reportUnknownLambdaType
+                        Callable[[gp.DataFrame], TypeCast],
+                        # FIXME: Modifier must be adapted to the model
+                        lambda t: gp.type_("vector", modifier=384)(_generate_embedding(t[column], model)),  # type: ignore reportUnknownLambdaType
                     )
                 },
             )[embedding_df_cols]
