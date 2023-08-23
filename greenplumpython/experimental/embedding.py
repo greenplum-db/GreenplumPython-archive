@@ -143,8 +143,6 @@ class Embedding:
 
         Returns:
             Dataframe with the top k most similar results in the `column` of `query`.
-
-        See :ref:`embedding-example` for more details.
         """
         assert self._dataframe._db is not None
         embdedding_info = self._dataframe._db._execute(

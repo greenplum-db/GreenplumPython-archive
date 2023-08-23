@@ -1211,5 +1211,9 @@ class DataFrame:
 
     # Add interface here for language servers.
     def embedding(self) -> "Embedding":
-        """Allow user to process vector operators thanks to :class:`~experimental.embedding.Embedding`."""
-        raise NotImplementedError
+        """
+        Enable embedding-based similarity search on columns of the current :class:`~DataFrame`.
+
+        See :ref:`embedding-example` for more details.
+        """
+        raise NotImplementedError("Please import greenplumpython.experimental.embedding to load the implementation.")
