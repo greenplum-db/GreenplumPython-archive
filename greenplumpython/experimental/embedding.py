@@ -182,7 +182,6 @@ class Embedding:
                     pg_attribute.attnum = 2;
                 """
             )
-            # assert isinstance(embdedding_info, abc.Mapping[str, Any])
             row: Row = embdedding_info[0]
             schema: str = row["nspname"]
             embedding_table_name: str = row["relname"]
@@ -215,8 +214,8 @@ class Embedding:
                     WITH {joint_table_name} as (
                         SELECT 
                             *
-                        FROM {self_embedding_table_name} CROSS JOIN LATERAL (
-                            SELECT * FROM {query_embedding_table_name}
+                        FROM {query_embedding_table_name} CROSS JOIN LATERAL (
+                            SELECT * FROM {self_embedding_table_name}
                             ORDER BY {self_embedding_table_name}.{self_embedding_col_name} <-> {query_embedding_table_name}.{query_embedding_col_name}
                             LIMIT {top_k}
                         ) AS {"cte_" + uuid4().hex}
