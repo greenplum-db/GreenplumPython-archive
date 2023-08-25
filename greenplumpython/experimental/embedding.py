@@ -1,8 +1,9 @@
 from collections import abc
-from typing import Any, Callable, List, cast
+from typing import Any, Callable, Dict, List, Optional, Set, Union, cast
 from uuid import uuid4
 
 import greenplumpython as gp
+from greenplumpython.col import Column
 from greenplumpython.row import Row
 from greenplumpython.type import TypeCast
 
@@ -137,7 +138,13 @@ class Embedding:
         )
         return self._dataframe
 
-    def search(self, column: str, query: Any, top_k: int) -> gp.DataFrame:
+    def search(
+        self,
+        column: str,
+        query: Any,
+        top_k: int,
+        query_unique_key_columns: Optional[Union[Dict[str, Optional[str]], Set[str]]] = None,
+    ) -> gp.DataFrame:
         """
         Searche unstructured data based on semantic similarity on embeddings.
 
@@ -190,6 +197,14 @@ class Embedding:
             embedding_df = df._db.create_dataframe(table_name=embedding_table_name, schema=schema)
             return embedding_df, embedding_table_name, embedding_col_name, model
 
+        def _bind(t: str, columns: Union[Dict[str, Optional[str]], Set[str]]) -> List[str]:
+            target_list: List[str] = []
+            for k in columns:
+                v = columns[k] if isinstance(columns, dict) else None
+                col_serialize = t + "." + k + (f' AS "{v}"' if v is not None else "")
+                target_list.append(col_serialize)
+            return target_list
+
         (
             self_embedding_df,
             self_embedding_table_name,
@@ -198,13 +213,14 @@ class Embedding:
         ) = find_embedding_df(self._dataframe, column)
         assert self._dataframe.unique_key is not None
         distance = gp.operator("<->")  # L2 distance is the default operator class in pgvector
-        if isinstance(query, gp.Expr):
+        if isinstance(query, Column):
             assert query._dataframe is not None
             (_, query_embedding_table_name, query_embedding_col_name, _,) = find_embedding_df(
                 query._dataframe.embedding()._dataframe, query._name  # type: ignore reportUnknownArgumentType
             )
             assert query._dataframe.unique_key is not None
             joint_table_name = "cte_" + uuid4().hex
+            right_join_table_name = "cte_" + uuid4().hex
             query_df_unique_keys: List[str] = list(query._dataframe.unique_key)
             self_df_unique_keys: List[str] = list(self._dataframe.unique_key)
             assert query_df_unique_keys is not None
@@ -213,21 +229,36 @@ class Embedding:
                 query=f"""
                     WITH {joint_table_name} as (
                         SELECT 
-                            *
+                        {",".join(_bind(query_embedding_table_name, columns=query_unique_key_columns)) 
+                            if query_unique_key_columns is not None 
+                            else ",".join(
+                                [(query_embedding_table_name+"."+key) for key in query_df_unique_keys]
+                        )},
+                        {",".join([(right_join_table_name+"."+key) for key in self_df_unique_keys])},
+                        {query_embedding_table_name}.{query_embedding_col_name},
+                        {right_join_table_name}.{self_embedding_col_name}
                         FROM {query_embedding_table_name} CROSS JOIN LATERAL (
                             SELECT * FROM {self_embedding_table_name}
                             ORDER BY {self_embedding_table_name}.{self_embedding_col_name} <-> {query_embedding_table_name}.{query_embedding_col_name}
                             LIMIT {top_k}
-                        ) AS {"cte_" + uuid4().hex}
+                        ) AS {right_join_table_name}
                     )
+                    
                     SELECT 
-                    {",".join([(query._dataframe._qualified_table_name+"."+key) for key in query_df_unique_keys])},
+                    {",".join(_bind(query._dataframe._qualified_table_name, columns=query_unique_key_columns)) 
+                        if query_unique_key_columns is not None 
+                        else ",".join(
+                            [(query._dataframe._qualified_table_name+"."+key) for key in query_df_unique_keys]
+                    )},
                     {",".join([(self._dataframe._qualified_table_name+"."+key) for key in self_df_unique_keys])},
                     {query._dataframe._qualified_table_name}.{query._name},
                     {self._dataframe._qualified_table_name}.{column}
                     FROM {joint_table_name} 
                     JOIN {query._dataframe._qualified_table_name} 
-                    ON {"AND".join([(query._dataframe._qualified_table_name+"."+key+" = "+joint_table_name+"." + key) for key in query_df_unique_keys])}
+                    ON {"AND".join([
+                        (f"{query._dataframe._qualified_table_name}.{key} = {joint_table_name}.{query_unique_key_columns[key] if query_unique_key_columns is not None and key in query_unique_key_columns else key}") 
+                        for key in query_df_unique_keys
+                    ])}
                     JOIN {self._dataframe._qualified_table_name} 
                     ON {"AND".join([(self._dataframe._qualified_table_name+"."+key+" = "+joint_table_name+"." + key) for key in self_df_unique_keys])} 
                 """,
