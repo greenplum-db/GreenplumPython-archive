@@ -55,6 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#Preparing-Data">Preparing Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Generating-and-Indexing-Embeddings">Generating and Indexing Embeddings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Searching-Embeddings">Searching Embeddings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Batched-k-NN-search">Batched k-NN search</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Cleaning-All-at-Once">Cleaning All at Once</a></li>
 </ul>
 </li>
@@ -112,8 +113,8 @@ Requirement already satisfied: psycopg2-binary==2.9.5 in ./venv/lib/python3.9/si
 Requirement already satisfied: dill==0.3.6 in ./venv/lib/python3.9/site-packages (from greenplum-python==1.0.1) (0.3.6)
 Building wheels for collected packages: greenplum-python
   Building wheel for greenplum-python (pyproject.toml) ... done
-  Created wheel for greenplum-python: filename=greenplum_python-1.0.1-py3-none-any.whl size=84165 sha256=9746078492ea731ec973e8d87764de0b8fda43f8a9af1de2d4db7a13799ddb8c
-  Stored in directory: /private/var/folders/jf/ycmq4_px3nj7gcrs015qqhxm0000gq/T/pip-ephem-wheel-cache-d86u32fo/wheels/56/a3/62/fb507748981bea497278b550674de9ab4cfa5150c30722b3d5
+  Created wheel for greenplum-python: filename=greenplum_python-1.0.1-py3-none-any.whl size=84199 sha256=78992ece399bf042be4143672a186d904cf1603148f91dcd7b0b54c610a3245d
+  Stored in directory: /private/var/folders/jf/ycmq4_px3nj7gcrs015qqhxm0000gq/T/pip-ephem-wheel-cache-3atrca12/wheels/56/a3/62/fb507748981bea497278b550674de9ab4cfa5150c30722b3d5
 Successfully built greenplum-python
 Installing collected packages: greenplum-python
   Attempting uninstall: greenplum-python
@@ -212,7 +213,9 @@ Successfully installed greenplum-python-1.0.1
     </tr>
 </table></div>
 </div>
-<p>Batched k-NN search</p>
+</section>
+<section id="Batched-k-NN-search">
+<h2>Batched k-NN search<a class="headerlink" href="#Batched-k-NN-search" title="Permalink to this heading"></a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
@@ -236,7 +239,7 @@ Successfully installed greenplum-python-1.0.1
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span><span class="o">.</span><span class="n">embedding</span><span class="p">()</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s2">&quot;content&quot;</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">],</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span><span class="o">.</span><span class="n">embedding</span><span class="p">()</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s2">&quot;content&quot;</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">],</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -256,12 +259,6 @@ Successfully installed greenplum-python-1.0.1
             <td>1</td>
             <td>0</td>
             <td>dog</td>
-            <td>I have a dog.</td>
-    </tr>
-    <tr>
-            <td>2</td>
-            <td>0</td>
-            <td>banana</td>
             <td>I have a dog.</td>
     </tr>
     <tr>
@@ -293,7 +290,7 @@ Successfully installed greenplum-python-1.0.1
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
