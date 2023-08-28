@@ -13,7 +13,9 @@ def _generate_embedding(content: str, model_name: str) -> gp.type_("vector"):  #
 
     import sentence_transformers  # type: ignore reportMissingImports
 
-    SD = globals().get("SD") or sys.modules["plpy"]._SD
+    SD = globals().get("SD")
+    if SD is None:
+        SD = sys.modules["plpy"]._SD
     if "model" not in SD:
         import torch  # pyright: ignore [reportMissingImports, reportUnknownVariableType]
 
@@ -187,7 +189,6 @@ class Embedding:
                 pg_attribute.attnum = 2;
             """
         )
-        assert isinstance(embdedding_info, abc.Mapping[str, Any])
         row: Row = embdedding_info[0]
         schema: str = row["nspname"]
         embedding_table_name: str = row["relname"]
