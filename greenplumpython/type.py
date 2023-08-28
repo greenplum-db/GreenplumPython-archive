@@ -111,6 +111,9 @@ class DataType:
         """
         if self._created_in_dbs is None or db in self._created_in_dbs:
             return
+        assert isinstance(
+            self._annotation, type
+        ), "Only composite data types can be created in database."
         schema = "pg_temp"
         members = get_type_hints(self._annotation)
         if len(members) == 0:
@@ -206,6 +209,8 @@ def _serialize_to_type(
                 return f"{_serialize_to_type(args[0], db)}[]"  # type: ignore
         raise NotImplementedError()
     else:
+        if isinstance(annotation, DataType):
+            return annotation._qualified_name_str
         assert db is not None, "Database is required to create type"
         if annotation not in _defined_types:
             type_name = "type_" + uuid4().hex
