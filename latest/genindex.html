@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="modules.html">GreenplumPython</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/abalone.html">Example: Predicting the age of abalone</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/pandas.html">Comparison with pandas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/embedding.html">Generating, Indexing and Searching Embeddings</a></li>
 </ul>
 
         </div>
@@ -203,6 +204,8 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="dataframe.html#dataframe.DataFrame.check_unique">check_unique() (dataframe.DataFrame method)</a>
+</li>
       <li><a href="db.html#db.Database.close">close() (db.Database method)</a>
 </li>
       <li>
@@ -238,7 +241,11 @@
       <li><a href="func.html#func.create_function">create_function() (in module func)</a>
 </li>
       <li><a href="dataframe.html#dataframe.DataFrame.create_index">create_index() (dataframe.DataFrame method)</a>
+
+      <ul>
+        <li><a href="embedding.html#experimental.embedding.Embedding.create_index">(experimental.embedding.Embedding method)</a>
 </li>
+      </ul></li>
       <li><a href="dataframe.html#dataframe.DataFrame.cross_join">cross_join() (dataframe.DataFrame method)</a>
 </li>
   </ul></td>
@@ -291,6 +298,19 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="embedding.html#experimental.embedding.Embedding">Embedding (class in experimental.embedding)</a>
+</li>
+      <li><a href="dataframe.html#dataframe.DataFrame.embedding">embedding() (dataframe.DataFrame method)</a>
+</li>
+      <li>
+    experimental.embedding
+
+      <ul>
+        <li><a href="embedding.html#module-experimental.embedding">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     expr
 
@@ -298,8 +318,6 @@
         <li><a href="expr.html#module-expr">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="expr.html#expr.Expr">Expr (class in expr)</a>
 </li>
   </ul></td>
@@ -440,6 +458,8 @@
 </li>
         <li><a href="db.html#module-db">db</a>
 </li>
+        <li><a href="embedding.html#module-experimental.embedding">experimental.embedding</a>
+</li>
         <li><a href="expr.html#module-expr">expr</a>
 </li>
         <li><a href="func.html#module-func">func</a>
@@ -549,6 +569,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="dataframe.html#dataframe.DataFrame.save_as">save_as() (dataframe.DataFrame method)</a>
 </li>
+      <li><a href="embedding.html#experimental.embedding.Embedding.search">search() (experimental.embedding.Embedding method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pd_df.html#pandas.dataframe.DataFrame.sort_values">sort_values() (pandas.dataframe.DataFrame method)</a>
@@ -588,9 +610,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="expr.html#expr.UnaryExpr">UnaryExpr (class in expr)</a>
 </li>
+      <li><a href="group.html#group.DataFrameGroupingSet.union">union() (group.DataFrameGroupingSet method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="group.html#group.DataFrameGroupingSet.union">union() (group.DataFrameGroupingSet method)</a>
+      <li><a href="dataframe.html#dataframe.DataFrame.unique_key">unique_key (dataframe.DataFrame property)</a>
 </li>
       <li><a href="func.html#func.NormalFunction.unwrap">unwrap() (func.NormalFunction method)</a>
 </li>

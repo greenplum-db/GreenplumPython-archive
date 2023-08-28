@@ -57,12 +57,14 @@
 <li class="toctree-l2"><a class="reference internal" href="group.html">Grouping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="order.html">Ordering</a></li>
 <li class="toctree-l2"><a class="reference internal" href="op.html">Operators and Indexes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="embedding.html">Embedding</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pd_df.html">Pandas-Compatible DataFrame</a></li>
 <li class="toctree-l2"><a class="reference internal" href="config.html">Configuration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/abalone.html">Example: Predicting the age of abalone</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/pandas.html">Comparison with pandas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/embedding.html">Generating, Indexing and Searching Embeddings</a></li>
 </ul>
 
         </div>
@@ -770,6 +772,29 @@ sure the result is stable.</p>
 </div>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="dataframe.DataFrame.unique_key">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unique_key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dataframe.DataFrame.unique_key" title="Permalink to this definition"></a></dt>
+<dd><p>Return unique key.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.check_unique">
+<span class="sig-name descname"><span class="pre">check_unique</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.check_unique" title="Permalink to this definition"></a></dt>
+<dd><p>Check whether a given set of columns, i.e. key, is unique.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>columns</strong> (<em>set</em><em>[</em><em>str</em><em>]</em>) – set of columns name to be checked</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self checked</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="dataframe.DataFrame.from_table">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.from_table" title="Permalink to this definition"></a></dt>
@@ -873,6 +898,18 @@ names are decided by the keys of the first dictionary element if the <em>column_
 <span class="go">(3 rows)</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.embedding">
+<span class="sig-name descname"><span class="pre">embedding</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.embedding" title="Permalink to this definition"></a></dt>
+<dd><p>Enable embedding-based similarity search on columns of the current <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
+<p>See <a class="reference internal" href="emb_example.html#embedding-example"><span class="std std-ref">Generating, Indexing and Searching Embeddings</span></a> for more details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="embedding.html#experimental.embedding.Embedding" title="experimental.embedding.Embedding">Embedding</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

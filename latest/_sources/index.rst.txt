@@ -24,6 +24,7 @@ There are explanations about the implementation and examples.
    modules
    abalone
    pandas
+   emb_example
 
 
 Indices and tables
