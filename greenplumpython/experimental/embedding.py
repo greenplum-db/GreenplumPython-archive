@@ -17,7 +17,7 @@ def _generate_embedding(content: str, model_name: str) -> gp.type_("vector"):  #
     if globals().get("SD") is None:
         _sd = sys.modules["plpy"]._SD
     if "model" not in _sd:
-        import torch
+        import torch  # pyright: ignore [reportMissingImports, reportUnknownVariableType]
 
         # Limit the degree of parallelism, otherwise the task may not complete.
         # FIXME: This number should be set according to the resources available.
