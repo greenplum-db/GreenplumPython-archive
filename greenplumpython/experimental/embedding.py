@@ -13,19 +13,17 @@ def _generate_embedding(content: str, model_name: str) -> gp.type_("vector"):  #
 
     import sentence_transformers  # type: ignore reportMissingImports
 
-    _sd = globals().get("SD")
-    if globals().get("SD") is None:
-        _sd = sys.modules["plpy"]._SD
-    if "model" not in _sd:
+    SD = globals().get("SD") or sys.modules["plpy"]._SD
+    if "model" not in SD:
         import torch  # pyright: ignore [reportMissingImports, reportUnknownVariableType]
 
         # Limit the degree of parallelism, otherwise the task may not complete.
         # FIXME: This number should be set according to the resources available.
         torch.set_num_threads(4)
         model = sentence_transformers.SentenceTransformer(model_name)  # type: ignore reportUnknownVariableType
-        _sd["model"] = model  # type: ignore reportOptionalSubscript
+        SD["model"] = model  # type: ignore reportOptionalSubscript
     else:
-        model = _sd["model"]  # type: ignore reportOptionalSubscript
+        model = SD["model"]  # type: ignore reportOptionalSubscript
 
     # Sentences are encoded by calling model.encode()
     emb = model.encode(content, normalize_embeddings=True)  # type: ignore reportUnknownVariableType
