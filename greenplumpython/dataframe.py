@@ -1216,6 +1216,4 @@ class DataFrame:
 
         See :ref:`embedding-example` for more details.
         """
-        raise NotImplementedError(
-            "Please import greenplumpython.experimental.embedding to load the implementation."
-        )
+        raise NotImplementedError("Please import greenplumpython.experimental.embedding to load the implementation.")
