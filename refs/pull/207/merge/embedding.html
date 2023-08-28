@@ -136,7 +136,7 @@ search results.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="experimental.embedding.Embedding.search">
-<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_unique_key_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#experimental.embedding.Embedding.search" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#experimental.embedding.Embedding.search" title="Permalink to this definition"></a></dt>
 <dd><p>Searche unstructured data based on semantic similarity on embeddings.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -144,7 +144,6 @@ search results.</p>
 <li><p><strong>column</strong> (<em>str</em>) – name of column to search</p></li>
 <li><p><strong>query</strong> (<em>Any</em>) – content to be searched</p></li>
 <li><p><strong>top_k</strong> (<em>int</em>) – number of most similar results requested</p></li>
-<li><p><strong>query_unique_key_columns</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Optional</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>Set</em><em>[</em><em>str</em><em>]</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

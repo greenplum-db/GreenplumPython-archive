@@ -12,38 +12,27 @@
   {
    "cell_type": "code",
    "execution_count": 1,
-   "metadata": {
-    "ExecuteTime": {
-     "end_time": "2023-08-25T12:57:01.715707Z",
-     "start_time": "2023-08-25T12:56:54.919200Z"
-    }
-   },
+   "metadata": {},
    "outputs": [
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "/Users/ruxuez/Desktop/dev/GreenplumPython\n",
-      "Processing /Users/ruxuez/Desktop/dev/GreenplumPython\r\n",
-      "  Installing build dependencies ... \u001B[?25ldone\r\n",
-      "\u001B[?25h  Getting requirements to build wheel ... \u001B[?25ldone\r\n",
-      "\u001B[?25h  Preparing metadata (pyproject.toml) ... \u001B[?25ldone\r\n",
-      "\u001B[?25hRequirement already satisfied: psycopg2-binary==2.9.5 in ./venv/lib/python3.9/site-packages (from greenplum-python==1.0.1) (2.9.5)\r\n",
-      "Requirement already satisfied: dill==0.3.6 in ./venv/lib/python3.9/site-packages (from greenplum-python==1.0.1) (0.3.6)\r\n",
-      "Building wheels for collected packages: greenplum-python\r\n",
-      "  Building wheel for greenplum-python (pyproject.toml) ... \u001B[?25ldone\r\n",
-      "\u001B[?25h  Created wheel for greenplum-python: filename=greenplum_python-1.0.1-py3-none-any.whl size=84199 sha256=78992ece399bf042be4143672a186d904cf1603148f91dcd7b0b54c610a3245d\r\n",
-      "  Stored in directory: /private/var/folders/jf/ycmq4_px3nj7gcrs015qqhxm0000gq/T/pip-ephem-wheel-cache-3atrca12/wheels/56/a3/62/fb507748981bea497278b550674de9ab4cfa5150c30722b3d5\r\n",
-      "Successfully built greenplum-python\r\n",
-      "Installing collected packages: greenplum-python\r\n",
-      "  Attempting uninstall: greenplum-python\r\n",
-      "    Found existing installation: greenplum-python 1.0.1\r\n",
-      "    Uninstalling greenplum-python-1.0.1:\r\n",
-      "      Successfully uninstalled greenplum-python-1.0.1\r\n",
-      "Successfully installed greenplum-python-1.0.1\r\n",
-      "\r\n",
-      "\u001B[1m[\u001B[0m\u001B[34;49mnotice\u001B[0m\u001B[1;39;49m]\u001B[0m\u001B[39;49m A new release of pip available: \u001B[0m\u001B[31;49m22.3.1\u001B[0m\u001B[39;49m -> \u001B[0m\u001B[32;49m23.2.1\u001B[0m\r\n",
-      "\u001B[1m[\u001B[0m\u001B[34;49mnotice\u001B[0m\u001B[1;39;49m]\u001B[0m\u001B[39;49m To update, run: \u001B[0m\u001B[32;49mpip install --upgrade pip\u001B[0m\r\n"
+      "/home/gpadmin/GreenplumPython\n",
+      "Defaulting to user installation because normal site-packages is not writeable\n",
+      "Processing /home/gpadmin/GreenplumPython\n",
+      "  Installing build dependencies ... \u001b[?25ldone\n",
+      "\u001b[?25h  Getting requirements to build wheel ... \u001b[?25ldone\n",
+      "\u001b[?25h    Preparing wheel metadata ... \u001b[?25ldone\n",
+      "\u001b[?25hRequirement already satisfied, skipping upgrade: dill==0.3.6 in /home/gpadmin/.local/lib/python3.9/site-packages (from greenplum-python==1.0.1) (0.3.6)\n",
+      "Requirement already satisfied, skipping upgrade: psycopg2-binary==2.9.5 in /home/gpadmin/.local/lib/python3.9/site-packages (from greenplum-python==1.0.1) (2.9.5)\n",
+      "Building wheels for collected packages: greenplum-python\n",
+      "  Building wheel for greenplum-python (PEP 517) ... \u001b[?25ldone\n",
+      "\u001b[?25h  Created wheel for greenplum-python: filename=greenplum_python-1.0.1-py3-none-any.whl size=70618 sha256=22e5718895157b66b4e6a4dd9bbb7164f4039f4d59dbf58fb519da409b246e38\n",
+      "  Stored in directory: /tmp/pip-ephem-wheel-cache-q9fmewst/wheels/bb/1f/99/ff8594e48ec11df99af6e0ee8611a5e560e9f44d1a3fefb351\n",
+      "Successfully built greenplum-python\n",
+      "Installing collected packages: greenplum-python\n",
+      "Successfully installed greenplum-python-1.0.1\n"
      ]
     }
    ],
@@ -62,19 +51,14 @@
   {
    "cell_type": "code",
    "execution_count": 2,
-   "metadata": {
-    "ExecuteTime": {
-     "end_time": "2023-08-25T12:57:02.644919Z",
-     "start_time": "2023-08-25T12:57:01.723149Z"
-    }
-   },
+   "metadata": {},
    "outputs": [],
    "source": [
     "content = [\"I have a dog.\", \"I like eating apples.\"]\n",
     "\n",
     "import greenplumpython as gp\n",
     "\n",
-    "db = gp.database(\"postgres://localhost:7000\")\n",
+    "db = gp.database(\"postgresql://localhost:7000\")\n",
     "t = (\n",
     "    db.create_dataframe(columns={\"id\": range(len(content)), \"content\": content})\n",
     "    .save_as(\n",
@@ -97,17 +81,35 @@
   {
    "cell_type": "code",
    "execution_count": 3,
-   "metadata": {
-    "ExecuteTime": {
-     "end_time": "2023-08-25T12:57:08.645604Z",
-     "start_time": "2023-08-25T12:57:02.646625Z"
-    }
-   },
+   "metadata": {},
    "outputs": [
     {
      "data": {
-      "text/plain": "----------------------------\n id | content               \n----+-----------------------\n  0 | I have a dog.         \n  1 | I like eating apples. \n----------------------------\n(2 rows)",
-      "text/html": "<table>\n\t<tr>\n\t\t<th>id</th>\n\t\t<th>content</th>\n\t</tr>\n\t<tr>\n\t\t<td>0</td>\n\t\t<td>I have a dog.</td>\n\t</tr>\n\t<tr>\n\t\t<td>1</td>\n\t\t<td>I like eating apples.</td>\n\t</tr>\n</table>"
+      "text/html": [
+       "<table>\n",
+       "\t<tr>\n",
+       "\t\t<th>id</th>\n",
+       "\t\t<th>content</th>\n",
+       "\t</tr>\n",
+       "\t<tr>\n",
+       "\t\t<td>0</td>\n",
+       "\t\t<td>I have a dog.</td>\n",
+       "\t</tr>\n",
+       "\t<tr>\n",
+       "\t\t<td>1</td>\n",
+       "\t\t<td>I like eating apples.</td>\n",
+       "\t</tr>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "----------------------------\n",
+       " id | content               \n",
+       "----+-----------------------\n",
+       "  0 | I have a dog.         \n",
+       "  1 | I like eating apples. \n",
+       "----------------------------\n",
+       "(2 rows)"
+      ]
      },
      "execution_count": 3,
      "metadata": {},
@@ -131,17 +133,30 @@
   {
    "cell_type": "code",
    "execution_count": 4,
-   "metadata": {
-    "ExecuteTime": {
-     "end_time": "2023-08-25T12:57:14.069009Z",
-     "start_time": "2023-08-25T12:57:08.643273Z"
-    }
-   },
+   "metadata": {},
    "outputs": [
     {
      "data": {
-      "text/plain": "----------------------------\n id | content               \n----+-----------------------\n  1 | I like eating apples. \n----------------------------\n(1 row)",
-      "text/html": "<table>\n\t<tr>\n\t\t<th>id</th>\n\t\t<th>content</th>\n\t</tr>\n\t<tr>\n\t\t<td>1</td>\n\t\t<td>I like eating apples.</td>\n\t</tr>\n</table>"
+      "text/html": [
+       "<table>\n",
+       "\t<tr>\n",
+       "\t\t<th>id</th>\n",
+       "\t\t<th>content</th>\n",
+       "\t</tr>\n",
+       "\t<tr>\n",
+       "\t\t<td>1</td>\n",
+       "\t\t<td>I like eating apples.</td>\n",
+       "\t</tr>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "----------------------------\n",
+       " id | content               \n",
+       "----+-----------------------\n",
+       "  1 | I like eating apples. \n",
+       "----------------------------\n",
+       "(1 row)"
+      ]
      },
      "execution_count": 4,
      "metadata": {},
@@ -154,66 +169,6 @@
   },
   {
    "cell_type": "markdown",
-   "source": [
-    "## Batched k-NN search"
-   ],
-   "metadata": {
-    "collapsed": false
-   }
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 5,
-   "outputs": [],
-   "source": [
-    "query = (\n",
-    "    db.create_dataframe(columns={\"idd\": range(3), \"query\": [\"apple\", \"dog\", \"banana\"]})\n",
-    "    .save_as(\n",
-    "        table_name=\"query_sample\",\n",
-    "        column_names=[\"idd\", \"query\"],\n",
-    "        distribution_key={\"idd\"},\n",
-    "        distribution_type=\"hash\",\n",
-    "    )\n",
-    "    .check_unique(columns={\"idd\"})\n",
-    "    .embedding()\n",
-    "    .create_index(column=\"query\", model=\"all-MiniLM-L6-v2\")\n",
-    ")"
-   ],
-   "metadata": {
-    "collapsed": false,
-    "ExecuteTime": {
-     "end_time": "2023-08-25T12:57:17.400047Z",
-     "start_time": "2023-08-25T12:57:14.059315Z"
-    }
-   }
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 6,
-   "outputs": [
-    {
-     "data": {
-      "text/plain": "-------------------------------------------\n idd | id | query  | content               \n-----+----+--------+-----------------------\n   1 |  0 | dog    | I have a dog.         \n   2 |  1 | banana | I like eating apples. \n   0 |  1 | apple  | I like eating apples. \n-------------------------------------------\n(3 rows)",
-      "text/html": "<table>\n\t<tr>\n\t\t<th>idd</th>\n\t\t<th>id</th>\n\t\t<th>query</th>\n\t\t<th>content</th>\n\t</tr>\n\t<tr>\n\t\t<td>1</td>\n\t\t<td>0</td>\n\t\t<td>dog</td>\n\t\t<td>I have a dog.</td>\n\t</tr>\n\t<tr>\n\t\t<td>2</td>\n\t\t<td>1</td>\n\t\t<td>banana</td>\n\t\t<td>I like eating apples.</td>\n\t</tr>\n\t<tr>\n\t\t<td>0</td>\n\t\t<td>1</td>\n\t\t<td>apple</td>\n\t\t<td>I like eating apples.</td>\n\t</tr>\n</table>"
-     },
-     "execution_count": 6,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
-   "source": [
-    "t.embedding().search(column=\"content\", query=query[\"query\"], top_k=1)"
-   ],
-   "metadata": {
-    "collapsed": false,
-    "ExecuteTime": {
-     "end_time": "2023-08-25T12:57:18.305871Z",
-     "start_time": "2023-08-25T12:57:17.402679Z"
-    }
-   }
-  },
-  {
-   "cell_type": "markdown",
    "metadata": {},
    "source": [
     "## Cleaning All at Once"
@@ -221,28 +176,33 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 6,
    "metadata": {},
-   "outputs": [],
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * postgresql://localhost:7000\n",
+      "Done.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "[]"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
    "source": [
     "%reload_ext sql\n",
     "%sql postgresql://localhost:7000\n",
-    "%sql DROP TABLE text_sample CASCADE;\n",
-    "%sql DROP TABLE query_sample CASCADE;"
+    "%sql DROP TABLE text_sample CASCADE;"
    ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 7,
-   "outputs": [],
-   "source": [],
-   "metadata": {
-    "collapsed": false,
-    "ExecuteTime": {
-     "end_time": "2023-08-25T12:57:19.295165Z",
-     "start_time": "2023-08-25T12:57:19.292932Z"
-    }
-   }
   }
  ],
  "metadata": {
