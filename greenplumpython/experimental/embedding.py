@@ -12,19 +12,21 @@ from greenplumpython.type import TypeCast
 def _generate_embedding(content: str, model_name: str) -> gp.type_("vector"):  # type: ignore reportUnknownParameterType
     import sys
 
-    import sentence_transformers.SentenceTransformer as SentenceTransformer  # type: ignore reportMissingImports
-    import torch  # type: ignore reportMissingImports;  # type: ignore reportUnknownVariableType
+    import sentence_transformers  # type: ignore reportMissingImports
 
-    # Limit the degree of parallelism, otherwise the task may not complete.
-    # FIXME: This number should be set according to the resources available.
-    torch.set_num_threads(4)
+    sd_ = globals().get("SD")
+    if sd_ is None:
+        sd_ = sys.modules["plpy"]._SD
+    if "model" not in sd_:
+        import torch  # pyright: ignore [reportMissingImports, reportUnknownVariableType]
 
-    SD = globals().get("SD") if globals().get("SD") is not None else sys.modules["plpy"]._SD
-    if "model" not in SD:
-        model = SentenceTransformer(model_name)  # type: ignore reportUnknownVariableType
-        SD["model"] = model  # type: ignore reportOptionalSubscript
+        # Limit the degree of parallelism, otherwise the task may not complete.
+        # FIXME: This number should be set according to the resources available.
+        torch.set_num_threads(4)
+        model = sentence_transformers.SentenceTransformer(model_name)  # type: ignore reportUnknownVariableType
+        sd_["model"] = model  # type: ignore reportOptionalSubscript
     else:
-        model = SD["model"]  # type: ignore reportOptionalSubscript
+        model = sd_["model"]  # type: ignore reportOptionalSubscript
 
     # Sentences are encoded by calling model.encode()
     emb = model.encode(content, normalize_embeddings=True)  # type: ignore reportUnknownVariableType
@@ -68,9 +70,13 @@ class Embedding:
         Returns:
             Dataframe with target column indexed based on embeddings.
 
+        Example:
+            Please refer to :ref:`embedding-example` for more details.
+
         """
 
         assert self._dataframe.unique_key is not None, "Unique key is required to create index."
+        assert model == "all-MiniLM-L6-v2", "Model '{model}' is not supported."
 
         embedding_col_name = "_emb_" + uuid4().hex
         embedding_df_cols = list(self._dataframe.unique_key) + [embedding_col_name]
@@ -79,7 +85,8 @@ class Embedding:
                 **{
                     embedding_col_name: cast(
                         Callable[[gp.DataFrame], TypeCast],
-                        # FIXME: Modifier must be adapted to the model
+                        # FIXME: Modifier must be adapted to the model.
+                        # Can this be done with transformers.AutoConfig?
                         lambda t: gp.type_("vector", modifier=384)(_generate_embedding(t[column], model)),  # type: ignore reportUnknownLambdaType
                     )
                 },

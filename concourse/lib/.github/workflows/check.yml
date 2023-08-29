@@ -1,0 +1,39 @@
+name: Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.event.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  run_shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install shellcheck
+        run: |
+          export scversion=v0.9.0
+          wget -qO- "https://github.com/koalaman/shellcheck/releases/download/${scversion?}/shellcheck-${scversion?}.linux.x86_64.tar.xz" | tar -xJv
+          sudo cp "shellcheck-${scversion}/shellcheck" /usr/bin/
+          shellcheck --version
+      - name: Check with shellcheck
+        run: |
+          shellcheck $(find . -type f -name "*.sh" -print)
+  run_shfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install shfmt
+        run: |
+          wget https://github.com/mvdan/sh/releases/download/v3.7.0/shfmt_v3.7.0_linux_amd64 -O shfmt
+          chmod +x shfmt
+          sudo cp shfmt /usr/bin/
+      - name: Check with shfmt
+        run: |
+          shfmt -l -d .

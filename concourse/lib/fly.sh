@@ -8,7 +8,12 @@ echo ""
 
 my_path=$(realpath -s "${BASH_SOURCE[0]}")
 my_dir=$(dirname "${my_path}")
-proj_name="greenplumpython"
+proj_name_file="${my_dir}/PROJ_NAME"
+if [ ! -f "${proj_name_file}" ]; then
+    echo "A 'PROJ_NAME' file is needed in '${my_dir}'"
+    exit 1
+fi
+proj_name=$(cat "${proj_name_file}")
 concourse_team="main"
 
 usage() {
@@ -29,8 +34,7 @@ detect_concourse_team() {
     local target="$1"
     local fly_rc_file="$HOME/.flyrc"
     local found_target=false
-    while read -r line;
-    do
+    while read -r line; do
         line="$(echo -e "${line}" | tr -d '[:space:]')"
         if [ ${found_target} != true ] && [ "${line}" = "${target}:" ]; then
             found_target=true
@@ -40,37 +44,37 @@ detect_concourse_team() {
             echo "Use concourse target: ${target}, team: ${concourse_team}"
             return
         fi
-    done < "${fly_rc_file}"
+    done <"${fly_rc_file}"
 }
 
 # Parse command line options
 while getopts ":c:t:p:b:T" o; do
     case "${o}" in
-        c)
-            # pipeline type/config. pr/merge/dev/rel
-            pipeline_config=${OPTARG}
-            ;;
-        t)
-            # concourse target
-            target=${OPTARG}
-            ;;
-        p)
-            # pipeline name
-            postfix=${OPTARG}
-            ;;
-        b)
-            # branch name
-            branch=${OPTARG}
-            ;;
-        T)
-            test_suffix="_test"
-            ;;
-        *)
-            usage ""
-            ;;
+    c)
+        # pipeline type/config. pr/merge/dev/rel
+        pipeline_config=${OPTARG}
+        ;;
+    t)
+        # concourse target
+        target=${OPTARG}
+        ;;
+    p)
+        # pipeline name
+        postfix=${OPTARG}
+        ;;
+    b)
+        # branch name
+        branch=${OPTARG}
+        ;;
+    T)
+        test_suffix="_test"
+        ;;
+    *)
+        usage ""
+        ;;
     esac
 done
-shift $((OPTIND-1))
+shift $((OPTIND - 1))
 
 if [ -z "${target}" ] || [ -z "${pipeline_config}" ]; then
     usage ""
@@ -81,41 +85,41 @@ detect_concourse_team "${target}"
 pipeline_type=""
 # Decide ytt options to generate pipeline
 case ${pipeline_config} in
-  pr)
-      pipeline_type="pr"
-      config_file="pr.yml"
-      hook_res="${proj_name}_pr"
+pr)
+    pipeline_type="pr"
+    config_file="pr.yml"
+    hook_res="${proj_name}_pr"
     ;;
-  merge|commit)
-      # Default branch is 'main' as it is our main branch
-      if [ -z "${branch}" ]; then
-          branch="main"
-      fi
-      pipeline_type="merge"
-      config_file="commit.yml"
-      hook_res="${proj_name}_commit"
+merge | commit)
+    # Default branch is 'gpdb' as it is our main branch
+    if [ -z "${branch}" ]; then
+        branch="gpdb"
+    fi
+    pipeline_type="merge"
+    config_file="commit.yml"
+    hook_res="${proj_name}_commit"
     ;;
-  dev)
-      if [ -z "${postfix}" ]; then
-          usage "'-p' needs to be supplied to specify the pipeline name postfix for flying a 'dev' pipeline."
-      fi
-      if [ -z "${branch}" ]; then
-          usage "'-b' needs to be supplied to specify the branch for flying a 'dev' pipeline."
-      fi
-      pipeline_type="dev"
-      config_file="dev.yml"
+dev)
+    if [ -z "${postfix}" ]; then
+        usage "'-p' needs to be supplied to specify the pipeline name postfix for flying a 'dev' pipeline."
+    fi
+    if [ -z "${branch}" ]; then
+        usage "'-b' needs to be supplied to specify the branch for flying a 'dev' pipeline."
+    fi
+    pipeline_type="dev"
+    config_file="dev.yml"
     ;;
-  release|rel)
-      # Default branch is 'gpdb' as it is our main branch
-      if [ -z "${branch}" ]; then
-          branch="gpdb"
-      fi
-      pipeline_type="rel"
-      config_file="release.yml"
-      hook_res="${proj_name}_commit"
+release | rel)
+    # Default branch is 'gpdb' as it is our main branch
+    if [ -z "${branch}" ]; then
+        branch="gpdb"
+    fi
+    pipeline_type="rel"
+    config_file="release.yml"
+    hook_res="${proj_name}_commit"
     ;;
-  *)
-      usage ""
+*)
+    usage ""
     ;;
 esac
 
