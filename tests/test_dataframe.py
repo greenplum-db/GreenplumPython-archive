@@ -496,6 +496,6 @@ def test_dataframe_from_table(db: gp.Database):
 
 
 def test_const_non_ascii(db: gp.Database):
-     df = db.create_dataframe(columns={"Ø": ["Ø"]})
-     for row in df[["Ø"]]:
-         assert row["Ø"] == "Ø"
+    df = db.create_dataframe(columns={"Ø": ["Ø"]})
+    for row in df[["Ø"]]:
+        assert row["Ø"] == "Ø"
