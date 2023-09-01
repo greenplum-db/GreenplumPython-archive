@@ -543,7 +543,7 @@ class Expr:
         return InExpr(self, container, self._dataframe)
 
 
-from psycopg2.extensions import adapt  # type: ignore
+import psycopg2.sql # type: ignore
 
 
 def _serialize_to_expr(obj: Any, db: Optional[Database] = None) -> str:
@@ -560,10 +560,7 @@ def _serialize_to_expr(obj: Any, db: Optional[Database] = None) -> str:
     if isinstance(obj, Expr):
         return obj._serialize(db=db)
     assert db is not None
-    adapted_obj = adapt(obj)  # type: ignore reportUnknownVariableType
-    if hasattr(adapted_obj, "prepare"):  # type: ignore reportUnknownArgumentType
-        adapted_obj.prepare(db._conn)
-    return adapted_obj.getquoted().decode("utf-8")  # type: ignore
+    return psycopg2.sql.Literal(obj).as_string(db._conn)
 
 
 class BinaryExpr(Expr):
