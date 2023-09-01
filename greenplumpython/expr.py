@@ -543,7 +543,7 @@ class Expr:
         return InExpr(self, container, self._dataframe)
 
 
-import psycopg2.sql # type: ignore
+import psycopg2.sql
 
 
 def _serialize_to_expr(obj: Any, db: Optional[Database] = None) -> str:
