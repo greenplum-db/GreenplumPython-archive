@@ -42,6 +42,7 @@ class Database:
             dsn,
             cursor_factory=psycopg2.extras.RealDictCursor,
         )
+        self._conn.set_client_encoding('utf-8')
         self._conn.set_session(autocommit=True)
 
     def _execute(self, query: str, has_results: bool = True) -> Union[Iterable[Tuple[Any]], int]:

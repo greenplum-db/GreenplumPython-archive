@@ -559,7 +559,10 @@ def _serialize_to_expr(obj: Any, db: Optional[Database] = None) -> str:
     """
     if isinstance(obj, Expr):
         return obj._serialize(db=db)
-    return adapt(obj).getquoted().decode("utf-8")  # type: ignore
+    assert db is not None
+    adapted_obj = adapt(obj)
+    adapted_obj.prepare(db._conn)
+    return adapted_obj.getquoted().decode("utf-8")  # type: ignore
 
 
 class BinaryExpr(Expr):
