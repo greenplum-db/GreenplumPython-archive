@@ -544,6 +544,7 @@ class Expr:
 
 
 from psycopg2.extensions import adapt  # type: ignore
+from psycopg2.extensions import ISQLQuote
 
 
 def _serialize_to_expr(obj: Any, db: Optional[Database] = None) -> str:
@@ -560,8 +561,9 @@ def _serialize_to_expr(obj: Any, db: Optional[Database] = None) -> str:
     if isinstance(obj, Expr):
         return obj._serialize(db=db)
     assert db is not None
-    adapted_obj = adapt(obj)
-    adapted_obj.prepare(db._conn)
+    adapted_obj = adapt(obj)  # type: ignore reportUnknownVariableType
+    if hasattr(adapted_obj, "prepare"):  # type: ignore reportUnknownArgumentType
+        adapted_obj.prepare(db._conn)
     return adapted_obj.getquoted().decode("utf-8")  # type: ignore
 
 
