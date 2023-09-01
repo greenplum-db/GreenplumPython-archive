@@ -544,7 +544,6 @@ class Expr:
 
 
 from psycopg2.extensions import adapt  # type: ignore
-from psycopg2.extensions import ISQLQuote
 
 
 def _serialize_to_expr(obj: Any, db: Optional[Database] = None) -> str:
