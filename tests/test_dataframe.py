@@ -41,7 +41,13 @@ def test_dataframe_save_drop(db: gp.Database):
     with pytest.raises(Exception) as exc_info:
         t.save_as("test_dataframe_save_drop", schema="test", column_names=["id"])
     assert 'relation "test_dataframe_save_drop" already exists\n' in str(exc_info.value)
-    t.save_as("test_dataframe_save_drop", schema="test", column_names=["id"], drop_if_exists=True, drop_cascade=True)
+    t.save_as(
+        "test_dataframe_save_drop",
+        schema="test",
+        column_names=["id"],
+        drop_if_exists=True,
+        drop_cascade=True,
+    )
 
 
 def test_dataframe_getitem_str(db: gp.Database):
