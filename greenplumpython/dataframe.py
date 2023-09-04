@@ -879,6 +879,7 @@ class DataFrame:
         temp: bool = False,
         storage_params: dict[str, Any] = {},
         drop_if_exists: bool = False,
+        drop_cascade: bool = False,
         schema: Optional[str] = None,
         distribution_type: Literal[None, "randomly", "replicated", "hash"] = None,
         distribution_key: Optional[Set[str]] = None,
@@ -901,6 +902,7 @@ class DataFrame:
             distribution_type: type of distribution by.
             distribution_key: distribution key.
             drop_if_exists: bool to indicate if drop table if exists.
+            drop_cascade: bool to indicate if drop cascade table.
 
         Returns:
             DataFrame : :class:`~dataframe.DataFrame` represents the newly saved table
@@ -959,11 +961,13 @@ class DataFrame:
             else ""
         )
         DROP_CLAUSE = f"DROP TABLE IF EXISTS {qualified_table_name};" if drop_if_exists else ""
+        if drop_cascade:
+            assert drop_if_exists is True
         self._db._execute(
             f"""
             DO $$
             BEGIN
-                {DROP_CLAUSE}
+                {DROP_CLAUSE} {"CASCADE" if drop_cascade else ""}
                 CREATE {'TEMP' if temp else ''} TABLE {qualified_table_name}
                 ({','.join(column_names)})
                 {storage_params_clause if storage_params else ''}
