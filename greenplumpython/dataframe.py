@@ -960,14 +960,18 @@ class DataFrame:
             if distribution_type is not None
             else ""
         )
-        DROP_CLAUSE = f"DROP TABLE IF EXISTS {qualified_table_name};" if drop_if_exists else ""
         if drop_cascade:
             assert drop_if_exists is True
+        DROP_CLAUSE = (
+            f"DROP TABLE IF EXISTS {qualified_table_name} {'CASCADE' if drop_cascade else ''};"
+            if drop_if_exists
+            else ""
+        )
         self._db._execute(
             f"""
             DO $$
             BEGIN
-                {DROP_CLAUSE} {"CASCADE" if drop_cascade else ""}
+                {DROP_CLAUSE} 
                 CREATE {'TEMP' if temp else ''} TABLE {qualified_table_name}
                 ({','.join(column_names)})
                 {storage_params_clause if storage_params else ''}
