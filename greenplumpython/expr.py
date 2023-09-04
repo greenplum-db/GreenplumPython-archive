@@ -543,7 +543,7 @@ class Expr:
         return InExpr(self, container, self._dataframe)
 
 
-from psycopg2.extensions import adapt  # type: ignore
+import psycopg2.sql
 
 
 def _serialize_to_expr(obj: Any, db: Optional[Database] = None) -> str:
@@ -559,7 +559,9 @@ def _serialize_to_expr(obj: Any, db: Optional[Database] = None) -> str:
     """
     if isinstance(obj, Expr):
         return obj._serialize(db=db)
-    return adapt(obj).getquoted().decode("utf-8")  # type: ignore
+    assert db is not None
+    ret: str = psycopg2.sql.Literal(obj).as_string(db._conn)
+    return ret
 
 
 class BinaryExpr(Expr):

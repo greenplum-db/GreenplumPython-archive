@@ -493,3 +493,9 @@ def test_table_from_pandas_dataframe(db: gp.Database):
 def test_dataframe_from_table(db: gp.Database):
     t = db.create_dataframe(table_name="pg_class")[:1]
     assert len(list(t)) == 1
+
+
+def test_const_non_ascii(db: gp.Database):
+    df = db.create_dataframe(columns={"Ø": ["Ø"]})
+    for row in df[["Ø"]]:
+        assert row["Ø"] == "Ø"
