@@ -962,7 +962,7 @@ class DataFrame:
         )
         if drop_cascade:
             assert drop_if_exists is True
-        DROP_CLAUSE = (
+        DROP_STATEMENT = (
             f"DROP TABLE IF EXISTS {qualified_table_name} {'CASCADE' if drop_cascade else ''};"
             if drop_if_exists
             else ""
@@ -971,7 +971,7 @@ class DataFrame:
             f"""
             DO $$
             BEGIN
-                {DROP_CLAUSE} 
+                {DROP_STATEMENT} 
                 CREATE {'TEMP' if temp else ''} TABLE {qualified_table_name}
                 ({','.join(column_names)})
                 {storage_params_clause if storage_params else ''}
