@@ -8,7 +8,7 @@ from greenplumpython.type import TypeCast
 
 @gp.create_function
 def _record_dependency(
-    base_table_oid: gp.type_("oid"), embedding_table_oid: gp.type_("oid")
+    base_table_oid: gp.type_("oid"), embedding_table_oid: gp.type_("oid")  # type: ignore reportUnknownParameterType
 ) -> None:
     import ctypes
 
