@@ -285,86 +285,83 @@ class NormalFunction(_AbstractFunction):
         assert self._wrapped_func is not None, "No Python function is wrapped inside."
         return self._wrapped_func
 
+    def _serialize(self, db: Database) -> str:
+        # tricky way to run if the code run in doctest
+        # if it runs in doctest, there is bug about dill
+        # we need to pass it
+        if "doctest" in sys.modules:
+            func_src: str = inspect.getsource(self._wrapped_func)
+        else:
+            func_src: str = dill.source.getsource(self._wrapped_func)
+            assert isinstance(func_src, str)
+        func_ast: ast.FunctionDef = ast.parse(dedent(func_src)).body[0]
+        # TODO: Lambda expressions are NOT supported since inspect.signature()
+        # does not work as expected.
+        assert isinstance(
+            func_ast, ast.FunctionDef
+        ), f"{self._wrapped_func} is not a function. (lambda is not supported.)"
+        func_sig = inspect.signature(self._wrapped_func)
+        func_args = ",".join(
+            [
+                f"{param.name} {_serialize_to_type(param.annotation, db=db)}"
+                for param in func_sig.parameters.values()
+            ]
+        )
+        func_arg_names = ",".join(
+            [f"{param.name}={param.name}" for param in func_sig.parameters.values()]
+        )
+        return_type = _serialize_to_type(func_sig.return_annotation, db=db, for_return=True)
+        func_pickled: bytes = dill.dumps(self._wrapped_func)
+        _, func_name = self._qualified_name
+        # Modify the AST of the wrapped function to minify dependency: (1-3)
+        # 1. Apply random renaming to avoid name conflict. (TODO: Support
+        #    calling another UDF in the current UDF directly.)
+        func_ast.name = "__" + func_name
+        # 2. Clear decorators and type annotations to avoid import.
+        func_ast.decorator_list.clear()
+        for arg in func_ast.args.args:
+            arg.annotation = None
+        func_ast.returns = None
+        # 3. Prepend imports for modules referred to in the body.
+        global_objects: List[Any] = dill.detect.globalvars(self._wrapped_func).values()
+        importables: List[str] = [dill.source.getimportable(obj) for obj in global_objects]
+        importables_ast: List[ast.Import] = ast.parse(dedent("".join(importables))).body
+        func_ast.body = importables_ast + func_ast.body
+
+        pickle_lib_name: str = "__lib_" + uuid4().hex
+        sysconfig_lib_name: str = "__lib_" + uuid4().hex
+        python_version = sysconfig.get_python_version()
+        encode_lib_name: str = "__lib_" + uuid4().hex
+        sys_lib_name: str = "__lib_" + uuid4().hex
+        return (
+            f"CREATE FUNCTION {self._qualified_name_str} ({func_args}) "
+            f"RETURNS {return_type} "
+            f"AS $$\n"
+            f"try:\n"
+            f"    return GD['{func_ast.name}']({func_arg_names})\n"
+            f"except KeyError:\n"
+            f"    try:\n"
+            f"        import dill as {pickle_lib_name}\n"
+            f"        import sysconfig as {sysconfig_lib_name}\n"
+            f"        import base64 as {encode_lib_name}\n"
+            f"        import sys as {sys_lib_name}\n"
+            f"        if {sysconfig_lib_name}.get_python_version() != '{python_version}':\n"
+            f"            raise ModuleNotFoundError\n"
+            f"        setattr({sys_lib_name}.modules['plpy'], '_SD', SD)\n"
+            f"        GD['{func_ast.name}'] = {pickle_lib_name}.loads({encode_lib_name}.b64decode({base64.b64encode(func_pickled)}))\n"
+            f"    except ModuleNotFoundError:\n"
+            f"        exec({json.dumps(ast.unparse(func_ast))}, globals())\n"
+            f"        GD['{func_ast.name}'] = globals()['{func_ast.name}']\n"
+            f"    return GD['{func_ast.name}']({func_arg_names})\n"
+            f"$$ LANGUAGE {self._language_handler};"
+        )
+
     def _create_in_db(self, db: Database) -> None:
         if self._wrapped_func is None:  # Function has already existed.
             return
         assert self._created_in_dbs is not None
         if db not in self._created_in_dbs:
-            # tricky way to run if the code run in doctest
-            # if it runs in doctest, there is bug about dill
-            # we need to pass it
-            if "doctest" in sys.modules:
-                func_src: str = inspect.getsource(self._wrapped_func)
-            else:
-                func_src: str = dill.source.getsource(self._wrapped_func)
-                assert isinstance(func_src, str)
-            func_ast: ast.FunctionDef = ast.parse(dedent(func_src)).body[0]
-            # TODO: Lambda expressions are NOT supported since inspect.signature()
-            # does not work as expected.
-            assert isinstance(
-                func_ast, ast.FunctionDef
-            ), f"{self._wrapped_func} is not a function. (lambda is not supported.)"
-            func_sig = inspect.signature(self._wrapped_func)
-            func_args = ",".join(
-                [
-                    f"{param.name} {_serialize_to_type(param.annotation, db=db)}"
-                    for param in func_sig.parameters.values()
-                ]
-            )
-            func_arg_names = ",".join(
-                [f"{param.name}={param.name}" for param in func_sig.parameters.values()]
-            )
-            return_type = _serialize_to_type(func_sig.return_annotation, db=db, for_return=True)
-            func_pickled: bytes = dill.dumps(self._wrapped_func)
-            _, func_name = self._qualified_name
-            # Modify the AST of the wrapped function to minify dependency: (1-3)
-            # 1. Apply random renaming to avoid name conflict. (TODO: Support
-            #    calling another UDF in the current UDF directly.)
-            func_ast.name = "__" + func_name
-            # 2. Clear decorators and type annotations to avoid import.
-            func_ast.decorator_list.clear()
-            for arg in func_ast.args.args:
-                arg.annotation = None
-            func_ast.returns = None
-            # 3. Prepend imports for modules referred to in the body.
-            global_objects: List[Any] = dill.detect.globalvars(self._wrapped_func).values()
-            importables: List[str] = [dill.source.getimportable(obj) for obj in global_objects]
-            importables_ast: List[ast.Import] = ast.parse(dedent("".join(importables))).body
-            func_ast.body = importables_ast + func_ast.body
-
-            pickle_lib_name: str = "__lib_" + uuid4().hex
-            sysconfig_lib_name: str = "__lib_" + uuid4().hex
-            python_version = sysconfig.get_python_version()
-            encode_lib_name: str = "__lib_" + uuid4().hex
-            sys_lib_name: str = "__lib_" + uuid4().hex
-            assert (
-                db._execute(
-                    (
-                        f"CREATE FUNCTION {self._qualified_name_str} ({func_args}) "
-                        f"RETURNS {return_type} "
-                        f"AS $$\n"
-                        f"try:\n"
-                        f"    return GD['{func_ast.name}']({func_arg_names})\n"
-                        f"except KeyError:\n"
-                        f"    try:\n"
-                        f"        import dill as {pickle_lib_name}\n"
-                        f"        import sysconfig as {sysconfig_lib_name}\n"
-                        f"        import base64 as {encode_lib_name}\n"
-                        f"        import sys as {sys_lib_name}\n"
-                        f"        if {sysconfig_lib_name}.get_python_version() != '{python_version}':\n"
-                        f"            raise ModuleNotFoundError\n"
-                        f"        setattr({sys_lib_name}.modules['plpy'], '_SD', SD)\n"
-                        f"        GD['{func_ast.name}'] = {pickle_lib_name}.loads({encode_lib_name}.b64decode({base64.b64encode(func_pickled)}))\n"
-                        f"    except ModuleNotFoundError:\n"
-                        f"        exec({json.dumps(ast.unparse(func_ast))}, globals())\n"
-                        f"        GD['{func_ast.name}'] = globals()['{func_ast.name}']\n"
-                        f"    return GD['{func_ast.name}']({func_arg_names})\n"
-                        f"$$ LANGUAGE {self._language_handler};"
-                    ),
-                    has_results=False,
-                )
-                == -1
-            )
+            assert db._execute(self._serialize(db=db), has_results=False) == -1
             self._created_in_dbs.add(db)
 
     def __call__(self, *args: Any) -> FunctionExpr:
