@@ -151,20 +151,19 @@ class Embedding:
                 FROM embedding_info
                 WHERE oid = '{self._dataframe._qualified_table_name}'::regclass::oid;
 
-                PERFORM 
-                    gp_execution_segment(), 
+                PERFORM
                     {_record_dependency._qualified_name_str}(
                         '{self._dataframe._qualified_table_name}'::regclass::oid,
                         '{embedding_df._qualified_table_name}'::regclass::oid
-                    )
-                UNION ALL
-                SELECT
-                    gp_execution_segment(), 
-                    {_record_dependency._qualified_name_str}(
-                        '{self._dataframe._qualified_table_name}'::regclass::oid,
-                        '{embedding_df._qualified_table_name}'::regclass::oid
-                    )
-                FROM gp_dist_random('gp_id');
+                    );
+                IF version() LIKE '%Greenplum%' THEN
+                    PERFORM
+                        {_record_dependency._qualified_name_str}(
+                            '{self._dataframe._qualified_table_name}'::regclass::oid,
+                            '{embedding_df._qualified_table_name}'::regclass::oid
+                        )
+                    FROM gp_dist_random('gp_id');
+                END IF;
             END;
             $$;
             """
