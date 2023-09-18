@@ -16,7 +16,7 @@ from greenplumpython import config
 
 if TYPE_CHECKING:
     from greenplumpython.dataframe import DataFrame
-    from greenplumpython.func import FunctionExpr
+    from greenplumpython.func import FunctionExpr, NormalFunction
 
 import psycopg2
 import psycopg2.extras
@@ -77,6 +77,8 @@ class Database:
         rows: Optional[List[Union[Tuple[Any, ...], Dict[str, Any]]]] = None,
         columns: Optional[Dict[str, Iterable[Any]]] = None,
         column_names: Optional[Iterable[str]] = None,
+        files: Optional[List[str]] = None,
+        parser: Optional["NormalFunction"] = None,
     ):
         """
         Create a :class:`~dataframe.DataFrame` from a database table, or a set of data.
@@ -144,10 +146,16 @@ class Database:
                 rows is None and columns is None
             ), "Provisioning data is not allowed when opening existing table."
             return DataFrame.from_table(table_name=table_name, schema=schema, db=self)
-        assert rows is None or columns is None, "Only one data format is allowed."
+        assert rows is not None or columns is not None or files is not None
         if rows is not None:
+            assert columns is None and files is None
             return DataFrame.from_rows(rows=rows, db=self, column_names=column_names)
-        return DataFrame.from_columns(columns=columns, db=self)
+        if columns is not None:
+            assert rows is None and files is None
+            return DataFrame.from_columns(columns=columns, db=self)
+        if files is not None:
+            assert rows is None and columns is None
+            return DataFrame.from_files(files=files, parser=parser, db=self)
 
     def apply(
         self,

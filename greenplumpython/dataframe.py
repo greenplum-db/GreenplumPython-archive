@@ -46,7 +46,7 @@ from typing import (
 )
 
 if TYPE_CHECKING:
-    from greenplumpython.func import FunctionExpr
+    from greenplumpython.func import FunctionExpr, NormalFunction
     from greenplumpython.experimental.embedding import Embedding
 
 from uuid import uuid4
@@ -1234,4 +1234,10 @@ class DataFrame:
         """
         raise NotImplementedError(
             "Please import greenplumpython.experimental.embedding to load the implementation."
+        )
+
+    @classmethod
+    def from_files(cls, files: list[str], parser: "NormalFunction", db: Database) -> "DataFrame":
+        raise NotImplementedError(
+            "Please import greenplumpython.experimental.file to load the implementation."
         )
