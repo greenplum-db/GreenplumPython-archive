@@ -1,3 +1,5 @@
+import subprocess as sp
+import sys
 from dataclasses import dataclass
 from uuid import uuid4
 
@@ -30,3 +32,27 @@ def test_small_csv(db: gp.Database):
     res = list(db.create_dataframe(files=[csv_path], parser=parse_csv))
     assert len(res) == NUM_ROWS
     assert list(next(iter(res))) == ["i", "t"]
+
+
+def test_intall_pacakges(db: gp.Database):
+    print(db.install_packages("faker==19.6.1"))
+
+    @gp.create_function
+    def fake_name() -> str:
+        from faker import Faker  # type: ignore reportMissingImports
+
+        fake = Faker()
+        return fake.name()
+
+    assert len(list(db.apply(lambda: fake_name()))) == 1
+
+    try:
+        sp.check_output(
+            [sys.executable, "-m", "pip", "uninstall", "faker"],
+            text=True,
+            stderr=sp.STDOUT,
+            input="y",
+        )
+    except sp.CalledProcessError as e:
+        print(e.stdout)
+        raise e from Exception(e.stdout)

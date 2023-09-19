@@ -226,6 +226,15 @@ class Database:
             targets.append(f"{_serialize_to_expr(v, db=self)} AS {k}")
         return DataFrame(f"SELECT {','.join(targets)}", db=self)
 
+    # Add interface here for language servers.
+    #
+    # FIXME: Would be better to return something to inform that whether the
+    # operaton succeeded.
+    def install_packages(self) -> None:
+        raise NotImplementedError(
+            "Please import greenplumpython.experimental.file to load the implementation."
+        )
+
 
 def database(uri: Optional[str] = None, params: Dict[str, Optional[str]] = {}) -> Database:
     """

@@ -302,7 +302,7 @@ class NormalFunction(_AbstractFunction):
         func_sig = inspect.signature(self._wrapped_func)
         func_args = ",".join(
             [
-                f"{param.name} {_serialize_to_type(param.annotation, db=db)}"
+                f'"{param.name}" {_serialize_to_type(param.annotation, db=db)}'
                 for param in func_sig.parameters.values()
             ]
         )
