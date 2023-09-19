@@ -49,7 +49,7 @@ def _from_files(_, files: list[str], parser: NormalFunction, db: gp.Database) ->
             tmp_archive.add(pathlib.Path(file_path))
     with psycopg2.connect(db._conn.dsn, options="-c gp_session_role=utility") as util_conn:
         with util_conn.cursor() as cursor:
-            cursor.execute(f"CREATE TEMP TABLE {tmp_archive_name} (id serial, chunk_base64 text);")
+            cursor.execute(f"CREATE TEMP TABLE {tmp_archive_name} (id serial, text_base64 text);")
             with open(tmp_archive_path, "rb") as tmp_archive:
                 while True:
                     chunk = tmp_archive.read(_CHUNK_SIZE)
@@ -57,14 +57,14 @@ def _from_files(_, files: list[str], parser: NormalFunction, db: gp.Database) ->
                         break
                     chunk_base64 = base64.b64encode(chunk)
                     cursor.copy_expert(
-                        f"COPY {tmp_archive_name} (chunk_base64) FROM STDIN",
+                        f"COPY {tmp_archive_name} (text_base64) FROM STDIN",
                         io.BytesIO(chunk_base64),
                     )
             util_conn.commit()
             cursor.execute(_dump_file_chunk._serialize(db))  # type: ignore reportUnknownArgumentType
             cursor.execute(
                 f"""
-                SELECT {_dump_file_chunk._qualified_name_str}('{tmp_archive_name}', chunk_base64)
+                SELECT {_dump_file_chunk._qualified_name_str}('{tmp_archive_name}', text_base64)
                 FROM "{tmp_archive_name}"
                 ORDER BY id;
                 """
