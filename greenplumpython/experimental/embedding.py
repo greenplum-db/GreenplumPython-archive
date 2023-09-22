@@ -1,10 +1,41 @@
-from collections import abc
 from typing import Any, Callable, cast
 from uuid import uuid4
 
 import greenplumpython as gp
 from greenplumpython.row import Row
 from greenplumpython.type import TypeCast
+
+
+@gp.create_function
+def _record_dependency(
+    base_table_oid: gp.type_("oid"), embedding_table_oid: gp.type_("oid")  # type: ignore reportUnknownParameterType
+) -> None:
+    import ctypes
+
+    class ObjectAddress(ctypes.Structure):
+        _fields_ = [
+            ("classId", ctypes.c_uint32),
+            ("objectId", ctypes.c_uint32),
+            ("objectSubId", ctypes.c_uint32),
+        ]
+
+    postgres = ctypes.CDLL(None)
+    recordDependencyOn = postgres["recordDependencyOn"]
+    recordDependencyOn.argtypes = [
+        ctypes.POINTER(ObjectAddress),
+        ctypes.POINTER(ObjectAddress),
+        ctypes.c_char,
+    ]
+    recordDependencyOn.restype = None
+
+    RELATION_RELATION_ID = 1259
+    base_table_addr = ObjectAddress(RELATION_RELATION_ID, base_table_oid, 0)
+    embedding_table_addr = ObjectAddress(RELATION_RELATION_ID, embedding_table_oid, 0)
+
+    DEPENDENCY_NORMAL = ctypes.c_char(ord("n"))
+    recordDependencyOn(
+        ctypes.byref(embedding_table_addr), ctypes.byref(base_table_addr), DEPENDENCY_NORMAL
+    )
 
 
 @gp.create_function
@@ -99,8 +130,8 @@ class Embedding:
             .create_index(columns={embedding_col_name}, method="ivfflat")
         )
         assert self._dataframe._db is not None
-        self._dataframe._db._execute(
-            f"""
+        _record_dependency._create_in_db(self._dataframe._db)
+        sql_add_relationship = f"""
             DO $$
             BEGIN
                 SET LOCAL allow_system_table_mods TO ON;
@@ -120,28 +151,23 @@ class Embedding:
                 FROM embedding_info
                 WHERE oid = '{self._dataframe._qualified_table_name}'::regclass::oid;
 
-                WITH embedding_info AS (
-                    SELECT '{embedding_df._qualified_table_name}'::regclass::oid AS embedding_relid, attnum, '{model}' AS model
-                    FROM pg_attribute
-                    WHERE
-                        attrelid = '{self._dataframe._qualified_table_name}'::regclass::oid AND
-                        attname = '{column}'
-                )
-                INSERT INTO pg_depend
-                SELECT
-                    'pg_class'::regclass::oid AS classid,
-                    '{embedding_df._qualified_table_name}'::regclass::oid AS objid,
-                    0::oid AS objsubid,
-                    'pg_class'::regclass::oid AS refclassid,
-                    '{self._dataframe._qualified_table_name}'::regclass::oid AS refobjid,
-                    embedding_info.attnum AS refobjsubid,
-                    'n' AS deptype
-                FROM embedding_info;
+                PERFORM
+                    {_record_dependency._qualified_name_str}(
+                        '{self._dataframe._qualified_table_name}'::regclass::oid,
+                        '{embedding_df._qualified_table_name}'::regclass::oid
+                    );
+                IF version() LIKE '%Greenplum%' THEN
+                    PERFORM
+                        {_record_dependency._qualified_name_str}(
+                            '{self._dataframe._qualified_table_name}'::regclass::oid,
+                            '{embedding_df._qualified_table_name}'::regclass::oid
+                        )
+                    FROM gp_dist_random('gp_id');
+                END IF;
             END;
             $$;
-            """,
-            has_results=False,
-        )
+            """
+        self._dataframe._db._execute(sql_add_relationship, has_results=False)
         return self._dataframe
 
     def search(self, column: str, query: Any, top_k: int) -> gp.DataFrame:
