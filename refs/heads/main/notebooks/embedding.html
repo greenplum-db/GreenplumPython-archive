@@ -54,7 +54,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#Installing-the-Package">Installing the Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Preparing-Data">Preparing Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Generating-and-Indexing-Embeddings">Generating and Indexing Embeddings</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Searching-Embeddings">Searching Embeddings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Semantic-Search-by-Embeddings">Semantic Search by Embeddings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Cleaning-All-at-Once">Cleaning All at Once</a></li>
 </ul>
 </li>
@@ -89,6 +89,7 @@
 <h1>Generating, Indexing and Searching Embeddings<a class="headerlink" href="#Generating,-Indexing-and-Searching-Embeddings" title="Permalink to this heading"></a></h1>
 <section id="Installing-the-Package">
 <h2>Installing the Package<a class="headerlink" href="#Installing-the-Package" title="Permalink to this heading"></a></h2>
+<p>For testing purpose, let’s install the latest development version:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -109,12 +110,12 @@ Processing /home/gpadmin/GreenplumPython
   Installing build dependencies ... done
   Getting requirements to build wheel ... done
     Preparing wheel metadata ... done
-Requirement already satisfied, skipping upgrade: dill==0.3.6 in /home/gpadmin/.local/lib/python3.9/site-packages (from greenplum-python==1.0.1) (0.3.6)
 Requirement already satisfied, skipping upgrade: psycopg2-binary==2.9.5 in /home/gpadmin/.local/lib/python3.9/site-packages (from greenplum-python==1.0.1) (2.9.5)
+Requirement already satisfied, skipping upgrade: dill==0.3.6 in /home/gpadmin/.local/lib/python3.9/site-packages (from greenplum-python==1.0.1) (0.3.6)
 Building wheels for collected packages: greenplum-python
   Building wheel for greenplum-python (PEP 517) ... done
-  Created wheel for greenplum-python: filename=greenplum_python-1.0.1-py3-none-any.whl size=70618 sha256=22e5718895157b66b4e6a4dd9bbb7164f4039f4d59dbf58fb519da409b246e38
-  Stored in directory: /tmp/pip-ephem-wheel-cache-q9fmewst/wheels/bb/1f/99/ff8594e48ec11df99af6e0ee8611a5e560e9f44d1a3fefb351
+  Created wheel for greenplum-python: filename=greenplum_python-1.0.1-py3-none-any.whl size=71903 sha256=305b83c461fb90310fafe09821f5778ef5235a439aee59ee3c1f304e349188d6
+  Stored in directory: /tmp/pip-ephem-wheel-cache-w_h4u4oe/wheels/bb/1f/99/ff8594e48ec11df99af6e0ee8611a5e560e9f44d1a3fefb351
 Successfully built greenplum-python
 Installing collected packages: greenplum-python
 Successfully installed greenplum-python-1.0.1
@@ -123,6 +124,7 @@ Successfully installed greenplum-python-1.0.1
 </section>
 <section id="Preparing-Data">
 <h2>Preparing Data<a class="headerlink" href="#Preparing-Data" title="Permalink to this heading"></a></h2>
+<p>With GreenplumPython install, let’s create a table with some sample text data:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
@@ -139,6 +141,7 @@ Successfully installed greenplum-python-1.0.1
         <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">],</span>
         <span class="n">distribution_key</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">},</span>
         <span class="n">distribution_type</span><span class="o">=</span><span class="s2">&quot;hash&quot;</span><span class="p">,</span>
+        <span class="n">drop_if_exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="o">.</span><span class="n">check_unique</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">})</span>
 <span class="p">)</span>
@@ -148,6 +151,7 @@ Successfully installed greenplum-python-1.0.1
 </section>
 <section id="Generating-and-Indexing-Embeddings">
 <h2>Generating and Indexing Embeddings<a class="headerlink" href="#Generating-and-Indexing-Embeddings" title="Permalink to this heading"></a></h2>
+<p>On the text sample table, we can now create an embedding index with the new <code class="docutils literal notranslate"><span class="pre">embedding</span></code> module:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -179,9 +183,11 @@ Successfully installed greenplum-python-1.0.1
     </tr>
 </table></div>
 </div>
+<p>This will generate embeddings for the text data using the specified model and create vector index on the embeddings for fast k-NN search.</p>
 </section>
-<section id="Searching-Embeddings">
-<h2>Searching Embeddings<a class="headerlink" href="#Searching-Embeddings" title="Permalink to this heading"></a></h2>
+<section id="Semantic-Search-by-Embeddings">
+<h2>Semantic Search by Embeddings<a class="headerlink" href="#Semantic-Search-by-Embeddings" title="Permalink to this heading"></a></h2>
+<p>With the embedding index, we can search for contents based on the semantic similairy:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
@@ -206,16 +212,47 @@ Successfully installed greenplum-python-1.0.1
     </tr>
 </table></div>
 </div>
+<p>This is going to be very efficient since we don’t need to scan all the data.</p>
 </section>
 <section id="Cleaning-All-at-Once">
 <h2>Cleaning All at Once<a class="headerlink" href="#Cleaning-All-at-Once" title="Permalink to this heading"></a></h2>
+<p>To ease management, the dependencies of the embedding index and the base table will be recorded in database.</p>
+<p>As a result, trying to droping the base table alone will fail:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">reload_ext</span> sql
 <span class="o">%</span><span class="k">sql</span> postgresql://localhost:7000
-<span class="o">%</span><span class="k">sql</span> DROP TABLE text_sample CASCADE;
+<span class="o">%</span><span class="k">sql</span> DROP TABLE text_sample
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ * postgresql://localhost:7000
+(psycopg2.errors.DependentObjectsStillExist) cannot drop table text_sample because other objects depend on it
+DETAIL:  table cte_32a769763ae94cd9b4036ceb590c4f0d depends on table text_sample
+HINT:  Use DROP ... CASCADE to drop the dependent objects too.
+
+[SQL: DROP TABLE text_sample]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+</pre></div></div>
+</div>
+<p>To drop the base table, we need to also drop the embedding index. This can be achieved with <code class="docutils literal notranslate"><span class="pre">CASCADE</span></code>:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">sql</span>
+<span class="k">DROP</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">text_sample</span><span class="w"> </span><span class="k">CASCADE</span><span class="p">;</span>
+
+<span class="k">SELECT</span><span class="w"> </span><span class="n">oid</span><span class="p">,</span><span class="w"> </span><span class="n">relname</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">gp_dist_random</span><span class="p">(</span><span class="s1">&#39;pg_class&#39;</span><span class="p">)</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">relname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;cte_32a769763ae94cd9b4036ceb590c4f0d&#39;</span><span class="p">;</span>
 </pre></div>
 </div>
 </div>
@@ -226,17 +263,26 @@ Successfully installed greenplum-python-1.0.1
 <div class="highlight"><pre>
  * postgresql://localhost:7000
 Done.
+0 rows affected.
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-[]
-</pre></div></div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <thead>
+        <tr>
+            <th>oid</th>
+            <th>relname</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table></div>
 </div>
+<p>As we can see, after <code class="docutils literal notranslate"><span class="pre">DROP</span> <span class="pre">CASCADE</span></code>, the embedding index also gets dropped on all segments.</p>
 </section>
 </section>
 
