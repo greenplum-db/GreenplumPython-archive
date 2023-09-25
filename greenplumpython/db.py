@@ -42,6 +42,7 @@ class Database:
             dsn,
             cursor_factory=psycopg2.extras.RealDictCursor,
         )
+        print(dsn, self._conn.dsn)
         self._conn.set_client_encoding("utf-8")
         self._conn.set_session(autocommit=True)
 
