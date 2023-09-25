@@ -12,7 +12,6 @@ env:
   PGPASSWORD: postgres
   TESTDB: greenplum_python_test
   PGUSER: postgres
-  POSTGRES_HOST: postgres
 
 jobs:
   build:
@@ -64,8 +63,11 @@ jobs:
         export POSTGRES_PASSWORD=${{ env.PGPASSWORD }}
         export POSTGRES_USER=${{ env.PGUSER }}
         export POSTGRES_DB=${{ env.TESTDB }}
-        export POSTGRES_HOST=${{ env.POSTGRES_HOST }}
         tox -e ${{ matrix.tox_test }} 
+
+    - name: Setup upterm session
+      uses: lhotari/action-upterm@v1
+
     - name: Install Dependencies for greenplumpython dill
       # plpytyhon for postgres install to pg services
       run: |
@@ -77,5 +79,4 @@ jobs:
         export POSTGRES_PASSWORD=${{ env.PGPASSWORD }}
         export POSTGRES_USER=${{ env.PGUSER }}
         export POSTGRES_DB=${{ env.TESTDB }}
-        export POSTGRES_HOST=${{ env.POSTGRES_HOST }}
         tox -e ${{ matrix.tox_test }} 
