@@ -50,6 +50,9 @@ class Database:
             "version"
         ]  # To tell which variant of PostgreSQL is
 
+    def _is_variant(self, full_name: str) -> bool:
+        return full_name.capitalize() in self._version
+
     def _execute(
         self, query: str, has_results: bool = True
     ) -> Union[Iterable[dict[str, Any]], int]:
