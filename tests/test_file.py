@@ -27,8 +27,11 @@ def test_csv_single_chunk(db: gp.Database):
             for row in csv.DictReader(csv_file):
                 yield row
 
-    df_from_gp = pd.DataFrame.from_records(iter(db.create_dataframe(files=[csv_path], parser=parse_csv)))
+    df_from_gp = pd.DataFrame.from_records(
+        iter(db.create_dataframe(files=[csv_path], parser=parse_csv))
+    )
     assert df.equals(df_from_gp)
+
 
 def test_csv_multi_chunks(db: gp.Database):
     # Set the chunk size to be 3 bytes (< size of int in C)
