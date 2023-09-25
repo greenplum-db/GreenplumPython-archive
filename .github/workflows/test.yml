@@ -11,7 +11,8 @@ on:
 env:
   PGPASSWORD: postgres
   TESTDB: greenplum_python_test
-  PGUSER: postgres 
+  PGUSER: postgres
+  POSTGRES_HOST: postgres
 
 jobs:
   build:
