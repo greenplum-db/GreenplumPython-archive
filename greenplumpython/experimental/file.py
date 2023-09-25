@@ -107,8 +107,6 @@ def _install_on_server(cache_dir: str, requirements: str) -> str:
     ]
     try:
         output = sp.check_output(cmd, text=True, stderr=sp.STDOUT, input=requirements)
-        # plpy = sys.modules["plpy"]
-        # plpy.error(" ".join(cmd))
         return output
     except sp.CalledProcessError as e:
         raise e from Exception(e.stdout)
