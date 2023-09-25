@@ -223,6 +223,7 @@ class Embedding:
         embedding_df = self._dataframe._db.create_dataframe(
             table_name=embedding_table_name, schema=schema
         )
+        assert embedding_df is not None
         assert self._dataframe.unique_key is not None
         distance = gp.operator("<->")  # L2 distance is the default operator class in pgvector
         return self._dataframe.join(

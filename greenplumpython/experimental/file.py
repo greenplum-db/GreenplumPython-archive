@@ -47,8 +47,8 @@ def _from_files(_, files: list[str], parser: NormalFunction, db: gp.Database) ->
     with tarfile.open(tmp_archive_path, "w:gz") as tmp_archive:
         for file_path in files:
             tmp_archive.add(pathlib.Path(file_path))
-    with psycopg2.connect(db._conn.dsn, options="-c gp_session_role=utility") as util_conn:
-        with util_conn.cursor() as cursor:
+    with psycopg2.connect(db._conn.dsn, options="-c gp_session_role=utility") as util_conn:  # type: ignore reportUnknownVariableType
+        with util_conn.cursor() as cursor:  # type: ignore reportUnknownVariableType
             cursor.execute(f"CREATE TEMP TABLE {tmp_archive_name} (id serial, text_base64 text);")
             with open(tmp_archive_path, "rb") as tmp_archive:
                 while True:
