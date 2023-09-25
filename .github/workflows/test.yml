@@ -58,8 +58,6 @@ jobs:
     - name: Install Dependencies
       run: |
         pip install tox==3.25.0
-    - name: Setup upterm session
-      uses: lhotari/action-upterm@v1
 
     - name: Run Tests
       run: |
