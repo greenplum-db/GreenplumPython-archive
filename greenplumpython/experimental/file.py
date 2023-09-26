@@ -17,6 +17,7 @@ _CHUNK_SIZE = 256 * 1024 * 1024  # Must be much < 1 GB
 @gp.create_function
 def _dump_file_chunk(tmp_archive_name: str, chunk_base64: str) -> int:
     tmp_archive_base = pathlib.Path("/") / "tmp" / tmp_archive_name
+    tmp_archive_base.mkdir(parents=True, exist_ok=True)
     tmp_archive_path = tmp_archive_base / f"{tmp_archive_name}.tar.gz"
     with open(tmp_archive_path, "ab") as tmp_archive:
         tmp_archive.write(base64.b64decode(chunk_base64))
@@ -48,7 +49,7 @@ def _from_files(_, files: list[str], parser: NormalFunction, db: gp.Database) ->
         for file_path in files:
             tmp_archive.add(pathlib.Path(file_path))
     server_options = "-c gp_session_role=utility" if db._is_variant("greenplum") else None
-    with psycopg2.connect(db.dsn, options=server_options) as util_conn:  # type: ignore reportUnknownVariableType
+    with psycopg2.connect(db._dsn, options=server_options) as util_conn:  # type: ignore reportUnknownVariableType
         with util_conn.cursor() as cursor:  # type: ignore reportUnknownVariableType
             cursor.execute(f"CREATE TEMP TABLE {tmp_archive_name} (id serial, text_base64 text);")
             with open(tmp_archive_path, "rb") as tmp_archive:

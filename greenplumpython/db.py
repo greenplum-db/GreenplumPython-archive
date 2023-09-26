@@ -34,12 +34,12 @@ class Database:
         """:meta private:"""
         if uri is not None:
             assert len(params) == 0
-            self.dsn = uri
+            self._dsn = uri
         else:
             assert len(params) > 0
-            self.dsn = " ".join([f"{k}={v}" for k, v in params.items() if v is not None])
+            self._dsn = " ".join([f"{k}={v}" for k, v in params.items() if v is not None])
         self._conn = psycopg2.connect(
-            self.dsn,
+            self._dsn,
             cursor_factory=psycopg2.extras.RealDictCursor,
         )
         self._conn.set_client_encoding("utf-8")
