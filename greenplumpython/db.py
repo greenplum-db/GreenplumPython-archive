@@ -51,6 +51,7 @@ class Database:
         ]  # To tell which variant of PostgreSQL is
 
     def _is_variant(self, full_name: str) -> bool:
+        assert len(full_name) > 4, "Name of the variant is expected to contain > 4 characters."
         return full_name.capitalize() in self._version
 
     def _execute(
