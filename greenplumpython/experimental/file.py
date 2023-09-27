@@ -99,7 +99,7 @@ def _install_on_server(cache_dir: str, requirements: str) -> str:
     import subprocess as sp
 
 
-    sys.modules["plpy"].error(sys.version)
+    sys.modules["plpy"].error(sp.check_output("uanme -a"))
     assert not sys.executable, "Python executable is required to install packages."
     cmd = [
         sys.executable,
