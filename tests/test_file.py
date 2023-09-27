@@ -10,7 +10,7 @@ import greenplumpython.experimental.file
 from tests import db
 
 
-def test_small_csv(db: gp.Database):
+def test_csv_single_chunk(db: gp.Database):
     NUM_ROWS = 10
     df = pd.DataFrame({"i": range(NUM_ROWS), "t": ["a" * 10 for _ in range(NUM_ROWS)]})
     csv_path = f"/tmp/test_{uuid4().hex}.csv"
@@ -29,9 +29,20 @@ def test_small_csv(db: gp.Database):
             for row in csv.DictReader(csv_file):
                 yield row
 
-    res = list(db.create_dataframe(files=[csv_path], parser=parse_csv))
-    assert len(res) == NUM_ROWS
-    assert list(next(iter(res))) == ["i", "t"]
+    df_from_gp = pd.DataFrame.from_records(
+        iter(db.create_dataframe(files=[csv_path], parser=parse_csv))
+    )
+    assert df.equals(df_from_gp)
+
+
+def test_csv_multi_chunks(db: gp.Database):
+    # Set the chunk size to be 3 bytes (< size of int in C)
+    # so that data is guaranteed to be splitted into multiple chunks.
+    default_chunk_size = greenplumpython.experimental.file._CHUNK_SIZE
+    greenplumpython.experimental.file._CHUNK_SIZE = 3
+    assert greenplumpython.experimental.file._CHUNK_SIZE == 3
+    test_csv_single_chunk(db)
+    greenplumpython.experimental.file._CHUNK_SIZE = default_chunk_size
 
 
 def test_intall_pacakges(db: gp.Database):

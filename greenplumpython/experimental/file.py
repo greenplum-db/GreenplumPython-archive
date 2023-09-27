@@ -17,6 +17,7 @@ _CHUNK_SIZE = 256 * 1024 * 1024  # Must be much < 1 GB
 @gp.create_function
 def _dump_file_chunk(tmp_archive_name: str, chunk_base64: str) -> int:
     tmp_archive_base = pathlib.Path("/") / "tmp" / tmp_archive_name
+    tmp_archive_base.mkdir(parents=True, exist_ok=True)
     tmp_archive_path = tmp_archive_base / f"{tmp_archive_name}.tar.gz"
     with open(tmp_archive_path, "ab") as tmp_archive:
         tmp_archive.write(base64.b64decode(chunk_base64))
@@ -49,9 +50,10 @@ def _archive_and_upload(tmp_archive_name: str, files: list[str], db: gp.Database
     with tarfile.open(tmp_archive_path, "w:gz") as tmp_archive:
         for file_path in files:
             tmp_archive.add(pathlib.Path(file_path))
-    with psycopg2.connect(db._conn.dsn, options="-c gp_session_role=utility") as util_conn:
-        with util_conn.cursor() as cursor:
-            cursor.execute(f"CREATE TEMP TABLE {tmp_archive_name} (id serial, chunk_base64 text);")
+    server_options = "-c gp_session_role=utility" if db._is_variant("greenplum") else None
+    with psycopg2.connect(db._dsn, options=server_options) as util_conn:  # type: ignore reportUnknownVariableType
+        with util_conn.cursor() as cursor:  # type: ignore reportUnknownVariableType
+            cursor.execute(f"CREATE TEMP TABLE {tmp_archive_name} (id serial, text_base64 text);")
             with open(tmp_archive_path, "rb") as tmp_archive:
                 while True:
                     chunk = tmp_archive.read(_CHUNK_SIZE)
@@ -59,14 +61,14 @@ def _archive_and_upload(tmp_archive_name: str, files: list[str], db: gp.Database
                         break
                     chunk_base64 = base64.b64encode(chunk)
                     cursor.copy_expert(
-                        f"COPY {tmp_archive_name} (chunk_base64) FROM STDIN",
+                        f"COPY {tmp_archive_name} (text_base64) FROM STDIN",
                         io.BytesIO(chunk_base64),
                     )
             util_conn.commit()
             cursor.execute(_dump_file_chunk._serialize(db))  # type: ignore reportUnknownArgumentType
             cursor.execute(
                 f"""
-                SELECT {_dump_file_chunk._qualified_name_str}('{tmp_archive_name}', chunk_base64)
+                SELECT {_dump_file_chunk._qualified_name_str}('{tmp_archive_name}', text_base64)
                 FROM "{tmp_archive_name}"
                 ORDER BY id;
                 """

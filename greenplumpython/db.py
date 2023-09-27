@@ -34,18 +34,29 @@ class Database:
         """:meta private:"""
         if uri is not None:
             assert len(params) == 0
-            dsn = uri
+            self._dsn = uri
         else:
             assert len(params) > 0
-            dsn = " ".join([f"{k}={v}" for k, v in params.items() if v is not None])
+            self._dsn = " ".join([f"{k}={v}" for k, v in params.items() if v is not None])
         self._conn = psycopg2.connect(
-            dsn,
+            self._dsn,
             cursor_factory=psycopg2.extras.RealDictCursor,
         )
         self._conn.set_client_encoding("utf-8")
         self._conn.set_session(autocommit=True)
+        version_results = self._execute("SELECT version();")
+        assert isinstance(version_results, Iterable)
+        self._version: str = next(iter(version_results))[
+            "version"
+        ]  # To tell which variant of PostgreSQL is
 
-    def _execute(self, query: str, has_results: bool = True) -> Union[Iterable[Tuple[Any]], int]:
+    def _is_variant(self, full_name: str) -> bool:
+        assert len(full_name) > 4, "Name of the variant is expected to contain > 4 characters."
+        return full_name.capitalize() in self._version
+
+    def _execute(
+        self, query: str, has_results: bool = True
+    ) -> Union[Iterable[dict[str, Any]], int]:
         # noqa: D400 D202
         """
         :meta private:
