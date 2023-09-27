@@ -98,8 +98,11 @@ import sys
 def _install_on_server(cache_dir: str, requirements: str) -> str:
     import subprocess as sp
 
+
+    sys.modules["plpy"].error(sys.version)
+    assert not sys.executable, "Python executable is required to install packages."
     cmd = [
-        sys.executable or "python3",
+        sys.executable,
         "-m",
         "pip",
         "install",
