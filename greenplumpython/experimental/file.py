@@ -97,22 +97,31 @@ import sys
 @gp.create_function
 def _install_on_server(cache_dir: str, requirements: str) -> str:
     import subprocess as sp
+    import multiprocessing as mp
 
-
-    sys.modules["plpy"].error(sp.check_output(["cat", "/etc/os-release"], text=True))
-    assert not sys.executable, "Python executable is required to install packages."
-    cmd = [
-        sys.executable,
-        "-m",
-        "pip",
+    pip_args = [
         "install",
-        "--verbose",
         "--no-index",
         "--requirement",
         "/dev/stdin",
         "--find-links",
         cache_dir,
     ]
+
+    def pip_main():
+        import pip  # type: ignore reportMissingTypeStubs
+
+        sys.stdin.close()
+        sys.stdin = io.StringIO(requirements)
+        pip.main(pip_args)
+
+    if not sys.executable:
+        return str(mp.Process(target=pip_main).run())
+    cmd = [
+        sys.executable,
+        "-m",
+        "pip",
+    ] + pip_args
     try:
         output = sp.check_output(cmd, text=True, stderr=sp.STDOUT, input=requirements)
         return output
