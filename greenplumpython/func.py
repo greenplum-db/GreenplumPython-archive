@@ -1,6 +1,5 @@
 """To create and call Greenplum/PostgreSQL UDFs or UDAs."""
 import ast
-import base64
 import functools
 import inspect
 import json
@@ -331,7 +330,6 @@ class NormalFunction(_AbstractFunction):
         pickle_lib_name: str = "__lib_" + uuid4().hex
         sysconfig_lib_name: str = "__lib_" + uuid4().hex
         python_version = sysconfig.get_python_version()
-        encode_lib_name: str = "__lib_" + uuid4().hex
         sys_lib_name: str = "__lib_" + uuid4().hex
         return (
             f"CREATE FUNCTION {self._qualified_name_str} ({func_args}) "
@@ -343,12 +341,11 @@ class NormalFunction(_AbstractFunction):
             f"    try:\n"
             f"        import dill as {pickle_lib_name}\n"
             f"        import sysconfig as {sysconfig_lib_name}\n"
-            f"        import base64 as {encode_lib_name}\n"
             f"        import sys as {sys_lib_name}\n"
             f"        if {sysconfig_lib_name}.get_python_version() != '{python_version}':\n"
             f"            raise ModuleNotFoundError\n"
             f"        setattr({sys_lib_name}.modules['plpy'], '_SD', SD)\n"
-            f"        GD['{func_ast.name}'] = {pickle_lib_name}.loads({encode_lib_name}.b64decode({base64.b64encode(func_pickled)}))\n"
+            f"        GD['{func_ast.name}'] = {pickle_lib_name}.loads({func_pickled})\n"
             f"    except ModuleNotFoundError:\n"
             f"        exec({json.dumps(ast.unparse(func_ast))}, globals())\n"
             f"        GD['{func_ast.name}'] = globals()['{func_ast.name}']\n"
