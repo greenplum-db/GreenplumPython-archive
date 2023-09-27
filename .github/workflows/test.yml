@@ -37,8 +37,6 @@ jobs:
         # we need postgres with plpython extension postgres base docker hub image did not have that
         # I use this one
         # image: yihong0618/postgres-plpython:${{ matrix.postgres-version }}
-        # 
-        # The OS is Debian 11 and the Python version is 3.9.2
         image: thorinschiffer/postgres-plpython:${{ matrix.postgres-version }} 
         env:
           POSTGRES_USER: ${{ env.PGUSER }}
