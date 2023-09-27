@@ -64,7 +64,9 @@ jobs:
       run: docker ps -a
     
     - name: Install Python to Postgres
-      run: docker exec postgres apt-get install -y python3.9 
+      run: |
+        docker exec postgres apt-mark auto python3.9
+        docker exec postgres apt-get install -y python3.9 
 
     - name: Run Tests
       run: |
