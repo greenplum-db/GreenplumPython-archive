@@ -103,6 +103,7 @@ def _install_on_server(cache_dir: str, requirements: str) -> str:
         "-m",
         "pip",
         "install",
+        "--verbose",
         "--no-index",
         "--requirement",
         "/dev/stdin",
@@ -113,7 +114,7 @@ def _install_on_server(cache_dir: str, requirements: str) -> str:
         output = sp.check_output(cmd, text=True, stderr=sp.STDOUT, input=requirements)
         return output
     except sp.CalledProcessError as e:
-        raise e from Exception(e.stdout)
+        raise Exception(e.stdout)
 
 
 def _install_packages(db: gp.Database, requirements: str):
