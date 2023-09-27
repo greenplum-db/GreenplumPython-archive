@@ -241,7 +241,19 @@ class Database:
     #
     # FIXME: Would be better to return something to inform that whether the
     # operaton succeeded.
-    def install_packages(self) -> None:
+    def install_packages(self, requirements: str) -> None:
+        """
+        Install the required Python packages on the server host.
+        The packages will be installed to the currently activated Python
+        environment.
+
+        Args:
+            requirements: specification of what packages are required to be
+                installed. The format is the same as `the rquirements file
+                <https://pip.pypa.io/en/stable/reference/requirements-file-format/>`_
+                used by :code:`pip`. It can be obtained by reading an existing
+                requirements file in text mode.
+        """
         raise NotImplementedError(
             "Please import greenplumpython.experimental.file to load the implementation."
         )

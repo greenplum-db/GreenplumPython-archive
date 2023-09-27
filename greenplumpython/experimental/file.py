@@ -96,6 +96,8 @@ import sys
 
 @gp.create_function
 def _install_on_server(cache_dir: str, requirements: str) -> str:
+    import subprocess as sp
+
     cmd = [
         sys.executable,
         "-m",
