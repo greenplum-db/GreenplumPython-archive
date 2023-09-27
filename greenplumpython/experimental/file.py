@@ -110,6 +110,7 @@ def _install_on_server(cache_dir: str, requirements: str) -> str:
         "--find-links",
         cache_dir,
     ]
+    sys.modules["plpy"].error(cmd)
     try:
         output = sp.check_output(cmd, text=True, stderr=sp.STDOUT, input=requirements)
         return output
