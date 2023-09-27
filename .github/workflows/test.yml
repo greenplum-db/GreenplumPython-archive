@@ -44,6 +44,7 @@ jobs:
           POSTGRES_DB: ${{ env.TESTDB }}
         ports:
           - 5432:5432
+        options: --name postgres
   
     steps:
     - uses: actions/checkout@v2
@@ -58,6 +59,12 @@ jobs:
     - name: Install Dependencies
       run: |
         pip install tox==3.25.0
+
+    - name: List all containers
+      run: docker ps -a
+    
+    - name: Install Python to Postgres
+      run: docker exec -it postgres apt-get install -y python3.9 
 
     - name: Run Tests
       run: |
