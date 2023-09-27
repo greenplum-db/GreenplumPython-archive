@@ -913,6 +913,29 @@ names are decided by the keys of the first dictionary element if the <em>column_
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.from_files">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parser</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.from_files" title="Permalink to this definition"></a></dt>
+<dd><p>Create a DataFrame with data read from files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>files</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – list of file paths.</p></li>
+<li><p><strong>parser</strong> (<a class="reference internal" href="func.html#func.NormalFunction" title="func.NormalFunction"><em>NormalFunction</em></a>) – a UDF that parses the given files on server. The UDF is required to
+- take the file path as its only argument and
+- returns a set of parsed records in the returing DataFrame.</p></li>
+<li><p><strong>db</strong> (<em>Database</em>) – Database that the DataFrame to be created in.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame containing the parsed data from the given files.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame">DataFrame</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
