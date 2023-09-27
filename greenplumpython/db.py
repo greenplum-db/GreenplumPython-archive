@@ -244,7 +244,7 @@ class Database:
     def install_packages(self, requirements: str) -> None:
         """
         Install the required Python packages on the server host.
-        
+
         The packages will be installed to the currently activated Python
         environment.
 
