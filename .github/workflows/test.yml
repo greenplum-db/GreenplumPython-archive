@@ -65,7 +65,7 @@ jobs:
     
     - name: Install Python in PostgreSQL server container
       run: |
-        docker exec --user 0 postgres sh -c 'apt-get update -qq && apt-get install -qq python3.9-full && python3 -m site'
+        docker exec --user 0 postgres sh -c 'apt-get update -qq && apt-get install -qq python3-pip && python3 --version'
 
     - name: Run Tests
       run: |
