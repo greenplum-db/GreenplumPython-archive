@@ -95,7 +95,7 @@ import sys
 
 
 @gp.create_function
-def _install_on_server(cache_dir: str, requirements: str) -> str:
+def _install_on_server(pkg_dir: str, requirements: str) -> str:
     import subprocess as sp
     import sys
 
@@ -109,7 +109,7 @@ def _install_on_server(cache_dir: str, requirements: str) -> str:
         "--requirement",
         "/dev/stdin",
         "--find-links",
-        cache_dir,
+        pkg_dir,
     ]
     try:
         output = sp.check_output(cmd, text=True, stderr=sp.STDOUT, input=requirements)
@@ -141,7 +141,7 @@ def _install_packages(db: gp.Database, requirements: str):
     assert len(list(extracted)) == 1
     local_dir = pathlib.Path("/") / "tmp" / tmp_archive_name / "extracted" / cache_dir
     installed = extracted.apply(
-        lambda _: _install_on_server(str(local_dir), requirements), column_name="result"
+        lambda _: _install_on_server(f"file://{local_dir}", requirements), column_name="result"
     )
     assert len(list(installed)) == 1
 
