@@ -97,8 +97,9 @@ import sys
 @gp.create_function
 def _install_on_server(cache_dir: str, requirements: str) -> str:
     import subprocess as sp
+    import sys
 
-    # sys.modules["plpy"].error(sys.executable, sys.path)
+    sys.modules["plpy"].error(sys.executable, sys.path)
     assert not sys.executable, "Python executable is required to install packages."
     cmd = [
         sys.executable,
