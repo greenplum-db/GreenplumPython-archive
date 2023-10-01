@@ -140,7 +140,7 @@ def _install_packages(db: gp.Database, requirements: str):
     extracted = db.apply(lambda: _extract_files(tmp_archive_name, "root"), column_name="cache_dir")
     assert len(list(extracted)) == 1
     local_dir = pathlib.Path("/") / "tmp" / tmp_archive_name / "extracted" / cache_dir
-    sys.modules["plpy"].error(local_dir)
+    print(local_dir)
     installed = extracted.apply(
         lambda _: _install_on_server(f"file://{local_dir}", requirements), column_name="result"
     )
