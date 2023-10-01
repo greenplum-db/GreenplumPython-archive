@@ -120,8 +120,8 @@ def _install_on_server(pkg_dir: str, requirements: str) -> str:
 
 def _install_packages(db: gp.Database, requirements: str):
     tmp_archive_name = f"tar_{uuid.uuid4().hex}"
-    cache_dir = pathlib.Path("/") / "tmp" / tmp_archive_name / "pip"
-    cache_dir.mkdir(parents=True)
+    local_dir = pathlib.Path("/") / "tmp" / tmp_archive_name / "pip"
+    local_dir.mkdir(parents=True)
     cmd = [
         sys.executable,
         "-m",
@@ -130,19 +130,18 @@ def _install_packages(db: gp.Database, requirements: str):
         "--requirement",
         "/dev/stdin",
         "--dest",
-        cache_dir,
+        local_dir,
     ]
     try:
         sp.check_output(cmd, text=True, stderr=sp.STDOUT, input=requirements)
     except sp.CalledProcessError as e:
         raise e from Exception(e.stdout)
-    _archive_and_upload(tmp_archive_name, [cache_dir.resolve()], db)
+    _archive_and_upload(tmp_archive_name, [local_dir.resolve()], db)
     extracted = db.apply(lambda: _extract_files(tmp_archive_name, "root"), column_name="cache_dir")
     assert len(list(extracted)) == 1
-    local_dir = pathlib.Path("/") / "tmp" / tmp_archive_name / "extracted" / cache_dir
-    print(local_dir)
+    server_dir = pathlib.Path("/") / "tmp" / tmp_archive_name / "extracted" / local_dir.relative_to(local_dir.root)
     installed = extracted.apply(
-        lambda _: _install_on_server(f"file://{local_dir}", requirements), column_name="result"
+        lambda _: _install_on_server(server_dir.as_uri(), requirements), column_name="result"
     )
     assert len(list(installed)) == 1
 
