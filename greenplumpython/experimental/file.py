@@ -120,6 +120,7 @@ def _install_on_server(pkg_dir: str, requirements: str) -> str:
 
 def _install_packages(db: gp.Database, requirements: str):
     tmp_archive_name = f"tar_{uuid.uuid4().hex}"
+    # FIXME: Windows client is not supported yet.
     local_dir = pathlib.Path("/") / "tmp" / tmp_archive_name / "pip"
     local_dir.mkdir(parents=True)
     cmd = [
@@ -139,7 +140,13 @@ def _install_packages(db: gp.Database, requirements: str):
     _archive_and_upload(tmp_archive_name, [local_dir.resolve()], db)
     extracted = db.apply(lambda: _extract_files(tmp_archive_name, "root"), column_name="cache_dir")
     assert len(list(extracted)) == 1
-    server_dir = pathlib.Path("/") / "tmp" / tmp_archive_name / "extracted" / local_dir.relative_to(local_dir.root)
+    server_dir = (
+        pathlib.Path("/")
+        / "tmp"
+        / tmp_archive_name
+        / "extracted"
+        / local_dir.relative_to(local_dir.root)
+    )
     installed = extracted.apply(
         lambda _: _install_on_server(server_dir.as_uri(), requirements), column_name="result"
     )
