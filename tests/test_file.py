@@ -65,17 +65,20 @@ def pip_show(pkg_name: str) -> str:
 
 
 @gp.create_function
+def sys_path() -> str:
+    return sys.path
+
+@gp.create_function
 def site_config() -> str:
-    cmd = [sys.executable, "-m", "site"]
-    try:
-        return subprocess.check_output(cmd, text=True, stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError as e:
-        raise e from Exception(e.stdout)
+    import site
+
+    return site.ENABLE_USER_SITE
 
 
 def test_intall_pacakges(db: gp.Database):
     print(db.install_packages("faker==19.6.1"))
     print(db.apply(lambda: pip_show("faker"), column_name="pip_show"))
+    print(db.apply(lambda: sys_path(), column_name="sys_path"))
     print(db.apply(lambda: site_config(), column_name="site_config"))
 
     @gp.create_function
