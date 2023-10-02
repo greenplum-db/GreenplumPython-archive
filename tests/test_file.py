@@ -60,7 +60,7 @@ def pip_show(pkg_name: str) -> str:
         pkg_name,
     ]
     try:
-        sp.check_output(cmd, text=True, stderr=sp.STDOUT)
+        return sp.check_output(cmd, text=True, stderr=sp.STDOUT)
     except sp.CalledProcessError as e:
         raise e from Exception(e.stdout)
 
