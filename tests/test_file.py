@@ -65,9 +65,15 @@ def pip_show(pkg_name: str) -> str:
         raise e from Exception(e.stdout)
 
 
+@gp.create_function
+def sys_path() -> list[str]:
+    return sys.path
+
+
 def test_intall_pacakges(db: gp.Database):
     print(db.install_packages("faker==19.6.1"))
     print(db.apply(lambda: pip_show("faker"), column_name="pip_show"))
+    print(db.apply(lambda: sys_path(), column_name="sys_path"))
 
     @gp.create_function
     def fake_name() -> str:
