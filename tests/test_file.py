@@ -45,12 +45,13 @@ def test_csv_multi_chunks(db: gp.Database):
     greenplumpython.experimental.file._CHUNK_SIZE = default_chunk_size
 
 
-import subprocess as sp
 import sys
 
 
 @gp.create_function
 def pip_show(pkg_name: str) -> str:
+    import subprocess as sp
+
     cmd = [
         sys.executable,
         "-m",
