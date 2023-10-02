@@ -67,6 +67,7 @@ def pip_show(pkg_name: str) -> str:
 @gp.create_function
 def sys_path() -> list[str]:
     yield sys.modules["site"].ENABLE_USER_SITE
+    yield sys.modules["site"].USER_SITE
     for p in sys.path:
         yield p
 
