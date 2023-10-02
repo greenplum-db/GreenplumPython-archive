@@ -46,12 +46,11 @@ def test_csv_multi_chunks(db: gp.Database):
 
 
 import sys
+import subprocess
 
 
 @gp.create_function
 def pip_show(pkg_name: str) -> str:
-    import subprocess as sp
-
     cmd = [
         sys.executable,
         "-m",
@@ -60,20 +59,24 @@ def pip_show(pkg_name: str) -> str:
         pkg_name,
     ]
     try:
-        return sp.check_output(cmd, text=True, stderr=sp.STDOUT)
-    except sp.CalledProcessError as e:
+        return subprocess.check_output(cmd, text=True, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
         raise e from Exception(e.stdout)
 
 
 @gp.create_function
-def sys_path() -> list[str]:
-    return sys.path
+def site_config() -> str:
+    cmd = [sys.executable, "-m", "site"]
+    try:
+        return subprocess.check_output(cmd, text=True, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
+        raise e from Exception(e.stdout)
 
 
 def test_intall_pacakges(db: gp.Database):
     print(db.install_packages("faker==19.6.1"))
     print(db.apply(lambda: pip_show("faker"), column_name="pip_show"))
-    print(db.apply(lambda: sys_path(), column_name="sys_path"))
+    print(db.apply(lambda: site_config(), column_name="site_config"))
 
     @gp.create_function
     def fake_name() -> str:
@@ -85,12 +88,11 @@ def test_intall_pacakges(db: gp.Database):
     assert len(list(db.apply(lambda: fake_name()))) == 1
 
     try:
-        sp.check_output(
+        subprocess.check_output(
             [sys.executable, "-m", "pip", "uninstall", "faker"],
             text=True,
-            stderr=sp.STDOUT,
+            stderr=subprocess.STDOUT,
             input="y",
         )
-    except sp.CalledProcessError as e:
-        print(e.stdout)
+    except subprocess.CalledProcessError as e:
         raise e from Exception(e.stdout)
