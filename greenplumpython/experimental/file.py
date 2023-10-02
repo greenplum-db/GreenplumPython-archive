@@ -25,25 +25,27 @@ def _dump_file_chunk(tmp_archive_name: str, chunk_base64: str) -> int:
 
 
 @gp.create_function
-def _extract_files(tmp_archive_name: str) -> list[str]:
+def _extract_files(tmp_archive_name: str, returning: str) -> list[str]:
     tmp_archive_base = pathlib.Path("/") / "tmp" / tmp_archive_name
     tmp_archive_path = tmp_archive_base / f"{tmp_archive_name}.tar.gz"
-    extracted_dir = tmp_archive_base / "extracted"
-    if not extracted_dir.exists():
+    extracted_root = tmp_archive_base / "extracted"
+    if not extracted_root.exists():
         with tarfile.open(tmp_archive_path, "r:gz") as tmp_archive:
-            extracted_dir.mkdir()
-            tmp_archive.extractall(str(extracted_dir))
+            extracted_root.mkdir()
+            tmp_archive.extractall(str(extracted_root))
         tmp_archive_path.unlink()
-    for path in extracted_dir.rglob("*"):
-        if path.is_file() and not path.is_symlink():
-            yield str(path.resolve())
+    if returning == "root":
+        yield str(extracted_root.resolve())
+    else:
+        assert returning == "files"
+        for path in extracted_root.rglob("*"):
+            if path.is_file() and not path.is_symlink():
+                yield str(path.resolve())
 
 
-@classmethod
-def _from_files(_, files: list[str], parser: NormalFunction, db: gp.Database) -> gp.DataFrame:
-    tmp_archive_name = f"tar_{uuid.uuid4().hex}"
+def _archive_and_upload(tmp_archive_name: str, files: list[str], db: gp.Database):
     tmp_archive_base = pathlib.Path("/") / "tmp" / tmp_archive_name
-    tmp_archive_base.mkdir()
+    tmp_archive_base.mkdir(exist_ok=True)
     tmp_archive_path = tmp_archive_base / f"{tmp_archive_name}.tar.gz"
     with tarfile.open(tmp_archive_path, "w:gz") as tmp_archive:
         for file_path in files:
@@ -71,11 +73,84 @@ def _from_files(_, files: list[str], parser: NormalFunction, db: gp.Database) ->
                 ORDER BY id;
                 """
             )
+
+
+@classmethod
+def _from_files(_, files: list[str], parser: NormalFunction, db: gp.Database) -> gp.DataFrame:
+    tmp_archive_name = f"tar_{uuid.uuid4().hex}"
+    _archive_and_upload(tmp_archive_name, files, db)
     func_sig = inspect.signature(parser.unwrap())
     result_members = get_type_hints(func_sig.return_annotation)
     return db.apply(
-        lambda: parser(_extract_files(tmp_archive_name)), expand=len(result_members) == 0
+        lambda: parser(_extract_files(tmp_archive_name, "files")),
+        expand=len(result_members) == 0,
     )
 
 
 setattr(gp.DataFrame, "from_files", _from_files)
+
+
+import subprocess as sp
+import sys
+
+
+@gp.create_function
+def _install_on_server(pkg_dir: str, requirements: str) -> str:
+    import subprocess as sp
+    import sys
+
+    assert sys.executable, "Python executable is required to install packages."
+    cmd = [
+        sys.executable,
+        "-m",
+        "pip",
+        "install",
+        "--no-index",
+        "--requirement",
+        "/dev/stdin",
+        "--find-links",
+        pkg_dir,
+    ]
+    try:
+        output = sp.check_output(cmd, text=True, stderr=sp.STDOUT, input=requirements)
+        return output
+    except sp.CalledProcessError as e:
+        raise Exception(e.stdout)
+
+
+def _install_packages(db: gp.Database, requirements: str):
+    tmp_archive_name = f"tar_{uuid.uuid4().hex}"
+    # FIXME: Windows client is not supported yet.
+    local_dir = pathlib.Path("/") / "tmp" / tmp_archive_name / "pip"
+    local_dir.mkdir(parents=True)
+    cmd = [
+        sys.executable,
+        "-m",
+        "pip",
+        "download",
+        "--requirement",
+        "/dev/stdin",
+        "--dest",
+        local_dir,
+    ]
+    try:
+        sp.check_output(cmd, text=True, stderr=sp.STDOUT, input=requirements)
+    except sp.CalledProcessError as e:
+        raise e from Exception(e.stdout)
+    _archive_and_upload(tmp_archive_name, [local_dir.resolve()], db)
+    extracted = db.apply(lambda: _extract_files(tmp_archive_name, "root"), column_name="cache_dir")
+    assert len(list(extracted)) == 1
+    server_dir = (
+        pathlib.Path("/")
+        / "tmp"
+        / tmp_archive_name
+        / "extracted"
+        / local_dir.relative_to(local_dir.root)
+    )
+    installed = extracted.apply(
+        lambda _: _install_on_server(server_dir.as_uri(), requirements), column_name="result"
+    )
+    assert len(list(installed)) == 1
+
+
+setattr(gp.Database, "install_packages", _install_packages)

@@ -1,3 +1,5 @@
+import subprocess as sp
+import sys
 from dataclasses import dataclass
 from uuid import uuid4
 
@@ -41,3 +43,52 @@ def test_csv_multi_chunks(db: gp.Database):
     assert greenplumpython.experimental.file._CHUNK_SIZE == 3
     test_csv_single_chunk(db)
     greenplumpython.experimental.file._CHUNK_SIZE = default_chunk_size
+
+
+import subprocess
+import sys
+
+
+@gp.create_function
+def pip_show(pkg_name: str) -> str:
+    cmd = [
+        sys.executable,
+        "-m",
+        "pip",
+        "show",
+        pkg_name,
+    ]
+    try:
+        return subprocess.check_output(cmd, text=True, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
+        raise e from Exception(e.stdout)
+
+
+@gp.create_function
+def sys_path() -> list[str]:
+    return sys.path
+
+
+def test_intall_pacakges(db: gp.Database):
+    print(db.install_packages("faker==19.6.1"))
+    print(db.apply(lambda: pip_show("faker"), column_name="pip_show"))
+    print(db.apply(lambda: sys_path(), column_name="sys_path"))
+
+    @gp.create_function
+    def fake_name() -> str:
+        from faker import Faker  # type: ignore reportMissingImports
+
+        fake = Faker()
+        return fake.name()
+
+    assert len(list(db.apply(lambda: fake_name()))) == 1
+
+    try:
+        subprocess.check_output(
+            [sys.executable, "-m", "pip", "uninstall", "faker"],
+            text=True,
+            stderr=subprocess.STDOUT,
+            input="y",
+        )
+    except subprocess.CalledProcessError as e:
+        raise e from Exception(e.stdout)
