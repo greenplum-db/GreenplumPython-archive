@@ -236,6 +236,25 @@ constant value in database.</p>
 </div>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="db.Database.install_packages">
+<span class="sig-name descname"><span class="pre">install_packages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">requirements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.Database.install_packages" title="Permalink to this definition"></a></dt>
+<dd><p>Install the required Python packages on the server host.</p>
+<p>The packages will be installed to the currently activated Python
+environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>requirements</strong> (<em>str</em>) – specification of what packages are required to be
+installed. The format is the same as <a class="reference external" href="https://pip.pypa.io/en/stable/reference/requirements-file-format/">the rquirements file</a>
+used by <code class="code docutils literal notranslate"><span class="pre">pip</span></code>. It can be obtained by reading an existing
+requirements file in text mode.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
