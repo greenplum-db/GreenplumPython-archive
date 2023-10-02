@@ -45,8 +45,8 @@ def test_csv_multi_chunks(db: gp.Database):
     greenplumpython.experimental.file._CHUNK_SIZE = default_chunk_size
 
 
-import sys
 import subprocess
+import sys
 
 
 @gp.create_function
@@ -65,21 +65,16 @@ def pip_show(pkg_name: str) -> str:
 
 
 @gp.create_function
-def sys_path() -> str:
-    return sys.path
-
-@gp.create_function
-def site_config() -> str:
-    import site
-
-    return site.ENABLE_USER_SITE
+def sys_path() -> list[str]:
+    yield sys.modules["site"].ENABLE_USER_SITE
+    for p in sys.path:
+        yield p
 
 
 def test_intall_pacakges(db: gp.Database):
     print(db.install_packages("faker==19.6.1"))
     print(db.apply(lambda: pip_show("faker"), column_name="pip_show"))
     print(db.apply(lambda: sys_path(), column_name="sys_path"))
-    print(db.apply(lambda: site_config(), column_name="site_config"))
 
     @gp.create_function
     def fake_name() -> str:
