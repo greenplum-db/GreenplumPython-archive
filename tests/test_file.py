@@ -66,9 +66,7 @@ def pip_show(pkg_name: str) -> str:
 
 @gp.create_function
 def sys_path() -> list[str]:
-    yield sys.flags
-    for p in sys.path:
-        yield p
+    return sys.path
 
 
 def test_intall_pacakges(db: gp.Database):
