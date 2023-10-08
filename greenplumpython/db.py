@@ -254,6 +254,9 @@ class Database:
                 <https://pip.pypa.io/en/stable/reference/requirements-file-format/>`_
                 used by :code:`pip`. It can be obtained by reading an existing
                 requirements file in text mode.
+
+        Example:
+            See :ref:`tutorial-package` for more details.
         """
         raise NotImplementedError(
             "Please import greenplumpython.experimental.file to load the implementation."
