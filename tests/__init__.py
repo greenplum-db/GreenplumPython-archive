@@ -10,7 +10,7 @@ def db():
     # for the connection both work for GitHub Actions and concourse
     db = gp.database(
         params={
-            "host": "localhost",
+            "host": environ.get("POSTGRES_HOST", "localhost"),
             "dbname": environ.get("TESTDB", "gpadmin"),
             "user": environ.get("PGUSER"),
             "password": environ.get("PGPASSWORD"),
