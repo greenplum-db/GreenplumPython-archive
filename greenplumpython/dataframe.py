@@ -1230,7 +1230,7 @@ class DataFrame:
         """
         Enable embedding-based similarity search on columns of the current :class:`~DataFrame`.
 
-        See :ref:`embedding-example` for more details.
+        See :ref:`tutorial-embedding` for more details.
         """
         raise NotImplementedError(
             "Please import greenplumpython.experimental.embedding to load the implementation."

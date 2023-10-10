@@ -2,4 +2,4 @@
    :maxdepth: 2
    :caption: Contents:
 
-   notebooks/basic
+   notebooks/sql

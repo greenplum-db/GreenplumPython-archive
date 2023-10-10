@@ -101,7 +101,7 @@ class Embedding:
             Dataframe with target column indexed based on embeddings.
 
         Example:
-            Please refer to :ref:`embedding-example` for more details.
+            Please refer to :ref:`tutorial-embedding` for more details.
 
         """
 
@@ -183,7 +183,7 @@ class Embedding:
             Dataframe with the top k most similar results in the `column` of `query`.
 
         Example:
-            Please refer to :ref:`embedding-example` for more details.
+            Please refer to :ref:`tutorial-embedding` for more details.
         """
         assert self._dataframe._db is not None
         embdedding_info = self._dataframe._db._execute(
