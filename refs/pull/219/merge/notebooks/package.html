@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>(Experimental) Tutorial: Installing Python Packages on Server without Internet Access &mdash; GreenplumPython 1.0.1
+  <title>(Experimental) Installing Python Packages on Server without Internet Access &mdash; GreenplumPython 1.0.1
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
@@ -24,6 +24,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Module References" href="../modules.html" />
     <link rel="prev" title="&lt;no title&gt;" href="../tutorial_package.html" /> 
 </head>
 
@@ -46,21 +47,24 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html#installation">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="basic.html">Basic Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../modules.html">GreenplumPython</a></li>
-<li class="toctree-l1"><a class="reference internal" href="abalone.html">Example: Predicting the age of abalone</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pandas.html">Comparison with pandas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="embedding.html">(Experimental) Tutorial: Generating, Indexing and Searching Embeddings</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">(Experimental) Tutorial: Installing Python Packages on Server without Internet Access</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#(Optional)-Prerequisite:-Setting-up-an-NFS-Mount-for-Cluster">(Optional) Prerequisite: Setting-up an NFS Mount for Cluster</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#Starting-an-NFS-server">Starting an NFS server</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Mount-a-Python-environment-with-NFS">Mount a Python environment with NFS</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="sql.html">Comparison with SQL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pandas.html">Comparison with pandas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="abalone.html">Predicting the age of abalone with Linear Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="embedding.html">(Experimental) Generating, Indexing and Searching Embeddings</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">(Experimental) Installing Python Packages on Server without Internet Access</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#(Optional)-Prerequisite:-Setting-up-an-NFS-Mount-for-Cluster">(Optional) Prerequisite: Setting-up an NFS Mount for Cluster</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Starting-an-NFS-server">Starting an NFS server</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Mount-a-Python-environment-with-NFS">Mount a Python environment with NFS</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#Example:-A-UDF-requiring-a-Third-Party-Package">Example: A UDF requiring a Third-Party Package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Installing-Python-Packages">Installing Python Packages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Example:-A-UDF-requiring-a-Third-Party-Package">Example: A UDF requiring a Third-Party Package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Installing-Python-Packages">Installing Python Packages</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Module References</a></li>
 </ul>
 
         </div>
@@ -77,8 +81,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../tutorials.html">Tutorials</a> &raquo;</li>
           <li><a href="../tutorial_package.html">&lt;no title&gt;</a> &raquo;</li>
-      <li>(Experimental) Tutorial: Installing Python Packages on Server without Internet Access</li>
+      <li>(Experimental) Installing Python Packages on Server without Internet Access</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/notebooks/package.ipynb" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -88,8 +93,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="(Experimental)-Tutorial:-Installing-Python-Packages-on-Server-without-Internet-Access">
-<h1>(Experimental) Tutorial: Installing Python Packages on Server without Internet Access<a class="headerlink" href="#(Experimental)-Tutorial:-Installing-Python-Packages-on-Server-without-Internet-Access" title="Permalink to this heading"></a></h1>
+  <section id="(Experimental)-Installing-Python-Packages-on-Server-without-Internet-Access">
+<h1>(Experimental) Installing Python Packages on Server without Internet Access<a class="headerlink" href="#(Experimental)-Installing-Python-Packages-on-Server-without-Internet-Access" title="Permalink to this heading"></a></h1>
 <p><strong>WARNING: The feature introduced in this tutorial is currently experimental. It does not have any API stability guarantee.</strong></p>
 <p>In many environments, access from the database server to the Internet is disabled for security reasons. This makes it hard to install the Python packages required for data analytics on server.</p>
 <p>To overcome this limitation, GreenplumPython provides a function <code class="docutils literal notranslate"><span class="pre">Database.install_packages()</span></code> to help the user</p>
@@ -410,6 +415,7 @@ PL/Python function &#34;func_16dc1c114c0344938bc1d85945e9f0ad&#34;
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../tutorial_package.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../modules.html" class="btn btn-neutral float-right" title="Module References" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
