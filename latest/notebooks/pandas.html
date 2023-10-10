@@ -24,7 +24,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="&lt;no title&gt;" href="../emb_example.html" />
+    <link rel="next" title="&lt;no title&gt;" href="../abalone.html" />
     <link rel="prev" title="&lt;no title&gt;" href="../pandas.html" /> 
 </head>
 
@@ -47,33 +47,37 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html#installation">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="basic.html">Basic Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../modules.html">GreenplumPython</a></li>
-<li class="toctree-l1"><a class="reference internal" href="abalone.html">Example: Predicting the age of abalone</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Comparison with pandas</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#Data-Structure">Data Structure</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#Getting-Access-to-the-Structure">Getting Access to the Structure</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Accessing-Data-in-Rows-and-Columns">Accessing Data in Rows and Columns</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="sql.html">Comparison with SQL</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Comparison with pandas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Data-Structure">Data Structure</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Getting-Access-to-the-Structure">Getting Access to the Structure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Accessing-Data-in-Rows-and-Columns">Accessing Data in Rows and Columns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#Data-Selection">Data Selection</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#Selecting-Columns">Selecting Columns</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Accessing-a-Single-Column">Accessing a Single Column</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Selecting-Rows-by-Predicates">Selecting Rows by Predicates</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Selecting-Rows-by-Slices">Selecting Rows by Slices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Data-Selection">Data Selection</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Selecting-Columns">Selecting Columns</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Accessing-a-Single-Column">Accessing a Single Column</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Selecting-Rows-by-Predicates">Selecting Rows by Predicates</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Selecting-Rows-by-Slices">Selecting Rows by Slices</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#Data-Transformation">Data Transformation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#Data-Ordering">Data Ordering</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Column-Transformation">Column Transformation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Data-Grouping">Data Grouping</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Data-Deduplication">Data Deduplication</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Joins">Joins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Data-Transformation">Data Transformation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Data-Ordering">Data Ordering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Column-Transformation">Column Transformation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Data-Grouping">Data Grouping</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Data-Deduplication">Data Deduplication</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Joins">Joins</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="embedding.html">Generating, Indexing and Searching Embeddings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="abalone.html">Predicting the age of abalone with Linear Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="embedding.html">(Experimental) Generating, Indexing and Searching Embeddings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="package.html">(Experimental) Installing Python Packages on Server without Internet Access</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Module References</a></li>
 </ul>
 
         </div>
@@ -90,6 +94,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../tutorials.html">Tutorials</a> &raquo;</li>
           <li><a href="../pandas.html">&lt;no title&gt;</a> &raquo;</li>
       <li>Comparison with pandas</li>
       <li class="wy-breadcrumbs-aside">
@@ -1516,7 +1521,7 @@ dtype: int64
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../pandas.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../emb_example.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../abalone.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

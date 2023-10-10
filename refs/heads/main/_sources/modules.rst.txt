@@ -1,10 +1,10 @@
-GreenplumPython
-===============
+Module References
+=================
 
-The **GreenplumPython** library contains 5 main modules:
+The :code:`greenplumpython` library contains the following modules:
 
 .. toctree::
-   :maxdepth: 5
+   :maxdepth: 2
 
    db
    dataframe

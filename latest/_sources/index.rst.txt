@@ -20,16 +20,5 @@ There are explanations about the implementation and examples.
    :caption: Contents:
 
    install
-   basic
+   tutorials
    modules
-   abalone
-   pandas
-   emb_example
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
