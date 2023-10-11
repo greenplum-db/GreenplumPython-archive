@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Example: Predicting the age of abalone &mdash; GreenplumPython 1.0.1
+  <title>Predicting the age of abalone with Linear Regression &mdash; GreenplumPython 1.0.1
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
@@ -24,7 +24,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="&lt;no title&gt;" href="../pandas.html" />
+    <link rel="next" title="&lt;no title&gt;" href="../tutorial_embedding.html" />
     <link rel="prev" title="&lt;no title&gt;" href="../abalone.html" /> 
 </head>
 
@@ -47,39 +47,29 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html#installation">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="basic.html">Basic Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../modules.html">GreenplumPython</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Example: Predicting the age of abalone</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#Background">Background</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Problem">Problem</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Fetching-data-from-the-Internet">Fetching data from the Internet</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Train-Test-Set-Split">Train-Test Set Split</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Import-preparation">Import preparation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Data-Exploration">Data Exploration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Learning-to-Make-Predictions">Learning to Make Predictions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#Training-Model-with-Linear-Regression">Training Model with Linear Regression</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#Creation-of-training-function">Creation of training function</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#Summary-of-Parameters">Summary of Parameters</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#Prediction">Prediction</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#Creation-of-prediction-function">Creation of prediction function</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#Join-model-dataframe-and-test-set-dataframe">Join model dataframe and test set dataframe</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#Predict-test-set">Predict test set</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#Evaluation-of-model">Evaluation of model</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#Creation-of-evaluation-return-type">Creation of evaluation return type</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#Creation-of-evaluation-function">Creation of evaluation function</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#Evaluate-our-model">Evaluate our model</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="sql.html">Comparison with SQL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pandas.html">Comparison with pandas</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Predicting the age of abalone with Linear Regression</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Background">Background</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Problem">Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Fetching-data-from-the-Internet">Fetching data from the Internet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Train-Test-Set-Split">Train-Test Set Split</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Import-preparation">Import preparation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Data-Exploration">Data Exploration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Learning-to-Make-Predictions">Learning to Make Predictions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Training-Model-with-Linear-Regression">Training Model with Linear Regression</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Evaluation-of-model">Evaluation of model</a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="embedding.html">(Experimental) Generating, Indexing and Searching Embeddings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="package.html">(Experimental) Installing Python Packages on Server without Internet Access</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="pandas.html">Comparison with pandas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="embedding.html">Generating, Indexing and Searching Embeddings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Module References</a></li>
 </ul>
 
         </div>
@@ -96,8 +86,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../tutorials.html">Tutorials</a> &raquo;</li>
           <li><a href="../abalone.html">&lt;no title&gt;</a> &raquo;</li>
-      <li>Example: Predicting the age of abalone</li>
+      <li>Predicting the age of abalone with Linear Regression</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/notebooks/abalone.ipynb" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -107,8 +98,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="Example:-Predicting-the-age-of-abalone">
-<h1>Example: Predicting the age of abalone<a class="headerlink" href="#Example:-Predicting-the-age-of-abalone" title="Permalink to this heading"></a></h1>
+  <section id="Predicting-the-age-of-abalone-with-Linear-Regression">
+<h1>Predicting the age of abalone with Linear Regression<a class="headerlink" href="#Predicting-the-age-of-abalone-with-Linear-Regression" title="Permalink to this heading"></a></h1>
 <section id="Background">
 <h2>Background<a class="headerlink" href="#Background" title="Permalink to this heading"></a></h2>
 <p>Predicting the age of abalone from physical measurements. The age of abalone is determined by cutting the shell through the cone, staining it, and counting the number of rings through a microscope – a boring and time-consuming task. Other measurements, which are easier to obtain, are used to predict the age.</p>
@@ -916,7 +907,7 @@ Done.
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../abalone.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../pandas.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../tutorial_embedding.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
