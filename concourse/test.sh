@@ -13,6 +13,7 @@ function install_plpython3() {
 }
 
 function _main() {
+    source "$CI_REPO_DIR/common/entry_common.sh"
     start_gpdb
     install_plpython3
 
