@@ -13,10 +13,8 @@ function install_plpython3() {
 }
 
 function _main() {
-    whoami
-    su gpadmin -c "echo hello"
     source "$CI_REPO_DIR/common/entry_common.sh"
-    sudo start_gpdb
+    start_gpdb
     install_plpython3
 
     # FIXME: The test db and extension creation should be handled by python code.
