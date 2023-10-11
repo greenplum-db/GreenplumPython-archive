@@ -26,6 +26,7 @@ function _main() {
     pushd /home/gpadmin/greenplumpython_src
     unset PYTHONPATH
     unset PYTHONHOME
+    python3.9 -m pip install tox
     python3.9 -m pip install .
     tox -e test_py39
     popd
