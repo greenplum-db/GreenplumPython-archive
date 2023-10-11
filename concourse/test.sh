@@ -13,6 +13,8 @@ function install_plpython3() {
 }
 
 function _main() {
+    whoami
+    su gpadmin -c "echo hello"
     source "$CI_REPO_DIR/common/entry_common.sh"
     sudo start_gpdb
     install_plpython3
