@@ -13,10 +13,11 @@ function install_plpython3() {
 }
 
 function _main() {
+    install_plpython3
+
     source "$CI_REPO_DIR/common/entry_common.sh"
     start_gpdb
-    source ~/.bashrc
-    install_plpython3
+    source ~/.bashrc  # for gpdemo-env.sh
 
     # FIXME: The test db and extension creation should be handled by python code.
     createdb gpadmin
