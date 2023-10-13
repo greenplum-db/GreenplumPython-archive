@@ -15,8 +15,8 @@ function install_plpython3() {
 function _main() {
     install_plpython3
 
-    
     source "$CI_REPO_DIR/common/entry_common.sh"
+    sudo passwd --delete gpadmin  # for `su gpadmin` in start_gpdb
     start_gpdb
     source "$HOME/.bashrc"  # for gpdemo-env.sh
 
