@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Function &mdash; GreenplumPython 1.0.1
+ documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Builtins Functions" href="builtins.html" />
+    <link rel="prev" title="Row" href="row.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> GreenplumPython
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Module References</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="db.html">Database</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dataframe.html">DataFrame</a></li>
+<li class="toctree-l2"><a class="reference internal" href="expr.html">Expression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="col.html">Column</a></li>
+<li class="toctree-l2"><a class="reference internal" href="row.html">Row</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="builtins.html">Builtins Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="type.html">Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group.html">Grouping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="order.html">Ordering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="op.html">Operators and Indexes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="embedding.html">Embedding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pd_df.html">Pandas-Compatible DataFrame</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">Configuration</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">GreenplumPython</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">Module References</a> &raquo;</li>
+      <li>Function</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/func.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-func">
+<span id="function"></span><h1>Function<a class="headerlink" href="#module-func" title="Permalink to this heading"></a></h1>
+<p>To create and call Greenplum/PostgreSQL UDFs or UDAs.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="func.AggregateFunction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">AggregateFunction</span></span><a class="headerlink" href="#func.AggregateFunction" title="Permalink to this definition"></a></dt>
+<dd><p>Represent an aggregate function.</p>
+<p>The function can be applied to:</p>
+<ul class="simple">
+<li><p>a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with <a class="reference internal" href="dataframe.html#dataframe.DataFrame.apply" title="dataframe.DataFrame.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a>, where the function        will aggregate data in the entire dataframe;</p></li>
+<li><p>a <a class="reference internal" href="group.html#group.DataFrameGroupingSet" title="group.DataFrameGroupingSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSet</span></code></a> with <a class="reference internal" href="group.html#group.DataFrameGroupingSet.assign" title="group.DataFrameGroupingSet.assign"><code class="xref py py-meth docutils literal notranslate"><span class="pre">assign()</span></code></a>        or <a class="reference internal" href="group.html#group.DataFrameGroupingSet.apply" title="group.DataFrameGroupingSet.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a>, where the function will        aggregate each group of data.</p></li>
+</ul>
+<p>An <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> is mapped to a User-Defined Aggregate (UDA)
+function in database.</p>
+<p>When called, the arguments of an <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> can be</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="col.html#col.Column" title="col.Column"><code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code></a> of a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>; or</p></li>
+<li><p>constant values represented as Python objects.</p></li>
+</ul>
+<p>And the <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> returns one value aggregating data in all
+rows of the <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> or a group in the
+<a class="reference internal" href="group.html#group.DataFrameGroupingSet" title="group.DataFrameGroupingSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSet</span></code></a>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="func.AggregateFunction.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.AggregateFunction.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Call the dataframe function with the given arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#func.FunctionExpr" title="func.FunctionExpr"><em>FunctionExpr</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="func.AggregateFunction.distinct">
+<span class="sig-name descname"><span class="pre">distinct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.AggregateFunction.distinct" title="Permalink to this definition"></a></dt>
+<dd><p>Apply the current aggregate function to each distinct set of the arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>Any</em>) – Argument of the aggregate function.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An expression represents the function call.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#func.FunctionExpr" title="func.FunctionExpr">FunctionExpr</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,)]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">numbers</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">count</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">aggregate_function</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">results</span> <span class="o">=</span> <span class="n">numbers</span><span class="o">.</span><span class="n">group_by</span><span class="p">()</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+<span class="o">...</span>     <span class="n">unique_numbers_count</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">count</span><span class="o">.</span><span class="n">distinct</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">results</span>
+<span class="o">----------------------</span>
+ <span class="n">unique_numbers_count</span>
+<span class="o">----------------------</span>
+                    <span class="mi">4</span>
+<span class="o">----------------------</span>
+<span class="p">(</span><span class="mi">1</span> <span class="n">row</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="func.AggregateFunction.transition_function">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transition_function</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><span class="pre">NormalFunction</span></a></em><a class="headerlink" href="#func.AggregateFunction.transition_function" title="Permalink to this definition"></a></dt>
+<dd><p>Return the transition function of the aggregate function.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="func.ArrayFunctionExpr">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">ArrayFunctionExpr</span></span><a class="headerlink" href="#func.ArrayFunctionExpr" title="Permalink to this definition"></a></dt>
+<dd><p>Inherited from <a class="reference internal" href="#func.FunctionExpr" title="func.FunctionExpr"><code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionExpr</span></code></a>.</p>
+<p>Specialized for an Array Function.
+It will array aggregate all the columns given by the user.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="func.ColumnFunction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">ColumnFunction</span></span><a class="headerlink" href="#func.ColumnFunction" title="Permalink to this definition"></a></dt>
+<dd><p>Represent a dataframe column function.</p>
+<ul class="simple">
+<li><p>a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with <a class="reference internal" href="dataframe.html#dataframe.DataFrame.apply" title="dataframe.DataFrame.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a>, where the function        will operate on columns in the entire dataframe;</p></li>
+<li><p>a <a class="reference internal" href="group.html#group.DataFrameGroupingSet" title="group.DataFrameGroupingSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSet</span></code></a> with <a class="reference internal" href="group.html#group.DataFrameGroupingSet.assign" title="group.DataFrameGroupingSet.assign"><code class="xref py py-meth docutils literal notranslate"><span class="pre">assign()</span></code></a>        or <a class="reference internal" href="group.html#group.DataFrameGroupingSet.apply" title="group.DataFrameGroupingSet.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a>, where the function will operate        on columns of each group of data.</p></li>
+</ul>
+<p>As <a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalFunction</span></code></a>, a <a class="reference internal" href="#func.ColumnFunction" title="func.ColumnFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFunction</span></code></a> is mapped to a UDF in
+database.</p>
+<p>The calling convention of a <a class="reference internal" href="#func.ColumnFunction" title="func.ColumnFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFunction</span></code></a> is the same as a
+<a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a>. However, rather than operating on one row at a
+time, all rows of the entire column are aggregated into a <code class="code docutils literal notranslate"><span class="pre">list</span></code>
+before passing to <a class="reference internal" href="#func.ColumnFunction" title="func.ColumnFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFunction</span></code></a> as argument, except when the
+column is used as the grouping attribute in <a class="reference internal" href="dataframe.html#dataframe.DataFrame.group_by" title="dataframe.DataFrame.group_by"><code class="xref py py-meth docutils literal notranslate"><span class="pre">group_by()</span></code></a>.</p>
+<p>A <a class="reference internal" href="#func.ColumnFunction" title="func.ColumnFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFunction</span></code></a> returns</p>
+<ul class="simple">
+<li><p>One value of the return type when applied to a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>; or</p></li>
+<li><p>One value for each group when applied to a        <a class="reference internal" href="group.html#group.DataFrameGroupingSet" title="group.DataFrameGroupingSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSet</span></code></a>.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The primary use case for column function is to implement complex
+analytics such as machine learning using your favorite Python packages.</p>
+<p>Inside a column function, the user can operate on all the data, rather
+than only part of it. As a result, the operation does <strong>not</strong> to satisfy
+certain restrictions such as <a class="reference external" href="https://en.wikipedia.org/wiki/Sigma-additive_set_function">Additivity</a>.
+This makes it possible to implement complex functions.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>However, such good usability comes at the cost of scalability.</p>
+<ul class="simple">
+<li><p>Gathering data into one place makes it hard to exploit inter-machine            parallelism when backed by an MPP database system like Greenplum,            especially when the number of groups is small. Fortunately, this            can be alleviated because many Python packages are SIMD optimized.</p></li>
+<li><p>When the backing database system is PostgreSQL-derived, such as            Greenplum, the size of one value cannot be larger than 1 GB. This            limits the size of problems column functions can solve. Currently,            one way to mitigate this issue is to break a large            <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> into smaller groups and somehow combine            the results of the column function for all groups.</p></li>
+</ul>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="func.ColumnFunction.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.ColumnFunction.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Call the dataframe function with the given arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#func.ArrayFunctionExpr" title="func.ArrayFunctionExpr"><em>ArrayFunctionExpr</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="func.FunctionExpr">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">FunctionExpr</span></span><a class="headerlink" href="#func.FunctionExpr" title="Permalink to this definition"></a></dt>
+<dd><p>Inherited from <a class="reference internal" href="expr.html#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a>.</p>
+<p>A Function Expression object associated with a Greenplum/PostgreSQL function which can be called
+and applied to the data in the database.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="func.NormalFunction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">NormalFunction</span></span><a class="headerlink" href="#func.NormalFunction" title="Permalink to this definition"></a></dt>
+<dd><p>Represent a (normal) dataframe function.</p>
+<p>The function can be applied to:</p>
+<ul class="simple">
+<li><p>a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with <a class="reference internal" href="dataframe.html#dataframe.DataFrame.assign" title="dataframe.DataFrame.assign"><code class="xref py py-meth docutils literal notranslate"><span class="pre">assign()</span></code></a> or
+<a class="reference internal" href="dataframe.html#dataframe.DataFrame.apply" title="dataframe.DataFrame.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a>;</p></li>
+<li><p>a <a class="reference internal" href="db.html#db.Database" title="db.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a> when no <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> is involved with
+<a class="reference internal" href="db.html#db.Database.assign" title="db.Database.assign"><code class="xref py py-meth docutils literal notranslate"><span class="pre">assign()</span></code></a> or <a class="reference internal" href="db.html#db.Database.apply" title="db.Database.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a>.</p></li>
+</ul>
+<p>A <a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalFunction</span></code></a> is mapped to a User-Defined Function (UDF) in
+database.</p>
+<p>When called, the arguments of an <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> can be</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="col.html#col.Column" title="col.Column"><code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code></a> of a <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>; or</p></li>
+<li><p>constant values represented as Python objects</p></li>
+</ul>
+<p>and the <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> returns one value of the return type
+for each row of values in its arguments.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="func.NormalFunction.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.NormalFunction.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Call the dataframe function with the given arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#func.FunctionExpr" title="func.FunctionExpr"><em>FunctionExpr</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="func.NormalFunction.unwrap">
+<span class="sig-name descname"><span class="pre">unwrap</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#func.NormalFunction.unwrap" title="Permalink to this definition"></a></dt>
+<dd><p>Get the wrapped Python function in the database function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><em>Callable</em>[[…], <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="func.aggregate_function">
+<span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">aggregate_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.aggregate_function" title="Permalink to this definition"></a></dt>
+<dd><p>Get access to a predefined <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> from the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the aggregate function.</p></li>
+<li><p><strong>schema</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Schema (a.k.a namespace) of the aggregate function in database.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> with the specified <code class="code docutils literal notranslate"><span class="pre">name</span></code>
+and <code class="code docutils literal notranslate"><span class="pre">schema</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><em>AggregateFunction</em></a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">array_agg</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">aggregate_function</span><span class="p">(</span><span class="s2">&quot;array_agg&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;i&quot;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)})</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">array_agg</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s1">&#39;i&#39;</span><span class="p">]),</span> <span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;aggregate_result&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">result</span>
+<span class="o">------------------</span>
+ <span class="n">aggregate_result</span>
+<span class="o">------------------</span>
+ <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="o">------------------</span>
+<span class="p">(</span><span class="mi">1</span> <span class="n">row</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="func.create_aggregate">
+<span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">create_aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transition_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language_handler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'plpython3u'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.create_aggregate" title="Permalink to this definition"></a></dt>
+<dd><p>Create an <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> from the given Python function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>transition_func</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>[</em><em>[</em><em>...</em><em>]</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – the wrapped Python function carrying out the state
+transition. It needs to follow the same convention as the
+<code class="code docutils literal notranslate"><span class="pre">wrapped_func</span></code> parameter of <a class="reference internal" href="#func.create_function" title="func.create_function"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_function()</span></code></a>, and the
+notes on serialization also applied here.</p></li>
+<li><p><strong>language_handler</strong> (<em>Literal</em><em>[</em><em>'plpython3u'</em><em>]</em>) – language handler to run the function in database,
+defaults to plpython3u, will also support plcontainer later.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The newly created <a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#func.AggregateFunction" title="func.AggregateFunction"><em>AggregateFunction</em></a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="nd">@gp</span><span class="o">.</span><span class="n">create_aggregate</span>
+<span class="o">...</span> <span class="k">def</span> <span class="nf">my_sum</span><span class="p">(</span><span class="n">cur_sum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="o">...</span>     <span class="k">if</span> <span class="n">cur_sum</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="o">...</span>         <span class="k">return</span> <span class="n">val</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="n">cur_sum</span> <span class="o">+</span> <span class="n">val</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">numbers</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">results</span> <span class="o">=</span> <span class="n">numbers</span><span class="o">.</span><span class="n">group_by</span><span class="p">()</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">my_sum</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">results</span>
+<span class="o">--------</span>
+ <span class="n">result</span>
+<span class="o">--------</span>
+     <span class="mi">10</span>
+<span class="o">--------</span>
+<span class="p">(</span><span class="mi">1</span> <span class="n">row</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="func.create_column_function">
+<span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">create_column_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wrapped_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language_handler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'plpython3u'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.create_column_function" title="Permalink to this definition"></a></dt>
+<dd><p>Create an <a class="reference internal" href="#func.ColumnFunction" title="func.ColumnFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFunction</span></code></a> from the given Python function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wrapped_func</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>[</em><em>[</em><em>...</em><em>]</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – the wrapped Python function carrying out computation on
+columns. It needs to follow the same convention as the
+<code class="code docutils literal notranslate"><span class="pre">wrapped_func</span></code> parameter of <a class="reference internal" href="#func.create_function" title="func.create_function"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_function()</span></code></a>, and the
+notes on serialization also applied here.</p></li>
+<li><p><strong>language_handler</strong> (<em>Literal</em><em>[</em><em>'plpython3u'</em><em>]</em>) – language handler to run the function in database,
+defaults to plpython3u, will also support plcontainer later.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The newly created <a class="reference internal" href="#func.ColumnFunction" title="func.ColumnFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFunction</span></code></a>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#func.ColumnFunction" title="func.ColumnFunction"><em>ColumnFunction</em></a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="nd">@gp</span><span class="o">.</span><span class="n">create_column_function</span>
+<span class="o">...</span> <span class="k">def</span> <span class="nf">my_array_summary</span><span class="p">(</span><span class="n">val_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;Length: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">val_list</span><span class="p">)</span><span class="si">}</span><span class="s1">, Sum: </span><span class="si">{</span><span class="nb">sum</span><span class="p">(</span><span class="n">val_list</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">numbers</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">results</span> <span class="o">=</span> <span class="n">numbers</span><span class="o">.</span><span class="n">group_by</span><span class="p">()</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+<span class="o">...</span>     <span class="n">summary</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">my_array_summary</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">results</span>
+<span class="o">-------------------</span>
+ <span class="n">summary</span>
+<span class="o">-------------------</span>
+ <span class="n">Length</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="n">Sum</span><span class="p">:</span> <span class="mi">6</span>
+<span class="o">-------------------</span>
+<span class="p">(</span><span class="mi">1</span> <span class="n">row</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="func.create_function">
+<span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">create_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wrapped_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language_handler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'plpython3u'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.create_function" title="Permalink to this definition"></a></dt>
+<dd><p>Create a <a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalFunction</span></code></a> from the given Python function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wrapped_func</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>[</em><em>[</em><em>...</em><em>]</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – <p>the Python function carrying out the computation. Its
+definition need to follow the conventions below:</p>
+<ul>
+<li><p>The function needs to be defined with the <code class="code docutils literal notranslate"><span class="pre">def</span></code> keyword.                Lambda expressions as the wrapped function are not supported                yet.</p></li>
+<li><p>Each parameter and the return value needs to be annotated with                native Python type. The type annotations will be mapped to                the types in database automatically.</p></li>
+<li><p>A <a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalFunction</span></code></a> can return multiple values. In that                case, the return type of the wrapped Python function needs                to be a Python <code class="code docutils literal notranslate"><span class="pre">class</span></code> with members annotated. It is                recommended to use <code class="xref py py-class docutils literal notranslate"><span class="pre">dataclasses.dataclass</span></code> as return                type.</p></li>
+</ul>
+</p></li>
+<li><p><strong>language_handler</strong> (<em>Literal</em><em>[</em><em>'plpython3u'</em><em>]</em>) – language handler to run the function in database,
+defaults to plpython3u, will also support plcontainer later.</p></li>
+<li><p><strong>schema</strong> – schema name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The newly created <a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalFunction</span></code></a>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><em>NormalFunction</em></a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The created function is actually executed on the remote database
+server. To send it to the server, when creating the dataframe function,</p>
+<ul class="simple">
+<li><p>Package <a class="reference external" href="https://dill.readthedocs.io/en/latest/">dill</a>, by the            Uncertainty Quantification Foundation, is used to serialize the            wrapped Python function and its dependencies when applicable.            Therefore, it is recommended to install dill on the host of the            backing database server.</p></li>
+<li><p>If dill is not installed on the server, or the Python versions            between client and server does not match, the source code of            the wrapped Python function will be transmitted to the server,            along with all the import statements for dependencies used by the            function. In that case, the modules imported need to be installed            on server in advance.</p></li>
+</ul>
+</div>
+<p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="nd">@gp</span><span class="o">.</span><span class="n">create_function</span>
+<span class="o">...</span> <span class="k">def</span> <span class="nf">multiply</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="o">...</span>    <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">db</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">multiply</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="o">--------</span>
+ <span class="n">result</span>
+<span class="o">--------</span>
+      <span class="mi">2</span>
+<span class="o">--------</span>
+<span class="p">(</span><span class="mi">1</span> <span class="n">row</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="func.function">
+<span class="sig-prename descclassname"><span class="pre">func.</span></span><span class="sig-name descname"><span class="pre">function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#func.function" title="Permalink to this definition"></a></dt>
+<dd><p>Get access to a predefined dataframe <a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalFunction</span></code></a> from database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the function.</p></li>
+<li><p><strong>schema</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Schema (a.k.a namespace) of the function in database.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><em>NormalFunction</em></a></p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>The <a class="reference internal" href="#func.NormalFunction" title="func.NormalFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalFunction</span></code></a> with the specified <code class="code docutils literal notranslate"><span class="pre">name</span></code>
+and <code class="code docutils literal notranslate"><span class="pre">schema</span></code>.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">generate_series</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;generate_series&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">db</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">generate_series</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="o">-----------------</span>
+ <span class="n">generate_series</span>
+<span class="o">-----------------</span>
+               <span class="mi">0</span>
+               <span class="mi">1</span>
+               <span class="mi">2</span>
+<span class="o">-----------------</span>
+<span class="p">(</span><span class="mi">3</span> <span class="n">rows</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="row.html" class="btn btn-neutral float-left" title="Row" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="builtins.html" class="btn btn-neutral float-right" title="Builtins Functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, VMware.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
