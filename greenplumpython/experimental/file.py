@@ -121,7 +121,7 @@ def _install_on_server(pkg_dir: str, requirements: str) -> str:
 def _install_packages(db: gp.Database, requirements: str):
     tmp_archive_name = f"tar_{uuid.uuid4().hex}"
     # FIXME: Windows client is not supported yet.
-    local_dir = pathlib.Path("/") / "tmp" / tmp_archive_name / "pip"
+    local_dir = (pathlib.Path("/") / "tmp").resolve() / tmp_archive_name / "pip"
     local_dir.mkdir(parents=True)
     cmd = [
         sys.executable,
