@@ -122,7 +122,7 @@ def _install_on_server(pkg_dir: str, requirements: str) -> str:
 def _install_packages(db: gp.Database, requirements: str):
     tmp_archive_name = f"tar_{uuid.uuid4().hex}"
     with tempfile.TemporaryDirectory() as local_dir:
-        local_dir_path = pathlib.Path(local_dir.name)  # type: ignore reportUnknownArgumentType
+        local_dir_path = pathlib.Path(local_dir)
         cmd = [
             sys.executable,
             "-m",
@@ -138,7 +138,9 @@ def _install_packages(db: gp.Database, requirements: str):
         except sp.CalledProcessError as e:
             raise e from Exception(e.stdout)
         _archive_and_upload(tmp_archive_name, [local_dir], db)
-        extracted = db.apply(lambda: _extract_files(tmp_archive_name, "root"), column_name="cache_dir")
+        extracted = db.apply(
+            lambda: _extract_files(tmp_archive_name, "root"), column_name="cache_dir"
+        )
         assert len(list(extracted)) == 1
         server_dir = (
             pathlib.Path("/")
