@@ -3,6 +3,7 @@ import inspect
 import io
 import pathlib
 import tarfile
+import tempfile
 import uuid
 from typing import get_type_hints
 
@@ -120,37 +121,36 @@ def _install_on_server(pkg_dir: str, requirements: str) -> str:
 
 def _install_packages(db: gp.Database, requirements: str):
     tmp_archive_name = f"tar_{uuid.uuid4().hex}"
-    # FIXME: Windows client is not supported yet.
-    local_dir = (pathlib.Path("/") / "tmp").resolve() / tmp_archive_name / "pip"
-    local_dir.mkdir(parents=True)
-    cmd = [
-        sys.executable,
-        "-m",
-        "pip",
-        "download",
-        "--requirement",
-        "/dev/stdin",
-        "--dest",
-        local_dir,
-    ]
-    try:
-        sp.check_output(cmd, text=True, stderr=sp.STDOUT, input=requirements)
-    except sp.CalledProcessError as e:
-        raise e from Exception(e.stdout)
-    _archive_and_upload(tmp_archive_name, [local_dir.resolve()], db)
-    extracted = db.apply(lambda: _extract_files(tmp_archive_name, "root"), column_name="cache_dir")
-    assert len(list(extracted)) == 1
-    server_dir = (
-        pathlib.Path("/")
-        / "tmp"
-        / tmp_archive_name
-        / "extracted"
-        / local_dir.relative_to(local_dir.root)
-    )
-    installed = extracted.apply(
-        lambda _: _install_on_server(server_dir.as_uri(), requirements), column_name="result"
-    )
-    assert len(list(installed)) == 1
+    with tempfile.TemporaryDirectory() as local_dir:
+        local_dir_path = pathlib.Path(local_dir.name)  # type: ignore reportUnknownArgumentType
+        cmd = [
+            sys.executable,
+            "-m",
+            "pip",
+            "download",
+            "--requirement",
+            "/dev/stdin",
+            "--dest",
+            str(local_dir_path),
+        ]
+        try:
+            sp.check_output(cmd, text=True, stderr=sp.STDOUT, input=requirements)
+        except sp.CalledProcessError as e:
+            raise e from Exception(e.stdout)
+        _archive_and_upload(tmp_archive_name, [local_dir], db)
+        extracted = db.apply(lambda: _extract_files(tmp_archive_name, "root"), column_name="cache_dir")
+        assert len(list(extracted)) == 1
+        server_dir = (
+            pathlib.Path("/")
+            / "tmp"
+            / tmp_archive_name
+            / "extracted"
+            / local_dir_path.relative_to(local_dir_path.root)
+        )
+        installed = extracted.apply(
+            lambda _: _install_on_server(server_dir.as_uri(), requirements), column_name="result"
+        )
+        assert len(list(installed)) == 1
 
 
 setattr(gp.Database, "install_packages", _install_packages)
