@@ -345,6 +345,7 @@ class NormalFunction(_AbstractFunction):
             f"        if {sysconfig_lib_name}.get_python_version() != '{python_version}':\n"
             f"            raise ModuleNotFoundError\n"
             f"        setattr({sys_lib_name}.modules['plpy'], '_SD', SD)\n"
+            f"        setattr({sys_lib_name}.modules['plpy'], '_GD', GD)\n"
             f"        GD['{func_ast.name}'] = {pickle_lib_name}.loads({func_pickled})\n"
             f"    except ModuleNotFoundError:\n"
             f"        exec({json.dumps(ast.unparse(func_ast))}, globals())\n"
