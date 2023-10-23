@@ -41,8 +41,10 @@ def test_csv_multi_chunks(db: gp.Database):
     default_chunk_size = greenplumpython.experimental.file._CHUNK_SIZE
     greenplumpython.experimental.file._CHUNK_SIZE = 3
     assert greenplumpython.experimental.file._CHUNK_SIZE == 3
-    test_csv_single_chunk(db)
-    greenplumpython.experimental.file._CHUNK_SIZE = default_chunk_size
+    try:
+        test_csv_single_chunk(db)
+    finally:
+        greenplumpython.experimental.file._CHUNK_SIZE = default_chunk_size
 
 
 import subprocess

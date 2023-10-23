@@ -126,7 +126,11 @@ def _install_on_server(server_tmp_dir: str, local_tmp_dir: str, requirements: st
         "--requirement",
         "/dev/stdin",
         "--find-links",
-        str(server_tmp_dir_path / local_tmp_dir_path.relative_to(local_tmp_dir_path.root)),
+        str(
+            server_tmp_dir_path
+            / "extracted"
+            / local_tmp_dir_path.relative_to(local_tmp_dir_path.root)
+        ),
     ]
     try:
         output = subprocess.check_output(
@@ -161,7 +165,7 @@ def _install_packages(db: gp.Database, requirements: str):
             extracted = db.apply(lambda: _extract_files(server_tmp_dir, tmp_archive_name, "root"))
             assert len(list(extracted)) == 1
             installed = extracted.apply(
-                lambda _: _install_on_server(server_tmp_dir, local_pkg_dir.name, requirements)
+                lambda _: _install_on_server(server_tmp_dir, local_pkg_dir, requirements)
             )
             assert len(list(installed)) == 1
 
