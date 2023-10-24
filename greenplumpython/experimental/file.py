@@ -118,7 +118,7 @@ def _from_files(_, files: list[str], parser: NormalFunction, db: gp.Database) ->
             lambda: parser(_extract_files(server_tmp_dir, tmp_dir_handle, "files")),
             expand=len(result_members) == 0,
         )
-        # _remove_tmp_dir(util_conn, db, tmp_dir_handle)  # Cannot remove now since the returning DataFrame depends on it.
+        # _remove_tmp_dir(util_conn, db, tmp_dir_handle)  # Cannot remove now since the returned DataFrame depends on it.
         return df
 
 
