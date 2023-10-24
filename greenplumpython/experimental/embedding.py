@@ -110,7 +110,6 @@ class Embedding:
         model = sentence_transformers.SentenceTransformer(model_name)  # type: ignore reportUnknownVariableType
 
         assert self._dataframe.unique_key is not None, "Unique key is required to create index."
-        # assert model_name == "all-MiniLM-L6-v2", "Model '{model_name}' is not supported."
         try:
             word_embedding_dimension: int = model[1].word_embedding_dimension  # From models.Pooling
         except:
@@ -125,7 +124,7 @@ class Embedding:
                 **{
                     embedding_col_name: cast(
                         Callable[[gp.DataFrame], TypeCast],
-                        # FIXME: Modifier must be adapted to the model.
+                        # FIXME: Modifier must be adapted to all types of model.
                         # Can this be done with transformers.AutoConfig?
                         lambda t: gp.type_("vector", modifier=word_embedding_dimension)(_generate_embedding(t[column], model_name)),  # type: ignore reportUnknownLambdaType
                     )
