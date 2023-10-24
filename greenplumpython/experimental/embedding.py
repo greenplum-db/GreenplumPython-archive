@@ -75,7 +75,7 @@ class Embedding:
     def __init__(self, dataframe: gp.DataFrame) -> None:
         self._dataframe = dataframe
 
-    def create_index(self, column: str, model: str) -> gp.DataFrame:
+    def create_index(self, column: str, model_name: str) -> gp.DataFrame:
         """
         Generate embeddings and create index for a column of unstructured data.
 
@@ -95,7 +95,7 @@ class Embedding:
 
         Args:
             column: name of column to create index on.
-            model: name of model to generate embedding.
+            model_name: name of model to generate embedding.
 
         Returns:
             Dataframe with target column indexed based on embeddings.
@@ -105,8 +105,17 @@ class Embedding:
 
         """
 
+        import sentence_transformers  # type: ignore reportMissingImports
+
+        model = sentence_transformers.SentenceTransformer(model_name)  # type: ignore reportUnknownVariableType
+
         assert self._dataframe.unique_key is not None, "Unique key is required to create index."
-        assert model == "all-MiniLM-L6-v2", "Model '{model}' is not supported."
+        try:
+            word_embedding_dimension: int = model[1].word_embedding_dimension  # From models.Pooling
+        except:
+            raise NotImplementedError(
+                "Model '{model_name}' doesn't provide embedding dimension information"
+            )
 
         embedding_col_name = "_emb_" + uuid4().hex
         embedding_df_cols = list(self._dataframe.unique_key) + [embedding_col_name]
@@ -115,9 +124,9 @@ class Embedding:
                 **{
                     embedding_col_name: cast(
                         Callable[[gp.DataFrame], TypeCast],
-                        # FIXME: Modifier must be adapted to the model.
+                        # FIXME: Modifier must be adapted to all types of model.
                         # Can this be done with transformers.AutoConfig?
-                        lambda t: gp.type_("vector", modifier=384)(_generate_embedding(t[column], model)),  # type: ignore reportUnknownLambdaType
+                        lambda t: gp.type_("vector", modifier=word_embedding_dimension)(_generate_embedding(t[column], model_name)),  # type: ignore reportUnknownLambdaType
                     )
                 },
             )[embedding_df_cols]
@@ -137,7 +146,7 @@ class Embedding:
                 SET LOCAL allow_system_table_mods TO ON;
 
                 WITH embedding_info AS (
-                    SELECT '{embedding_df._qualified_table_name}'::regclass::oid AS embedding_relid, attnum, '{model}' AS model
+                    SELECT '{embedding_df._qualified_table_name}'::regclass::oid AS embedding_relid, attnum, '{model_name}' AS model
                     FROM pg_attribute
                     WHERE 
                         attrelid = '{self._dataframe._qualified_table_name}'::regclass::oid AND
