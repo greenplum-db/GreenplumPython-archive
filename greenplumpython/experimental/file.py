@@ -110,8 +110,8 @@ def _archive_and_upload(
 def _from_files(_, files: list[str], parser: NormalFunction, db: gp.Database) -> gp.DataFrame:
     tmp_dir_handle = f"__pygp_tar_{uuid.uuid4().hex}"
     server_options = "-c gp_session_role=utility" if db._is_variant("greenplum") else None
-    with psycopg2.connect(db._dsn, options=server_options) as util_conn:
-        server_tmp_dir = _archive_and_upload(util_conn, tmp_dir_handle, files, db)
+    with psycopg2.connect(db._dsn, options=server_options) as util_conn:  # type: ignore reportUnknownVariableType
+        server_tmp_dir = _archive_and_upload(util_conn, tmp_dir_handle, files, db)  # type: ignore reportUnknownArgumentType
         func_sig = inspect.signature(parser.unwrap())
         result_members = get_type_hints(func_sig.return_annotation)
         df = db.apply(
@@ -175,15 +175,15 @@ def _install_packages(db: gp.Database, requirements: str):
         except subprocess.CalledProcessError as e:
             raise e from Exception(e.stdout)
         server_options = "-c gp_session_role=utility" if db._is_variant("greenplum") else None
-        with psycopg2.connect(db._dsn, options=server_options) as util_conn:
-            server_tmp_dir = _archive_and_upload(util_conn, tmp_dir_handle, [local_pkg_dir], db)
+        with psycopg2.connect(db._dsn, options=server_options) as util_conn:  # type: ignore reportUnknownVariableType
+            server_tmp_dir = _archive_and_upload(util_conn, tmp_dir_handle, [local_pkg_dir], db)  # type: ignore reportUnknownArgumentType
             extracted = db.apply(lambda: _extract_files(server_tmp_dir, tmp_dir_handle, "root"))
             assert len(list(extracted)) == 1
             installed = extracted.apply(
                 lambda _: _install_on_server(server_tmp_dir, local_pkg_dir, requirements)
             )
             assert len(list(installed)) == 1
-            _remove_tmp_dir(util_conn, db, tmp_dir_handle)
+            _remove_tmp_dir(util_conn, db, tmp_dir_handle)  # type: ignore reportUnknownArgumentType
 
 
 setattr(gp.Database, "install_packages", _install_packages)
