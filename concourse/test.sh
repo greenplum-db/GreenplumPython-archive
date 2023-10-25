@@ -17,7 +17,7 @@ function _main() {
 
     source "$CI_REPO_DIR/common/entry_common.sh"
     sudo passwd --delete gpadmin  # for `su gpadmin` in start_gpdb
-    echo 'alias su="sudo su"' >> "$HOME/.bashrc"
+    echo 'alias su="sudo su"' >>"$HOME/.bashrc"
     source "$HOME/.bashrc"  # for `alias su`
     start_gpdb
     source "$HOME/.bashrc"  # for gpdemo-env.sh
