@@ -23,8 +23,8 @@ start_gpdb_as_gpadmin() {
         fi
         set +o nounset
         start_gpdb
-        set -o nounset
         source "$HOME/.bashrc"  # for gpdemo-env.sh
+        set -o nounset
     fi
 }
 
