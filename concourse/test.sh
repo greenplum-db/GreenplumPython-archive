@@ -31,7 +31,7 @@ start_gpdb_as_gpadmin() {
 setup_testdb() {
     local testdb=$1
     # FIXME: The test db and extension creation should be handled by python code.
-    if psql "$testdb" -c ''; then
+    if ! psql "$testdb" -c ''; then
         createdb "$testdb"
     fi
     psql "$testdb" -c "CREATE EXTENSION IF NOT EXISTS plpython3u;"
