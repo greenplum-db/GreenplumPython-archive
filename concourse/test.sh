@@ -16,12 +16,14 @@ start_gpdb_as_gpadmin() {
     if ! gpstate; then
         source "$CI_REPO_DIR/common/entry_common.sh"
         sudo passwd --delete gpadmin  # for `su gpadmin` in start_gpdb
-        if [[ "$(source /etc/os-release && echo $ID)" == "ubuntu" ]]; then
+        if [[ "$(source /etc/os-release && echo "$ID")" == "ubuntu" ]]; then
             su () {
                 sudo "su" "$@"
             }
         fi
+        set +o nounset
         start_gpdb
+        set -o nounset
         source "$HOME/.bashrc"  # for gpdemo-env.sh
     fi
 }
