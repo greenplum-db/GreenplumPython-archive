@@ -19,6 +19,7 @@ from greenplumpython.db import Database
 from greenplumpython.expr import Expr, _serialize_to_expr
 from greenplumpython.group import DataFrameGroupingSet
 from greenplumpython.type import _serialize_to_type
+from greenplumpython.config import use_pickler
 
 
 class FunctionExpr(Expr):
@@ -349,6 +350,18 @@ class NormalFunction(_AbstractFunction):
             f"    except ModuleNotFoundError:\n"
             f"        exec({json.dumps(ast.unparse(func_ast))}, globals())\n"
             f"        GD['{func_ast.name}'] = globals()['{func_ast.name}']\n"
+            f"    return GD['{func_ast.name}']({func_arg_names})\n"
+            f"$$ LANGUAGE {self._language_handler};"
+        ) if use_pickler else (
+            f"CREATE FUNCTION {self._qualified_name_str} ({func_args}) "
+            f"RETURNS {return_type} "
+            f"AS $$\n"
+            f"# container: {self._runtime}\n"
+            f"try:\n"
+            f"    return GD['{func_ast.name}']({func_arg_names})\n"
+            f"except KeyError:\n"
+            f"    exec({json.dumps(ast.unparse(func_ast))}, globals())\n"
+            f"    GD['{func_ast.name}'] = globals()['{func_ast.name}']\n"
             f"    return GD['{func_ast.name}']({func_arg_names})\n"
             f"$$ LANGUAGE {self._language_handler};"
         )
