@@ -20,7 +20,6 @@ from greenplumpython.expr import Expr, _serialize_to_expr
 from greenplumpython.group import DataFrameGroupingSet
 from greenplumpython.type import _serialize_to_type_name, _defined_types
 
-import psycopg2
 
 class FunctionExpr(Expr):
     """
@@ -112,7 +111,7 @@ class FunctionExpr(Expr):
             if grouping_col_names is not None and len(grouping_col_names) != 0
             else None
         )
-        try:
+        if  self._function._language_handler == "plcontainer":
             return_annotation = inspect.signature(self._function._wrapped_func).return_annotation  # type: ignore reportUnknownArgumentType
             _serialize_to_type_name(return_annotation, db=db, for_return=True)
             return DataFrame(
@@ -124,7 +123,7 @@ class FunctionExpr(Expr):
                 db=db,
                 parents=parents,
             )
-        except psycopg2.errors.InternalError_:
+        else:
             unexpanded_dataframe = DataFrame(
                 " ".join(
                     [
