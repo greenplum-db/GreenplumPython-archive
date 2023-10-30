@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-import greenplumpython as gp
 
+import greenplumpython as gp
 from tests import db
 
 

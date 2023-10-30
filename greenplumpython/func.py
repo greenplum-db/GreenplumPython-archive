@@ -18,7 +18,7 @@ from greenplumpython.dataframe import DataFrame
 from greenplumpython.db import Database
 from greenplumpython.expr import Expr, _serialize_to_expr
 from greenplumpython.group import DataFrameGroupingSet
-from greenplumpython.type import _serialize_to_type_name, _defined_types
+from greenplumpython.type import _defined_types, _serialize_to_type_name
 
 
 class FunctionExpr(Expr):
