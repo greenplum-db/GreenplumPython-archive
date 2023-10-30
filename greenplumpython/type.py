@@ -222,5 +222,4 @@ def _serialize_to_type_name(
             type_name = "type_" + uuid4().hex
             _defined_types[annotation] = DataType(name=type_name, annotation=annotation)
         _defined_types[annotation]._create_in_db(db)
-        print(_defined_types)
         return _defined_types[annotation]._qualified_name_str
