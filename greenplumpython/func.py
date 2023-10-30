@@ -111,7 +111,10 @@ class FunctionExpr(Expr):
             if grouping_col_names is not None and len(grouping_col_names) != 0
             else None
         )
-        if  self._function._language_handler == "plcontainer":
+        if (
+            isinstance(self._function, NormalFunction)
+            and self._function._language_handler == "plcontainer"
+        ):
             return_annotation = inspect.signature(self._function._wrapped_func).return_annotation  # type: ignore reportUnknownArgumentType
             _serialize_to_type_name(return_annotation, db=db, for_return=True)
             return DataFrame(
@@ -288,7 +291,7 @@ class NormalFunction(_AbstractFunction):
         name: Optional[str] = None,
         schema: Optional[str] = None,
         language_handler: Literal["plpython3u"] = "plpython3u",
-        runtime: Optional[str] = None
+        runtime: Optional[str] = None,
     ) -> None:
         # noqa D107
         super().__init__(wrapped_func, name, schema)
@@ -570,7 +573,7 @@ def aggregate_function(name: str, schema: Optional[str] = None) -> AggregateFunc
 def create_function(
     wrapped_func: Optional[Callable[..., Any]] = None,
     language_handler: Literal["plpython3u"] = "plpython3u",
-    runtime: Optional[str] = None
+    runtime: Optional[str] = None,
 ) -> NormalFunction:
     """
     Create a :class:`~func.NormalFunction` from the given Python function.
@@ -634,8 +637,12 @@ def create_function(
     """
     # If user needs extra parameters when creating a function
     if wrapped_func is None:
-        return functools.partial(create_function, language_handler=language_handler, runtime=runtime)
-    return NormalFunction(wrapped_func=wrapped_func, language_handler=language_handler, runtime=runtime)
+        return functools.partial(
+            create_function, language_handler=language_handler, runtime=runtime
+        )
+    return NormalFunction(
+        wrapped_func=wrapped_func, language_handler=language_handler, runtime=runtime
+    )
 
 
 # FIXME: Add test cases for optional parameters

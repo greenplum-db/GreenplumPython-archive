@@ -16,7 +16,9 @@ def test_simple_func(db: gp.Database):
     assert (
         len(
             list(
-                db.create_dataframe(columns={"i": range(10)}).apply(lambda _: add_one(), expand=True)
+                db.create_dataframe(columns={"i": range(10)}).apply(
+                    lambda _: add_one(), expand=True
+                )
             )
         )
         == 10
