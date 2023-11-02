@@ -113,13 +113,12 @@ class Embedding:
 
         """
 
-        import sentence_transformers  # type: ignore reportMissingImports
-
-        model = sentence_transformers.SentenceTransformer(model_name)  # type: ignore reportUnknownVariableType
-
         assert self._dataframe.unique_key is not None, "Unique key is required to create index."
         if embedding_dimension is None:
             try:
+                import sentence_transformers  # type: ignore reportMissingImports
+
+                model = sentence_transformers.SentenceTransformer(model_name)  # type: ignore reportUnknownVariableType
                 embedding_dimension: int = model[1].word_embedding_dimension  # From models.Pooling
             except:
                 raise NotImplementedError(
