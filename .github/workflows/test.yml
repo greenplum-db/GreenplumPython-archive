@@ -21,7 +21,10 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.9", "3.10"]
-        postgres-version: ['12', '13']
+        # To test different Python versions:
+        # - in 12-bulleye, python3 is python3.9
+        # - in 12-bookworm, python3 is python3.11
+        postgres-version: ['12-bullseye', '12-bookworm']
         include:
           - tox_test: "test_py39"
             python-version: "3.9"
@@ -34,10 +37,7 @@ jobs:
 
     services:
       postgres:
-        # we need postgres with plpython extension postgres base docker hub image did not have that
-        # I use this one
-        # image: yihong0618/postgres-plpython:${{ matrix.postgres-version }}
-        image: thorinschiffer/postgres-plpython:${{ matrix.postgres-version }} 
+        image: postgres:${{ matrix.postgres-version }} 
         env:
           POSTGRES_USER: ${{ env.PGUSER }}
           POSTGRES_PASSWORD: ${{ env.PGPASSWORD }}
@@ -53,20 +53,15 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         cache: pip
+    - name: Setup postgres service container
+      run: |
+        ls -la .
     - name: Create plpython3u language and environment
       run: |
         psql postgres://${{ env.PGUSER }}:${{ env.PGPASSWORD }}@localhost/${{ env.TESTDB }} -c "CREATE LANGUAGE plpython3u;"
     - name: Install Dependencies
       run: |
         pip install tox==3.25.0
-
-    - name: List all containers
-      run: docker ps -a
-    
-    - name: Install Python in PostgreSQL server container
-      run: |
-        docker exec --user 0 postgres sh -c 'apt-get update && apt-get install -y python3-pip && mkdir -p $(su --login postgres --session-command "python3 -m site --user-site") && chown -R postgres /var/lib/postgresql'
-
     - name: Run Tests
       run: |
         export POSTGRES_PASSWORD=${{ env.PGPASSWORD }}
