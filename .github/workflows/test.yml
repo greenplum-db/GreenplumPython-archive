@@ -18,13 +18,11 @@ jobs:
     name: Test Python${{ matrix.python-version }}, PSQL${{matrix.postgres-version}}
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         python-version: ["3.9", "3.10"]
-        # To test different Python versions:
-        # - in 12-bulleye, python3 is python3.9
-        # - in 12-bookworm, python3 is python3.11
-        postgres-version: ['12-bullseye', '12-bookworm']
+        python-server-version: ["39", "311"]
+        postgres-version: ["12-bullseye", "12-bookworm"]
         include:
           - tox_test: "test_py39"
             python-version: "3.9"
@@ -38,13 +36,7 @@ jobs:
     services:
       postgres:
         image: postgres:${{ matrix.postgres-version }} 
-        env:
-          POSTGRES_USER: ${{ env.PGUSER }}
-          POSTGRES_PASSWORD: ${{ env.PGPASSWORD }}
-          POSTGRES_DB: ${{ env.TESTDB }}
-        ports:
-          - 5432:5432
-        options: --name postgres
+        options: --name postgres-image-puller
   
     steps:
     - uses: actions/checkout@v2
@@ -53,15 +45,12 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         cache: pip
-    - name: Setup postgres service container
+  
+    - name: Setup database server container
       run: |
-        ls -la .
-    - name: Create plpython3u language and environment
-      run: |
-        psql postgres://${{ env.PGUSER }}:${{ env.PGPASSWORD }}@localhost/${{ env.TESTDB }} -c "CREATE LANGUAGE plpython3u;"
-    - name: Install Dependencies
-      run: |
-        pip install tox==3.25.0
+        python3 -m pip install tox
+        tox -e server
+
     - name: Run Tests
       run: |
         export POSTGRES_PASSWORD=${{ env.PGPASSWORD }}
