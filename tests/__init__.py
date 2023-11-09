@@ -7,7 +7,6 @@ import greenplumpython as gp
 
 @pytest.fixture()
 def db():
-    print("connecting ...")
     # for the connection both work for GitHub Actions and concourse
     db = gp.database(
         params={
