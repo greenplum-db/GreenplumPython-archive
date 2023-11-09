@@ -1,4 +1,4 @@
-name: Test Postgres
+name: Test
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: Test client:python${{ matrix.python-version }}, server:postgres
+    name: client:python${{ matrix.python-version }}, server:postgres${{ matrix.postgres-image }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -34,12 +34,12 @@ jobs:
   
     steps:
     - uses: actions/checkout@v2
-    - name: Setup Python ${{ matrix.python-version }} on client
+    - name: Setup client
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
         cache: pip
-    - name: Setup database server container
+    - name: Setup database server
       run: |
         python3 -m pip install tox
         tox -e server
