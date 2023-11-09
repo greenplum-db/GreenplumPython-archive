@@ -12,5 +12,6 @@ apt-get install --no-install-recommends -y \
 apt-get autoclean
 
 POSTGRES_USER_SITE=$(su --login postgres --session-command "python3 -m site --user-site")
+POSTGRES_USER_BASE=$(su --login postgres --session-command "python3 -m site --user-base")
 mkdir --parents "$POSTGRES_USER_SITE"
-chown --recursive postgres "$POSTGRES_USER_SITE"
+chown --recursive postgres "$POSTGRES_USER_BASE"
