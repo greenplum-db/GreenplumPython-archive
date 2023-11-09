@@ -27,14 +27,14 @@ jobs:
           - dill_version: python3.9
             postgres-version: '13'
 
-    services:
-      postgres:
-        image: postgres:${{ matrix.postgres-image }} 
-        options: --name postgres-image-puller
+    # services:
+    #   postgres:
+    #     image: postgres:${{ matrix.postgres-image }} 
+    #     options: --name postgres-image-puller
   
     steps:
     - uses: actions/checkout@v2
-    - name: Setup client
+    - name: Setup python on client
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
