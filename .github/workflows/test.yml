@@ -34,7 +34,7 @@ jobs:
         cache: pip
     - name: Setup database server
       run: |
-        python3 -m pip install tox
+        python3 -m pip install tox~=4.11
         tox --override server.version=${{ matrix.server-version }} --override server.python_version=${{ matrix.server-python-version }} -e server
     - name: Run tests without pickler
       run: |
