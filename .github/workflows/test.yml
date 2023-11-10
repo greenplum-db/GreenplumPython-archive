@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.9", "3.11"]
         server-base-image: ["postgres:12-bullseye", "postgres:12-bookworm"]
         include:
           - server-base-image: "postgres:12-bullseye"
