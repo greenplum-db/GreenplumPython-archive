@@ -35,7 +35,7 @@ jobs:
     - name: Setup database server
       run: |
         python3 -m pip install tox
-        tox --override server.postgres_version=${{ matrix.postgres-version }} server.python_version=${{ matrix.postgres-python-version }} -e server
+        tox --override server.version=${{ matrix.postgres-version }} --override server.python_version=${{ matrix.postgres-python-version }} -e server
     - name: Run tests without pickler
       run: |
         tox --override client.python_version=${{ matrix.python-version }} -e test
