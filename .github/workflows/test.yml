@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: py${{ matrix.python-version }}; pg${{ matrix.postgres-version }}-py${{ matrix.postgres-python-version }}
+    name: python${{ matrix.python-version }}; ${{ matrix.server-version }}-${{ matrix.server-python-version }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -19,11 +19,11 @@ jobs:
         postgres-image: ["12-bullseye", "12-bookworm"]
         include:
           - postgres-image: "12-bullseye"
-            postgres-version: 12
-            postgres-python-version: 39
+            server-version: postgres12
+            server-python-version: python39
           - postgres-image: "12-bookworm"
-            postgres-version: 12
-            postgres-python-version: 311
+            server-version: postgres12
+            server-python-version: python311
   
     steps:
     - uses: actions/checkout@v2
@@ -35,7 +35,7 @@ jobs:
     - name: Setup database server
       run: |
         python3 -m pip install tox
-        tox --override server.version=${{ matrix.postgres-version }} --override server.python_version=${{ matrix.postgres-python-version }} -e server
+        tox --override server.version=${{ matrix.server-version }} --override server.python_version=${{ matrix.server-python-version }} -e server
     - name: Run tests without pickler
       run: |
         tox --override client.python_version=${{ matrix.python-version }} -e test
