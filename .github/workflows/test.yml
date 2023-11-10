@@ -26,11 +26,6 @@ jobs:
             postgres-version: '12'
           - dill_version: python3.9
             postgres-version: '13'
-
-    # services:
-    #   postgres:
-    #     image: postgres:${{ matrix.postgres-image }} 
-    #     options: --name postgres-image-puller
   
     steps:
     - uses: actions/checkout@v2
@@ -48,4 +43,4 @@ jobs:
         tox -e ${{ matrix.tox_test }} 
     - name: Run tests with pickler
       run: |
-        tox -e ${{ matrix.tox_test }} 
+        tox -e ${{ matrix.tox_test }}
