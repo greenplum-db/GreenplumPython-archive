@@ -16,12 +16,12 @@ jobs:
       fail-fast: true
       matrix:
         python-version: ["3.9", "3.11"]
-        postgres-image: ["12-bullseye", "12-bookworm"]
+        server-base-image: ["postgres:12-bullseye", "postgres:12-bookworm"]
         include:
-          - postgres-image: "12-bullseye"
+          - server-base-image: "postgres:12-bullseye"
             server-version: postgres12
             server-python-version: python39
-          - postgres-image: "12-bookworm"
+          - server-base-image: "postgres:12-bookworm"
             server-version: postgres12
             server-python-version: python311
   
@@ -38,7 +38,7 @@ jobs:
         tox --override server.version=${{ matrix.server-version }} --override server.python_version=${{ matrix.server-python-version }} -e server
     - name: Run tests without pickler
       run: |
-        tox --override client.python_version=${{ matrix.python-version }} -e test
+        tox --override client.python_version=python${{ matrix.python-version }} -e test
     - name: Run tests with pickler
       run: |
-        tox --override client.python_version=${{ matrix.python-version }} -e test
+        tox --override client.python_version=python${{ matrix.python-version }} -e test
