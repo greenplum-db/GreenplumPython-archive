@@ -38,7 +38,7 @@ jobs:
         tox --override server.version=${{ matrix.server-version }} --override server.python_version=${{ matrix.server-python-version }} -e server
     - name: Run tests without pickler
       run: |
-        tox -e test
+        tox --override server.use_pickler=false -e test
     - name: Run tests with pickler
       run: |
-        tox -e test
+        tox --override server.use_pickler=true -e test

@@ -4,10 +4,10 @@
 
 ### [tox](https://tox.wiki)
 
-Install with `pip`:
+We use tox as the task runner. Tox can be installed with
 
 ```
-pip install tox
+python3 -m pip install tox
 ```
 
 Install with `brew` on macOS:
@@ -40,12 +40,6 @@ Test with the default python version:
 
 ```
 tox -e test
-```
-
-Test with specified officially supported version:
-
-```
-tox -e test_py39
 ```
 
 Run a specified test case(s):
