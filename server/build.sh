@@ -15,3 +15,6 @@ POSTGRES_USER_SITE=$(su --login postgres --session-command "python3 -m site --us
 POSTGRES_USER_BASE=$(su --login postgres --session-command "python3 -m site --user-base")
 mkdir --parents "$POSTGRES_USER_SITE"
 chown --recursive postgres "$POSTGRES_USER_BASE"
+
+cp /tmp/initdb.sh /docker-entrypoint-initdb.d
+chown postgres /docker-entrypoint-initdb.d/*
