@@ -10,10 +10,10 @@ def db():
     # for the connection both work for GitHub Actions and concourse
     db = gp.database(
         params={
-            "host": environ["PGHOST"],
-            "dbname": environ["TESTDB"],
-            "user": environ["PGUSER"],
-            "password": environ["PGPASSWORD"],
+            "host": environ.get("PGHOST", "localhost"),
+            "dbname": environ.get("TESTDB", environ.get("USER")),
+            "user": environ.get("PGUSER", environ.get("USER")),
+            "password": environ.get("PGPASSWORD"),
         }
     )
     db._execute(
@@ -37,7 +37,7 @@ def db():
 @pytest.fixture()
 def con():
     host = "localhost"
-    dbname = environ["TESTDB"]
+    dbname = environ.get("TESTDB", environ.get("USER"))
     con = f"postgresql://{host}/{dbname}"
     yield con
 
