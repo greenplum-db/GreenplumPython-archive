@@ -33,18 +33,18 @@ jobs:
         python-version: ${{ matrix.python-version }}
         cache: pip
     - name: Run tests without pickler
-      run: >-
-        python3 -m pip install tox~=4.11 tox-docker~=4.1 &&
-        tox
-          --override=docker:server.dockerfile=server/${{ matrix.server-version }}-${{ matrix.server-python-version }}.Dockerfile 
-          -e test-remote
-          -- 
-          --override-ini=server_use_pickler=false
-          --ignore=tests/test_use_pickler.py
+      run: |
+        python3 -m pip install tox~=4.11 tox-docker~=4.1 && \
+        tox \
+          --override=docker:server.dockerfile=server/${{ matrix.server-version }}-${{ matrix.server-python-version }}.Dockerfile \
+          -e test-remote \
+          -- \
+          --override-ini=server_use_pickler=false \
+          --ignore=tests/test_use_pickler.py \
     - name: Run tests with pickler
-      run: >-
-        tox 
-          --override=docker:server.dockerfile=server/${{ matrix.server-version }}-${{ matrix.server-python-version }}.Dockerfile
-          -e test-remote
-          --
-          --override-ini=server_use_pickler=true
+      run: |
+        tox \
+          --override=docker:server.dockerfile=server/${{ matrix.server-version }}-${{ matrix.server-python-version }}.Dockerfile \
+          -e test-remote \
+          -- \
+          --override-ini=server_use_pickler=true \
