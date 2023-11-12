@@ -35,7 +35,7 @@ jobs:
     - name: Run tests without pickler
       run: |
         python3 -m pip install tox~=4.11 tox-docker~=4.1
-        tox --override  -e test
+        tox --override=docker:server.dockerfile=server/${{ matrix.server-version }}-${{ matrix.server-python-version }}.Dockerfile -e test-remote -- --override-ini=server_use_pickler=false
     - name: Run tests with pickler
       run: |
-        tox --override server.use_pickler=true -e test
+        tox --override=docker:server.dockerfile=server/${{ matrix.server-version }}-${{ matrix.server-python-version }}.Dockerfile -e test-remote -- --override-ini=server_use_pickler=true

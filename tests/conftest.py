@@ -5,7 +5,7 @@ def pytest_addoption(parser: pytest.Parser):
     parser.addini(
         "server_use_pickler",
         type="bool",
-        default=False,
+        default=True,
         help="Use pickler to deserialize UDFs on server.",
     )
 
