@@ -8,7 +8,8 @@ apt-get update
 apt-get install --no-install-recommends -y \
     postgresql-plpython3-"$PG_MAJOR_VERSION" \
     postgresql-"$PG_MAJOR_VERSION"-pgvector \
-    python3-pip
+    python3-pip \
+    python3-venv
 apt-get autoclean
 
 POSTGRES_USER_SITE=$(su --login postgres --session-command "python3 -m site --user-site")
