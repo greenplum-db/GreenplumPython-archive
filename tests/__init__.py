@@ -4,6 +4,7 @@ import pytest
 
 import greenplumpython as gp
 
+
 # NOTE: This UDF must **not** depend on picklers, such as dill.
 @gp.create_function
 def pip_install(requirements: str) -> str:
