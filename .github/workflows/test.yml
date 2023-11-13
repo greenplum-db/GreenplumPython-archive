@@ -10,20 +10,18 @@ on:
 
 jobs:
   build:
-    name: python${{ matrix.python-version }}; ${{ matrix.server-version }}-python3${{ matrix.server-python3-version }}
+    name: python${{ matrix.python-version }}; ${{ server }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
       matrix:
         python-version: ["3.9", "3.11"]
-        server-base-image: ["postgres:12-bullseye", "postgres:12-bookworm"]
+        server: ["postgres12-python39", "postgres12-python311"]
         include:
           - server-base-image: "postgres:12-bullseye"
-            server-version: postgres12
-            server-python3-version: "9"
+            server-python-version: "3.9"
           - server-base-image: "postgres:12-bookworm"
-            server-version: postgres12
-            server-python3-version: "11"
+            server-python-version: "3.11"
   
     steps:
     - uses: actions/checkout@v2
@@ -36,16 +34,16 @@ jobs:
       run: |
         python3 -m pip install tox~=4.11 tox-docker~=4.1 && \
         tox \
-          --override=docker:server.dockerfile=server/${{ matrix.server-version }}-python3${{ matrix.server-python3-version }}.Dockerfile \
+          --override=docker:server.dockerfile=server/${{ server }}.Dockerfile \
           -e test-remote \
           -- \
           --override-ini=server_use_pickler=false \
           --ignore=tests/test_use_pickler.py \
     - name: Run tests with pickler if python versions match
-      if: ${{ matrix.python-version == format('3.{0}', matrix.server-python3-version) }}
+      if: ${{ matrix.python-version == matrix.server-python-version }}
       run: |
         tox \
-          --override=docker:server.dockerfile=server/${{ matrix.server-version }}-python3${{ matrix.server-python3-version }}.Dockerfile \
+          --override=docker:server.dockerfile=server/${{ server }}.Dockerfile \
           -e test-remote \
           -- \
           --override-ini=server_use_pickler=true \
