@@ -42,7 +42,7 @@ jobs:
           --override-ini=server_use_pickler=false \
           --ignore=tests/test_use_pickler.py \
     - name: Run tests with pickler
-      if: matrix.python-version == 3.${{ matrix.server-python3-version }}
+      if: matrix.python-version == '3.${{ matrix.server-python3-version }}'
       run: |
         tox \
           --override=docker:server.dockerfile=server/${{ matrix.server-version }}-python3${{ matrix.server-python3-version }}.Dockerfile \
