@@ -36,10 +36,16 @@ The tests will create connection to the Greenplum cluster. So the `PGPORT` needs
 export PGPORT=6000
 ```
 
-Test with the default python version:
+Test with the default python version and a local database server:
 
 ```
 tox -e test
+```
+
+To run tests against a database server in container:
+```
+python3 -m pip install tox-docker
+tox -e test-container
 ```
 
 Run a specified test case(s):

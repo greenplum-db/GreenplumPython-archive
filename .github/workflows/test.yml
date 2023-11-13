@@ -35,7 +35,7 @@ jobs:
         python3 -m pip install tox~=4.11 tox-docker~=4.1 && \
         tox \
           --override=docker:server.dockerfile=server/${{ matrix.server }}.Dockerfile \
-          -e test-remote \
+          -e test-container \
           -- \
           --override-ini=server_use_pickler=false \
           --ignore=tests/test_use_pickler.py \
@@ -44,6 +44,6 @@ jobs:
       run: |
         tox \
           --override=docker:server.dockerfile=server/${{ matrix.server }}.Dockerfile \
-          -e test-remote \
+          -e test-container \
           -- \
           --override-ini=server_use_pickler=true \
