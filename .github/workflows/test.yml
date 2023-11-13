@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: python${{ matrix.python-version }}; ${{ server }}
+    name: python${{ matrix.python-version }}; ${{ matrix.server }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -34,7 +34,7 @@ jobs:
       run: |
         python3 -m pip install tox~=4.11 tox-docker~=4.1 && \
         tox \
-          --override=docker:server.dockerfile=server/${{ server }}.Dockerfile \
+          --override=docker:server.dockerfile=server/${{ matrix.server }}.Dockerfile \
           -e test-remote \
           -- \
           --override-ini=server_use_pickler=false \
@@ -43,7 +43,7 @@ jobs:
       if: ${{ matrix.python-version == matrix.server-python-version }}
       run: |
         tox \
-          --override=docker:server.dockerfile=server/${{ server }}.Dockerfile \
+          --override=docker:server.dockerfile=server/${{ matrix.server }}.Dockerfile \
           -e test-remote \
           -- \
           --override-ini=server_use_pickler=true \
