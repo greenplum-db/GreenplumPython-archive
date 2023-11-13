@@ -20,10 +20,10 @@ jobs:
         include:
           - server-base-image: "postgres:12-bullseye"
             server-version: postgres12
-            server-python3-version: 9
+            server-python3-version: "9"
           - server-base-image: "postgres:12-bookworm"
             server-version: postgres12
-            server-python3-version: 11
+            server-python3-version: "11"
   
     steps:
     - uses: actions/checkout@v2
@@ -41,8 +41,8 @@ jobs:
           -- \
           --override-ini=server_use_pickler=false \
           --ignore=tests/test_use_pickler.py \
-    - name: Run tests with pickler
-      if: ${{ matrix.python-version == format("3.{}", matrix.server-python3-version) }}
+    - name: Run tests with pickler if python versions match
+      if: ${{ matrix.python-version == format('3.{}', matrix.server-python3-version) }}
       run: |
         tox \
           --override=docker:server.dockerfile=server/${{ matrix.server-version }}-python3${{ matrix.server-python3-version }}.Dockerfile \
