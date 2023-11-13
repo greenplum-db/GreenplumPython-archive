@@ -16,7 +16,7 @@ def t(db: gp.Database):
 def test_const_dataframe_columns(db: gp.Database):
     columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
     t = db.create_dataframe(columns=columns)
-    t = t.save_as("const_dataframe", column_names=["a", "b"], temp=True)
+    t = t.save_as(column_names=["a", "b"], temp=True)
     assert sorted([tuple(row.values()) for row in t]) == [(1, 1), (2, 2), (3, 3)]
 
     assert list(next(iter(t)).keys()) == ["a", "b"]
@@ -25,7 +25,7 @@ def test_const_dataframe_columns(db: gp.Database):
 def test_const_dataframe_rows(db: gp.Database):
     rows = [(1,), (2,), (3,)]
     t = db.create_dataframe(rows=rows, column_names=["id"])
-    t = t.save_as("const_dataframe", column_names=["id"], temp=True)
+    t = t.save_as(column_names=["id"], temp=True)
     assert sorted([tuple(row.values()) for row in t]) == sorted(rows)
 
     assert len(next(iter(t)).keys()) == 1
@@ -291,10 +291,10 @@ def test_iter_break(db: gp.Database):
 
 def test_table_refresh_add_rows(db: gp.Database):
     nums = db.create_dataframe(rows=[(i,) for i in range(10)], column_names=["num"])
-    t = nums.save_as("const_table", column_names=["num"], temp=True)
+    t = nums.save_as(column_names=["num"], temp=True)
     assert len(list(t)) == 10
 
-    db._execute("INSERT INTO const_table(num) VALUES (10);", has_results=False)
+    db._execute(f"INSERT INTO {t._qualified_table_name}(num) VALUES (10);", has_results=False)
 
     assert len(list(t)) == 10
     t.refresh()
@@ -304,12 +304,12 @@ def test_table_refresh_add_rows(db: gp.Database):
 def test_table_refresh_add_columns(db: gp.Database):
     # Initial DataFrame
     nums = db.create_dataframe(rows=[(i,) for i in range(10)], column_names=["num"])
-    t = nums.save_as("const_table", column_names=["num"], temp=True)
+    t = nums.save_as(column_names=["num"], temp=True)
     assert list(next(iter(t)).keys()) == ["num"]
     assert sorted(row["num"] for row in t) == sorted(list(range(10)))
 
     # Add a new column
-    db._execute("ALTER TABLE const_table ADD num_copy int;", has_results=False)
+    db._execute(f"ALTER TABLE {t._qualified_table_name} ADD num_copy int;", has_results=False)
     assert len(next(iter(t)).keys()) == 1
     for row in next(iter(t)).keys():
         assert row == "num"
@@ -320,7 +320,7 @@ def test_table_refresh_add_columns(db: gp.Database):
         assert row["num_copy"] is None
 
     # Update column
-    db._execute("UPDATE const_table SET num_copy=num;", has_results=False)
+    db._execute(f"UPDATE {t._qualified_table_name} SET num_copy=num;", has_results=False)
     for row in t:
         assert row["num_copy"] is None
     # Refresh DataFrame contents

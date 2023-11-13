@@ -10,7 +10,7 @@ from tests import db
 def dataframe(db: gp.Database):
     rows = [(1,), (2,), (3,)]
     t = db.create_dataframe(rows=rows, column_names=["id"])
-    t = t.save_as("const_dataframe", temp=True, column_names=["id"])
+    t = t.save_as(temp=True, column_names=["id"])
     return t
 
 
