@@ -18,9 +18,9 @@ jobs:
         python-version: ["3.9", "3.11"]
         server: ["postgres12-python39", "postgres12-python311"]
         include:
-          - server-base-image: "postgres:12-bullseye"
+          - server: "postgres12-python39"
             server-python-version: "3.9"
-          - server-base-image: "postgres:12-bookworm"
+          - server: "postgres12-python311"
             server-python-version: "3.11"
   
     steps:
