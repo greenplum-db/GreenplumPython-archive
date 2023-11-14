@@ -146,7 +146,7 @@ class Embedding:
             .check_unique(self._dataframe.unique_key)
         )
         if method is not None:
-            assert method == "hnsw" or method == "ivfflat"
+            assert method in ["ivfflat", "hnsw"]
             embedding_df = embedding_df.create_index(columns={embedding_col_name}, method=method)
         assert self._dataframe._db is not None
         _record_dependency._create_in_db(self._dataframe._db)
