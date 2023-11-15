@@ -798,9 +798,9 @@ class DataFrame:
             .. highlight:: python
             .. code-block::  Python
 
-                >>> cursor.execute("DROP TABLE IF EXISTS const_table;")
+                >>> cursor.execute("DROP TABLE IF EXISTS t_refresh;")
                 >>> nums = db.create_dataframe(rows=[(i,) for i in range(5)], column_names=["num"])
-                >>> df = nums.save_as("const_table", column_names=["num"], temp=False).order_by("num")[:]
+                >>> df = nums.save_as("t_refresh", column_names=["num"], temp=False).order_by("num")[:]
                 >>> df
                 -----
                  num
@@ -812,7 +812,7 @@ class DataFrame:
                    4
                 -----
                 (5 rows)
-                >>> cursor.execute("INSERT INTO const_table(num) VALUES (5);")
+                >>> cursor.execute("INSERT INTO t_refresh(num) VALUES (5);")
                 >>> df
                 -----
                  num
@@ -836,7 +836,7 @@ class DataFrame:
                    5
                 -----
                 (6 rows)
-                >>> cursor.execute("DROP TABLE const_table;")
+                >>> cursor.execute("DROP TABLE t_refresh;")
 
         Note:
             `cursor` is a predefined `Psycopg Cursor <https://www.psycopg.org/docs/cursor.html>`_
@@ -913,7 +913,7 @@ class DataFrame:
             .. code-block::  Python
 
                 >>> nums = db.create_dataframe(rows=[(i,) for i in range(5)], column_names=["num"])
-                >>> df = nums.save_as("const_table", column_names=["num"], temp=True)
+                >>> df = nums.save_as("t_saved", column_names=["num"], temp=True)
                 >>> df.order_by("num")[:]
                 -----
                  num
@@ -925,8 +925,8 @@ class DataFrame:
                    4
                 -----
                 (5 rows)
-                >>> const_table = db.create_dataframe(table_name="const_table")
-                >>> const_table.order_by("num")[:]
+                >>> t_saved = db.create_dataframe(table_name="t_saved")
+                >>> t_saved.order_by("num")[:]
                 -----
                  num
                 -----

@@ -4,10 +4,10 @@
 
 ### [tox](https://tox.wiki)
 
-Install with `pip`:
+We use tox as the task runner. Tox can be installed with
 
 ```
-pip install tox
+python3 -m pip install tox
 ```
 
 Install with `brew` on macOS:
@@ -36,16 +36,16 @@ The tests will create connection to the Greenplum cluster. So the `PGPORT` needs
 export PGPORT=6000
 ```
 
-Test with the default python version:
+Test with the default python version and a local database server:
 
 ```
 tox -e test
 ```
 
-Test with specified officially supported version:
-
+To run tests against a database server in container:
 ```
-tox -e test_py39
+python3 -m pip install tox-docker
+tox -e test-container
 ```
 
 Run a specified test case(s):

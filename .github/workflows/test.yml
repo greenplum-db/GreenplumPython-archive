@@ -1,4 +1,4 @@
-name: Test Postgres
+name: Test
 
 on:
   push:
@@ -8,81 +8,42 @@ on:
     paths-ignore:
       - "*.md"
 
-env:
-  PGPASSWORD: postgres
-  TESTDB: greenplum_python_test
-  PGUSER: postgres
-
 jobs:
   build:
-    name: Test Python${{ matrix.python-version }}, PSQL${{matrix.postgres-version}}
+    name: python${{ matrix.python-version }}; ${{ matrix.server }}
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
-        python-version: ["3.9", "3.10"]
-        postgres-version: ['12', '13']
+        python-version: ["3.9", "3.11"]
+        server: ["postgres12-python39", "postgres12-python311"]
         include:
-          - tox_test: "test_py39"
-            python-version: "3.9"
-          - tox_test: "test_py310"
-            python-version: "3.10"
-          - dill_version: python3.9
-            postgres-version: '12'
-          - dill_version: python3.9
-            postgres-version: '13'
-
-    services:
-      postgres:
-        # we need postgres with plpython extension postgres base docker hub image did not have that
-        # I use this one
-        # image: yihong0618/postgres-plpython:${{ matrix.postgres-version }}
-        image: thorinschiffer/postgres-plpython:${{ matrix.postgres-version }} 
-        env:
-          POSTGRES_USER: ${{ env.PGUSER }}
-          POSTGRES_PASSWORD: ${{ env.PGPASSWORD }}
-          POSTGRES_DB: ${{ env.TESTDB }}
-        ports:
-          - 5432:5432
-        options: --name postgres
+          - server: "postgres12-python39"
+            server-python-version: "3.9"
+          - server: "postgres12-python311"
+            server-python-version: "3.11"
   
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Setup python on client
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
         cache: pip
-    - name: Create plpython3u language and environment
+    - name: Run tests without pickler
       run: |
-        psql postgres://${{ env.PGUSER }}:${{ env.PGPASSWORD }}@localhost/${{ env.TESTDB }} -c "CREATE LANGUAGE plpython3u;"
-    - name: Install Dependencies
+        python3 -m pip install tox~=4.11 tox-docker~=4.1 && \
+        tox \
+          --override=docker:server.dockerfile=server/${{ matrix.server }}.Dockerfile \
+          -e test-container \
+          -- \
+          --override-ini=server_use_pickler=false \
+          --ignore=tests/test_use_pickler.py \
+    - name: Run tests with pickler if python versions match
+      if: ${{ matrix.python-version == matrix.server-python-version }}
       run: |
-        pip install tox==3.25.0
-
-    - name: List all containers
-      run: docker ps -a
-    
-    - name: Install Python in PostgreSQL server container
-      run: |
-        docker exec --user 0 postgres sh -c 'apt-get update && apt-get install -y python3-pip && mkdir -p $(su --login postgres --session-command "python3 -m site --user-site") && chown -R postgres /var/lib/postgresql'
-
-    - name: Run Tests
-      run: |
-        export POSTGRES_PASSWORD=${{ env.PGPASSWORD }}
-        export POSTGRES_USER=${{ env.PGUSER }}
-        export POSTGRES_DB=${{ env.TESTDB }}
-        tox -e ${{ matrix.tox_test }} 
-
-    - name: Install Dependencies for greenplumpython dill
-      # plpytyhon for postgres install to pg services
-      run: |
-          pip install pip install --target=. dill
-          docker cp dill $(docker ps -q):/usr/lib/${{ matrix.dill_version }}/
-          rm -rf dill pip
-    - name: Run Tests with dill
-      run: |
-        export POSTGRES_PASSWORD=${{ env.PGPASSWORD }}
-        export POSTGRES_USER=${{ env.PGUSER }}
-        export POSTGRES_DB=${{ env.TESTDB }}
-        tox -e ${{ matrix.tox_test }} 
+        tox \
+          --override=docker:server.dockerfile=server/${{ matrix.server }}.Dockerfile \
+          -e test-container \
+          -- \
+          --override-ini=server_use_pickler=true \
