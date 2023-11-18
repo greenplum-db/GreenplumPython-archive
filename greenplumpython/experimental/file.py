@@ -79,11 +79,9 @@ def _archive_and_upload(tmp_archive_name: str, files: list[str], db: gp.Database
 def _from_files(_, files: list[str], parser: NormalFunction, db: gp.Database) -> gp.DataFrame:
     tmp_archive_name = f"tar_{uuid.uuid4().hex}"
     _archive_and_upload(tmp_archive_name, files, db)
-    func_sig = inspect.signature(parser.unwrap())
-    result_members = get_type_hints(func_sig.return_annotation)
     return db.apply(
         lambda: parser(_extract_files(tmp_archive_name, "files")),
-        expand=len(result_members) == 0,
+        expand=True,
     )
 
 

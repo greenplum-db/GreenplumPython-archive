@@ -49,7 +49,7 @@ def test_expr_bin_equal_2expr(db: gp.Database):
 def test_expr_bin_equal_bool(db: gp.Database):
     rows = [(True,), (False,), (False,), (True,)]
     t = db.create_dataframe(rows=rows, column_names=["id"]).save_as(
-        "temp1", temp=True, column_names=["id"]
+        "temp6", temp=True, column_names=["id"]
     )
     b5: Callable[[gp.DataFrame], gp.Expr] = lambda t: t["id"] == True
     assert len(list(t[b5])) == 2

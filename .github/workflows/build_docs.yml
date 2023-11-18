@@ -37,7 +37,7 @@ jobs:
       - name: Build the docs
         run: |
           export TAG_REF=${{ github.ref }}
-          tox -e docs
+          tox -e doc
       - name: Save ref
         run: echo "${{ github.ref }}" >> build/doc/ref.txt
 

@@ -47,8 +47,7 @@ _main() {
     unset PYTHONPATH
     unset PYTHONHOME
     python3.9 -m pip install tox
-    python3.9 -m pip install .
-    tox -e test_py39
+    tox -e test
     popd
 }
 
