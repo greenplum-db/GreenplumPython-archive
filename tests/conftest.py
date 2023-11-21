@@ -17,14 +17,14 @@ def pytest_addoption(parser: pytest.Parser):
 
 
 @pytest.fixture(scope="session")
-def server_use_pickler(config: pytest.Config) -> bool:
-    val: bool = config.getini("server_use_pickler")
+def server_use_pickler(pytestconfig: pytest.Config) -> bool:
+    val: bool = pytestconfig.getini("server_use_pickler")
     return val
 
 
 @pytest.fixture(scope="session")
-def server_has_pgvector(config: pytest.Config) -> bool:
-    val: bool = config.getini("server_has_pgvector")
+def server_has_pgvector(pytestconfig: pytest.Config) -> bool:
+    val: bool = pytestconfig.getini("server_has_pgvector")
     return val
 
 

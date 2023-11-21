@@ -1,4 +1,3 @@
-import _pytest
 import pytest
 
 import greenplumpython as gp
@@ -6,7 +5,7 @@ from tests import db as _
 
 
 @pytest.mark.requires_pgvector
-def test_embedding_query_string(db):
+def test_embedding_query_string(db: gp.Database):
     content = ["I have a dog.", "I like eating apples."]
     t = (
         db.create_dataframe(columns={"id": range(len(content)), "content": content})
