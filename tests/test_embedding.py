@@ -1,7 +1,7 @@
 import pytest
 
 import greenplumpython as gp
-from tests import db as _
+from tests import db
 
 
 @pytest.mark.requires_pgvector
