@@ -147,7 +147,9 @@ class Embedding:
         )
         if method is not None:
             assert method in ["ivfflat", "hnsw"]
-            embedding_df = embedding_df.create_index(columns={embedding_col_name}, method=method)
+            embedding_df = embedding_df.create_index(
+                columns={embedding_col_name: "vector_l2_ops"}, method=method
+            )
         assert self._dataframe._db is not None
         _record_dependency._create_in_db(self._dataframe._db)
         sql_add_relationship = f"""
