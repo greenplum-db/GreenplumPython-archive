@@ -963,7 +963,7 @@ class DataFrame:
                 if distribution_type == "replicated"
                 else "RANDOMLY"}
             """
-            if distribution_type is not None
+            if self._db._is_variant("greenplum") and distribution_type is not None
             else ""
         )
         if drop_cascade:
