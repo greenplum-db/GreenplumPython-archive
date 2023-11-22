@@ -1,4 +1,4 @@
-FROM postgres:12-bullseye
+FROM postgres:13-bullseye
 
 COPY build.sh initdb.sh requirements.sh /tmp/
 RUN bash /tmp/build.sh

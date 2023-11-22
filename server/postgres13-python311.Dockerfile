@@ -1,4 +1,4 @@
-FROM postgres:12-bookworm
+FROM postgres:13-bookworm
 
 COPY build.sh initdb.sh requirements.sh /tmp/
 RUN bash /tmp/build.sh

@@ -16,11 +16,11 @@ jobs:
       fail-fast: true
       matrix:
         python-version: ["3.9", "3.11"]
-        server: ["postgres12-python39", "postgres12-python311"]
+        server: ["postgres13-python39", "postgres13-python311"]
         include:
-          - server: "postgres12-python39"
+          - server: "postgres13-python39"
             server-python-version: "3.9"
-          - server: "postgres12-python311"
+          - server: "postgres13-python311"
             server-python-version: "3.11"
   
     steps:
