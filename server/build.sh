@@ -19,3 +19,14 @@ chown --recursive postgres "$POSTGRES_USER_BASE"
 
 cp /tmp/initdb.sh /docker-entrypoint-initdb.d
 chown postgres /docker-entrypoint-initdb.d/*
+
+setup_venv() {
+    python3 -m venv "$HOME"/venv
+    # shellcheck source=/dev/null
+    source "$HOME"/venv/bin/activate
+
+    python3 -m pip install -r /tmp/requirements.txt
+}
+
+export -f setup_venv
+su --login postgres --session-command 'bash -c setup_venv'
