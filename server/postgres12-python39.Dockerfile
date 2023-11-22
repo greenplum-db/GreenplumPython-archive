@@ -1,6 +1,6 @@
 FROM postgres:12-bullseye
 
-COPY build.sh initdb.sh requirements.txt /tmp/
+COPY build.sh initdb.sh requirements.sh /tmp/
 RUN bash /tmp/build.sh
 
 HEALTHCHECK --interval=1s --timeout=1s --start-period=1s --retries=30 CMD psql \

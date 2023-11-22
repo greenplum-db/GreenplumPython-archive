@@ -12,8 +12,8 @@ apt-get install --no-install-recommends -y \
     python3-venv
 apt-get autoclean
 
-POSTGRES_USER_SITE=$(su --login postgres --session-command "python3 -m site --user-site")
-POSTGRES_USER_BASE=$(su --login postgres --session-command "python3 -m site --user-base")
+POSTGRES_USER_SITE=$(su postgres --session-command "python3 -m site --user-site")
+POSTGRES_USER_BASE=$(su postgres --session-command "python3 -m site --user-base")
 mkdir --parents "$POSTGRES_USER_SITE"
 chown --recursive postgres "$POSTGRES_USER_BASE"
 
@@ -25,8 +25,9 @@ setup_venv() {
     # shellcheck source=/dev/null
     source "$HOME"/venv/bin/activate
 
-    python3 -m pip install -r /tmp/requirements.txt
+    # shellcheck source=/dev/null
+    source /tmp/requirements.sh
 }
 
 export -f setup_venv
-su --login postgres --session-command 'bash -c setup_venv'
+su postgres --session-command 'bash -c setup_venv'
