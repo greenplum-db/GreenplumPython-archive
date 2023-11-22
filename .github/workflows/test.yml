@@ -33,14 +33,14 @@ jobs:
     - name: Build server image
       run: |
         docker build \
-          -t greenplumpython-server:{{ matrix.server }} \
-          -f server/{{ matrix.server }}.Dockerfile server \
-          server
+          -t greenplumpython-server:${{ matrix.server }} \
+          -f server/${{ matrix.server }}.Dockerfile server \
+          server/
     - name: Run tests without pickler
       run: |
         python3 -m pip install tox~=4.11 tox-docker~=4.1 && \
         tox \
-          --override=docker:server.image=greenplumpython-server:{{ matrix.server }} \
+          --override=docker:server.image=greenplumpython-server:${{ matrix.server }} \
           -e test-container \
           -- \
           --override-ini=server_use_pickler=false \
@@ -49,7 +49,7 @@ jobs:
       if: ${{ matrix.python-version == matrix.server-python-version }}
       run: |
         tox \
-          --override=docker:server.image=greenplumpython-server:{{ matrix.server }} \
+          --override=docker:server.image=greenplumpython-server:${{ matrix.server }} \
           -e test-container \
           -- \
           --override-ini=server_use_pickler=true \
