@@ -41,6 +41,7 @@ jobs:
         python3 -m pip install tox~=4.11 tox-docker~=4.1 && \
         tox \
           --override=docker:server.image=greenplumpython-server:${{ matrix.server }} \
+          --override=docker:server.dockerfile='' \
           -e test-container \
           -- \
           --override-ini=server_use_pickler=false \
@@ -50,6 +51,7 @@ jobs:
       run: |
         tox \
           --override=docker:server.image=greenplumpython-server:${{ matrix.server }} \
+          --override=docker:server.dockerfile='' \
           -e test-container \
           -- \
           --override-ini=server_use_pickler=true \
