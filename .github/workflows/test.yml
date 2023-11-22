@@ -34,7 +34,7 @@ jobs:
       run: |
         docker build \
           -t greenplumpython-server:${{ matrix.server }} \
-          -f server/${{ matrix.server }}.Dockerfile server \
+          -f server/${{ matrix.server }}.Dockerfile \
           server/
     - name: Run tests without pickler
       run: |
