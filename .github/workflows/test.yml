@@ -34,7 +34,8 @@ jobs:
       run: |
         docker build \
           -t greenplumpython-server:{{ matrix.server }} \
-          -f server/{{ matrix.server }}.Dockerfile server
+          -f server/{{ matrix.server }}.Dockerfile server \
+          server
     - name: Run tests without pickler
       run: |
         python3 -m pip install tox~=4.11 tox-docker~=4.1 && \
