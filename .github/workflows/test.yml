@@ -16,11 +16,11 @@ jobs:
       fail-fast: true
       matrix:
         python-version: ["3.9", "3.11"]
-        server: ["postgres12-python39", "postgres12-python311"]
+        server: ["postgres13-python39", "postgres13-python311"]
         include:
-          - server: "postgres12-python39"
+          - server: "postgres13-python39"
             server-python-version: "3.9"
-          - server: "postgres12-python311"
+          - server: "postgres13-python311"
             server-python-version: "3.11"
   
     steps:
@@ -30,11 +30,18 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         cache: pip
+    - name: Build server image
+      run: |
+        docker build \
+          -t greenplumpython-server:${{ matrix.server }} \
+          -f server/${{ matrix.server }}.Dockerfile \
+          server/
     - name: Run tests without pickler
       run: |
         python3 -m pip install tox~=4.11 tox-docker~=4.1 && \
         tox \
-          --override=docker:server.dockerfile=server/${{ matrix.server }}.Dockerfile \
+          --override=docker:server.image=greenplumpython-server:${{ matrix.server }} \
+          --override=docker:server.dockerfile='' \
           -e test-container \
           -- \
           --override-ini=server_use_pickler=false \
@@ -43,7 +50,8 @@ jobs:
       if: ${{ matrix.python-version == matrix.server-python-version }}
       run: |
         tox \
-          --override=docker:server.dockerfile=server/${{ matrix.server }}.Dockerfile \
+          --override=docker:server.image=greenplumpython-server:${{ matrix.server }} \
+          --override=docker:server.dockerfile='' \
           -e test-container \
           -- \
           --override-ini=server_use_pickler=true \

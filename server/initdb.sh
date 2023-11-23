@@ -8,5 +8,5 @@ set -o nounset -o xtrace -o errexit -o pipefail
     echo "log_destination = 'csvlog'"
 } >>"$PGDATA"/postgresql.conf
 
-python3 -m venv "$HOME"/venv
+# shellcheck source=/dev/null
 source "$HOME"/venv/bin/activate

@@ -11,6 +11,7 @@ def test_pickler_option(server_use_pickler: bool):
 from dataclasses import dataclass
 
 
+@pytest.mark.requires_pickler_on_server
 def test_pickler_outside_class(db: gp.Database):
     @dataclass
     class Int:

@@ -28,7 +28,7 @@ def pip_install(requirements: str) -> str:
 
 
 @pytest.fixture(scope="session")
-def db(server_use_pickler: bool):
+def db(server_use_pickler: bool, server_has_pgvector: bool):
     # for the connection both work for GitHub Actions and concourse
     db = gp.database(
         params={
@@ -41,10 +41,10 @@ def db(server_use_pickler: bool):
     db._execute(
         """
         CREATE EXTENSION IF NOT EXISTS plpython3u;
-        CREATE EXTENSION IF NOT EXISTS vector;
         DROP SCHEMA IF EXISTS test CASCADE;
         CREATE SCHEMA test;
-        """,
+        """
+        + ("CREATE EXTENSION IF NOT EXISTS vector;" if server_has_pgvector else ""),
         has_results=False,
     )
     if server_use_pickler:

@@ -12,10 +12,22 @@ apt-get install --no-install-recommends -y \
     python3-venv
 apt-get autoclean
 
-POSTGRES_USER_SITE=$(su --login postgres --session-command "python3 -m site --user-site")
-POSTGRES_USER_BASE=$(su --login postgres --session-command "python3 -m site --user-base")
+POSTGRES_USER_SITE=$(su postgres --session-command "python3 -m site --user-site")
+POSTGRES_USER_BASE=$(su postgres --session-command "python3 -m site --user-base")
 mkdir --parents "$POSTGRES_USER_SITE"
 chown --recursive postgres "$POSTGRES_USER_BASE"
 
 cp /tmp/initdb.sh /docker-entrypoint-initdb.d
 chown postgres /docker-entrypoint-initdb.d/*
+
+setup_venv() {
+    python3 -m venv "$HOME"/venv
+    # shellcheck source=/dev/null
+    source "$HOME"/venv/bin/activate
+
+    # shellcheck source=/dev/null
+    source /tmp/requirements.sh
+}
+
+export -f setup_venv
+su postgres --session-command 'bash -c setup_venv'
