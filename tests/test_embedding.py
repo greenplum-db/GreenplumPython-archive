@@ -13,7 +13,7 @@ def search_embeddings(t: gp.DataFrame):
 
 
 @pytest.mark.requires_pgvector
-def test_embedding_query_string(db: gp.Database):
+def test_embedding_query_text(db: gp.Database):
     content = ["I have a dog.", "I like eating apples."]
     t = (
         db.create_dataframe(columns={"id": range(len(content)), "content": content})
