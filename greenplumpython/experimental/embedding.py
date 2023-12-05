@@ -171,7 +171,8 @@ class Embedding:
                 ), embedding_info AS (
                     SELECT 
                         '{embedding_df._qualified_table_name}'::regclass::oid AS embedding_relid,
-                        attnum,
+                        attnum AS content_attnum,
+                        {len(self._dataframe._unique_key) + 1} AS embedding_attnum,
                         '{model_name}' AS model,
                         ARRAY(SELECT attnum FROM attnum_map WHERE attname != '{column}') AS unique_key
                     FROM attnum_map
@@ -180,7 +181,7 @@ class Embedding:
                 UPDATE pg_class
                 SET reloptions = array_append(
                     reloptions,
-                    format('_pygp_emb_%s=%s', attnum::text, to_json(embedding_info))
+                    format('_pygp_emb_%s=%s', content_attnum::text, to_json(embedding_info))
                 )
                 FROM embedding_info
                 WHERE oid = '{self._dataframe._qualified_table_name}'::regclass::oid;
@@ -224,7 +225,7 @@ class Embedding:
         embdedding_info = self._dataframe._db._execute(
             f"""
             WITH indexed_col_info AS (
-                SELECT attrelid, attnum
+                SELECT attrelid, attnum AS content_attnum
                 FROM pg_attribute
                 WHERE
                     attrelid = '{self._dataframe._qualified_table_name}'::regclass::oid AND
@@ -236,10 +237,12 @@ class Embedding:
             ), embedding_info_json AS (
                 SELECT split_part(option, '=', 2)::json AS val
                 FROM reloptions, indexed_col_info
-                WHERE option LIKE format('_pygp_emb_%s=%%', attnum)
+                WHERE option LIKE format('_pygp_emb_%s=%%', content_attnum)
             ), embedding_info AS (
                 SELECT * 
-                FROM embedding_info_json, json_to_record(val) AS (attnum int4, embedding_relid oid, model text, unique_key int[])
+                FROM embedding_info_json, json_to_record(val) AS (
+                    embedding_attnum int4, embedding_relid oid, model text, unique_key int[]
+                )
             ), unique_key_names AS (
                 SELECT ARRAY(
                     SELECT attname FROM pg_attribute
@@ -253,7 +256,7 @@ class Embedding:
                 pg_class.oid = embedding_relid AND
                 relnamespace = pg_namespace.oid AND
                 embedding_relid = attrelid AND
-                pg_attribute.attnum = 2;
+                embedding_attnum = attnum;
             """
         )
         row: Row = embdedding_info[0]  # type: ignore reportUnknownVariableType
@@ -269,9 +272,7 @@ class Embedding:
         distance = gp.operator("<->")  # L2 distance is the default operator class in pgvector
         return self._dataframe.join(
             embedding_df.assign(
-                distance=lambda t: distance(
-                    embedding_df[embedding_col_name], create_embedding(query, model)
-                )
+                distance=lambda t: distance(t[embedding_col_name], create_embedding(query, model))
             ).order_by("distance")[:top_k],
             how="inner",
             on=unique_key,  # type: ignore reportUnknownArgumentType
