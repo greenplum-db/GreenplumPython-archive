@@ -3,7 +3,7 @@ from uuid import uuid4
 
 import greenplumpython as gp
 from greenplumpython.row import Row
-from greenplumpython.type import TypeCast
+from greenplumpython.type import TypeCast, _serialize_to_expr
 
 
 @gp.create_function
@@ -39,7 +39,7 @@ def _record_dependency(
 
 
 @gp.create_function
-def _generate_embedding(content: str, model_name: str) -> gp.type_("vector"):  # type: ignore reportUnknownParameterType
+def create_embedding(content: str, model_name: str) -> gp.type_("vector"):  # type: ignore reportUnknownParameterType
     import sys
 
     import sentence_transformers  # type: ignore reportMissingImports
@@ -134,7 +134,7 @@ class Embedding:
                         Callable[[gp.DataFrame], TypeCast],
                         # FIXME: Modifier must be adapted to all types of model.
                         # Can this be done with transformers.AutoConfig?
-                        lambda t: gp.type_("vector", modifier=embedding_dimension)(_generate_embedding(t[column], model_name)),  # type: ignore reportUnknownLambdaType
+                        lambda t: gp.type_("vector", modifier=embedding_dimension)(create_embedding(t[column], model_name)),  # type: ignore reportUnknownLambdaType
                     )
                 },
             )[embedding_df_cols]
@@ -152,21 +152,34 @@ class Embedding:
             )
         assert self._dataframe._db is not None
         _record_dependency._create_in_db(self._dataframe._db)
+        query_col_names = _serialize_to_expr(
+            list(self._dataframe.unique_key) + [column], self._dataframe._db
+        )
         sql_add_relationship = f"""
             DO $$
             BEGIN
                 SET LOCAL allow_system_table_mods TO ON;
-
-                WITH embedding_info AS (
-                    SELECT '{embedding_df._qualified_table_name}'::regclass::oid AS embedding_relid, attnum, '{model_name}' AS model
-                    FROM pg_attribute
+                
+                WITH attnum_map AS (
+                    SELECT attname, attnum FROM pg_attribute
                     WHERE 
                         attrelid = '{self._dataframe._qualified_table_name}'::regclass::oid AND
-                        attname = '{column}'
+                        EXISTS (
+                            SELECT FROM unnest({query_col_names}) AS query
+                            WHERE attname = query
+                        )
+                ), embedding_info AS (
+                    SELECT 
+                        '{embedding_df._qualified_table_name}'::regclass::oid AS embedding_relid,
+                        attnum,
+                        '{model_name}' AS model,
+                        ARRAY(SELECT attnum FROM attnum_map WHERE attname != '{column}') AS unique_key
+                    FROM attnum_map
+                    WHERE attname = '{column}'
                 )
                 UPDATE pg_class
                 SET reloptions = array_append(
-                    reloptions, 
+                    reloptions,
                     format('_pygp_emb_%s=%s', attnum::text, to_json(embedding_info))
                 )
                 FROM embedding_info
@@ -177,6 +190,7 @@ class Embedding:
                         '{self._dataframe._qualified_table_name}'::regclass::oid,
                         '{embedding_df._qualified_table_name}'::regclass::oid
                     );
+
                 IF version() LIKE '%Greenplum%' THEN
                     PERFORM
                         {_record_dependency._qualified_name_str}(
@@ -212,7 +226,7 @@ class Embedding:
             WITH indexed_col_info AS (
                 SELECT attrelid, attnum
                 FROM pg_attribute
-                WHERE 
+                WHERE
                     attrelid = '{self._dataframe._qualified_table_name}'::regclass::oid AND
                     attname = '{column}'
             ), reloptions AS (
@@ -225,10 +239,16 @@ class Embedding:
                 WHERE option LIKE format('_pygp_emb_%s=%%', attnum)
             ), embedding_info AS (
                 SELECT * 
-                FROM embedding_info_json, json_to_record(val) AS (attnum int4, embedding_relid oid, model text)
+                FROM embedding_info_json, json_to_record(val) AS (attnum int4, embedding_relid oid, model text, unique_key int[])
+            ), unique_key_names AS (
+                SELECT ARRAY(
+                    SELECT attname FROM pg_attribute
+                    WHERE attrelid = embedding_relid AND attnum = ANY(unique_key)
+                ) AS val
+                FROM embedding_info
             )
-            SELECT nspname, relname, attname, model
-            FROM embedding_info, pg_class, pg_namespace, pg_attribute
+            SELECT nspname, relname, attname, model, unique_key_names.val AS unique_key
+            FROM embedding_info, pg_class, pg_namespace, pg_attribute, unique_key_names
             WHERE 
                 pg_class.oid = embedding_relid AND
                 relnamespace = pg_namespace.oid AND
@@ -236,25 +256,25 @@ class Embedding:
                 pg_attribute.attnum = 2;
             """
         )
-        row: Row = embdedding_info[0]
-        schema: str = row["nspname"]
-        embedding_table_name: str = row["relname"]
-        model = row["model"]
-        embedding_col_name = row["attname"]
+        row: Row = embdedding_info[0]  # type: ignore reportUnknownVariableType
+        schema: str = row["nspname"]  # type: ignore reportUnknownVariableType
+        embedding_table_name: str = row["relname"]  # type: ignore reportUnknownVariableType
+        model = row["model"]  # type: ignore reportUnknownVariableType
+        embedding_col_name = row["attname"]  # type: ignore reportUnknownVariableType
         embedding_df = self._dataframe._db.create_dataframe(
-            table_name=embedding_table_name, schema=schema
+            table_name=embedding_table_name, schema=schema  # type: ignore reportUnknownArgumentType
         )
+        unique_key: list[str] = row["unique_key"]  # type: ignore reportUnknownVariableType
         assert embedding_df is not None
-        assert self._dataframe.unique_key is not None
         distance = gp.operator("<->")  # L2 distance is the default operator class in pgvector
         return self._dataframe.join(
             embedding_df.assign(
                 distance=lambda t: distance(
-                    embedding_df[embedding_col_name], _generate_embedding(query, model)
+                    embedding_df[embedding_col_name], create_embedding(query, model)
                 )
             ).order_by("distance")[:top_k],
             how="inner",
-            on=self._dataframe.unique_key,
+            on=unique_key,  # type: ignore reportUnknownArgumentType
             self_columns={"*"},
             other_columns={},
         )
