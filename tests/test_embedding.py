@@ -8,8 +8,8 @@ from tests import db
 def search_embeddings(t: gp.DataFrame):
     results = t.embedding().search(column="content", query="apple", top_k=1)
     assert len(list(results)) == 1
-    for row in results:
-        assert row["content"] == "I like eating apples."
+    row = next(iter(results))
+    assert row["content"] == "I like eating apples."
 
 
 @pytest.mark.requires_pgvector
@@ -28,7 +28,7 @@ def test_embedding_query_text(db: gp.Database):
         )
         .check_unique(columns={"id"})
     )
-    t.embedding().create_index(column="content", model_name="all-MiniLM-L6-v2")
+    t = t.embedding().create_index(column="content", model_name="all-MiniLM-L6-v2")
     search_embeddings(t)
 
     # Ensure that a new DataFrame created from table in database can also be
