@@ -52,7 +52,7 @@ def test_embedding_multi_col_unique(db: gp.Database):
         )
         .check_unique(columns={"id", "id2"})
     )
-    t.embedding().create_index(column="content", model_name="all-MiniLM-L6-v2")
+    t = t.embedding().create_index(column="content", model_name="all-MiniLM-L6-v2")
     print(
         "reloptions =",
         db._execute(
