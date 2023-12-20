@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installing Python Packages on Server without Internet (Experimental) &mdash; GreenplumPython 1.0.1
+ documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Module References" href="../modules.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="../tutorial_package.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> GreenplumPython
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../requirements.html">Requirements</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="sql.html">Comparison with SQL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pandas.html">Comparison with pandas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="abalone.html">Predicting the age of abalone with Linear Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="embedding.html">Generating, Indexing and Searching Embeddings (Experimental)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Installing Python Packages on Server without Internet (Experimental)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#(Optional)-Prerequisite:-Sharing-Python-Environments-in-a-Cluster-with-NFS">(Optional) Prerequisite: Sharing Python Environments in a Cluster with NFS</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Starting-an-NFS-server">Starting an NFS server</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Mount-a-Python-environment-with-NFS-on-Each-Host">Mount a Python environment with NFS on Each Host</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Example:-A-UDF-requiring-a-Third-Party-Package">Example: A UDF requiring a Third-Party Package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Installing-Python-Packages">Installing Python Packages</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Module References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">GreenplumPython</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../tutorials.html">Tutorials</a> &raquo;</li>
+          <li><a href="../tutorial_package.html">&lt;no title&gt;</a> &raquo;</li>
+      <li>Installing Python Packages on Server without Internet (Experimental)</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/notebooks/package.ipynb" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Installing-Python-Packages-on-Server-without-Internet-(Experimental)">
+<h1>Installing Python Packages on Server without Internet (Experimental)<a class="headerlink" href="#Installing-Python-Packages-on-Server-without-Internet-(Experimental)" title="Permalink to this heading"></a></h1>
+<p><strong>WARNING: The feature introduced in this tutorial is currently experimental. It does not have any API stability guarantee.</strong></p>
+<p>In many environments, access from the database server to the Internet is disabled for security reasons. This makes it hard to install the Python packages required for data analytics on server.</p>
+<p>To overcome this limitation, GreenplumPython provides a function <code class="docutils literal notranslate"><span class="pre">Database.install_packages()</span></code> to help the user</p>
+<ol class="arabic simple">
+<li><p>Download Python packages from a PyPI site to the client;</p></li>
+<li><p>Pack and upload the downloaded packages to the database server;</p></li>
+<li><p>Install the uploaded Python packages on server.</p></li>
+</ol>
+<p>All these happen automatically and the user only need to declare what packages are needed.</p>
+<p>In this way, as long as there is a database connection on a client with Internet access, the user can easily install the required packages, even if the database server cannot access the Internet by itself.</p>
+<p><strong>NOTE: This function only installs packages on the server host that GreenplumPython directly connects to. If your database server spreads across multiple hosts, additional operations are required to make the packages available on all hosts.</strong></p>
+<section id="(Optional)-Prerequisite:-Sharing-Python-Environments-in-a-Cluster-with-NFS">
+<h2>(Optional) Prerequisite: Sharing Python Environments in a Cluster with NFS<a class="headerlink" href="#(Optional)-Prerequisite:-Sharing-Python-Environments-in-a-Cluster-with-NFS" title="Permalink to this heading"></a></h2>
+<p>Setting up a NFS mount makes it easier to share a Python environment on multiple hosts and containers.</p>
+<p>This is important for distributed database systems such as <a class="reference external" href="https://greenplum.org/">Greenplum</a> because otherwise the same set of pcakges need to be copied to every host in the cluster.</p>
+<section id="Starting-an-NFS-server">
+<h3>Starting an NFS server<a class="headerlink" href="#Starting-an-NFS-server" title="Permalink to this heading"></a></h3>
+<p>First, we need to install and start an NFS server on one host. As an example, for Greenplum, we can start it on the coordinator host.</p>
+<p>For how to do this, please refer to the documentation of the OS. For example, if you are using <a class="reference external" href="https://rockylinux.org/">Rocky Linux</a>, you might want to refer to <a class="reference external" href="https://docs.rockylinux.org/guides/file_sharing/nfsserver/">the NFS page</a>.</p>
+</section>
+<section id="Mount-a-Python-environment-with-NFS-on-Each-Host">
+<h3>Mount a Python environment with NFS on Each Host<a class="headerlink" href="#Mount-a-Python-environment-with-NFS-on-Each-Host" title="Permalink to this heading"></a></h3>
+<p>Next, we can mount a Python environment with NFS and share it to all hosts in the cluster.</p>
+<p>In this way, we only need to install the packages on one host and the packages will be made available to all other hosts as well through NFS.</p>
+<p><strong>WARNING: This will affect all applications on the hosts. Please make sure that the database server is the only application that uses Python.</strong></p>
+<p><strong>WARNING: This will hide all the files originally at the mount point. Please re-install them if they are needed by the database server.</strong></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span><span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>/tmp/test_venv
+<span class="o">!</span><span class="w"> </span>sudo<span class="w"> </span>mount<span class="w"> </span>-t<span class="w"> </span>nfs<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>hostname<span class="k">)</span><span class="s2">:/tmp/test_venv&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>python3<span class="w"> </span>-m<span class="w"> </span>site<span class="w"> </span>--user-base<span class="k">)</span><span class="s2">&quot;</span>
+<span class="o">!</span><span class="w"> </span>ls<span class="w"> </span>-l<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>python3<span class="w"> </span>-m<span class="w"> </span>site<span class="w"> </span>--user-base<span class="k">)</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+total 8
+drwxrwxr-x. 2 gpadmin gpadmin 4096 Oct  8 03:17 bin
+drwxrwxr-x. 3 gpadmin gpadmin   21 Oct  8 03:17 etc
+drwxrwxr-x. 2 gpadmin gpadmin    6 Oct  7 23:32 include
+drwxrwxr-x. 3 gpadmin gpadmin   23 Oct  7 23:32 lib
+lrwxrwxrwx. 1 gpadmin gpadmin    3 Oct  7 23:32 lib64 -&gt; lib
+-rw-rw-r--. 1 gpadmin gpadmin   80 Oct  8 03:47 pyvenv.cfg
+drwxrwxr-x. 6 gpadmin gpadmin   65 Oct  8 03:17 share
+</pre></div></div>
+</div>
+<p>Now Python environment is mounted at the <a class="reference external" href="https://docs.python.org/3/library/site.html#site.USER_BASE">Python user base directory</a> as an NFS.</p>
+<p>This means all packages installed with <code class="docutils literal notranslate"><span class="pre">pip</span></code> later will be available to all hosts with the NFS mounted.</p>
+<p>Please note that if there is more than one hosts in the cluster, the commands above needs to be executed on <strong>each</strong> of them.</p>
+<p>For example, if you are using Greenplum, this can be done by executing the commands in a <code class="docutils literal notranslate"><span class="pre">gpssh</span></code> session.</p>
+<p>Note that the NFS can be unmounted by</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span><span class="w"> </span>sudo<span class="w"> </span>umount<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>python3<span class="w"> </span>-m<span class="w"> </span>site<span class="w"> </span>--user-base<span class="k">)</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Example:-A-UDF-requiring-a-Third-Party-Package">
+<h2>Example: A UDF requiring a Third-Party Package<a class="headerlink" href="#Example:-A-UDF-requiring-a-Third-Party-Package" title="Permalink to this heading"></a></h2>
+<p>It is very common for a UDF that depends on a package that is not in the <a class="reference external" href="https://docs.python.org/3/library/index.html">Python Standard Library</a>. We can write one as a very simple example.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">cd</span> ../../../
+<span class="o">!</span>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>.
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+/home/gpadmin/GreenplumPython
+Processing /home/gpadmin/GreenplumPython
+  Installing build dependencies ... done
+  Getting requirements to build wheel ... done
+    Preparing wheel metadata ... done
+Collecting dill==0.3.6
+  Using cached dill-0.3.6-py3-none-any.whl (110 kB)
+Collecting psycopg2-binary==2.9.5
+  Using cached psycopg2_binary-2.9.5-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.0 MB)
+Building wheels for collected packages: greenplum-python
+  Building wheel for greenplum-python (PEP 517) ... done
+  Created wheel for greenplum-python: filename=greenplum_python-1.0.1-py3-none-any.whl size=75737 sha256=88ea8683b2bba05bc714308aba1c612e06e40d849fd654296f549c697d3bd742
+  Stored in directory: /tmp/pip-ephem-wheel-cache-n_iflnui/wheels/bb/1f/99/ff8594e48ec11df99af6e0ee8611a5e560e9f44d1a3fefb351
+Successfully built greenplum-python
+Installing collected packages: dill, psycopg2-binary, greenplum-python
+Successfully installed dill-0.3.6 greenplum-python-1.0.1 psycopg2-binary-2.9.5
+<span class="ansi-yellow-fg">WARNING: You are using pip version 20.2.4; however, version 23.2.1 is available.
+You should consider upgrading via the &#39;/tmp/test_venv/bin/python3 -m pip install --upgrade pip&#39; command.</span>
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">greenplumpython</span> <span class="k">as</span> <span class="nn">gp</span>
+
+<span class="n">db</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">database</span><span class="p">(</span><span class="s2">&quot;postgresql://localhost:7000&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@gp</span><span class="o">.</span><span class="n">create_function</span>
+<span class="k">def</span> <span class="nf">fake_name</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">faker</span> <span class="kn">import</span> <span class="n">Faker</span>  <span class="c1"># type: ignore reportMissingImports</span>
+
+    <span class="n">fake</span> <span class="o">=</span> <span class="n">Faker</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">fake</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>The UDF <code class="docutils literal notranslate"><span class="pre">fake_name()</span></code> generates fake names at random. This can be helpful for anonymizing the data.</p>
+<p>However, if we try to call this UDF, we will get an error:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">fake_name</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">ExternalRoutineException</span>                  Traceback (most recent call last)
+File <span class="ansi-green-fg">/tmp/test_venv/lib64/python3.9/site-packages/IPython/core/formatters.py:708</span>, in <span class="ansi-cyan-fg">PlainTextFormatter.__call__</span><span class="ansi-blue-fg">(self, obj)</span>
+<span class="ansi-green-intense-fg ansi-bold">    701</span> stream <span style="color: rgb(98,98,98)">=</span> StringIO()
+<span class="ansi-green-intense-fg ansi-bold">    702</span> printer <span style="color: rgb(98,98,98)">=</span> pretty<span style="color: rgb(98,98,98)">.</span>RepresentationPrinter(stream, <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>verbose,
+<span class="ansi-green-intense-fg ansi-bold">    703</span>     <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>max_width, <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>newline,
+<span class="ansi-green-intense-fg ansi-bold">    704</span>     max_seq_length<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>max_seq_length,
+<span class="ansi-green-intense-fg ansi-bold">    705</span>     singleton_pprinters<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>singleton_printers,
+<span class="ansi-green-intense-fg ansi-bold">    706</span>     type_pprinters<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>type_printers,
+<span class="ansi-green-intense-fg ansi-bold">    707</span>     deferred_pprinters<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>deferred_printers)
+<span class="ansi-green-fg">--&gt; 708</span> <span class="ansi-yellow-bg">printer</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">pretty</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">obj</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    709</span> printer<span style="color: rgb(98,98,98)">.</span>flush()
+<span class="ansi-green-intense-fg ansi-bold">    710</span> <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> stream<span style="color: rgb(98,98,98)">.</span>getvalue()
+
+File <span class="ansi-green-fg">/tmp/test_venv/lib64/python3.9/site-packages/IPython/lib/pretty.py:410</span>, in <span class="ansi-cyan-fg">RepresentationPrinter.pretty</span><span class="ansi-blue-fg">(self, obj)</span>
+<span class="ansi-green-intense-fg ansi-bold">    407</span>                         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> meth(obj, <span style="color: rgb(0,135,0)">self</span>, cycle)
+<span class="ansi-green-intense-fg ansi-bold">    408</span>                 <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,135,0)">cls</span> <span class="ansi-bold" style="color: rgb(175,0,255)">is</span> <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span style="color: rgb(0,135,0)">object</span> \
+<span class="ansi-green-intense-fg ansi-bold">    409</span>                         <span class="ansi-bold" style="color: rgb(175,0,255)">and</span> <span style="color: rgb(0,135,0)">callable</span>(<span style="color: rgb(0,135,0)">cls</span><span style="color: rgb(98,98,98)">.</span><span style="color: rgb(0,0,135)">__dict__</span><span style="color: rgb(98,98,98)">.</span>get(<span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">__repr__</span><span style="color: rgb(175,0,0)">&#39;</span>)):
+<span class="ansi-green-fg">--&gt; 410</span>                     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">_repr_pprint</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">obj</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">cycle</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    412</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> _default_pprint(obj, <span style="color: rgb(0,135,0)">self</span>, cycle)
+<span class="ansi-green-intense-fg ansi-bold">    413</span> <span class="ansi-bold" style="color: rgb(0,135,0)">finally</span>:
+
+File <span class="ansi-green-fg">/tmp/test_venv/lib64/python3.9/site-packages/IPython/lib/pretty.py:778</span>, in <span class="ansi-cyan-fg">_repr_pprint</span><span class="ansi-blue-fg">(obj, p, cycle)</span>
+<span class="ansi-green-intense-fg ansi-bold">    776</span> <span style="color: rgb(175,0,0)">&#34;&#34;&#34;A pprint that just redirects to the normal repr function.&#34;&#34;&#34;</span>
+<span class="ansi-green-intense-fg ansi-bold">    777</span> <span style="color: rgb(95,135,135)"># Find newlines and replace them with p.break_()</span>
+<span class="ansi-green-fg">--&gt; 778</span> output <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">repr</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">obj</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    779</span> lines <span style="color: rgb(98,98,98)">=</span> output<span style="color: rgb(98,98,98)">.</span>splitlines()
+<span class="ansi-green-intense-fg ansi-bold">    780</span> <span class="ansi-bold" style="color: rgb(0,135,0)">with</span> p<span style="color: rgb(98,98,98)">.</span>group():
+
+File <span class="ansi-green-fg">~/GreenplumPython/greenplumpython/dataframe.py:220</span>, in <span class="ansi-cyan-fg">DataFrame.__repr__</span><span class="ansi-blue-fg">(self)</span>
+<span class="ansi-green-intense-fg ansi-bold">    213</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> <span style="color: rgb(0,0,255)">__repr__</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> <span style="color: rgb(0,135,0)">str</span>:
+<span class="ansi-green-intense-fg ansi-bold">    214</span>     <span style="color: rgb(95,135,135)"># noqa</span>
+<span class="ansi-green-intense-fg ansi-bold">    215</span> <span style="color: rgb(188,188,188)">    </span><span style="color: rgb(175,0,0)">&#34;&#34;&#34;</span>
+<span class="ansi-green-intense-fg ansi-bold">    216</span> <span style="color: rgb(175,0,0)">    :meta private:</span>
+<span class="ansi-green-intense-fg ansi-bold">    217</span>
+<span class="ansi-green-intense-fg ansi-bold">    218</span> <span style="color: rgb(175,0,0)">    Return a string representation for a dataframe</span>
+<span class="ansi-green-intense-fg ansi-bold">    219</span> <span style="color: rgb(175,0,0)">    &#34;&#34;&#34;</span>
+<span class="ansi-green-fg">--&gt; 220</span>     contents <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">list</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    221</span>     row_num_string <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">(</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span><span style="color: rgb(0,135,0)">len</span>(contents)<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)"> row</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span><span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">s</span><span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">if</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,135,0)">len</span>(contents)<span style="color: rgb(188,188,188)"> </span><span style="color: rgb(98,98,98)">!=</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(98,98,98)">1</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">else</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">&#39;</span><span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">)</span><span class="ansi-bold" style="color: rgb(175,95,0)">\n</span><span style="color: rgb(175,0,0)">&#34;</span>
+<span class="ansi-green-intense-fg ansi-bold">    222</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,135,0)">len</span>(contents) <span style="color: rgb(98,98,98)">==</span> <span style="color: rgb(98,98,98)">0</span>:  <span style="color: rgb(95,135,135)"># DataFrame is empty</span>
+
+File <span class="ansi-green-fg">~/GreenplumPython/greenplumpython/dataframe.py:749</span>, in <span class="ansi-cyan-fg">DataFrame.__iter__</span><span class="ansi-blue-fg">(self)</span>
+<span class="ansi-green-intense-fg ansi-bold">    747</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> DataFrame<span style="color: rgb(98,98,98)">.</span>Iterator(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_contents)
+<span class="ansi-green-intense-fg ansi-bold">    748</span> <span class="ansi-bold" style="color: rgb(0,135,0)">assert</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_db <span class="ansi-bold" style="color: rgb(175,0,255)">is</span> <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>
+<span class="ansi-green-fg">--&gt; 749</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_contents <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">_fetch</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    750</span> <span class="ansi-bold" style="color: rgb(0,135,0)">assert</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_contents <span class="ansi-bold" style="color: rgb(175,0,255)">is</span> <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>
+<span class="ansi-green-intense-fg ansi-bold">    751</span> <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> DataFrame<span style="color: rgb(98,98,98)">.</span>Iterator(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_contents)
+
+File <span class="ansi-green-fg">~/GreenplumPython/greenplumpython/dataframe.py:873</span>, in <span class="ansi-cyan-fg">DataFrame._fetch</span><span class="ansi-blue-fg">(self, is_all)</span>
+<span class="ansi-green-intense-fg ansi-bold">    868</span> output_name <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">cte_</span><span style="color: rgb(175,0,0)">&#34;</span> <span style="color: rgb(98,98,98)">+</span> uuid4()<span style="color: rgb(98,98,98)">.</span>hex
+<span class="ansi-green-intense-fg ansi-bold">    869</span> to_json_dataframe <span style="color: rgb(98,98,98)">=</span> DataFrame(
+<span class="ansi-green-intense-fg ansi-bold">    870</span>     <span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">SELECT to_json(</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>output_name<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">)::TEXT FROM </span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span><span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_name<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)"> AS </span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>output_name<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#34;</span>,
+<span class="ansi-green-intense-fg ansi-bold">    871</span>     parents<span style="color: rgb(98,98,98)">=</span>[<span style="color: rgb(0,135,0)">self</span>],
+<span class="ansi-green-intense-fg ansi-bold">    872</span> )
+<span class="ansi-green-fg">--&gt; 873</span> result <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">_db</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">_execute</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">to_json_dataframe</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">_serialize</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    874</span> <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> result <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,135,0)">isinstance</span>(result, Iterable) <span class="ansi-bold" style="color: rgb(0,135,0)">else</span> []
+
+File <span class="ansi-green-fg">~/GreenplumPython/greenplumpython/db.py:77</span>, in <span class="ansi-cyan-fg">Database._execute</span><span class="ansi-blue-fg">(self, query, has_results)</span>
+<span class="ansi-green-intense-fg ansi-bold">     75</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> config<span style="color: rgb(98,98,98)">.</span>print_sql:
+<span class="ansi-green-intense-fg ansi-bold">     76</span>     <span style="color: rgb(0,135,0)">print</span>(query)
+<span class="ansi-green-fg">---&gt; 77</span> <span class="ansi-yellow-bg">cursor</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">execute</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">query</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">     78</span> <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> cursor<span style="color: rgb(98,98,98)">.</span>fetchall() <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> has_results <span class="ansi-bold" style="color: rgb(0,135,0)">else</span> cursor<span style="color: rgb(98,98,98)">.</span>rowcount
+
+File <span class="ansi-green-fg">/tmp/test_venv/lib64/python3.9/site-packages/psycopg2/extras.py:236</span>, in <span class="ansi-cyan-fg">RealDictCursor.execute</span><span class="ansi-blue-fg">(self, query, vars)</span>
+<span class="ansi-green-intense-fg ansi-bold">    234</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>column_mapping <span style="color: rgb(98,98,98)">=</span> []
+<span class="ansi-green-intense-fg ansi-bold">    235</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_query_executed <span style="color: rgb(98,98,98)">=</span> <span class="ansi-bold" style="color: rgb(0,135,0)">True</span>
+<span class="ansi-green-fg">--&gt; 236</span> <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">super</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">execute</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">query</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">vars</span><span class="ansi-yellow-bg">)</span>
+
+<span class="ansi-red-fg">ExternalRoutineException</span>: ModuleNotFoundError: No module named &#39;faker&#39;
+CONTEXT:  Traceback (most recent call last):
+  PL/Python function &#34;func_16dc1c114c0344938bc1d85945e9f0ad&#34;, line 16, in &lt;module&gt;
+    return GD[&#39;__func_16dc1c114c0344938bc1d85945e9f0ad&#39;]()
+  PL/Python function &#34;func_16dc1c114c0344938bc1d85945e9f0ad&#34;, line 6, in fake_name
+PL/Python function &#34;func_16dc1c114c0344938bc1d85945e9f0ad&#34;
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">ExternalRoutineException</span>                  Traceback (most recent call last)
+File <span class="ansi-green-fg">/tmp/test_venv/lib64/python3.9/site-packages/IPython/core/formatters.py:344</span>, in <span class="ansi-cyan-fg">BaseFormatter.__call__</span><span class="ansi-blue-fg">(self, obj)</span>
+<span class="ansi-green-intense-fg ansi-bold">    342</span>     method <span style="color: rgb(98,98,98)">=</span> get_real_method(obj, <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>print_method)
+<span class="ansi-green-intense-fg ansi-bold">    343</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> method <span class="ansi-bold" style="color: rgb(175,0,255)">is</span> <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>:
+<span class="ansi-green-fg">--&gt; 344</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">method</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    345</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>
+<span class="ansi-green-intense-fg ansi-bold">    346</span> <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:
+
+File <span class="ansi-green-fg">~/GreenplumPython/greenplumpython/dataframe.py:281</span>, in <span class="ansi-cyan-fg">DataFrame._repr_html_</span><span class="ansi-blue-fg">(self)</span>
+<span class="ansi-green-intense-fg ansi-bold">    279</span> <span style="color: rgb(175,0,0)">&#34;&#34;&#34;:meta private:&#34;&#34;&#34;</span>
+<span class="ansi-green-intense-fg ansi-bold">    280</span> repr_html_str <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">&#34;</span>
+<span class="ansi-green-fg">--&gt; 281</span> ret <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">list</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    282</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,135,0)">len</span>(ret) <span style="color: rgb(98,98,98)">!=</span> <span style="color: rgb(98,98,98)">0</span>:
+<span class="ansi-green-intense-fg ansi-bold">    283</span>     repr_html_str <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">&lt;table&gt;</span><span class="ansi-bold" style="color: rgb(175,95,0)">\n</span><span style="color: rgb(175,0,0)">&#34;</span>
+
+File <span class="ansi-green-fg">~/GreenplumPython/greenplumpython/dataframe.py:749</span>, in <span class="ansi-cyan-fg">DataFrame.__iter__</span><span class="ansi-blue-fg">(self)</span>
+<span class="ansi-green-intense-fg ansi-bold">    747</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> DataFrame<span style="color: rgb(98,98,98)">.</span>Iterator(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_contents)
+<span class="ansi-green-intense-fg ansi-bold">    748</span> <span class="ansi-bold" style="color: rgb(0,135,0)">assert</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_db <span class="ansi-bold" style="color: rgb(175,0,255)">is</span> <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>
+<span class="ansi-green-fg">--&gt; 749</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_contents <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">_fetch</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    750</span> <span class="ansi-bold" style="color: rgb(0,135,0)">assert</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_contents <span class="ansi-bold" style="color: rgb(175,0,255)">is</span> <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>
+<span class="ansi-green-intense-fg ansi-bold">    751</span> <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> DataFrame<span style="color: rgb(98,98,98)">.</span>Iterator(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_contents)
+
+File <span class="ansi-green-fg">~/GreenplumPython/greenplumpython/dataframe.py:873</span>, in <span class="ansi-cyan-fg">DataFrame._fetch</span><span class="ansi-blue-fg">(self, is_all)</span>
+<span class="ansi-green-intense-fg ansi-bold">    868</span> output_name <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">cte_</span><span style="color: rgb(175,0,0)">&#34;</span> <span style="color: rgb(98,98,98)">+</span> uuid4()<span style="color: rgb(98,98,98)">.</span>hex
+<span class="ansi-green-intense-fg ansi-bold">    869</span> to_json_dataframe <span style="color: rgb(98,98,98)">=</span> DataFrame(
+<span class="ansi-green-intense-fg ansi-bold">    870</span>     <span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">SELECT to_json(</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>output_name<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">)::TEXT FROM </span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span><span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_name<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)"> AS </span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>output_name<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#34;</span>,
+<span class="ansi-green-intense-fg ansi-bold">    871</span>     parents<span style="color: rgb(98,98,98)">=</span>[<span style="color: rgb(0,135,0)">self</span>],
+<span class="ansi-green-intense-fg ansi-bold">    872</span> )
+<span class="ansi-green-fg">--&gt; 873</span> result <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">_db</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">_execute</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">to_json_dataframe</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">_serialize</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    874</span> <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> result <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,135,0)">isinstance</span>(result, Iterable) <span class="ansi-bold" style="color: rgb(0,135,0)">else</span> []
+
+File <span class="ansi-green-fg">~/GreenplumPython/greenplumpython/db.py:77</span>, in <span class="ansi-cyan-fg">Database._execute</span><span class="ansi-blue-fg">(self, query, has_results)</span>
+<span class="ansi-green-intense-fg ansi-bold">     75</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> config<span style="color: rgb(98,98,98)">.</span>print_sql:
+<span class="ansi-green-intense-fg ansi-bold">     76</span>     <span style="color: rgb(0,135,0)">print</span>(query)
+<span class="ansi-green-fg">---&gt; 77</span> <span class="ansi-yellow-bg">cursor</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">execute</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">query</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">     78</span> <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> cursor<span style="color: rgb(98,98,98)">.</span>fetchall() <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> has_results <span class="ansi-bold" style="color: rgb(0,135,0)">else</span> cursor<span style="color: rgb(98,98,98)">.</span>rowcount
+
+File <span class="ansi-green-fg">/tmp/test_venv/lib64/python3.9/site-packages/psycopg2/extras.py:236</span>, in <span class="ansi-cyan-fg">RealDictCursor.execute</span><span class="ansi-blue-fg">(self, query, vars)</span>
+<span class="ansi-green-intense-fg ansi-bold">    234</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>column_mapping <span style="color: rgb(98,98,98)">=</span> []
+<span class="ansi-green-intense-fg ansi-bold">    235</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_query_executed <span style="color: rgb(98,98,98)">=</span> <span class="ansi-bold" style="color: rgb(0,135,0)">True</span>
+<span class="ansi-green-fg">--&gt; 236</span> <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">super</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">execute</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">query</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">vars</span><span class="ansi-yellow-bg">)</span>
+
+<span class="ansi-red-fg">ExternalRoutineException</span>: ModuleNotFoundError: No module named &#39;faker&#39;
+CONTEXT:  Traceback (most recent call last):
+  PL/Python function &#34;func_16dc1c114c0344938bc1d85945e9f0ad&#34;, line 3, in &lt;module&gt;
+    return GD[&#39;__func_16dc1c114c0344938bc1d85945e9f0ad&#39;]()
+  PL/Python function &#34;func_16dc1c114c0344938bc1d85945e9f0ad&#34;, line 6, in fake_name
+PL/Python function &#34;func_16dc1c114c0344938bc1d85945e9f0ad&#34;
+
+</pre></div></div>
+</div>
+<p>From the error message</p>
+<blockquote>
+<div><p>ModuleNotFoundError: No module named ‘faker’</p>
+</div></blockquote>
+<p>we learn that the error is due to missing of the module <code class="docutils literal notranslate"><span class="pre">faker</span></code>. We can fix it by installing it on server.</p>
+</section>
+<section id="Installing-Python-Packages">
+<h2>Installing Python Packages<a class="headerlink" href="#Installing-Python-Packages" title="Permalink to this heading"></a></h2>
+<p>To install the package on server, we can simply call <code class="docutils literal notranslate"><span class="pre">Database.install_packages()</span></code>.</p>
+<p>The packages will be installed to the currently activated environment. If there is no virtual environment activated, the packages will be installed to the <a class="reference external" href="https://docs.python.org/3/library/site.html#site.USER_SITE">user’s site-packages directory</a> if the normal (system) site-packages directory is not writeable.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">greenplumpython.experimental.file</span>
+
+<span class="n">db</span><span class="o">.</span><span class="n">install_packages</span><span class="p">(</span><span class="s2">&quot;faker==19.6.1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The installation succeeded if no error showed up. We can verify it by running <code class="docutils literal notranslate"><span class="pre">fake_name()</span></code> again:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">fake_name</span><span class="p">(),</span> <span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table>
+    <tr>
+            <th>name</th>
+    </tr>
+    <tr>
+            <td>Melinda Tran</td>
+    </tr>
+</table></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../tutorial_package.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../modules.html" class="btn btn-neutral float-right" title="Module References" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, VMware.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
