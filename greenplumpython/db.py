@@ -259,7 +259,7 @@ class Database:
             See :ref:`tutorial-package` for more details.
 
         Note:
-            This function only installs packages on the server host that 
+            This function only installs packages on the server host that
             GreenplumPython directly connects to. If your database server
             spreads across multiple hosts, additional operations are required
             to make the packages available on all hosts.
