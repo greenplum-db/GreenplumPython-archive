@@ -35,12 +35,12 @@ def _extract_files(tmp_archive_name: str, returning: str) -> list[str]:
             tmp_archive.extractall(str(extracted_root))
         tmp_archive_path.unlink()
     if returning == "root":
-        yield str(extracted_root.resolve())
+        yield str(extracted_root)
     else:
         assert returning == "files"
         for path in extracted_root.rglob("*"):
             if path.is_file() and not path.is_symlink():
-                yield str(path.resolve())
+                yield str(path)
 
 
 def _archive_and_upload(tmp_archive_name: str, files: list[str], db: gp.Database):
@@ -98,6 +98,15 @@ def _install_on_server(pkg_dir: str, requirements: str) -> str:
     import sys
 
     assert sys.executable, "Python executable is required to install packages."
+    try:
+        exec_version = sp.check_output([sys.executable, "--version"], text=True, stderr=sp.STDOUT)
+    except sp.CalledProcessError as e:
+        raise Exception(e.stdout)
+
+    lib_version = f"Python {sys.version_info.major}.{sys.version_info.minor}."
+    assert exec_version.startswith(
+        lib_version
+    ), f"Python major and minor versions mismatch (executable {exec_version}, library {lib_version})"
     cmd = [
         sys.executable,
         "-m",
@@ -135,7 +144,7 @@ def _install_packages(db: gp.Database, requirements: str):
         sp.check_output(cmd, text=True, stderr=sp.STDOUT, input=requirements)
     except sp.CalledProcessError as e:
         raise e from Exception(e.stdout)
-    _archive_and_upload(tmp_archive_name, [local_dir.resolve()], db)
+    _archive_and_upload(tmp_archive_name, [local_dir], db)
     extracted = db.apply(lambda: _extract_files(tmp_archive_name, "root"), column_name="cache_dir")
     assert len(list(extracted)) == 1
     server_dir = (

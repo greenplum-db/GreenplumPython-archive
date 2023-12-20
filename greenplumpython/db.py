@@ -257,6 +257,20 @@ class Database:
 
         Example:
             See :ref:`tutorial-package` for more details.
+
+        Note:
+            This function only installs packages on the server host that 
+            GreenplumPython directly connects to. If your database server
+            spreads across multiple hosts, additional operations are required
+            to make the packages available on all hosts.
+
+            One simple way to achieve this is to setup an NFS share on all
+            hosts. Please refer to :ref:`tutorial-package` for a simple working
+            example.
+
+        Warning:
+            This function is currently **experimental** and the interface is
+            subject to change.
         """
         raise NotImplementedError(
             "Please import greenplumpython.experimental.file to load the implementation."
