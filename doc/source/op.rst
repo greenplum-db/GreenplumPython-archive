@@ -1,6 +1,6 @@
 Operators and Indexes
 ======================
-.. module:: greenplumpython
+module:: greenplumpython
 
 .. automodule:: op
    :members:

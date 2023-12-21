@@ -1230,7 +1230,12 @@ class DataFrame:
         """
         Enable embedding-based similarity search on columns of the current :class:`~DataFrame`.
 
-        See :ref:`tutorial-embedding` for more details.
+        Example:
+            See :ref:`tutorial-embedding` for more details.
+
+        Warning:
+            This function is currently **experimental** and the interface is
+            subject to change.
         """
         raise NotImplementedError(
             "Please import greenplumpython.experimental.embedding to load the implementation."
@@ -1242,7 +1247,8 @@ class DataFrame:
         Create a DataFrame with data read from files.
 
         Args:
-            files: list of file paths.
+            files: list of file paths. Each path ends with the path of the
+                same file on client, without links resolved.
             parser: a UDF that parses the given files on server. The UDF is required to
                 - take the file path as its only argument and
                 - returns a set of parsed records in the returing DataFrame.
@@ -1250,6 +1256,10 @@ class DataFrame:
 
         Returns:
             DataFrame containing the parsed data from the given files.
+
+        Warning:
+            This function is currently **experimental** and the interface is
+            subject to change.
         """
         raise NotImplementedError(
             "Please import greenplumpython.experimental.file to load the implementation."

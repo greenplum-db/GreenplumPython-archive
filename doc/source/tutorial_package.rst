@@ -2,6 +2,6 @@
 
 .. toctree::
    :maxdepth: 2
-   :caption: (Experimental) Installing Python Packages on Server without Internet Access
+   :caption: Installing Python Packages on Server without Internet (Experimental)
 
    notebooks/package

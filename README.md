@@ -1,6 +1,6 @@
 <img src="./doc/images/gppython_logo_text.svg">
 
-GreenplumPython is a Python library that enables the user to interact with Greenplum in a Pythonic way.
+GreenplumPython is a Python library that enables the user to interact with database in a Pythonic way.
 
 GreenplumPython provides a [pandas](https://pandas.pydata.org/)-like DataFrame API that
 1. looks familiar and intuitive to Python users

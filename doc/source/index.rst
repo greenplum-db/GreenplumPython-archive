@@ -19,6 +19,7 @@ There are explanations about the implementation and examples.
    :maxdepth: 2
    :caption: Contents:
 
-   install
+   req
+   req_advanced
    tutorials
    modules
