@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>(Experimental) Installing Python Packages on Server without Internet Access &mdash; GreenplumPython 1.0.1
+  <title>Installing Python Packages on Server without Internet (Experimental) &mdash; GreenplumPython 1.0.1
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
@@ -45,17 +45,17 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../install.html">Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../install.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../req.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../req_advanced.html">Requirements on Server for Advanced Features</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="sql.html">Comparison with SQL</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pandas.html">Comparison with pandas</a></li>
 <li class="toctree-l2"><a class="reference internal" href="abalone.html">Predicting the age of abalone with Linear Regression</a></li>
-<li class="toctree-l2"><a class="reference internal" href="embedding.html">(Experimental) Generating, Indexing and Searching Embeddings</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">(Experimental) Installing Python Packages on Server without Internet Access</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#(Optional)-Prerequisite:-Setting-up-an-NFS-Mount-for-Cluster">(Optional) Prerequisite: Setting-up an NFS Mount for Cluster</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="embedding.html">Generating, Indexing and Searching Embeddings (Experimental)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Installing Python Packages on Server without Internet (Experimental)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#(Optional)-Prerequisite:-Sharing-Python-Environments-in-a-Cluster-with-NFS">(Optional) Prerequisite: Sharing Python Environments in a Cluster with NFS</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#Starting-an-NFS-server">Starting an NFS server</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#Mount-a-Python-environment-with-NFS">Mount a Python environment with NFS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Mount-a-Python-environment-with-NFS-on-Each-Host">Mount a Python environment with NFS on Each Host</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#Example:-A-UDF-requiring-a-Third-Party-Package">Example: A UDF requiring a Third-Party Package</a></li>
@@ -83,7 +83,7 @@
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../tutorials.html">Tutorials</a> &raquo;</li>
           <li><a href="../tutorial_package.html">&lt;no title&gt;</a> &raquo;</li>
-      <li>(Experimental) Installing Python Packages on Server without Internet Access</li>
+      <li>Installing Python Packages on Server without Internet (Experimental)</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/notebooks/package.ipynb" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -93,8 +93,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="(Experimental)-Installing-Python-Packages-on-Server-without-Internet-Access">
-<h1>(Experimental) Installing Python Packages on Server without Internet Access<a class="headerlink" href="#(Experimental)-Installing-Python-Packages-on-Server-without-Internet-Access" title="Permalink to this heading"></a></h1>
+  <section id="Installing-Python-Packages-on-Server-without-Internet-(Experimental)">
+<h1>Installing Python Packages on Server without Internet (Experimental)<a class="headerlink" href="#Installing-Python-Packages-on-Server-without-Internet-(Experimental)" title="Permalink to this heading"></a></h1>
 <p><strong>WARNING: The feature introduced in this tutorial is currently experimental. It does not have any API stability guarantee.</strong></p>
 <p>In many environments, access from the database server to the Internet is disabled for security reasons. This makes it hard to install the Python packages required for data analytics on server.</p>
 <p>To overcome this limitation, GreenplumPython provides a function <code class="docutils literal notranslate"><span class="pre">Database.install_packages()</span></code> to help the user</p>
@@ -105,17 +105,18 @@
 </ol>
 <p>All these happen automatically and the user only need to declare what packages are needed.</p>
 <p>In this way, as long as there is a database connection on a client with Internet access, the user can easily install the required packages, even if the database server cannot access the Internet by itself.</p>
-<section id="(Optional)-Prerequisite:-Setting-up-an-NFS-Mount-for-Cluster">
-<h2>(Optional) Prerequisite: Setting-up an NFS Mount for Cluster<a class="headerlink" href="#(Optional)-Prerequisite:-Setting-up-an-NFS-Mount-for-Cluster" title="Permalink to this heading"></a></h2>
+<p><strong>NOTE: This function only installs packages on the server host that GreenplumPython directly connects to. If your database server spreads across multiple hosts, additional operations are required to make the packages available on all hosts.</strong></p>
+<section id="(Optional)-Prerequisite:-Sharing-Python-Environments-in-a-Cluster-with-NFS">
+<h2>(Optional) Prerequisite: Sharing Python Environments in a Cluster with NFS<a class="headerlink" href="#(Optional)-Prerequisite:-Sharing-Python-Environments-in-a-Cluster-with-NFS" title="Permalink to this heading"></a></h2>
 <p>Setting up a NFS mount makes it easier to share a Python environment on multiple hosts and containers.</p>
-<p>This is important for distributed database systems such as <a class="reference external" href="https://greenplum.org/">Greenplum</a> because otherwise the same set of pcakges need to be installed on every host in the cluster.</p>
+<p>This is important for distributed database systems such as <a class="reference external" href="https://greenplum.org/">Greenplum</a> because otherwise the same set of packages needs to be copied to every host in the cluster.</p>
 <section id="Starting-an-NFS-server">
 <h3>Starting an NFS server<a class="headerlink" href="#Starting-an-NFS-server" title="Permalink to this heading"></a></h3>
 <p>First, we need to install and start an NFS server on one host. As an example, for Greenplum, we can start it on the coordinator host.</p>
 <p>For how to do this, please refer to the documentation of the OS. For example, if you are using <a class="reference external" href="https://rockylinux.org/">Rocky Linux</a>, you might want to refer to <a class="reference external" href="https://docs.rockylinux.org/guides/file_sharing/nfsserver/">the NFS page</a>.</p>
 </section>
-<section id="Mount-a-Python-environment-with-NFS">
-<h3>Mount a Python environment with NFS<a class="headerlink" href="#Mount-a-Python-environment-with-NFS" title="Permalink to this heading"></a></h3>
+<section id="Mount-a-Python-environment-with-NFS-on-Each-Host">
+<h3>Mount a Python environment with NFS on Each Host<a class="headerlink" href="#Mount-a-Python-environment-with-NFS-on-Each-Host" title="Permalink to this heading"></a></h3>
 <p>Next, we can mount a Python environment with NFS and share it to all hosts in the cluster.</p>
 <p>In this way, we only need to install the packages on one host and the packages will be made available to all other hosts as well through NFS.</p>
 <p><strong>WARNING: This will affect all applications on the hosts. Please make sure that the database server is the only application that uses Python.</strong></p>

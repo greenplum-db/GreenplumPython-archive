@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Requirements on Server for Advanced Features &mdash; GreenplumPython 1.0.1
+ documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorials" href="tutorials.html" />
+    <link rel="prev" title="Requirements" href="req.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> GreenplumPython
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="req.html">Requirements</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Requirements on Server for Advanced Features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#using-non-built-in-modules-in-a-udf">Using Non-Built-in Modules in a UDF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#defining-classes-and-functions-outside-udfs">Defining Classes and Functions Outside UDFs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-and-searching-embeddings-experimental">Creating and Searching Embeddings (Experimental)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#uploading-data-files-from-localhost-experimental">Uploading Data Files from Localhost (Experimental)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-python-packages-experimental">Installing Python Packages (Experimental)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Module References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">GreenplumPython</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Requirements on Server for Advanced Features</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/req_advanced.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="requirements-on-server-for-advanced-features">
+<h1>Requirements on Server for Advanced Features<a class="headerlink" href="#requirements-on-server-for-advanced-features" title="Permalink to this heading"></a></h1>
+<section id="using-non-built-in-modules-in-a-udf">
+<h2>Using Non-Built-in Modules in a UDF<a class="headerlink" href="#using-non-built-in-modules-in-a-udf" title="Permalink to this heading"></a></h2>
+<p>Modules installed in <code class="code docutils literal notranslate"><span class="pre">sys.path</span></code> on server will be available for use in a UDF. It is recommended to use a dedicated virtual
+environment on server for UDFs. To achieve this, one way is to activate the environment before starting the database server.
+For example, for PostgreSQL:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>/path/to/venv
+<span class="nb">source</span><span class="w"> </span>/path/to/venv/bin/activate
+pg_ctl<span class="w"> </span>start
+</pre></div>
+</div>
+</div></blockquote>
+<p>In this way, UDFs executed in the PostgreSQL server can only use packages installed in the new virutal environment. This avoids
+polluting, or being polluted by, the system environment.</p>
+</section>
+<section id="defining-classes-and-functions-outside-udfs">
+<h2>Defining Classes and Functions Outside UDFs<a class="headerlink" href="#defining-classes-and-functions-outside-udfs" title="Permalink to this heading"></a></h2>
+<p>GreenplumPython will use the <cite>dill</cite> pickler to serialize and deserialize UDFs if it is available.
+Using a pickler like <cite>dill</cite> makes UDFs easier to write and to maintain because it allows us to refer to a function or class
+defined outside of the UDF. This means we don’t need to copy it around. To use dill, we need to</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Make sure that the Python minor version on client equals to the one on server;</p></li>
+<li><p>Make sure that the dill version on server is no less than the one on client, based on
+<a class="reference external" href="https://github.com/uqfoundation/dill/issues/272#issuecomment-400843077">dill’s statement</a> on backward compatibility.</p></li>
+</ul>
+</div></blockquote>
+<p>With all in</p>
+<ul class="simple">
+<li><p>the <a class="reference internal" href="#using-non-built-in-modules-in-a-udf">Using Non-Built-in Modules in a UDF</a> section and</p></li>
+<li><p>the <a class="reference internal" href="#defining-classes-and-functions-outside-udfs">Defining Classes and Functions Outside UDFs</a> section</p></li>
+</ul>
+<p>setup, we are now ready to go though the <a class="reference internal" href="abalone.html"><span class="doc">tutorial</span></a> on how to do Machine Learning (ML) in database with UDFs.</p>
+</section>
+<section id="creating-and-searching-embeddings-experimental">
+<h2>Creating and Searching Embeddings (Experimental)<a class="headerlink" href="#creating-and-searching-embeddings-experimental" title="Permalink to this heading"></a></h2>
+<p>Embeddings enable us to search unstructured data, e.g. texts and images, based on semantic similarity.</p>
+<p>To create and search embeddings, we will need all in <a class="reference internal" href="req.html"><span class="doc">Requirements</span></a>, plus the
+<a class="reference external" href="https://pypi.org/project/sentence-transformers/">sentence-transformers</a> package installed
+in the server’s Python environment.</p>
+<p>Please refer to the <a class="reference internal" href="tutorial_embedding.html"><span class="doc">tutorial</span></a> for a simple working example to validate your setup.</p>
+</section>
+<section id="uploading-data-files-from-localhost-experimental">
+<h2>Uploading Data Files from Localhost (Experimental)<a class="headerlink" href="#uploading-data-files-from-localhost-experimental" title="Permalink to this heading"></a></h2>
+<p>With GreenplumPython, we can upload data files of any format from localhost to server and parse them with a UDF.</p>
+<p>This feature requires all in <a class="reference internal" href="req.html"><span class="doc">Requirements</span></a> to create UDFs.</p>
+<p>Please refer to the doc of <a class="reference internal" href="dataframe.html#dataframe.DataFrame.from_files" title="dataframe.DataFrame.from_files"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DataFrame.from_files()</span></code></a> for detailed usage.</p>
+</section>
+<section id="installing-python-packages-experimental">
+<h2>Installing Python Packages (Experimental)<a class="headerlink" href="#installing-python-packages-experimental" title="Permalink to this heading"></a></h2>
+<p>With GreenplumPython, we can upload packages from localhost and install them on server.</p>
+<p>This can greatly simplify the process when the server cannot access the PyPI service directly.</p>
+<p>Since the installation is done by executing a UDF on server, this feature requires all in <a class="reference internal" href="req.html"><span class="doc">Requirements</span></a>.</p>
+<p>Please refer to</p>
+<ul class="simple">
+<li><p>the doc of <a class="reference internal" href="db.html#db.Database.install_packages" title="db.Database.install_packages"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Database.install_packages()</span></code></a> for detailed usage, and</p></li>
+<li><p>the <a class="reference internal" href="tutorial_package.html"><span class="doc">tutorial</span></a> for a simple working example.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="req.html" class="btn btn-neutral float-left" title="Requirements" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorials.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, VMware.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
