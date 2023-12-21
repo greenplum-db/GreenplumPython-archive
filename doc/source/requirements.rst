@@ -53,7 +53,7 @@ There are a few points to note when working with `PL/Python`:
   We will remove this limitation soon by supporting `PL/Container <https://github.com/greenplum-db/plcontainer>`_.
 - Python 3.x is required on server. Please make sure that :code:`libpython3.x.so` is in :code:`$LD_LIBRARY_PATH`.
   
-  There is no hard requiremet on the minor version, but Python language features and libraries available for use in a UDF depends on it.
+  There is no hard requirement on the minor version, but Python language features and libraries available for use in a UDF depends on it.
   Therefore, it is recommended that the Python version on server is greater than or equal to the one on client.
 - Modules installed in :code:`sys.path` on server will be available for use in a UDF. It is recommended to use a dedicated virtual
   environment on server for UDFs. To achieve this, one way is to activate the environment before starting the database server.
@@ -90,8 +90,8 @@ in the server's Python environment.
 
 Please refer to the :doc:`tutorial <./tutorial_embedding>` for a simple working example to validate your setup.
 
-Uplading Data Files from Localhost (Experimental)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Uploading Data Files from Localhost (Experimental)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 With GreenplumPython, we can upload data files of any format from localhost to server and parse them with a UDF.
 
