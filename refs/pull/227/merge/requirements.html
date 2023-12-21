@@ -48,7 +48,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#getting-started">Getting Started</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#creating-functions">Creating Functions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#creating-and-searching-embeddings-experimental">Creating and Searching Embeddings (Experimental)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#uplading-data-files-from-localhost-experimental">Uplading Data Files from Localhost (Experimental)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uploading-data-files-from-localhost-experimental">Uploading Data Files from Localhost (Experimental)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#installing-python-packages-experimental">Installing Python Packages (Experimental)</a></li>
 </ul>
 </li>
@@ -117,7 +117,7 @@
 <li><p>To use the extension <code class="code docutils literal notranslate"><span class="pre">plpython3u</span></code>, it is required to login as a <code class="code docutils literal notranslate"><span class="pre">SUPERUSER</span></code>. This might cause some security concerns.
 We will remove this limitation soon by supporting <a class="reference external" href="https://github.com/greenplum-db/plcontainer">PL/Container</a>.</p></li>
 <li><p>Python 3.x is required on server. Please make sure that <code class="code docutils literal notranslate"><span class="pre">libpython3.x.so</span></code> is in <code class="code docutils literal notranslate"><span class="pre">$LD_LIBRARY_PATH</span></code>.</p>
-<p>There is no hard requiremet on the minor version, but Python language features and libraries available for use in a UDF depends on it.
+<p>There is no hard requirement on the minor version, but Python language features and libraries available for use in a UDF depends on it.
 Therefore, it is recommended that the Python version on server is greater than or equal to the one on client.</p>
 </li>
 <li><p>Modules installed in <code class="code docutils literal notranslate"><span class="pre">sys.path</span></code> on server will be available for use in a UDF. It is recommended to use a dedicated virtual
@@ -154,8 +154,8 @@ defined outside of the UDF. This means we don’t need to copy it around. To use
 in the server’s Python environment.</p>
 <p>Please refer to the <a class="reference internal" href="tutorial_embedding.html"><span class="doc">tutorial</span></a> for a simple working example to validate your setup.</p>
 </section>
-<section id="uplading-data-files-from-localhost-experimental">
-<h3>Uplading Data Files from Localhost (Experimental)<a class="headerlink" href="#uplading-data-files-from-localhost-experimental" title="Permalink to this heading"></a></h3>
+<section id="uploading-data-files-from-localhost-experimental">
+<h3>Uploading Data Files from Localhost (Experimental)<a class="headerlink" href="#uploading-data-files-from-localhost-experimental" title="Permalink to this heading"></a></h3>
 <p>With GreenplumPython, we can upload data files of any format from localhost to server and parse them with a UDF.</p>
 <p>This feature requires all in the the <a class="reference internal" href="#creating-functions">Creating Functions</a> section to create UDFs.</p>
 <p>Please refer to the doc of <a class="reference internal" href="dataframe.html#dataframe.DataFrame.from_files" title="dataframe.DataFrame.from_files"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DataFrame.from_files()</span></code></a> for detailed usage.</p>
