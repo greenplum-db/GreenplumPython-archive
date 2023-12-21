@@ -1,6 +1,5 @@
 Database
 ========
-.. module:: greenplumpython
 
 .. automodule:: db
    :members:
