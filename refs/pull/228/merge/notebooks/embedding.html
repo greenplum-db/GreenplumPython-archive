@@ -55,7 +55,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#Installing-the-Package">Installing the Package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Preparing-Data">Preparing Data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Generating-and-Indexing-Embeddings">Generating and Indexing Embeddings</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Generating-without-Indexing-Embeddings">Generating without Indexing Embeddings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Generating-Embeddings-without-Indexing">Generating Embeddings without Indexing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Semantic-Search-by-Embeddings">Semantic Search by Embeddings</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Cleaning-All-at-Once">Cleaning All at Once</a></li>
 </ul>
@@ -194,9 +194,9 @@ Successfully installed greenplum-python-1.0.1
 </div>
 <p>This will generate embeddings for the text data using the specified model and create vector index on the embeddings for fast k-NN search.</p>
 </section>
-<section id="Generating-without-Indexing-Embeddings">
-<h2>Generating without Indexing Embeddings<a class="headerlink" href="#Generating-without-Indexing-Embeddings" title="Permalink to this heading"></a></h2>
-<p>Now, if we just want to generate the embeddings without creating a vector index, we can use the function <code class="docutils literal notranslate"><span class="pre">create_embedding</span></code> from the <code class="docutils literal notranslate"><span class="pre">embedding</span></code> module:</p>
+<section id="Generating-Embeddings-without-Indexing">
+<h2>Generating Embeddings without Indexing<a class="headerlink" href="#Generating-Embeddings-without-Indexing" title="Permalink to this heading"></a></h2>
+<p>If we just want to generate the embeddings without creating a vector index, we can use the function <code class="docutils literal notranslate"><span class="pre">create_embedding()</span></code> from the <code class="docutils literal notranslate"><span class="pre">embedding</span></code> module:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
@@ -205,16 +205,15 @@ Successfully installed greenplum-python-1.0.1
 </pre></div>
 </div>
 </div>
-<p>Since we’re not indexing vectors, the dataframe doesn’t need to be stored as a table in the database. And we do not need to check the unique index of our columns.</p>
-<p>Furthermore, if we want to save the embeddings as vector type with embedding dimension, so that we can index them later, we need to cast the result with <code class="docutils literal notranslate"><span class="pre">gp.type_(&quot;vector&quot;,</span> <span class="pre">modifier=embedding_dimension)</span></code>.</p>
+<p>Since we’re not indexing vectors, the dataframe doesn’t need to be stored as a table in the database. And we do not need to specify the unique key if the embeddings are in the same dataframe.</p>
+<p>Furthermore, if we want to save the embeddings as vector type with embedding dimension, so that we can index them later, we need to cast the result to type <code class="docutils literal notranslate"><span class="pre">gp.type_(&quot;vector&quot;,</span> <span class="pre">modifier=&lt;embedding_dimension&gt;)</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)),</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">content</span><span class="p">})</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
     <span class="n">embedding_col</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span>
-        <span class="n">gp</span><span class="o">.</span><span class="n">type_</span><span class="p">(</span><span class="s2">&quot;vector&quot;</span><span class="p">,</span> <span class="n">modifier</span><span class="o">=</span><span class="mi">384</span><span class="p">)</span>
-        <span class="p">(</span><span class="n">create_embedding</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;content&quot;</span><span class="p">],</span> <span class="s2">&quot;all-MiniLM-L6-v2&quot;</span><span class="p">))</span>
+        <span class="n">gp</span><span class="o">.</span><span class="n">type_</span><span class="p">(</span><span class="s2">&quot;vector&quot;</span><span class="p">,</span> <span class="n">modifier</span><span class="o">=</span><span class="mi">384</span><span class="p">)(</span><span class="n">create_embedding</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;content&quot;</span><span class="p">],</span> <span class="s2">&quot;all-MiniLM-L6-v2&quot;</span><span class="p">))</span>
     <span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
