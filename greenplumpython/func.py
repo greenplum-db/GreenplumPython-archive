@@ -117,10 +117,18 @@ class FunctionExpr(Expr):
         ):
             return_annotation = inspect.signature(self._function._wrapped_func).return_annotation  # type: ignore reportUnknownArgumentType
             _serialize_to_type_name(return_annotation, db=db, for_return=True)
+            input_args = self._args
+            if len(input_args) == 0:
+                raise Exception("No input data specified, please specify a DataFrame or Columns")
+            input_clause = (
+                "*"
+                if (len(input_args) == 1 and isinstance(input_args[0], DataFrame))
+                else ",".join([arg._serialize(db=db) for arg in input_args])
+            )
             return DataFrame(
                 f"""
                 SELECT * FROM plcontainer_apply(TABLE(
-                    SELECT * {from_clause}), '{self._function._qualified_name_str}', 4096) AS
+                    SELECT {input_clause} {from_clause}), '{self._function._qualified_name_str}', 4096) AS
                     {_defined_types[return_annotation.__args__[0]]._serialize(db=db)}
                 """,
                 db=db,
@@ -370,6 +378,7 @@ class NormalFunction(_AbstractFunction):
             f"        import sys as {sys_lib_name}\n"
             f"        if {sysconfig_lib_name}.get_python_version() != '{python_version}':\n"
             f"            raise ModuleNotFoundError\n"
+            f"        {sys_lib_name}.modules['plpy']=plpy\n"
             f"        setattr({sys_lib_name}.modules['plpy'], '_SD', SD)\n"
             f"        GD['{func_ast.name}'] = {pickle_lib_name}.loads({func_pickled})\n"
             f"    except ModuleNotFoundError:\n"
