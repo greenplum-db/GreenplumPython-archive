@@ -23,21 +23,29 @@ def t(db: gp.Database):
     return db.create_dataframe(rows=rows, column_names=["a", "b"])
 
 
-def test_simple_func(db: gp.Database):
-    @gp.create_function(language_handler="plcontainer", runtime="plc_python_example")
-    def add_one(x: list[Int]) -> list[Int]:
-        return [{"i": arg["i"] + 1} for arg in x]
+@gp.create_function(language_handler="plcontainer", runtime="plc_python_example")
+def add_one(x: list[Int]) -> list[Int]:
+    return [{"i": arg["i"] + 1} for arg in x]
 
+
+def test_simple_func(db: gp.Database):
     assert (
         len(
             list(
                 db.create_dataframe(columns={"i": range(10)}).apply(
-                    lambda _: add_one(), expand=True
+                    lambda t: add_one(t), expand=True
                 )
             )
         )
         == 10
     )
+
+
+def test_func_no_input(db: gp.Database):
+
+    with pytest.raises(Exception) as exc_info:  # no input data for func raises Exception
+        db.create_dataframe(columns={"i": range(10)}).apply(lambda _: add_one(), expand=True)
+    assert "No input data specified, please specify a DataFrame or Columns" in str(exc_info.value)
 
 
 def test_func_column(db: gp.Database, t: gp.DataFrame):

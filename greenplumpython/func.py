@@ -115,15 +115,14 @@ class FunctionExpr(Expr):
             isinstance(self._function, NormalFunction)
             and self._function._language_handler == "plcontainer"
         ):
-            input_args = self._args
             return_annotation = inspect.signature(self._function._wrapped_func).return_annotation  # type: ignore reportUnknownArgumentType
             _serialize_to_type_name(return_annotation, db=db, for_return=True)
+            input_args = self._args
+            if len(input_args) == 0:
+                raise Exception("No input data specified, please specify a DataFrame or Columns")
             input_clause = (
                 "*"
-                if (
-                    len(input_args) == 0
-                    or (len(input_args) == 1 and isinstance(input_args[0], DataFrame))
-                )
+                if (len(input_args) == 1 and isinstance(input_args[0], DataFrame))
                 else ",".join([arg._serialize(db=db) for arg in input_args])
             )
             return DataFrame(
