@@ -2,6 +2,6 @@
 
 .. toctree::
    :maxdepth: 2
-   :caption: (Experimental) Generating, Indexing and Searching Embeddings
+   :caption: Generating, Indexing and Searching Embeddings (Experimental)
 
    notebooks/embedding

@@ -42,8 +42,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="install.html">Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="install.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="req.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="req_advanced.html">Requirements on Server for Advanced Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">Module References</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="db.html">Database</a></li>
@@ -578,9 +578,9 @@ between last cache and this refresh are not updated in local.</p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;DROP TABLE IF EXISTS const_table;&quot;</span><span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;DROP TABLE IF EXISTS t_refresh;&quot;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">nums</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)],</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">])</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span> <span class="o">=</span> <span class="n">nums</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="s2">&quot;const_table&quot;</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">],</span> <span class="n">temp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;num&quot;</span><span class="p">)[:]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span> <span class="o">=</span> <span class="n">nums</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="s2">&quot;t_refresh&quot;</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">],</span> <span class="n">temp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;num&quot;</span><span class="p">)[:]</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">df</span>
 <span class="o">-----</span>
  <span class="n">num</span>
@@ -592,7 +592,7 @@ between last cache and this refresh are not updated in local.</p>
    <span class="mi">4</span>
 <span class="o">-----</span>
 <span class="p">(</span><span class="mi">5</span> <span class="n">rows</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;INSERT INTO const_table(num) VALUES (5);&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;INSERT INTO t_refresh(num) VALUES (5);&quot;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">df</span>
 <span class="o">-----</span>
  <span class="n">num</span>
@@ -616,7 +616,7 @@ between last cache and this refresh are not updated in local.</p>
    <span class="mi">5</span>
 <span class="o">-----</span>
 <span class="p">(</span><span class="mi">6</span> <span class="n">rows</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;DROP TABLE const_table;&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;DROP TABLE t_refresh;&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -659,7 +659,7 @@ enabled.</p>
 </dl>
 <p class="rubric">Example</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">nums</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)],</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">])</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span> <span class="o">=</span> <span class="n">nums</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="s2">&quot;const_table&quot;</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">],</span> <span class="n">temp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span> <span class="o">=</span> <span class="n">nums</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="s2">&quot;t_saved&quot;</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">],</span> <span class="n">temp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">df</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;num&quot;</span><span class="p">)[:]</span>
 <span class="o">-----</span>
  <span class="n">num</span>
@@ -671,8 +671,8 @@ enabled.</p>
    <span class="mi">4</span>
 <span class="o">-----</span>
 <span class="p">(</span><span class="mi">5</span> <span class="n">rows</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">const_table</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;const_table&quot;</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">const_table</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;num&quot;</span><span class="p">)[:]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">t_saved</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;t_saved&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">t_saved</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;num&quot;</span><span class="p">)[:]</span>
 <span class="o">-----</span>
  <span class="n">num</span>
 <span class="o">-----</span>
@@ -902,7 +902,13 @@ names are decided by the keys of the first dictionary element if the <em>column_
 <dt class="sig sig-object py" id="dataframe.DataFrame.embedding">
 <span class="sig-name descname"><span class="pre">embedding</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Enable embedding-based similarity search on columns of the current <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
-<p>See <a class="reference internal" href="tutorial_embedding.html#tutorial-embedding"><span class="std std-ref">(Experimental) Generating, Indexing and Searching Embeddings</span></a> for more details.</p>
+<p class="rubric">Example</p>
+<p>See <a class="reference internal" href="tutorial_embedding.html#tutorial-embedding"><span class="std std-ref">Generating, Indexing and Searching Embeddings (Experimental)</span></a> for more details.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This function is currently <strong>experimental</strong> and the interface is
+subject to change.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference internal" href="embedding.html#experimental.embedding.Embedding" title="experimental.embedding.Embedding">Embedding</a></p>
@@ -917,7 +923,8 @@ names are decided by the keys of the first dictionary element if the <em>column_
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>files</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – list of file paths.</p></li>
+<li><p><strong>files</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – list of file paths. Each path ends with the path of the
+same file on client, without links resolved.</p></li>
 <li><p><strong>parser</strong> (<a class="reference internal" href="func.html#func.NormalFunction" title="func.NormalFunction"><em>NormalFunction</em></a>) – a UDF that parses the given files on server. The UDF is required to
 - take the file path as its only argument and
 - returns a set of parsed records in the returing DataFrame.</p></li>
@@ -931,6 +938,11 @@ names are decided by the keys of the first dictionary element if the <em>column_
 <dd class="field-odd"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame">DataFrame</a></p>
 </dd>
 </dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This function is currently <strong>experimental</strong> and the interface is
+subject to change.</p>
+</div>
 </dd></dl>
 
 </dd></dl>
