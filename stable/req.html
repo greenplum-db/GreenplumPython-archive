@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Requirements &mdash; GreenplumPython 1.1.0
+ documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Requirements on Server for Advanced Features" href="req_advanced.html" />
+    <link rel="prev" title="Welcome to GreenplumPython’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> GreenplumPython
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Requirements</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#on-client">On Client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#on-server">On Server</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#getting-started">Getting Started</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-functions">Creating Functions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="req_advanced.html">Requirements on Server for Advanced Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Module References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">GreenplumPython</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Requirements</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/req.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="requirements">
+<h1>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading"></a></h1>
+<section id="on-client">
+<h2>On Client<a class="headerlink" href="#on-client" title="Permalink to this heading"></a></h2>
+<p>On the client side, e.g., on our laptop or workstation, installing the <cite>greenplum-python</cite> Python package is all we need:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>greenplum-python
+</pre></div>
+</div>
+<p>This installs the latest released version. To try the latest development version, we can install it with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>pip3<span class="w"> </span>install<span class="w"> </span>git+https://github.com/greenplum-db/GreenplumPython
+</pre></div>
+</div>
+<p>Please note that the Python version needs to be at least 3.9 to install.</p>
+</section>
+<section id="on-server">
+<h2>On Server<a class="headerlink" href="#on-server" title="Permalink to this heading"></a></h2>
+<p>GreenplumPython works best with Greenplum. All features will be developed and tested on Greenplum first.</p>
+<p>We also try our best to support PostgreSQL and other PostgreSQL-derived databases, but some features might <strong>NOT</strong> be available when working with them.</p>
+<section id="getting-started">
+<span id="id1"></span><h3>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h3>
+<p>To get started, all we need is a database that we have the permission to access.</p>
+<p>After connecting to the database, we can create <a class="reference internal" href="dataframe.html#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> s and manipulate them like using <a class="reference external" href="https://pandas.pydata.org/">pandas</a>.</p>
+</section>
+<section id="creating-functions">
+<span id="id2"></span><h3>Creating Functions<a class="headerlink" href="#creating-functions" title="Permalink to this heading"></a></h3>
+<p>Even though we can call existing functions in database to manipulate DataFrames, sometimes they might not fit our needs and we need to create new UDFs.</p>
+<p>To create a UDF, we need to install the PL/Python package on server and enable it in database with SQL:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="n">plpython3u</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>There are a few points to note when working with PL/Python:</p>
+<ul class="simple">
+<li><p>To use the extension <code class="code docutils literal notranslate"><span class="pre">plpython3u</span></code>, it is required to login as a <code class="code docutils literal notranslate"><span class="pre">SUPERUSER</span></code>.
+This might cause some security concerns. We will remove this limitation soon by supporting
+<a class="reference external" href="https://github.com/greenplum-db/plcontainer">PL/Container</a>.</p></li>
+<li><p>Python 3.x is required on server. And it is recommended that the Python version on server
+is greater than or equal to the one on client. This is to ensure all Python features are available
+when writing UDFs.</p></li>
+</ul>
+<p>With all above steup, we are ready to go through the <a class="reference internal" href="sql.html"><span class="doc">tutorial</span></a> to see how GreenplumPython compares with SQL.</p>
+<p>For other, more advanced, features, please refer to <a class="reference internal" href="req_advanced.html"><span class="doc">Requirements on Server for Advanced Features</span></a>.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to GreenplumPython’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="req_advanced.html" class="btn btn-neutral float-right" title="Requirements on Server for Advanced Features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, VMware.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

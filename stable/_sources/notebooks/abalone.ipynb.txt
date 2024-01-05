@@ -5,7 +5,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# Example: Predicting the age of abalone\n",
+    "# Predicting the age of abalone with Linear Regression\n",
     "\n",
     "## Background\n",
     "\n",
@@ -30,7 +30,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 1,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -417,14 +417,15 @@
     }
    ],
    "source": [
-    "# SELECT gp_segment_id, COUNT(*)\n",
+    "# SELECT gp_execution_segment() AS gp_segment_id, COUNT(*)\n",
     "# FROM abalone\n",
-    "# GROUP BY 1\n",
-    "# ORDER BY gp_segment_id;\n",
+    "# GROUP BY 1;\n",
     "\n",
     "import greenplumpython.builtins.functions as F\n",
     "\n",
-    "abalone.group_by(\"gp_segment_id\").apply(lambda _: F.count())"
+    "abalone.assign(gp_segment_id=lambda _: gp.function(\"gp_execution_segment\")()).group_by(\n",
+    "    \"gp_segment_id\"\n",
+    ").apply(lambda _: F.count())"
    ]
   },
   {
@@ -504,6 +505,7 @@
     "import numpy as np\n",
     "import pickle\n",
     "\n",
+    "\n",
     "@gp.create_column_function\n",
     "def linreg_func(length: List[float], shucked_weight: List[float], rings: List[int]) -> LinregType:\n",
     "    X = np.array([length, shucked_weight]).T\n",
@@ -560,9 +562,8 @@
     "#    ) a\n",
     "# ) DISTRIBUTED BY (sex);\n",
     "\n",
-    "linreg_fitted = (\n",
-    "    abalone_train.group_by(\"sex\")\n",
-    "    .apply(lambda t: linreg_func(t[\"length\"], t[\"shucked_weight\"], t[\"rings\"]), expand=True)\n",
+    "linreg_fitted = abalone_train.group_by(\"sex\").apply(\n",
+    "    lambda t: linreg_func(t[\"length\"], t[\"shucked_weight\"], t[\"rings\"]), expand=True\n",
     ")"
    ]
   },
@@ -800,7 +801,7 @@
     "linreg_test_fit = linreg_fitted.inner_join(\n",
     "    abalone_test,\n",
     "    cond=lambda t1, t2: t1[\"sex\"] == t2[\"sex\"],\n",
-    "    self_columns=[\"col_nm\", \"coef\", \"intercept\", \"serialized_linreg_model\", \"created_dt\"]\n",
+    "    self_columns=[\"col_nm\", \"coef\", \"intercept\", \"serialized_linreg_model\", \"created_dt\"],\n",
     ")"
    ]
   },
@@ -836,12 +837,11 @@
     "\n",
     "\n",
     "linreg_pred = linreg_test_fit.assign(\n",
-    "    rings_pred=lambda t:\n",
-    "        linreg_pred_func(\n",
-    "            t[\"serialized_linreg_model\"],\n",
-    "            t[\"length\"],\n",
-    "            t[\"shucked_weight\"],\n",
-    "        ),\n",
+    "    rings_pred=lambda t: linreg_pred_func(\n",
+    "        t[\"serialized_linreg_model\"],\n",
+    "        t[\"length\"],\n",
+    "        t[\"shucked_weight\"],\n",
+    "    ),\n",
     ")[[\"id\", \"sex\", \"rings\", \"rings_pred\"]]"
    ]
   },
@@ -946,6 +946,7 @@
     "#    , r2_score float8\n",
     "# );\n",
     "\n",
+    "\n",
     "@dataclasses.dataclass\n",
     "class linreg_eval_type:\n",
     "    mae: float\n",
@@ -973,6 +974,7 @@
    "outputs": [],
    "source": [
     "from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score\n",
+    "\n",
     "\n",
     "@gp.create_column_function\n",
     "def linreg_eval(y_actual: List[float], y_pred: List[float]) -> linreg_eval_type:\n",
@@ -1066,8 +1068,7 @@
     "# ) a\n",
     "\n",
     "\n",
-    "linreg_pred.group_by(\"sex\").apply(\n",
-    "    lambda t: linreg_eval(t[\"rings\"], t[\"rings_pred\"]), expand=True)"
+    "linreg_pred.group_by(\"sex\").apply(lambda t: linreg_eval(t[\"rings\"], t[\"rings_pred\"]), expand=True)"
    ]
   }
  ],
