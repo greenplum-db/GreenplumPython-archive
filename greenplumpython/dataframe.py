@@ -973,6 +973,21 @@ class DataFrame:
             if drop_if_exists
             else ""
         )
+        # if temp:
+        #     temp_schema_name = next(
+        #         iter(
+        #             (
+        #                 self._db._execute(
+        #                     f"""
+        #             SELECT DISTINCT 'pg_temp_'||sess_id temp_schema
+        #             FROM pg_stat_activity
+        #             WHERE pid = pg_backend_pid();
+        #         """,
+        #                     has_results=True,
+        #                 )
+        #             )
+        #         )
+        #     )["temp_schema"]
         self._db._execute(
             f"""
             DO $$
@@ -988,7 +1003,7 @@ class DataFrame:
             """,
             has_results=False,
         )
-        return DataFrame.from_table(table_name, self._db, schema=schema)
+        return DataFrame.from_table(table_name, self._db, schema=schema if not temp else "pg_temp")
 
     def create_index(
         self,
@@ -1126,7 +1141,31 @@ class DataFrame:
 
         """
         qualified_name = f'"{schema}"."{table_name}"' if schema is not None else f'"{table_name}"'
-        return cls(f"TABLE {qualified_name}", db=db, qualified_table_name=qualified_name)
+        table_schema_clause = (
+            (
+                " AND table_schema "
+                + (f"""like '{schema}_%'""" if schema == "pg_temp" else f"""= '{schema}'""")
+            )
+            if schema
+            else ""
+        )
+
+        # table_schema_clause = f""" AND table_schema like '{schema}_%'""" if schema = "pg_temp" else if schema else ""
+        columns_query = f"""
+                SELECT column_name, data_type 
+                FROM information_schema.columns 
+                WHERE table_name = '{table_name}' {table_schema_clause}
+                ORDER BY ordinal_position
+        """
+        columns_inf_result = list(db._execute(columns_query, has_results=True))
+        assert columns_inf_result, f"Table {qualified_name} does not exists"
+        columns_list = {d["column_name"]: d["data_type"] for d in columns_inf_result}
+        return cls(
+            f"TABLE {qualified_name}",
+            db=db,
+            qualified_table_name=qualified_name,
+            columns=columns_list,
+        )
 
     @classmethod
     def from_rows(
