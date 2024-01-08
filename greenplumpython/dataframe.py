@@ -1157,15 +1157,15 @@ class DataFrame:
                 WHERE table_name = '{table_name}' {table_schema_clause}
                 ORDER BY ordinal_position
         """
-        columns_inf_result = list(db._execute(columns_query, has_results=True))
+        columns_inf_result = list(db._execute(columns_query, has_results=True))  # type: ignore reportUnknownVariableType
         assert columns_inf_result, f"Table {qualified_name} does not exists"
-        columns_list = {d["column_name"]: d["data_type"] for d in columns_inf_result}
+        columns_list: dict[str, str] = {d["column_name"]: d["data_type"] for d in columns_inf_result}  # type: ignore reportUnknownVariableType
         return cls(
             f"TABLE {qualified_name}",
             db=db,
             qualified_table_name=qualified_name,
             columns=columns_list,
-        )
+        )  # type: ignore reportUnknownVariableType
 
     @classmethod
     def from_rows(
