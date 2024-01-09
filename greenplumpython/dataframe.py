@@ -1141,21 +1141,10 @@ class DataFrame:
 
         """
         qualified_name = f'"{schema}"."{table_name}"' if schema is not None else f'"{table_name}"'
-        table_schema_clause = (
-            (
-                " AND table_schema "
-                + (f"""like '{schema}_%'""" if schema == "pg_temp" else f"""= '{schema}'""")
-            )
-            if schema
-            else ""
-        )
-
-        # table_schema_clause = f""" AND table_schema like '{schema}_%'""" if schema = "pg_temp" else if schema else ""
         columns_query = f"""
-                SELECT column_name, data_type 
-                FROM information_schema.columns 
-                WHERE table_name = '{table_name}' {table_schema_clause}
-                ORDER BY ordinal_position
+                SELECT attname AS column_name, atttypid::regtype AS data_type
+                FROM pg_attribute 
+                WHERE attrelid = '{qualified_name}'::regclass and attnum > 0;
         """
         columns_inf_result = list(db._execute(columns_query, has_results=True))  # type: ignore reportUnknownVariableType
         assert columns_inf_result, f"Table {qualified_name} does not exists"
