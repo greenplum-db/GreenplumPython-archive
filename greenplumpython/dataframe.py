@@ -973,21 +973,6 @@ class DataFrame:
             if drop_if_exists
             else ""
         )
-        # if temp:
-        #     temp_schema_name = next(
-        #         iter(
-        #             (
-        #                 self._db._execute(
-        #                     f"""
-        #             SELECT DISTINCT 'pg_temp_'||sess_id temp_schema
-        #             FROM pg_stat_activity
-        #             WHERE pid = pg_backend_pid();
-        #         """,
-        #                     has_results=True,
-        #                 )
-        #             )
-        #         )
-        #     )["temp_schema"]
         self._db._execute(
             f"""
             DO $$
