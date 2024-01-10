@@ -506,3 +506,20 @@ def test_const_non_ascii(db: gp.Database):
     df = db.create_dataframe(columns={"Ø": ["Ø"]})
     for row in df[["Ø"]]:
         assert row["Ø"] == "Ø"
+
+
+def test_table_describe(db: gp.Database):
+    df = db.create_dataframe(table_name="pg_class")
+    result = df.describe()
+    assert len(result) == 33
+    df_not_exist = db.create_dataframe(table_name="not_exist_table")
+    with pytest.raises(Exception) as exc_info:
+        df_not_exist.describe()
+    assert 'relation "not_exist_table" does not exist' in str(exc_info.value)
+
+
+def test_dataframe_describe(db: gp.Database):
+    df = db.create_dataframe(table_name="pg_class")[["relname", "relnamespace"]]
+    with pytest.raises(Exception) as exc_info:
+        df.describe()
+    assert "Dataframe is not saved in database" in str(exc_info.value)

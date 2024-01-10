@@ -1126,20 +1126,7 @@ class DataFrame:
 
         """
         qualified_name = f'"{schema}"."{table_name}"' if schema is not None else f'"{table_name}"'
-        columns_query = f"""
-                SELECT attname AS column_name, atttypid::regtype AS data_type
-                FROM pg_attribute 
-                WHERE attrelid = '{qualified_name}'::regclass and attnum > 0;
-        """
-        columns_inf_result = list(db._execute(columns_query, has_results=True))  # type: ignore reportUnknownVariableType
-        assert columns_inf_result, f"Table {qualified_name} does not exists"
-        columns_list: dict[str, str] = {d["column_name"]: d["data_type"] for d in columns_inf_result}  # type: ignore reportUnknownVariableType
-        return cls(
-            f"TABLE {qualified_name}",
-            db=db,
-            qualified_table_name=qualified_name,
-            columns=columns_list,
-        )  # type: ignore reportUnknownVariableType
+        return cls(f"TABLE {qualified_name}", db=db, qualified_table_name=qualified_name)
 
     @classmethod
     def from_rows(
@@ -1277,3 +1264,26 @@ class DataFrame:
         raise NotImplementedError(
             "Please import greenplumpython.experimental.file to load the implementation."
         )
+
+    def describe(self) -> dict[str, str]:
+        """
+        Returns a dictionary summarising the column information of the dataframe,
+        conditional on the table existing in the database.
+
+        Returns:
+            Dictionary containing the column names and types.
+
+        """
+        assert self._qualified_table_name is not None, f"Dataframe is not saved in database."
+        columns_query = f"""
+                        SELECT attname AS column_name, atttypid::regtype AS data_type
+                        FROM pg_attribute 
+                        WHERE attrelid = '{self._qualified_table_name}'::regclass and attnum > 0;
+                """
+        assert self._db is not None
+        columns_inf_result = list(self._db._execute(columns_query, has_results=True))  # type: ignore reportUnknownVariableType
+        assert columns_inf_result, f"Table {self._qualified_table_name} does not exists."
+        columns_list: dict[str, str] = {
+            d["column_name"]: d["data_type"] for d in columns_inf_result  # type: ignore reportUnknownVariableType
+        }  # type: ignore reportUnknownVariableType
+        return columns_list
