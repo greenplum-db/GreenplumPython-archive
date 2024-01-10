@@ -1267,7 +1267,7 @@ class DataFrame:
 
     def describe(self) -> dict[str, str]:
         """
-        Returns a dictionary summarising the column information of the dataframe, conditional on the table existing in the database.
+        Return a dictionary summarising the column information of the dataframe, conditional on the table existing in the database.
 
         Returns:
             Dictionary containing the column names and types.
