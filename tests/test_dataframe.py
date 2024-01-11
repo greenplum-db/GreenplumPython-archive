@@ -478,7 +478,7 @@ def test_table_distributed_hash(db: gp.Database):
 def test_table_describe(db: gp.Database):
     columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
     t = db.create_dataframe(columns=columns)
-    df = t.save_as("const_dataframe", column_names=["a", "b"], schema="test")
+    df = t.save_as("const_table_describe", column_names=["a", "b"], schema="test")
     result = df.describe()
     assert len(result) == 2
     df_s = df[["a", "b"]]
