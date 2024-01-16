@@ -475,6 +475,22 @@ def test_table_distributed_hash(db: gp.Database):
         assert row["distributedby"] == "DISTRIBUTED BY (id)"
 
 
+def test_table_describe(db: gp.Database):
+    columns = {"a": [1, 2, 3], "b": [1, 2, 3]}
+    t = db.create_dataframe(columns=columns)
+    df = t.save_as("const_table_describe", column_names=["a", "b"], schema="test")
+    result = df.describe()
+    assert len(result) == 2
+    df_s = df[["a", "b"]]
+    with pytest.raises(Exception) as exc_info:
+        df_s.describe()
+    assert "Dataframe is not saved in database" in str(exc_info.value)
+    df_not_exist = db.create_dataframe(table_name="not_exist_table")
+    with pytest.raises(Exception) as exc_info:
+        df_not_exist.describe()
+    assert 'relation "not_exist_table" does not exist' in str(exc_info.value)
+
+
 import pandas as pd
 
 
