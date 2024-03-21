@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DataFrame &mdash; GreenplumPython 1.1.0
+ documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Expression" href="expr.html" />
+    <link rel="prev" title="Database" href="db.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> GreenplumPython
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="req.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="req_advanced.html">Requirements on Server for Advanced Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Module References</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="db.html">Database</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">DataFrame</a></li>
+<li class="toctree-l2"><a class="reference internal" href="expr.html">Expression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="col.html">Column</a></li>
+<li class="toctree-l2"><a class="reference internal" href="row.html">Row</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func.html">Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="builtins.html">Builtins Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="type.html">Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group.html">Grouping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="order.html">Ordering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="op.html">Operators and Indexes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="embedding.html">Embedding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pd_df.html">Pandas-Compatible DataFrame</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">Configuration</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">GreenplumPython</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">Module References</a> &raquo;</li>
+      <li>DataFrame</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/greenplum-db/GreenplumPython/blob/main/doc/source/dataframe.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-dataframe">
+<span id="dataframe"></span><h1>DataFrame<a class="headerlink" href="#module-dataframe" title="Permalink to this heading"></a></h1>
+<p>DataFrame is the core data structure in GreenplumPython.</p>
+<p>Conceptually, a DataFrame is a two-dimensional structure containing data.</p>
+<p>In the data science world, a DataFrame in GreenplumPython, referred to as <code class="code docutils literal notranslate"><span class="pre">gp.DataFrame</span></code>, is similar to a
+<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html">DataFrame in pandas</a>,
+except that:</p>
+<ul>
+<li><p>Data in a <code class="code docutils literal notranslate"><span class="pre">gp.DataFrame</span></code> is lazily evaluated rather than eagerly. That is, they are computed only when they are
+observed. This can improve efficiency in many cases.</p></li>
+<li><p>Data in a <code class="code docutils literal notranslate"><span class="pre">gp.DataFrame</span></code> is located and manipulated on a remote database system rather than locally. As a consequence,</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Retrieving them from the database system can be expensive. Therefore, once the data of a
+<code class="code docutils literal notranslate"><span class="pre">gp.DataFrame</span></code> is fetched from the database system, it will be cached locally for later use.</p></li>
+<li><p>They might be modified concurrently by other users of the database system. You might
+need to use <a class="reference internal" href="#dataframe.DataFrame.refresh" title="dataframe.DataFrame.refresh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">refresh()</span></code></a> to sync the updates if the data becomes stale.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>In the database world, a <code class="code docutils literal notranslate"><span class="pre">gp.DataFrame</span></code> is similar to a <strong>materialized view</strong> in a database system
+in that:</p>
+<ul class="simple">
+<li><p>They both result from a possibly complex query.</p></li>
+<li><p>They both hold data, as opposed to views.</p></li>
+<li><p>The data can become stale due to concurrent modification. And the <a class="reference internal" href="#dataframe.DataFrame.refresh" title="dataframe.DataFrame.refresh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">refresh()</span></code></a> method
+is similar to the <code class="code docutils literal notranslate"><span class="pre">REFRESH</span> <span class="pre">MATERIALIZED</span> <span class="pre">VIEW</span></code> <a class="reference external" href="https://www.postgresql.org/docs/current/sql-refreshmaterializedview.html">command in PostgreSQL</a> for syncing updates.</p></li>
+</ul>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataframe.DataFrame">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dataframe.</span></span><span class="sig-name descname"><span class="pre">DataFrame</span></span><a class="headerlink" href="#dataframe.DataFrame" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Representation of GreenplumPython DataFrame object.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataframe.DataFrame.is_saved">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_saved</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#dataframe.DataFrame.is_saved" title="Permalink to this definition"></a></dt>
+<dd><p>Check whether the current dataframe is saved in database.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.__getitem__">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><span class="pre">DataFrame</span></a></span></span><a class="headerlink" href="#dataframe.DataFrame.__getitem__" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><span class="pre">DataFrame</span></a></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predicate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><span class="pre">DataFrame</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Expr</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><span class="pre">DataFrame</span></a></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">slice</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><span class="pre">DataFrame</span></a></span></span></dt>
+<dd><p>Select parts of the <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
+<p>Returns: <a class="reference internal" href="col.html#col.Column" title="col.Column"><code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code></a> or <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></p>
+<blockquote>
+<div><ul>
+<li><p>Returns: a <a class="reference internal" href="col.html#col.Column" title="col.Column"><code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code></a> of the current <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></p>
+<p>When want to use <a class="reference internal" href="col.html#col.Column" title="col.Column"><code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code></a> for computation rather for observing data:</p>
+<p>Args: key: <code class="xref py py-class docutils literal notranslate"><span class="pre">string</span></code></p>
+</li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">id_col</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<ul>
+<li><p>Returns: a new <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> from the current <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> per the type of key:</p>
+<blockquote>
+<div><ul>
+<li><p>When want to retrieve some columns of <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>:</p>
+<p>Args: key: <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of columns</p>
+<p>Returns: <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with the subset of columns, a.k.a. targets</p>
+</li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">id_dataframe</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[[</span><span class="s2">&quot;id&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+<ul>
+<li><p>When want to filter <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> on <a class="reference internal" href="col.html#col.Column" title="col.Column"><code class="xref py py-class docutils literal notranslate"><span class="pre">Column</span></code></a> with conditions:</p>
+<p>Args: key: <a class="reference internal" href="expr.html#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a></p>
+<p>Returns: <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with subset of rows per the value of the Expr</p>
+</li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">id_cond_dataframe</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<ul>
+<li><p>When want to retrieve a portion of <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>:</p>
+<p>Args: key: <code class="xref py py-class docutils literal notranslate"><span class="pre">slice</span></code></p>
+<p>Returns: <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with the portion of consecutive rows</p>
+</li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">slice_dataframe</span> <span class="o">=</span> <span class="n">tab</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.where">
+<span class="sig-name descname"><span class="pre">where</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predicate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.where" title="Permalink to this definition"></a></dt>
+<dd><p>Filter the <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> by applying the predicate.</p>
+<p>Return the <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> filtered by <a class="reference internal" href="expr.html#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>predicate</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a><em>]</em><em>, </em><em>Expr</em><em>]</em>) – <a class="reference internal" href="expr.html#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> : where condition statement.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> filtered according to <a class="reference internal" href="expr.html#expr.Expr" title="expr.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> that is
+passed in argument.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame">DataFrame</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">series</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">series</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+<span class="go">----</span>
+<span class="go"> id</span>
+<span class="go">----</span>
+<span class="go">  1</span>
+<span class="go">  2</span>
+<span class="go">  3</span>
+<span class="go">  4</span>
+<span class="go">  5</span>
+<span class="go">  6</span>
+<span class="go">  7</span>
+<span class="go">  8</span>
+<span class="go">  9</span>
+<span class="go">----</span>
+<span class="go">(9 rows)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.apply">
+<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expand</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.apply" title="Permalink to this definition"></a></dt>
+<dd><p>Apply a dataframe function to the self <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a><em>]</em><em>, </em><a class="reference internal" href="func.html#func.FunctionExpr" title="func.FunctionExpr"><em>FunctionExpr</em></a><em>]</em>) – <p>A Python function that</p>
+<ul>
+<li><p>takes the self <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> as the only parameter, and</p></li>
+<li><p>returns the result of a dataframe function, which can be a                    <a class="reference internal" href="func.html#func.NormalFunction" title="func.NormalFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalFunction</span></code></a>, a <a class="reference internal" href="func.html#func.AggregateFunction" title="func.AggregateFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregateFunction</span></code></a> or a                    <a class="reference internal" href="func.html#func.ColumnFunction" title="func.ColumnFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFunction</span></code></a></p></li>
+</ul>
+</p></li>
+<li><p><strong>expand</strong> (<em>bool</em>) – whether to expand the multi-valued result into columns of
+the resulting <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p></li>
+<li><p><strong>column_name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – name of the column of the return value in the
+resulting <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> of returned values of the function.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame">DataFrame</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>To compute the absolute value of a serie of numbers:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">series</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">abs</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;abs&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span>
+<span class="go">-----</span>
+<span class="go"> abs</span>
+<span class="go">-----</span>
+<span class="go">  10</span>
+<span class="go">  9</span>
+<span class="go">  8</span>
+<span class="go">  7</span>
+<span class="go">  6</span>
+<span class="go">  5</span>
+<span class="go">  4</span>
+<span class="go">  3</span>
+<span class="go">  2</span>
+<span class="go">  1</span>
+<span class="go">-----</span>
+<span class="go">(10 rows)</span>
+</pre></div>
+</div>
+<p>To transform colums into other types, see the following example. Suppose <em>label</em> function takes a <cite>str</cite> and a
+<cite>int</cite>, it joins them into a string and returns:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">series</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@gp</span><span class="o">.</span><span class="n">create_function</span>
+<span class="gp">... </span><span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;id&quot;</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">label</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]),</span>
+<span class="gp">... </span>                      <span class="n">column_name</span> <span class="o">=</span> <span class="s2">&quot;label&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span>
+<span class="go">-------</span>
+<span class="go"> label</span>
+<span class="go">-------</span>
+<span class="go"> id_0</span>
+<span class="go"> id_1</span>
+<span class="go"> id_2</span>
+<span class="go"> id_3</span>
+<span class="go"> id_4</span>
+<span class="go"> id_5</span>
+<span class="go"> id_6</span>
+<span class="go"> id_7</span>
+<span class="go"> id_8</span>
+<span class="go"> id_9</span>
+<span class="go">-------</span>
+<span class="go">(10 rows)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.assign">
+<span class="sig-name descname"><span class="pre">assign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">new_columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.assign" title="Permalink to this definition"></a></dt>
+<dd><p>Add new columns to the current <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>. Existing columns cannot be reassigned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_columns</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a><em>]</em><em>, </em><em>Any</em><em>]</em>) – a <cite>dict</cite> whose keys are column names and values are <code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code> which
+returns column data when is applied to the current <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a new <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> including the new assigned columns.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame">DataFrame</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">series</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">abs</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;abs&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="nb">abs</span><span class="o">=</span><span class="k">lambda</span> <span class="n">nums</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">nums</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span>
+<span class="go">-----------</span>
+<span class="go"> id  | abs</span>
+<span class="go">-----+-----</span>
+<span class="go"> -10 |  10</span>
+<span class="go"> -9  |   9</span>
+<span class="go"> -8  |   8</span>
+<span class="go"> -7  |   7</span>
+<span class="go"> -6  |   6</span>
+<span class="go"> -5  |   5</span>
+<span class="go"> -4  |   4</span>
+<span class="go"> -3  |   3</span>
+<span class="go"> -2  |   2</span>
+<span class="go"> -1  |   1</span>
+<span class="go">-----------</span>
+<span class="go">(10 rows)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.order_by">
+<span class="sig-name descname"><span class="pre">order_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ascending</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nulls_first</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.order_by" title="Permalink to this definition"></a></dt>
+<dd><p>Sort <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> based on the configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column_name</strong> (<em>str</em>) – name of column to order the dataframe by.</p></li>
+<li><p><strong>ascending</strong> (<em>Optional</em><em>[</em><em>bool</em><em>]</em>) – Define ascending of order, True = ASC / False = DESC.</p></li>
+<li><p><strong>nulls_first</strong> (<em>Optional</em><em>[</em><em>bool</em><em>]</em>) – Define if nulls will be ordered first or last, True = First / False = Last.</p></li>
+<li><p><strong>operator</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Define order by using operator. <strong>Can’t combine with ascending.</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Specification on ordering of the
+current <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="order.html#order.DataFrameOrdering" title="order.DataFrameOrdering"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameOrdering</span></code></a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">t</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_columns</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)[:]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">result</span>
+<span class="o">--------</span>
+ <span class="nb">id</span> <span class="o">|</span> <span class="n">b</span>
+<span class="o">----+---</span>
+  <span class="mi">1</span> <span class="o">|</span> <span class="mi">2</span>
+  <span class="mi">2</span> <span class="o">|</span> <span class="mi">3</span>
+  <span class="mi">3</span> <span class="o">|</span> <span class="mi">1</span>
+<span class="o">--------</span>
+<span class="p">(</span><span class="mi">3</span> <span class="n">rows</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">how</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">self_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'*'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'*'}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.join" title="Permalink to this definition"></a></dt>
+<dd><p>Join the current <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with another using the given arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a>) – <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> to join with</p></li>
+<li><p><strong>how</strong> (<em>Literal</em><em>[</em><em>''</em><em>, </em><em>'left'</em><em>, </em><em>'right'</em><em>, </em><em>'outer'</em><em>, </em><em>'inner'</em><em>, </em><em>'cross'</em><em>]</em>) – <p>How the two <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> are joined. The value can be one of:</p>
+<ul>
+<li><p><cite>”INNER”</cite>: inner join,</p></li>
+<li><p><cite>”LEFT”</cite>: left outer join,</p></li>
+<li><p><cite>”RIGHT”</cite>: right outer join,</p></li>
+<li><p><cite>”FULL”</cite>: full outer join, or</p></li>
+<li><p><cite>”CROSS”</cite>: cross join, i.e. the Cartesian product</p></li>
+</ul>
+<p>The default value <cite>“”</cite> is equivalent to “INNER”.</p>
+</p></li>
+<li><p><strong>cond</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a><em>, </em><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a><em>]</em><em>, </em><em>Expr</em><em>]</em><em>]</em>) – <code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code> lambda function as the join condition</p></li>
+<li><p><strong>on</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>Iterable</em><em>[</em><em>str</em><em>]</em><em>]</em><em>]</em>) – a list of column names that exists in both <cite>DataFrames</cite> to join on.
+<code class="code docutils literal notranslate"><span class="pre">cond</span></code> and <code class="code docutils literal notranslate"><span class="pre">on</span></code> cannot be used together.</p></li>
+<li><p><strong>self_columns</strong> (<em>Union</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Optional</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>Set</em><em>[</em><em>str</em><em>]</em><em>]</em>) – A <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> whose keys are the column names of
+the current dataframe to be included in the resulting
+dataframe. The value, if not <cite>None</cite>, is used for renaming
+the corresponding key to avoid name conflicts. Asterisk <code class="code docutils literal notranslate"><span class="pre">&quot;*&quot;</span></code>
+can be used as a key to indicate all columns.</p></li>
+<li><p><strong>other_columns</strong> (<em>Union</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Optional</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>Set</em><em>[</em><em>str</em><em>]</em><em>]</em>) – Same as <cite>self_columns</cite>, but for the <strong>other</strong> <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When using <code class="code docutils literal notranslate"><span class="pre">&quot;*&quot;</span></code> as key in <cite>self_columns</cite> or <cite>other_columns</cite>,
+please ensure that there will not be more than one column with the
+same name by applying proper renaming. Otherwise, there will be an
+error.</p>
+</div>
+<p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">age_rows</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;alice&quot;</span><span class="p">,</span> <span class="mi">18</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;bob&quot;</span><span class="p">,</span> <span class="mi">19</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;carol&quot;</span><span class="p">,</span> <span class="mi">19</span><span class="p">)]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">student</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_rows</span><span class="p">(</span>
+<span class="o">...</span>     <span class="n">age_rows</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">],</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">student</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+<span class="o">...</span>     <span class="n">student</span><span class="p">,</span>
+<span class="o">...</span>     <span class="n">on</span><span class="o">=</span><span class="s2">&quot;age&quot;</span><span class="p">,</span>
+<span class="o">...</span>     <span class="n">self_columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;*&quot;</span><span class="p">},</span>
+<span class="o">...</span>     <span class="n">other_columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;name_2&quot;</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">result</span>
+<span class="o">----------------------</span>
+ <span class="n">name</span>  <span class="o">|</span> <span class="n">age</span> <span class="o">|</span> <span class="n">name_2</span>
+<span class="o">-------+-----+--------</span>
+ <span class="n">alice</span> <span class="o">|</span>  <span class="mi">18</span> <span class="o">|</span> <span class="n">alice</span>
+ <span class="n">bob</span>   <span class="o">|</span>  <span class="mi">19</span> <span class="o">|</span> <span class="n">carol</span>
+ <span class="n">bob</span>   <span class="o">|</span>  <span class="mi">19</span> <span class="o">|</span> <span class="n">bob</span>
+ <span class="n">carol</span> <span class="o">|</span>  <span class="mi">19</span> <span class="o">|</span> <span class="n">carol</span>
+ <span class="n">carol</span> <span class="o">|</span>  <span class="mi">19</span> <span class="o">|</span> <span class="n">bob</span>
+<span class="o">----------------------</span>
+<span class="p">(</span><span class="mi">5</span> <span class="n">rows</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.inner_join">
+<span class="sig-name descname"><span class="pre">inner_join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">how</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'INNER'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">self_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'*'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'*'}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.inner_join" title="Permalink to this definition"></a></dt>
+<dd><p>Inner joins the current <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with another <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
+<p>Equivalent to calling <a class="reference internal" href="#dataframe.DataFrame.join" title="dataframe.DataFrame.join"><code class="xref py py-meth docutils literal notranslate"><span class="pre">join()</span></code></a> with <cite>how=”INNER”</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a>) – </p></li>
+<li><p><strong>how</strong> (<em>Literal</em><em>[</em><em>''</em><em>, </em><em>'left'</em><em>, </em><em>'right'</em><em>, </em><em>'outer'</em><em>, </em><em>'inner'</em><em>, </em><em>'cross'</em><em>]</em>) – </p></li>
+<li><p><strong>cond</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a><em>, </em><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a><em>]</em><em>, </em><em>Expr</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>on</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>Iterable</em><em>[</em><em>str</em><em>]</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>self_columns</strong> (<em>Union</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Optional</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>Set</em><em>[</em><em>str</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>other_columns</strong> (<em>Union</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Optional</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>Set</em><em>[</em><em>str</em><em>]</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame">DataFrame</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.left_join">
+<span class="sig-name descname"><span class="pre">left_join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">how</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'LEFT'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">self_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'*'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'*'}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.left_join" title="Permalink to this definition"></a></dt>
+<dd><p>Left-outer joins the current <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with another <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
+<p>Equivalent to calling <a class="reference internal" href="#dataframe.DataFrame.join" title="dataframe.DataFrame.join"><code class="xref py py-meth docutils literal notranslate"><span class="pre">join()</span></code></a> with <cite>how=”LEFT”</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a>) – </p></li>
+<li><p><strong>how</strong> (<em>Literal</em><em>[</em><em>''</em><em>, </em><em>'left'</em><em>, </em><em>'right'</em><em>, </em><em>'outer'</em><em>, </em><em>'inner'</em><em>, </em><em>'cross'</em><em>]</em>) – </p></li>
+<li><p><strong>cond</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a><em>, </em><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a><em>]</em><em>, </em><em>Expr</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>on</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>Iterable</em><em>[</em><em>str</em><em>]</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>self_columns</strong> (<em>Union</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Optional</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>Set</em><em>[</em><em>str</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>other_columns</strong> (<em>Union</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Optional</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>Set</em><em>[</em><em>str</em><em>]</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame">DataFrame</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.right_join">
+<span class="sig-name descname"><span class="pre">right_join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">how</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RIGHT'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">self_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'*'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'*'}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.right_join" title="Permalink to this definition"></a></dt>
+<dd><p>Right-outer joins the current <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with another <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
+<p>Equivalent to calling <a class="reference internal" href="#dataframe.DataFrame.join" title="dataframe.DataFrame.join"><code class="xref py py-meth docutils literal notranslate"><span class="pre">join()</span></code></a> with <cite>how=”RIGHT”</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a>) – </p></li>
+<li><p><strong>how</strong> (<em>Literal</em><em>[</em><em>''</em><em>, </em><em>'left'</em><em>, </em><em>'right'</em><em>, </em><em>'outer'</em><em>, </em><em>'inner'</em><em>, </em><em>'cross'</em><em>]</em>) – </p></li>
+<li><p><strong>cond</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a><em>, </em><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a><em>]</em><em>, </em><em>Expr</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>on</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>Iterable</em><em>[</em><em>str</em><em>]</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>self_columns</strong> (<em>Union</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Optional</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>Set</em><em>[</em><em>str</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>other_columns</strong> (<em>Union</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Optional</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>Set</em><em>[</em><em>str</em><em>]</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame">DataFrame</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.full_join">
+<span class="sig-name descname"><span class="pre">full_join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">how</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'FULL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">self_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'*'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'*'}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.full_join" title="Permalink to this definition"></a></dt>
+<dd><p>Full-outer joins the current <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with another <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
+<p>Equivalent to calling <a class="reference internal" href="#dataframe.DataFrame.join" title="dataframe.DataFrame.join"><code class="xref py py-meth docutils literal notranslate"><span class="pre">join()</span></code></a> with argutment <cite>how=”FULL”</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a>) – </p></li>
+<li><p><strong>how</strong> (<em>Literal</em><em>[</em><em>''</em><em>, </em><em>'left'</em><em>, </em><em>'right'</em><em>, </em><em>'outer'</em><em>, </em><em>'inner'</em><em>, </em><em>'cross'</em><em>]</em>) – </p></li>
+<li><p><strong>cond</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a><em>, </em><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a><em>]</em><em>, </em><em>Expr</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>on</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>Iterable</em><em>[</em><em>str</em><em>]</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>self_columns</strong> (<em>Union</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Optional</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>Set</em><em>[</em><em>str</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>other_columns</strong> (<em>Union</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Optional</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>Set</em><em>[</em><em>str</em><em>]</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame">DataFrame</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.cross_join">
+<span class="sig-name descname"><span class="pre">cross_join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">how</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CROSS'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">self_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'*'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'*'}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.cross_join" title="Permalink to this definition"></a></dt>
+<dd><p>Cross joins the current <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with another <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>,
+i.e. the Cartesian product.</p>
+<p>Equivalent to calling <a class="reference internal" href="#dataframe.DataFrame.join" title="dataframe.DataFrame.join"><code class="xref py py-meth docutils literal notranslate"><span class="pre">join()</span></code></a> with <cite>how=”CROSS”</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a>) – </p></li>
+<li><p><strong>how</strong> (<em>Literal</em><em>[</em><em>''</em><em>, </em><em>'left'</em><em>, </em><em>'right'</em><em>, </em><em>'outer'</em><em>, </em><em>'inner'</em><em>, </em><em>'cross'</em><em>]</em>) – </p></li>
+<li><p><strong>cond</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a><em>, </em><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a><em>]</em><em>, </em><em>Expr</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>on</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>Iterable</em><em>[</em><em>str</em><em>]</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>self_columns</strong> (<em>Union</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Optional</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>Set</em><em>[</em><em>str</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>other_columns</strong> (<em>Union</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Optional</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>Set</em><em>[</em><em>str</em><em>]</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame">DataFrame</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.refresh">
+<span class="sig-name descname"><span class="pre">refresh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.refresh" title="Permalink to this definition"></a></dt>
+<dd><p>Refresh the local cache of <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
+<p>After displayed dataframe, its content has been cached in local. All modifications made
+between last cache and this refresh are not updated in local.</p>
+<p>The local cache if used to iterate the <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> instance locally.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>self</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;DROP TABLE IF EXISTS t_refresh;&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">nums</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)],</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span> <span class="o">=</span> <span class="n">nums</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="s2">&quot;t_refresh&quot;</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">],</span> <span class="n">temp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;num&quot;</span><span class="p">)[:]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span>
+<span class="o">-----</span>
+ <span class="n">num</span>
+<span class="o">-----</span>
+   <span class="mi">0</span>
+   <span class="mi">1</span>
+   <span class="mi">2</span>
+   <span class="mi">3</span>
+   <span class="mi">4</span>
+<span class="o">-----</span>
+<span class="p">(</span><span class="mi">5</span> <span class="n">rows</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;INSERT INTO t_refresh(num) VALUES (5);&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span>
+<span class="o">-----</span>
+ <span class="n">num</span>
+<span class="o">-----</span>
+   <span class="mi">0</span>
+   <span class="mi">1</span>
+   <span class="mi">2</span>
+   <span class="mi">3</span>
+   <span class="mi">4</span>
+<span class="o">-----</span>
+<span class="p">(</span><span class="mi">5</span> <span class="n">rows</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+<span class="o">-----</span>
+ <span class="n">num</span>
+<span class="o">-----</span>
+   <span class="mi">0</span>
+   <span class="mi">1</span>
+   <span class="mi">2</span>
+   <span class="mi">3</span>
+   <span class="mi">4</span>
+   <span class="mi">5</span>
+<span class="o">-----</span>
+<span class="p">(</span><span class="mi">6</span> <span class="n">rows</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;DROP TABLE t_refresh;&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><cite>cursor</cite> is a predefined <a class="reference external" href="https://www.psycopg.org/docs/cursor.html">Psycopg Cursor</a>
+which connects to the same database in another session with
+<a class="reference external" href="https://www.psycopg.org/docs/connection.html?highlight=autocommit#connection.autocommit">auto-commit</a>
+enabled.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.save_as">
+<span class="sig-name descname"><span class="pre">save_as</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_if_exists</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_cascade</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.save_as" title="Permalink to this definition"></a></dt>
+<dd><p>Save the GreenplumPython <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataframe</span></code> as a <em>table</em> into the database.</p>
+<p>And return a new instance of <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> that represents the newly saved <em>table</em>.</p>
+<p>After running this function, if <cite>temp is False</cite>, you can also use
+<code class="xref py py-func docutils literal notranslate"><span class="pre">create_dataframe(table_name)()</span></code> to create a new <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataframe</span></code> next time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table_name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – name of table in database, required to be unique in the schema.</p></li>
+<li><p><strong>temp</strong> (<em>bool</em>) – whether table is temporary. Temp tables will be dropped after the database connection is closed.</p></li>
+<li><p><strong>column_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – list of column names</p></li>
+<li><p><strong>storage_params</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – storage_parameter of gpdb, reference
+<a class="reference external" href="https://docs.vmware.com/en/VMware-Tanzu-Greenplum/7/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html">https://docs.vmware.com/en/VMware-Tanzu-Greenplum/7/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html</a></p></li>
+<li><p><strong>schema</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – schema of the table for avoiding name conflicts.</p></li>
+<li><p><strong>distribution_type</strong> (<em>Optional</em><em>[</em><em>Literal</em><em>[</em><em>None</em><em>, </em><em>'randomly'</em><em>, </em><em>'replicated'</em><em>, </em><em>'hash'</em><em>]</em><em>]</em>) – type of distribution by.</p></li>
+<li><p><strong>distribution_key</strong> (<em>Optional</em><em>[</em><em>Set</em><em>[</em><em>str</em><em>]</em><em>]</em>) – distribution key.</p></li>
+<li><p><strong>drop_if_exists</strong> (<em>bool</em>) – bool to indicate if drop table if exists.</p></li>
+<li><p><strong>drop_cascade</strong> (<em>bool</em>) – bool to indicate if drop cascade table.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> represents the newly saved table</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame">DataFrame</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">nums</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)],</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span> <span class="o">=</span> <span class="n">nums</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="s2">&quot;t_saved&quot;</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">],</span> <span class="n">temp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;num&quot;</span><span class="p">)[:]</span>
+<span class="o">-----</span>
+ <span class="n">num</span>
+<span class="o">-----</span>
+   <span class="mi">0</span>
+   <span class="mi">1</span>
+   <span class="mi">2</span>
+   <span class="mi">3</span>
+   <span class="mi">4</span>
+<span class="o">-----</span>
+<span class="p">(</span><span class="mi">5</span> <span class="n">rows</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">t_saved</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_dataframe</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;t_saved&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">t_saved</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;num&quot;</span><span class="p">)[:]</span>
+<span class="o">-----</span>
+ <span class="n">num</span>
+<span class="o">-----</span>
+   <span class="mi">0</span>
+   <span class="mi">1</span>
+   <span class="mi">2</span>
+   <span class="mi">3</span>
+   <span class="mi">4</span>
+<span class="o">-----</span>
+<span class="p">(</span><span class="mi">5</span> <span class="n">rows</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.create_index">
+<span class="sig-name descname"><span class="pre">create_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'btree'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.create_index" title="Permalink to this definition"></a></dt>
+<dd><p>Create an index for the current dataframe for fast searching.</p>
+<p>The current dataframe is required to be saved before creating index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>columns</strong> (<em>Union</em><em>[</em><em>Set</em><em>[</em><em>str</em><em>]</em><em>, </em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>]</em>) – <code class="xref py py-class docutils literal notranslate"><span class="pre">Set</span></code> of columns of the current dataframe to create
+index on. Optionally, an <a class="reference external" href="https://www.postgresql.org/docs/current/indexes-opclass.html">operator class</a>
+can be specified for each column by passing a <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>
+with column names as keys and their operator class names as
+values.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – name of the index access method.</p></li>
+<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – name of the index.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataframe with key columns indexed.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.group_by">
+<span class="sig-name descname"><span class="pre">group_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">column_names</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.group_by" title="Permalink to this definition"></a></dt>
+<dd><p>Group the current GreenplumPython <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> by <cite>column_names</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>column_names</strong> (<em>str</em>) – one or more column names of the <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a set of groups of the current
+<a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>. Each group is identified by a different
+set of values of the columns in the arguments.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="group.html#group.DataFrameGroupingSet" title="group.DataFrameGroupingSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupingSet</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.distinct_on">
+<span class="sig-name descname"><span class="pre">distinct_on</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">column_names</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.distinct_on" title="Permalink to this definition"></a></dt>
+<dd><p>Deduplicate the current <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> with respect to the given columns.</p>
+<p>This function follows the <cite>DISTINCT ON</cite> syntax in PostgreSQL.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>column_names</strong> (<em>str</em>) – names of the current <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>’s columns.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> containing only the
+distinct values of the given columns.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">students</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;alice&quot;</span><span class="p">,</span> <span class="mi">18</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;bob&quot;</span><span class="p">,</span> <span class="mi">19</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;carol&quot;</span><span class="p">,</span> <span class="mi">19</span><span class="p">)]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">student</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_rows</span><span class="p">(</span><span class="n">students</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">],</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">student</span><span class="o">.</span><span class="n">distinct_on</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">)[[</span><span class="s1">&#39;age&#39;</span><span class="p">]]</span>
+<span class="o">-----</span>
+ <span class="n">age</span>
+<span class="o">-----</span>
+  <span class="mi">18</span>
+  <span class="mi">19</span>
+<span class="o">-----</span>
+<span class="p">(</span><span class="mi">2</span> <span class="n">rows</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Since both “bob” and “carol” have the same age 19, student.distinct_on(“age”)
+will randomly pick one of them for the name column. Use “[[‘age’]]” to make
+sure the result is stable.</p>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataframe.DataFrame.unique_key">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unique_key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dataframe.DataFrame.unique_key" title="Permalink to this definition"></a></dt>
+<dd><p>Return unique key.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.check_unique">
+<span class="sig-name descname"><span class="pre">check_unique</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.check_unique" title="Permalink to this definition"></a></dt>
+<dd><p>Check whether a given set of columns, i.e. key, is unique.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>columns</strong> (<em>set</em><em>[</em><em>str</em><em>]</em>) – set of columns name to be checked</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self checked</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.from_table">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.from_table" title="Permalink to this definition"></a></dt>
+<dd><p>Return a <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> which represents the given table in the <a class="reference internal" href="db.html#db.Database" title="db.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table_name</strong> (<em>str</em>) – table name</p></li>
+<li><p><strong>db</strong> (<em>Database</em>) – database of the table</p></li>
+<li><p><strong>schema</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – schema of table in database</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><em>DataFrame</em></a></p>
+</dd>
+</dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_table</span><span class="p">(</span><span class="s2">&quot;pg_class&quot;</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.from_rows">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.from_rows" title="Permalink to this definition"></a></dt>
+<dd><p>Return a <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> using a given list of values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rows</strong> (<em>Iterable</em><em>[</em><em>Union</em><em>[</em><em>Tuple</em><em>[</em><em>Any</em><em>]</em><em>, </em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em><em>]</em>) – <ul>
+<li><p>Iterable[Tuple[Any]]: a list of row values.</p></li>
+<li><p>Iterable[Dict[str, Any]]: a list of key value pairs to determine the columns and rows. The column
+names are decided by the keys of the first dictionary element if the <em>column_names</em> is not specified.</p></li>
+</ul>
+</p></li>
+<li><p><strong>db</strong> (<em>Database</em>) – <a class="reference internal" href="db.html#db.Database" title="db.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a>: database which will be associated with the <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p></li>
+<li><p><strong>column_names</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – Iterable[str]: list of given column names.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> generated with given values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></p>
+</dd>
+</dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_rows</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span>
+<span class="go"> ----</span>
+<span class="go">  id</span>
+<span class="go"> ----</span>
+<span class="go">  1</span>
+<span class="go">  2</span>
+<span class="go">  3</span>
+<span class="go"> ----</span>
+<span class="go"> (3 rows)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dict_list</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="s2">&quot;11&quot;</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="s2">&quot;22&quot;</span><span class="p">}]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_rows</span><span class="p">(</span><span class="n">dict_list</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span>
+<span class="go"> ----------</span>
+<span class="go">  id | val</span>
+<span class="go"> ----+-----</span>
+<span class="go">   1 | 11</span>
+<span class="go">   2 | 22</span>
+<span class="go"> ----------</span>
+<span class="go"> (2 rows)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.from_columns">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.from_columns" title="Permalink to this definition"></a></dt>
+<dd><p>Return a <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> using list of columns values given.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>columns</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Iterable</em><em>[</em><em>Any</em><em>]</em><em>]</em>) – Dict[str, List[Any]]: List of column values.</p></li>
+<li><p><strong>db</strong> (<em>Database</em>) – <a class="reference internal" href="db.html#db.Database" title="db.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a>: database which will be associated with the <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> generated with given values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_columns</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span>
+<span class="go">-------</span>
+<span class="go"> a | b</span>
+<span class="go">---+---</span>
+<span class="go"> 1 | 1</span>
+<span class="go"> 2 | 2</span>
+<span class="go"> 3 | 3</span>
+<span class="go">-------</span>
+<span class="go">(3 rows)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.embedding">
+<span class="sig-name descname"><span class="pre">embedding</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.embedding" title="Permalink to this definition"></a></dt>
+<dd><p>Enable embedding-based similarity search on columns of the current <a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
+<p class="rubric">Example</p>
+<p>See <a class="reference internal" href="tutorial_embedding.html#tutorial-embedding"><span class="std std-ref">Generating, Indexing and Searching Embeddings (Experimental)</span></a> for more details.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This function is currently <strong>experimental</strong> and the interface is
+subject to change.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="embedding.html#experimental.embedding.Embedding" title="experimental.embedding.Embedding">Embedding</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.from_files">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parser</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.from_files" title="Permalink to this definition"></a></dt>
+<dd><p>Create a DataFrame with data read from files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>files</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – list of file paths. Each path ends with the path of the
+same file on client, without links resolved.</p></li>
+<li><p><strong>parser</strong> (<a class="reference internal" href="func.html#func.NormalFunction" title="func.NormalFunction"><em>NormalFunction</em></a>) – a UDF that parses the given files on server. The UDF is required to
+- take the file path as its only argument and
+- returns a set of parsed records in the returing DataFrame.</p></li>
+<li><p><strong>db</strong> (<em>Database</em>) – Database that the DataFrame to be created in.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame containing the parsed data from the given files.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dataframe.DataFrame" title="dataframe.DataFrame">DataFrame</a></p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This function is currently <strong>experimental</strong> and the interface is
+subject to change.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataframe.DataFrame.describe">
+<span class="sig-name descname"><span class="pre">describe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataframe.DataFrame.describe" title="Permalink to this definition"></a></dt>
+<dd><p>Return a dictionary summarising the column information of the dataframe, conditional on the table existing in the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dictionary containing the column names and types.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict[str, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="db.html" class="btn btn-neutral float-left" title="Database" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="expr.html" class="btn btn-neutral float-right" title="Expression" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, VMware.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
